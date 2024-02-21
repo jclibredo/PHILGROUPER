@@ -38,10 +38,10 @@ import javax.ws.rs.core.MediaType;
 @Path("Grouper")
 @RequestScoped
 public class Grouper {
-
+    
     public Grouper() {
     }
-
+    
     @Resource(lookup = "jdbc/drgsbuser")
     private DataSource datasource;
     private final Utility utility = new Utility();
@@ -97,7 +97,7 @@ public class Grouper {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-
+        
         try {
             for (int g = 0; g < grouperparameter.size(); g++) {
                 DRGOutput drgresult = utility.DRGOutput();
@@ -125,11 +125,9 @@ public class Grouper {
                 //END PRIMARY CODES VALIDATION
                 //  AGE VALIDATION AND GENDER
                 if (newGrouperParam.getGender().trim().isEmpty()) {
-                    // errors.add("Patient sex is required");
                     drgresult.setDRG("26509");
                     drgresult.setDRGName("Invalid sex , Patient sex is required");
                 } else if (!Arrays.asList(sex).contains(newGrouperParam.getGender().toUpperCase())) {
-                    // errors.add("Patient sex " + newGrouperParam.getGender() + " is not valid");
                     drgresult.setDRG("26509");
                     drgresult.setDRGName("Patient sex is not valid");
                 }
@@ -140,7 +138,6 @@ public class Grouper {
                     } else {
                         if (drgutility.ComputeYear(newGrouperParam.getBirthDate(), newGrouperParam.getAdmissionDate()) <= 0
                                 && drgutility.ComputeDay(newGrouperParam.getBirthDate(), newGrouperParam.getAdmissionDate()) < 0) {
-                            // errors.add("DateofBirth Must be less than or equal to AdmissionDate : ");
                             drgresult.setDRG("26539");
                             drgresult.setDRGName("Invalid age");
                         }
@@ -160,7 +157,6 @@ public class Grouper {
                         drgresult.setDRG("26549");
                         drgresult.setDRGName("Invalid LOS");
                     } else {
-
                         int oras = drgutility.ComputeTime(
                                 newGrouperParam.getAdmissionDate(),
                                 drgutility.Convert24to12(newGrouperParam.getTimeAdmission()),
@@ -179,14 +175,12 @@ public class Grouper {
                                 drgutility.Convert24to12(newGrouperParam.getTimeAdmission()),
                                 newGrouperParam.getDischargeDate(),
                                 drgutility.Convert24to12(newGrouperParam.getTimeDischarge())) == 0) {
-
+                            
                             if (araw <= 0 && oras < 0) {
-                                //errors.add("AdmissionTime Greater than DischargeTime not valid in same date");
                                 drgresult.setDRG("26549");
                                 drgresult.setDRGName("Invalid LOS");
                             }
                         } else if (taon <= 0 && araw < 0) {
-                            // errors.add("DischargeDat Must be greater than or equal to AdmissionDate");
                             drgresult.setDRG("26549");
                             drgresult.setDRGName("Invalid LOS");
                         }
@@ -194,46 +188,37 @@ public class Grouper {
                 }
                 //END LOS VALIDATION MUST NOT BE LESS THAN 6 HOURS
                 //REQUIRED DATE DATA NEEDED FOR GROUPER
-                if (newGrouperParam.getAdmissionDate().isEmpty()) { //GET THE DATE OF ADMISSION
-                    //errors.add("AdmissionDate is required");
+                if (newGrouperParam.getAdmissionDate().isEmpty()) { 
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 } else if (!utility.IsValidDate(newGrouperParam.getAdmissionDate())) {
-                    //errors.add("AdmissionDate " + newGrouperParam.getAdmissionDate().trim() + ",is Invalid");
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 }
-                if (newGrouperParam.getDischargeDate().isEmpty()) { //GET THE DISCHARGE DATA
-                    //errors.add("DischargeDate is required");
+                if (newGrouperParam.getDischargeDate().isEmpty()) { 
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("DischargeDate is required");
                 } else if (!utility.IsValidDate(newGrouperParam.getDischargeDate())) {
-                    //errors.add("DischargeDate " + newGrouperParam.getDischargeDate().trim() + ",is Invalid");
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 }
-                if (newGrouperParam.getBirthDate().isEmpty()) { //GET THE DATE OF BIRTH
-                    //  errors.add("DateofBirth is required");
+                if (newGrouperParam.getBirthDate().isEmpty()) { 
                     drgresult.setDRG("26539");
                     drgresult.setDRGName("Invalid Age");
                 } else if (!utility.IsValidDate(newGrouperParam.getBirthDate())) {
-                    //  errors.add("DateofBirth " + newGrouperParam.getBirthDate().trim() + ",is Invalid");
                     drgresult.setDRG("26539");
                     drgresult.setDRGName("Invalid Age");
                 }
                 //END REQUIRED DATE DATA NEEDED FOR GROUPER
                 // GET THE TIME DATA REQUIRED FOR THE GROUPER
-                if (newGrouperParam.getTimeAdmission().isEmpty()) { //GET THE DATE OF ADMISSION
-                    // errors.add("TimeAdmission is required");
+                if (newGrouperParam.getTimeAdmission().isEmpty()) { 
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 } else if (!utility.IsValidTime(newGrouperParam.getTimeAdmission())) {
-                    // errors.add("TimeAdmission " + newGrouperParam.getTimeAdmission().trim() + ",is Invalid");
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 }
                 if (newGrouperParam.getTimeDischarge().isEmpty()) { //GET THE DATE OF ADMISSION
-                    //errors.add("TimeDischarge is required : " + newGrouperParam.getTimeDischarge());
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 } else if (!utility.IsValidTime(newGrouperParam.getTimeDischarge())) {
@@ -243,14 +228,11 @@ public class Grouper {
                 // END GET THE TIME DATA REQUIRED FOR THE GROUPER
                 //VALIDATION FOR NEW BORN DATA
                 if (newGrouperParam.getDischargeType().isEmpty()) {
-                    //errors.add("DischargeType is required");
                     drgresult.setDRG("26509");
                     drgresult.setDRGName("Disposition is empty");
                 } else if (!Arrays.asList(disposition).contains(newGrouperParam.getDischargeType())) {
-                    // errors.add("DischargeType " + newGrouperParam.getDischargeType() + " is invalid");
                     drgresult.setDRG("26509");
                     drgresult.setDRGName("Disposition is not valid");
-                    // errors.add("222");
                 }
                 if (!newGrouperParam.getBirthDate().isEmpty() && !newGrouperParam.getAdmissionDate().isEmpty()) {
                     if (!utility.IsValidDate(newGrouperParam.getBirthDate()) || !utility.IsValidDate(newGrouperParam.getAdmissionDate())) {
@@ -266,14 +248,13 @@ public class Grouper {
                                     drgresult.setDRGName("Admission Weight less than 0.3 kg is not valid");
                                 }
                             } else {
-                                // errors.add("NewBordAdmWeight is required");
                                 drgresult.setDRG("26509");
                                 drgresult.setDRGName("Admission Weight is empty");
                             }
                         }
                     }
                 }
-
+                
                 if (drgresult.getDRG() != null) {
                     DRGWSResult updatedrgresult = gm.UpdateDRGResult(datasource,
                             drgresult.getMDC(),
@@ -285,7 +266,7 @@ public class Grouper {
                     singleresult.setMessage(updatedrgresult.getMessage());
                     singleresult.setSuccess(true);
                     singleresult.setResult(utility.objectMapper().writeValueAsString(drgresult));
-
+                    
                 } else {
                     //=================END OF VALIDATION AREA ================================
                     DRGWSResult validateresult = vfm.ValidateFindMDC(datasource, newGrouperParam);
@@ -299,7 +280,6 @@ public class Grouper {
                                 newGrouperParam.getResult_id(),
                                 newGrouperParam.getClaimseries(),
                                 drgResults.getDRG());
-
                         singleresult.setSuccess(true);
                         singleresult.setResult(drgResults.getDRG());
                         String dataResult = "DRG:" + drgResults.getDRG() + "|MDC:" + drgResults.getMDC();
@@ -309,7 +289,6 @@ public class Grouper {
                                 dataResult,
                                 "SUCCESS");
                         //DRG Grouper Auditrail
-
                         singleresult.setMessage(updatedrgresult.getMessage() + " LOGS:" + grouperauditrail.getMessage());
                         resultdata.add(singleresult);
                     } else {
@@ -331,12 +310,12 @@ public class Grouper {
                 result.setMessage("Grouper Process : " + grouperparameter.size() + " DRG Claims");
                 result.setResult(resultdata.toString());
             } else {
-                result.setMessage("NO AVAILABLE DATA TO PROCESS");
+                result.setMessage("NO DATA AVAILABLE TO PROCESS");
                 result.setResult("");
             }
             result.setSuccess(true);
         } catch (IOException | ParseException ex) {
-            result.setMessage(ex.toString() + " YOUR HERE");
+            result.setMessage(ex.toString());
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -363,6 +342,7 @@ public class Grouper {
                 result.setSuccess(getgrouperresult.isSuccess());
             }
         } catch (Exception ex) {
+            result.setMessage(ex.toString());
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -416,9 +396,9 @@ public class Grouper {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-
+        
         try {
-
+            
             DRGOutput drgresult = utility.DRGOutput();
             GrouperParameter newGrouperParam = utility.GrouperParameter();
             //======================== TIME FORMAT CONVERTER ==============================
@@ -439,26 +419,20 @@ public class Grouper {
             newGrouperParam.setDischargeType(grouperparameter.getDischargeType());
             newGrouperParam.setAdmissionWeight(grouperparameter.getAdmissionWeight());
             //===================VALIDATION AREA ==================================
-
             //END PRIMARY CODES VALIDATION
-            //  AGE VALIDATION AND GENDER
             if (newGrouperParam.getGender().trim().isEmpty()) {
-                // errors.add("Patient sex is required");
                 drgresult.setDRG("26509");
                 drgresult.setDRGName("Invalid sex , Patient sex is required");
             } else if (!Arrays.asList(sex).contains(newGrouperParam.getGender().toUpperCase())) {
-                // errors.add("Patient sex " + newGrouperParam.getGender() + " is not valid");
                 drgresult.setDRG("26509");
                 drgresult.setDRGName("Patient sex is not valid");
             }
-//----------------------------------------------------------------
             //LOS VALIDATION MUST NOT BE LESS THAN 6 HOURS
             if (!newGrouperParam.getBirthDate().isEmpty() && !newGrouperParam.getAdmissionDate().isEmpty()) {
                 if (!utility.IsValidDate(newGrouperParam.getBirthDate()) || !utility.IsValidDate(newGrouperParam.getAdmissionDate())) {
                 } else {
                     if (drgutility.ComputeYear(newGrouperParam.getBirthDate(), newGrouperParam.getAdmissionDate()) <= 0
                             && drgutility.ComputeDay(newGrouperParam.getBirthDate(), newGrouperParam.getAdmissionDate()) < 0) {
-                        // errors.add("DateofBirth Must be less than or equal to AdmissionDate : ");
                         drgresult.setDRG("26539");
                         drgresult.setDRGName("Invalid age");
                     }
@@ -478,7 +452,6 @@ public class Grouper {
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 } else {
-
                     int oras = drgutility.ComputeTime(
                             newGrouperParam.getAdmissionDate(),
                             drgutility.Convert24to12(newGrouperParam.getTimeAdmission()),
@@ -497,14 +470,11 @@ public class Grouper {
                             drgutility.Convert24to12(newGrouperParam.getTimeAdmission()),
                             newGrouperParam.getDischargeDate(),
                             drgutility.Convert24to12(newGrouperParam.getTimeDischarge())) == 0) {
-
                         if (araw <= 0 && oras < 0) {
-                            //errors.add("AdmissionTime Greater than DischargeTime not valid in same date");
                             drgresult.setDRG("26549");
                             drgresult.setDRGName("Invalid LOS");
                         }
                     } else if (taon <= 0 && araw < 0) {
-                        // errors.add("DischargeDat Must be greater than or equal to AdmissionDate");
                         drgresult.setDRG("26549");
                         drgresult.setDRGName("Invalid LOS");
                     }
@@ -512,46 +482,37 @@ public class Grouper {
             }
             //END LOS VALIDATION MUST NOT BE LESS THAN 6 HOURS
             //REQUIRED DATE DATA NEEDED FOR GROUPER
-            if (newGrouperParam.getAdmissionDate().isEmpty()) { //GET THE DATE OF ADMISSION
-                //errors.add("AdmissionDate is required");
+            if (newGrouperParam.getAdmissionDate().isEmpty()) {
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             } else if (!utility.IsValidDate(newGrouperParam.getAdmissionDate())) {
-                //errors.add("AdmissionDate " + newGrouperParam.getAdmissionDate().trim() + ",is Invalid");
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             }
-            if (newGrouperParam.getDischargeDate().isEmpty()) { //GET THE DISCHARGE DATA
-                //errors.add("DischargeDate is required");
+            if (newGrouperParam.getDischargeDate().isEmpty()) {                
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("DischargeDate is required");
             } else if (!utility.IsValidDate(newGrouperParam.getDischargeDate())) {
-                //errors.add("DischargeDate " + newGrouperParam.getDischargeDate().trim() + ",is Invalid");
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             }
-            if (newGrouperParam.getBirthDate().isEmpty()) { //GET THE DATE OF BIRTH
-                //  errors.add("DateofBirth is required");
+            if (newGrouperParam.getBirthDate().isEmpty()) {                
                 drgresult.setDRG("26539");
                 drgresult.setDRGName("Invalid Age");
             } else if (!utility.IsValidDate(newGrouperParam.getBirthDate())) {
-                //  errors.add("DateofBirth " + newGrouperParam.getBirthDate().trim() + ",is Invalid");
                 drgresult.setDRG("26539");
                 drgresult.setDRGName("Invalid Age");
             }
             //END REQUIRED DATE DATA NEEDED FOR GROUPER
             // GET THE TIME DATA REQUIRED FOR THE GROUPER
-            if (newGrouperParam.getTimeAdmission().isEmpty()) { //GET THE DATE OF ADMISSION
-                // errors.add("TimeAdmission is required");
+            if (newGrouperParam.getTimeAdmission().isEmpty()) {                
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             } else if (!utility.IsValidTime(newGrouperParam.getTimeAdmission())) {
-                // errors.add("TimeAdmission " + newGrouperParam.getTimeAdmission().trim() + ",is Invalid");
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             }
-            if (newGrouperParam.getTimeDischarge().isEmpty()) { //GET THE DATE OF ADMISSION
-                //errors.add("TimeDischarge is required : " + newGrouperParam.getTimeDischarge());
+            if (newGrouperParam.getTimeDischarge().isEmpty()) {                
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             } else if (!utility.IsValidTime(newGrouperParam.getTimeDischarge())) {
@@ -561,14 +522,11 @@ public class Grouper {
             // END GET THE TIME DATA REQUIRED FOR THE GROUPER
             //VALIDATION FOR NEW BORN DATA
             if (newGrouperParam.getDischargeType().isEmpty()) {
-                //errors.add("DischargeType is required");
                 drgresult.setDRG("26509");
                 drgresult.setDRGName("Disposition is empty");
             } else if (!Arrays.asList(disposition).contains(newGrouperParam.getDischargeType())) {
-                // errors.add("DischargeType " + newGrouperParam.getDischargeType() + " is invalid");
                 drgresult.setDRG("26509");
                 drgresult.setDRGName("Disposition is not valid");
-                // errors.add("222");
             }
             if (!newGrouperParam.getBirthDate().isEmpty() && !newGrouperParam.getAdmissionDate().isEmpty()) {
                 if (!utility.IsValidDate(newGrouperParam.getBirthDate()) || !utility.IsValidDate(newGrouperParam.getAdmissionDate())) {
@@ -584,14 +542,13 @@ public class Grouper {
                                 drgresult.setDRGName("Admission Weight less than 0.3 kg is not valid");
                             }
                         } else {
-                            // errors.add("NewBordAdmWeight is required");
                             drgresult.setDRG("26509");
                             drgresult.setDRGName("Admission Weight is empty");
                         }
                     }
                 }
             }
-
+            
             if (drgresult.getDRG() != null) {
                 result.setMessage("UNGROUPABLE DRG CODES");
                 result.setSuccess(true);
@@ -617,5 +574,5 @@ public class Grouper {
         }
         return result;
     }
-
+    
 }
