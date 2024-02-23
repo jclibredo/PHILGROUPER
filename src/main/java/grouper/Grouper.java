@@ -13,7 +13,11 @@ import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.TestParamObject;
 import grouper.utility.Utility;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,6 +103,7 @@ public class Grouper {
         result.setSuccess(false);
 
         try {
+            File path = new File("D:\\DRG Result Log Files\\LogFileForgrouperResult.txt");
             for (int g = 0; g < grouperparameter.size(); g++) {
                 DRGOutput drgresult = utility.DRGOutput();
                 DRGWSResult singleresult = utility.DRGWSResult();
@@ -263,9 +268,27 @@ public class Grouper {
                             newGrouperParam.getResult_id(),
                             newGrouperParam.getClaimseries(),
                             drgresult.getDRG());
-                    singleresult.setMessage(updatedrgresult.getMessage());
+                    // singleresult.setMessage(updatedrgresult.getMessage());
                     singleresult.setSuccess(true);
-                    singleresult.setResult(utility.objectMapper().writeValueAsString(drgresult));
+                    //singleresult.setResult(utility.objectMapper().writeValueAsString(drgresult));
+
+                    FileReader fr = new FileReader(path);
+                    ArrayList<String> oldContent;
+                    try (BufferedReader br = new BufferedReader(fr)) {
+                        String line;
+                        oldContent = new ArrayList<>();
+                        while ((line = br.readLine()) != null) {
+                            oldContent.add(line);
+                        }
+                    }
+
+                    try (PrintWriter pw = new PrintWriter(path)) {
+                        for (int a = 0; a < oldContent.size(); a++) {
+                            pw.write(oldContent.get(a) + "\n");
+                        }
+                        pw.write("MSG: Ungroupable ||DRG :" + drgresult.getDRG() + "\n");
+                        pw.flush();
+                    }
 
                 } else {
                     //=================END OF VALIDATION AREA ================================
@@ -281,20 +304,37 @@ public class Grouper {
                                 newGrouperParam.getClaimseries(),
                                 drgResults.getDRG());
                         singleresult.setSuccess(true);
-                        singleresult.setResult(drgResults.getDRG());
+                        // singleresult.setResult(drgResults.getDRG());
 
                         String dataResult = "DRG:" + drgResults.getDRG() + "|MDC:" + drgResults.getMDC();
-                        System.out.println(dataResult);
                         //DRG Grouper Auditrail
-                       // System.out.println(drgResults.getDRG());
                         DRGWSResult grouperauditrail = gm.InsertGrouperAuditTrail(datasource,
                                 newGrouperParam.getClaimseries(), newGrouperParam.getIdseries(),
                                 dataResult,
                                 "SUCCESS");
                         //DRG Grouper Auditrail
-                        singleresult.setMessage(updatedrgresult.getMessage() + " LOGS:" + grouperauditrail.getMessage());
-
+                        //singleresult.setMessage(updatedrgresult.getMessage() + " LOGS:" + grouperauditrail.getMessage());
                         resultdata.add(singleresult);
+                        
+                    //------------------------------ FILE WRITER PART--------------------------------
+                        FileReader fr = new FileReader(path);
+                        ArrayList<String> oldContent;
+                        try (BufferedReader br = new BufferedReader(fr)) {
+                            String line;
+                            oldContent = new ArrayList<>();
+                            while ((line = br.readLine()) != null) {
+                                oldContent.add(line);
+                            }
+                        }
+                        try (PrintWriter pw = new PrintWriter(path)) {
+                            for (int a = 0; a < oldContent.size(); a++) {
+                                pw.write(oldContent.get(a) + "\n");
+                            }
+                            pw.write("MDC" + drgResults.getMDC() + " || DRG:" + drgResults.getDRG() + "\n");
+                            pw.flush();
+                        }
+                    //------------------------------ FILE WRITER PART--------------------------------
+                    
                     } else {
                         //DRG Grouper Auditrail
                         DRGWSResult grouperauditrail = gm.InsertGrouperAuditTrail(datasource,
@@ -302,22 +342,23 @@ public class Grouper {
                                 validateresult.getMessage(),
                                 "FAILED");
                         //DRG Grouper Auditrail
-                        singleresult.setMessage(validateresult.getMessage() + " LOGS:" + grouperauditrail.getMessage());
+                        //singleresult.setMessage(validateresult.getMessage() + " LOGS:" + grouperauditrail.getMessage());
                         ///singleresult.setResult(utility.objectMapper().writeValueAsString(validateresult.getResult()));
                         singleresult.setSuccess(false);
                         resultdata.add(singleresult);
+
                     }
                 }
             }
-            result.setSuccess(true);
+
             if (grouperparameter.size() > 0) {
                 result.setMessage("Grouper Process : " + grouperparameter.size() + " DRG Claims");
-                result.setResult(resultdata.toString());
+                //result.setResult(resultdata.toString());
             } else {
                 result.setMessage("NO DATA AVAILABLE TO PROCESS");
-                result.setResult("");
             }
             result.setSuccess(true);
+
         } catch (IOException | ParseException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
