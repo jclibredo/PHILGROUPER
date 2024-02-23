@@ -177,11 +177,8 @@ public class GetValidatedPreMDC {
             if (!pdx.isEmpty()) {
                 sdxpdxnewlist.remove(pdx);
             }
-            
-            
+
             // START OF PARSING PART
-            
-            
             if (GetBMDC.isSuccess()) {
                 BMDCPreMDCResult bmdcResult = utility.objectMapper().readValue(GetBMDC.getResult(), BMDCPreMDCResult.class);
                 if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(), drgutility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0
@@ -294,16 +291,13 @@ public class GetValidatedPreMDC {
                 }
             }
             //END OF PARSING PART
-            
-            
-            
-            
-            
+
             if (drgResult.getDRG() == null) {
                 DRGWSResult getdcResult = getdc.ProcessMDC(datasource, drgResult, grouperparameter);
                 result.setMessage(getdcResult.getMessage());
                 result.setSuccess(getdcResult.isSuccess());
                 result.setResult(getdcResult.getResult());
+              
             } else {
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);

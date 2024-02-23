@@ -38,10 +38,10 @@ import javax.ws.rs.core.MediaType;
 @Path("Grouper")
 @RequestScoped
 public class Grouper {
-    
+
     public Grouper() {
     }
-    
+
     @Resource(lookup = "jdbc/drgsbuser")
     private DataSource datasource;
     private final Utility utility = new Utility();
@@ -97,7 +97,7 @@ public class Grouper {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        
+
         try {
             for (int g = 0; g < grouperparameter.size(); g++) {
                 DRGOutput drgresult = utility.DRGOutput();
@@ -175,7 +175,7 @@ public class Grouper {
                                 drgutility.Convert24to12(newGrouperParam.getTimeAdmission()),
                                 newGrouperParam.getDischargeDate(),
                                 drgutility.Convert24to12(newGrouperParam.getTimeDischarge())) == 0) {
-                            
+
                             if (araw <= 0 && oras < 0) {
                                 drgresult.setDRG("26549");
                                 drgresult.setDRGName("Invalid LOS");
@@ -188,21 +188,21 @@ public class Grouper {
                 }
                 //END LOS VALIDATION MUST NOT BE LESS THAN 6 HOURS
                 //REQUIRED DATE DATA NEEDED FOR GROUPER
-                if (newGrouperParam.getAdmissionDate().isEmpty()) { 
+                if (newGrouperParam.getAdmissionDate().isEmpty()) {
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 } else if (!utility.IsValidDate(newGrouperParam.getAdmissionDate())) {
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 }
-                if (newGrouperParam.getDischargeDate().isEmpty()) { 
+                if (newGrouperParam.getDischargeDate().isEmpty()) {
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("DischargeDate is required");
                 } else if (!utility.IsValidDate(newGrouperParam.getDischargeDate())) {
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 }
-                if (newGrouperParam.getBirthDate().isEmpty()) { 
+                if (newGrouperParam.getBirthDate().isEmpty()) {
                     drgresult.setDRG("26539");
                     drgresult.setDRGName("Invalid Age");
                 } else if (!utility.IsValidDate(newGrouperParam.getBirthDate())) {
@@ -211,7 +211,7 @@ public class Grouper {
                 }
                 //END REQUIRED DATE DATA NEEDED FOR GROUPER
                 // GET THE TIME DATA REQUIRED FOR THE GROUPER
-                if (newGrouperParam.getTimeAdmission().isEmpty()) { 
+                if (newGrouperParam.getTimeAdmission().isEmpty()) {
                     drgresult.setDRG("26549");
                     drgresult.setDRGName("Invalid LOS");
                 } else if (!utility.IsValidTime(newGrouperParam.getTimeAdmission())) {
@@ -254,7 +254,7 @@ public class Grouper {
                         }
                     }
                 }
-                
+
                 if (drgresult.getDRG() != null) {
                     DRGWSResult updatedrgresult = gm.UpdateDRGResult(datasource,
                             drgresult.getMDC(),
@@ -266,7 +266,7 @@ public class Grouper {
                     singleresult.setMessage(updatedrgresult.getMessage());
                     singleresult.setSuccess(true);
                     singleresult.setResult(utility.objectMapper().writeValueAsString(drgresult));
-                    
+
                 } else {
                     //=================END OF VALIDATION AREA ================================
                     DRGWSResult validateresult = vfm.ValidateFindMDC(datasource, newGrouperParam);
@@ -282,14 +282,18 @@ public class Grouper {
                                 drgResults.getDRG());
                         singleresult.setSuccess(true);
                         singleresult.setResult(drgResults.getDRG());
+
                         String dataResult = "DRG:" + drgResults.getDRG() + "|MDC:" + drgResults.getMDC();
+                        System.out.println(dataResult);
                         //DRG Grouper Auditrail
+                       // System.out.println(drgResults.getDRG());
                         DRGWSResult grouperauditrail = gm.InsertGrouperAuditTrail(datasource,
                                 newGrouperParam.getClaimseries(), newGrouperParam.getIdseries(),
                                 dataResult,
                                 "SUCCESS");
                         //DRG Grouper Auditrail
                         singleresult.setMessage(updatedrgresult.getMessage() + " LOGS:" + grouperauditrail.getMessage());
+
                         resultdata.add(singleresult);
                     } else {
                         //DRG Grouper Auditrail
@@ -299,7 +303,7 @@ public class Grouper {
                                 "FAILED");
                         //DRG Grouper Auditrail
                         singleresult.setMessage(validateresult.getMessage() + " LOGS:" + grouperauditrail.getMessage());
-                        singleresult.setResult(utility.objectMapper().writeValueAsString(validateresult.getResult()));
+                        ///singleresult.setResult(utility.objectMapper().writeValueAsString(validateresult.getResult()));
                         singleresult.setSuccess(false);
                         resultdata.add(singleresult);
                     }
@@ -396,9 +400,9 @@ public class Grouper {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        
+
         try {
-            
+
             DRGOutput drgresult = utility.DRGOutput();
             GrouperParameter newGrouperParam = utility.GrouperParameter();
             //======================== TIME FORMAT CONVERTER ==============================
@@ -489,14 +493,14 @@ public class Grouper {
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             }
-            if (newGrouperParam.getDischargeDate().isEmpty()) {                
+            if (newGrouperParam.getDischargeDate().isEmpty()) {
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("DischargeDate is required");
             } else if (!utility.IsValidDate(newGrouperParam.getDischargeDate())) {
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             }
-            if (newGrouperParam.getBirthDate().isEmpty()) {                
+            if (newGrouperParam.getBirthDate().isEmpty()) {
                 drgresult.setDRG("26539");
                 drgresult.setDRGName("Invalid Age");
             } else if (!utility.IsValidDate(newGrouperParam.getBirthDate())) {
@@ -505,14 +509,14 @@ public class Grouper {
             }
             //END REQUIRED DATE DATA NEEDED FOR GROUPER
             // GET THE TIME DATA REQUIRED FOR THE GROUPER
-            if (newGrouperParam.getTimeAdmission().isEmpty()) {                
+            if (newGrouperParam.getTimeAdmission().isEmpty()) {
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             } else if (!utility.IsValidTime(newGrouperParam.getTimeAdmission())) {
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             }
-            if (newGrouperParam.getTimeDischarge().isEmpty()) {                
+            if (newGrouperParam.getTimeDischarge().isEmpty()) {
                 drgresult.setDRG("26549");
                 drgresult.setDRGName("Invalid LOS");
             } else if (!utility.IsValidTime(newGrouperParam.getTimeDischarge())) {
@@ -548,7 +552,7 @@ public class Grouper {
                     }
                 }
             }
-            
+
             if (drgresult.getDRG() != null) {
                 result.setMessage("UNGROUPABLE DRG CODES");
                 result.setSuccess(true);
@@ -574,5 +578,5 @@ public class Grouper {
         }
         return result;
     }
-    
+
 }

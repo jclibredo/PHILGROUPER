@@ -75,7 +75,7 @@ public class GetMDC12 {
                 MalignantCount++;
             }
             // CHECKING ICD9 TO MDC START
-            int ICD9CMFindDC = 0;
+            //int ICD9CMFindDC = 0;
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int CartSDx = 0;
@@ -84,12 +84,13 @@ public class GetMDC12 {
             int CaCRxProc = 0;
             int PBX12Proc = 0;
             int PBX99Proc = 0;
+           
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y);
-                DRGWSResult getICD9Result = gm.GetICD9cm(datasource, procS);
-                if (String.valueOf(getICD9Result.isSuccess()).equals("true")) {
-                    ICD9CMFindDC++;
-                }
+//                DRGWSResult getICD9Result = gm.GetICD9cm(datasource, procS);
+//                if (String.valueOf(getICD9Result.isSuccess()).equals("true")) {
+//                    ICD9CMFindDC++;
+//                }
                 //AX 99PDX Checking
                 if (drgutility.isValid99PDX(procS)) {
                     PDXCounter99++;
