@@ -305,18 +305,17 @@ public class Grouper {
                                 drgResults.getDRG());
                         singleresult.setSuccess(true);
                         // singleresult.setResult(drgResults.getDRG());
-
                         String dataResult = "DRG:" + drgResults.getDRG() + "|MDC:" + drgResults.getMDC();
                         //DRG Grouper Auditrail
                         DRGWSResult grouperauditrail = gm.InsertGrouperAuditTrail(datasource,
                                 newGrouperParam.getClaimseries(), newGrouperParam.getIdseries(),
-                                dataResult,
+                                updatedrgresult.getMessage(),
                                 "SUCCESS");
                         //DRG Grouper Auditrail
                         //singleresult.setMessage(updatedrgresult.getMessage() + " LOGS:" + grouperauditrail.getMessage());
                         resultdata.add(singleresult);
-                        
-                    //------------------------------ FILE WRITER PART--------------------------------
+
+                        //------------------------------ FILE WRITER PART--------------------------------
                         FileReader fr = new FileReader(path);
                         ArrayList<String> oldContent;
                         try (BufferedReader br = new BufferedReader(fr)) {
@@ -333,8 +332,8 @@ public class Grouper {
                             pw.write("MDC" + drgResults.getMDC() + " || DRG:" + drgResults.getDRG() + "\n");
                             pw.flush();
                         }
-                    //------------------------------ FILE WRITER PART--------------------------------
-                    
+                        //------------------------------ FILE WRITER PART--------------------------------
+
                     } else {
                         //DRG Grouper Auditrail
                         DRGWSResult grouperauditrail = gm.InsertGrouperAuditTrail(datasource,
