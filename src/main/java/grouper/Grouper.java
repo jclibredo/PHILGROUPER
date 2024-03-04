@@ -101,7 +101,6 @@ public class Grouper {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-
         try {
             File path = new File("D:\\DRG Result Log Files\\LogFileForgrouperResult.txt");
             for (int g = 0; g < grouperparameter.size(); g++) {
@@ -271,7 +270,9 @@ public class Grouper {
                     // singleresult.setMessage(updatedrgresult.getMessage());
                     singleresult.setSuccess(true);
                     //singleresult.setResult(utility.objectMapper().writeValueAsString(drgresult));
+                    System.out.println(drgresult.getDRG());
 
+                    //------------------------------ FILE WRITER PART--------------------------------
                     FileReader fr = new FileReader(path);
                     ArrayList<String> oldContent;
                     try (BufferedReader br = new BufferedReader(fr)) {
@@ -286,10 +287,11 @@ public class Grouper {
                         for (int a = 0; a < oldContent.size(); a++) {
                             pw.write(oldContent.get(a) + "\n");
                         }
-                        pw.write("MSG: Ungroupable ||DRG :" + drgresult.getDRG() + "\n");
+                        pw.write("MSG: UNGR ||DRG :" + drgresult.getDRG() + "\n");
                         pw.flush();
                     }
 
+                    //------------------------------ FILE WRITER PART--------------------------------
                 } else {
                     //=================END OF VALIDATION AREA ================================
                     DRGWSResult validateresult = vfm.ValidateFindMDC(datasource, newGrouperParam);
@@ -304,9 +306,12 @@ public class Grouper {
                                 newGrouperParam.getClaimseries(),
                                 drgResults.getDRG());
                         singleresult.setSuccess(true);
+
                         // singleresult.setResult(drgResults.getDRG());
                         String dataResult = "DRG:" + drgResults.getDRG() + "|MDC:" + drgResults.getMDC();
                         //DRG Grouper Auditrail
+
+                        System.out.println(dataResult);
                         DRGWSResult grouperauditrail = gm.InsertGrouperAuditTrail(datasource,
                                 newGrouperParam.getClaimseries(), newGrouperParam.getIdseries(),
                                 updatedrgresult.getMessage(),
