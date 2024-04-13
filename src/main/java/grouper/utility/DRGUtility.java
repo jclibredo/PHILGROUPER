@@ -25,10 +25,9 @@ import javax.sql.DataSource;
 @ApplicationScoped
 @Singleton
 public class DRGUtility {
-
-    private java.sql.Date date;
-    SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.ENGLISH);
-    SimpleDateFormat time = new SimpleDateFormat("HH:mm");
+    
+    private final SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.ENGLISH);
+    private final SimpleDateFormat time = new SimpleDateFormat("HH:mm");
     private final Utility utility = new Utility();
     private final GrouperMethod gm = new GrouperMethod();
 

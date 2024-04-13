@@ -160,6 +160,7 @@ public class ValidateFindMDC {
                     result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                     result.setSuccess(true);
                 } else {
+
                     GrouperParameter Newgrouperparam = new GrouperParameter();
                     Newgrouperparam.setAdmissionDate(grouperparameter.getAdmissionDate());
                     Newgrouperparam.setAdmissionWeight(grouperparameter.getAdmissionWeight());
@@ -191,6 +192,7 @@ public class ValidateFindMDC {
                     result.setSuccess(getvalidatedpremdcResult.isSuccess());
                     result.setMessage(getvalidatedpremdcResult.getMessage());
                     result.setResult(getvalidatedpremdcResult.getResult());
+
                 }
             } else {
                 GrouperParameter Newgrouperparam = new GrouperParameter();
@@ -225,6 +227,7 @@ public class ValidateFindMDC {
                 result.setSuccess(getvalidatedpremdcResult.isSuccess());
                 result.setResult(getvalidatedpremdcResult.getResult());
                 result.setMessage(getvalidatedpremdcResult.getMessage());
+//                System.out.println(Newgrouperparam);
 
             }
             //====================================================================== 

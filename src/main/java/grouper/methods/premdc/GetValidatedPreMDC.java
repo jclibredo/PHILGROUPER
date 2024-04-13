@@ -37,7 +37,7 @@ public class GetValidatedPreMDC {
     private final ProcessMDC getdc = new ProcessMDC();
     private final GrouperMethod gm = new GrouperMethod();
 
-    public DRGWSResult GetValidatedPreMDC(final DataSource datasource, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetValidatedPreMDC(final DataSource datasource, final GrouperParameter grouperparameter) throws ParseException, IOException {
         DRGWSResult result = utility.DRGWSResult();
         DRGOutput drgResult = new DRGOutput();
         result.setSuccess(false);
@@ -46,15 +46,18 @@ public class GetValidatedPreMDC {
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().trim().split(","));
         List<String> SDxList = Arrays.asList(grouperparameter.getSdx().trim().split(","));
         String pdx = "";
+
         try {
-            String Days = String.valueOf(drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
-            String Years = String.valueOf(drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
-            DRGWSResult icd10SortResult = gm.GetICD10(datasource, grouperparameter.getPdx(), Days, Years, grouperparameter.getGender());
+        String Days = String.valueOf(drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+        String Years = String.valueOf(drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+        DRGWSResult icd10SortResult = gm.GetICD10(datasource, grouperparameter.getPdx(), Days, Years, grouperparameter.getGender());
+      
             ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(icd10SortResult.getResult(), ICD10PreMDCResult.class);
             DRGWSResult GetBMDC = gm.GetBMDC(datasource, grouperparameter.getPdx());
             int TraumaCounterPDXO = 0;
             int TraumaCounterPDX1 = 0;
             DRGWSResult TraumaPrimary = gm.TRAUMAICD10(datasource, grouperparameter.getPdx());
+          
             if (TraumaPrimary.isSuccess()) {
                 if (!TraumaPrimary.getResult().equals("0")) {
                     TraumaCounterPDX1++;
@@ -297,17 +300,18 @@ public class GetValidatedPreMDC {
                 result.setMessage(getdcResult.getMessage());
                 result.setSuccess(getdcResult.isSuccess());
                 result.setResult(getdcResult.getResult());
-              
+
             } else {
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
                 result.setMessage("Grouper Done in Pre-MDC level only");
             }
-
-        } catch (ParseException | IOException | NullPointerException ex) {
+          
+        } catch (IOException | ParseException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GetValidatedPreMDC.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return result;
     }
 }

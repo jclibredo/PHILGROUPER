@@ -5,6 +5,7 @@
  */
 package grouper.utility;
 
+import grouper.Grouper;
 import grouper.structures.BMDCPreMDCResult;
 import grouper.structures.CCL;
 import grouper.structures.CombinationCode;
@@ -27,7 +28,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections; 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -62,6 +63,33 @@ public class GrouperMethod {
             }
         }
         return newList;
+    }
+
+    //GET ICD10 FOR KEY VALUE PAIR VALIDATION
+    public DRGWSResult GetICD10(final DataSource datasource, final String p_icd10_code) {
+        DRGWSResult result = utility.DRGWSResult();
+        try (Connection connection = datasource.getConnection()) {
+            result.setSuccess(false);
+            result.setMessage("");
+            result.setResult("");
+            CallableStatement statement = connection.prepareCall("begin :p_validcode := MINOSUN.DRGPKGFUNCTION.get_valid_icd10(:p_icd10_code); end;");
+            statement.registerOutParameter("p_validcode", OracleTypes.CURSOR);
+            statement.setString("p_icd10_code", p_icd10_code);
+            statement.execute();
+            ResultSet resultset = (ResultSet) statement.getObject("p_validcode");
+            if (resultset.next()) {
+                result.setSuccess(true);
+                result.setResult(resultset.getString("validcode"));
+                result.setMessage("Record Found");
+            } else {
+                result.setSuccess(false);
+                result.setMessage("No ICD10 Record Found");
+            }
+        } catch (SQLException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
     }
 
     //public MethodResult GET ACCPDX VALUE FROM ICD10_PREMDC TABLE
@@ -218,6 +246,7 @@ public class GrouperMethod {
             getDRGParam.execute();
             ResultSet getDRGParamResult = (ResultSet) getDRGParam.getObject("drgresult");
             while (getDRGParamResult.next()) {
+
                 GrouperParameter ggrouperparameter = new GrouperParameter();
                 DRGRESULT drgresultparam = new DRGRESULT();
                 //======================================================GET GROUPER RESULT
@@ -335,19 +364,33 @@ public class GrouperMethod {
                 }
                 grouperparameterlsit.add(ggrouperparameter);
             }
+            //========================================================================
 
+//            Grouper grouper = new Grouper();
+//            DRGWSResult gpList = grouper.ProcessGrouperParameter(grouperparameterlsit);
+//            if (gpList.isSuccess()) {
+//                result.setMessage(gpList.getMessage());
+//                result.setResult(gpList.getResult());
+//                result.setSuccess(gpList.isSuccess());
+//            } else {
+//                result.setMessage(gpList.getMessage());
+//            }
+
+//            asd.ProcessGrouperParameter(grouperparameterlsit);
+//        ProcessGrouperParameter(grouperparameterlsit);
             RequestBody requestbody = RequestBody.create(utility.objectMapper().writeValueAsString(grouperparameterlsit), okhttp3.MediaType.parse("application/json; charset=utf-8"));
             Request request = new Request.Builder().url(utility.GetString("Grouper") + "ProcessGrouperParameter").addHeader("Content-Type", "application/json").post(requestbody).build();
             okhttp3.Response response = utility.OkHttpClient().newCall(request).execute();
             if (response.isSuccessful()) {
-               result = utility.objectMapper().readValue(response.body().string(), DRGWSResult.class);
+                result = utility.objectMapper().readValue(response.body().string(), DRGWSResult.class);
             } else {
                 result.setMessage(response.body().string());
             }
-
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
 
         return result;
@@ -372,7 +415,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 
@@ -410,7 +455,9 @@ public class GrouperMethod {
 
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -426,9 +473,11 @@ public class GrouperMethod {
             ResultSet rest = (ResultSet) getResult.getObject("count_output");
             if (rest.next()) {
                 icd9 = Integer.parseInt(rest.getString("countrest"));
+
             }
         } catch (SQLException ex) {
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GrouperMethod.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
         return icd9;
 
@@ -459,7 +508,9 @@ public class GrouperMethod {
             result.setSuccess(true);
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -480,7 +531,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -515,7 +568,9 @@ public class GrouperMethod {
 
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -552,7 +607,9 @@ public class GrouperMethod {
             result.setMessage(auditrail.getString("Message"));
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -629,7 +686,9 @@ public class GrouperMethod {
 
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -650,7 +709,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -692,7 +753,9 @@ public class GrouperMethod {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
 
         return result;
@@ -721,7 +784,9 @@ public class GrouperMethod {
             result.setResult(utility.objectMapper().writeValueAsString(bmdcResult));
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -752,7 +817,9 @@ public class GrouperMethod {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -804,7 +871,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result = ex.toString();
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -830,7 +899,9 @@ public class GrouperMethod {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -863,7 +934,9 @@ public class GrouperMethod {
             }
         } catch (IOException | SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -903,7 +976,9 @@ public class GrouperMethod {
 
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -945,7 +1020,9 @@ public class GrouperMethod {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -967,7 +1044,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -990,7 +1069,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1019,7 +1100,9 @@ public class GrouperMethod {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1051,7 +1134,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1076,7 +1161,9 @@ public class GrouperMethod {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1099,7 +1186,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1121,7 +1210,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 
@@ -1144,7 +1235,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 
@@ -1166,7 +1259,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1192,7 +1287,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1216,7 +1313,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1241,7 +1340,9 @@ public class GrouperMethod {
 
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1277,7 +1378,9 @@ public class GrouperMethod {
 
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1301,7 +1404,9 @@ public class GrouperMethod {
 
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1325,7 +1430,9 @@ public class GrouperMethod {
 
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1349,7 +1456,9 @@ public class GrouperMethod {
 
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1374,7 +1483,9 @@ public class GrouperMethod {
 
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1445,7 +1556,9 @@ public class GrouperMethod {
 
         } catch (NumberFormatException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1465,9 +1578,11 @@ public class GrouperMethod {
                 int x = Integer.parseInt(dccol);
                 String cclval = longstring.substring(x - 1, Integer.parseInt(dccol));
                 result = Integer.parseInt(cclval);
+
             }
         } catch (SQLException ex) {
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GrouperMethod.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1492,7 +1607,9 @@ public class GrouperMethod {
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1708,7 +1825,9 @@ public class GrouperMethod {
 
         } catch (NumberFormatException ex) {
             result = ex.toString();
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1762,7 +1881,9 @@ public class GrouperMethod {
 
         } catch (NumberFormatException ex) {
             result = ex.toString();
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger
+                    .getLogger(GrouperMethod.class
+                            .getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
