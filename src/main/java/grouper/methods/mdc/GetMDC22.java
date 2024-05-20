@@ -8,7 +8,6 @@ package grouper.methods.mdc;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -31,8 +30,6 @@ public class GetMDC22 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC22(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -41,6 +38,7 @@ public class GetMDC22 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
             ArrayList<String> sdxfinder = new ArrayList<>();
             int PDXCounter99 = 0;
@@ -48,11 +46,11 @@ public class GetMDC22 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
                 //AX 99PDX Checking
-                if (drgutility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc)) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (drgutility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc)) {
                     PCXCounter99++;
                 }
             }
@@ -106,9 +104,9 @@ public class GetMDC22 {
                 Counter22BPDx++;
             }
             if (PDXCounter99 > 0) {
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (Counter22ASDx > 0 || Counter22APDx > 0) {
                         if (Counter22PA > 0) {
                             drgResult.setDC("2201");
@@ -174,7 +172,7 @@ public class GetMDC22 {
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

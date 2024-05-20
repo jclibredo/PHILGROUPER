@@ -10,7 +10,6 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -35,8 +34,6 @@ public class GetMDC11 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC11(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -45,6 +42,7 @@ public class GetMDC11 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
 
             //CHECKING FOR TRAUMA CODES
@@ -66,22 +64,22 @@ public class GetMDC11 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
 
-                if (drgutility.isValid99PEX(proc)) {
+                if (utility.isValid99PEX(proc)) {
                     CartProc++;
                 }
-                if (drgutility.isValid99PFX(proc)) {
+                if (utility.isValid99PFX(proc)) {
                     CaCRxProc++;
                 }
                 //AX 99PDX Checking
-                if (drgutility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc)) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (drgutility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc)) {
                     PCXCounter99++;
                 }
                 //AX 11PBX Checking
-                if (drgutility.isValid11PBX(proc)) {
+                if (utility.isValid11PBX(proc)) {
                     Counter11PBX++;
                 }
                 DRGWSResult Result11PCX = gm.AX(datasource, AX11PCX, proc);
@@ -111,10 +109,10 @@ public class GetMDC11 {
 
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
-                if (drgutility.isValid99BX(Secon)) {
+                if (utility.isValid99BX(Secon)) {
                     CartSDx++;
                 }
-                if (drgutility.isValid99CX(Secon)) {
+                if (utility.isValid99CX(Secon)) {
                     CaCRxSDx++;
                 }
             }
@@ -128,8 +126,8 @@ public class GetMDC11 {
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(), drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -235,18 +233,18 @@ public class GetMDC11 {
                                 break;
 
                             case "11A"://Chronic Renal Failure
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(),
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                         grouperparameter.getAdmissionDate()) >= 17
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("1150");
                                 } else {
                                     drgResult.setDC("1151");
                                 }
                                 break;
                             case "11J"://Acute Renal Failure
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(),
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                         grouperparameter.getAdmissionDate()) >= 17
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     if (grouperparameter.getDischargeType().equals("4")) {
                                         drgResult.setDC("1167");
                                     } else {
@@ -396,16 +394,16 @@ public class GetMDC11 {
                         }
                         break;
                     case "11A"://Chronic Renal Failure
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("1150");
                         } else {
                             drgResult.setDC("1151");
                         }
                         break;
                     case "11J"://Acute Renal Failure
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             if (grouperparameter.getDischargeType().equals("4")) {
                                 drgResult.setDC("1167");
                             } else {
@@ -446,7 +444,7 @@ public class GetMDC11 {
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

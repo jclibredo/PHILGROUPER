@@ -5,7 +5,6 @@
  */
 package grouper.methods.mdc;
 
-
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
@@ -34,8 +33,6 @@ public class GetMDC05 {
     public GetMDC05() {
     }
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC05(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -44,6 +41,7 @@ public class GetMDC05 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
             //CHECKING FOR TRAUMA CODES
             ArrayList<String> sdxfinder = new ArrayList<>();
@@ -52,11 +50,11 @@ public class GetMDC05 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
                 //AX 99PDX Checking
-                if (drgutility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc)) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (drgutility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc)) {
                     PCXCounter99++;
                 }
             }
@@ -64,7 +62,7 @@ public class GetMDC05 {
             int Counter5PEX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc5PEX = ProcedureList.get(x);
-                if (drgutility.isValid5PEX(proc5PEX)) {
+                if (utility.isValid5PEX(proc5PEX)) {
                     Counter5PEX++;
                 }
             }
@@ -150,24 +148,24 @@ public class GetMDC05 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc5PDX = ProcedureList.get(x);
                 String proc5PCX = ProcedureList.get(x);
-                if (drgutility.isValid5PEX(proc5PCX)) {
+                if (utility.isValid5PEX(proc5PCX)) {
                     Counter5PCX++;
                 }
-                if (drgutility.isValid5PEX(proc5PDX)) {
+                if (utility.isValid5PEX(proc5PDX)) {
                     Counter5PFX++;
                 }
-                if (drgutility.isValid5PEX(proc5PDX)) {
+                if (utility.isValid5PEX(proc5PDX)) {
                     Counter5PDX++;
                 }
                 //AX 5PGX
-                if (drgutility.isValid5PEX(proc5PDX)) {
+                if (utility.isValid5PEX(proc5PDX)) {
                     Counter5PGX++;
                 }
                 //AX 5PGX
-                if (drgutility.isValid5PEX(proc5PDX)) {
+                if (utility.isValid5PEX(proc5PDX)) {
                     Counter5PHX++;
                 }
-                if (drgutility.isValid5PBX(proc5PDX)) {
+                if (utility.isValid5PBX(proc5PDX)) {
                     Counter5PJX++;
                 }
                 //Cardiac Cath PDC 5PT
@@ -176,7 +174,7 @@ public class GetMDC05 {
                     CardiacCount++;
                 }
                 //AX 5PBX
-                if (drgutility.isValid5PBX(proc5PDX)) {
+                if (utility.isValid5PBX(proc5PDX)) {
                     Counter5PBX++;
                 }
                 DRGWSResult getPPResult = gm.Endovasc(datasource, proc5PDX, pdc5PK, drgResult.getMDC());
@@ -193,10 +191,10 @@ public class GetMDC05 {
             }
             // THIS AREA WILL START THE CONDITIONAL STATEMENT FOR THIS MDC
             if (PDXCounter99 > 0) {
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
 
                     if (AMICount > 0) {
                         if (Counter5PEX > 0) {
@@ -706,9 +704,9 @@ public class GetMDC05 {
             }
             //PROCESS PCCL VALUE
             if (drgResult.getDRG() == null) {
-              
+
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

@@ -8,7 +8,6 @@ package grouper.methods.mdc;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -28,14 +27,13 @@ public class GetMDC20 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC20(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
 
             switch (drgResult.getPDC()) {
@@ -62,7 +60,7 @@ public class GetMDC20 {
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

@@ -8,7 +8,6 @@ package grouper.methods.mdc;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -32,8 +31,6 @@ public class GetMDC14 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC14(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws IOException {
         DRGWSResult result = utility.DRGWSResult();
@@ -42,7 +39,7 @@ public class GetMDC14 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-
+        GrouperMethod gm = new GrouperMethod();
         //14PDX Procedure Codes
         String PDX14 = "14PDX";
         String PFX14 = "14PFX";
@@ -73,13 +70,13 @@ public class GetMDC14 {
             if (ResultUnralated.isSuccess()) {
                 UnralatedORProcedure++;
             }
-            if (drgutility.isValid14PFX(procData)) {
+            if (utility.isValid14PFX(procData)) {
                 Counter14PFX++;
             }
-            if (drgutility.isValid14PGX(procData)) {
+            if (utility.isValid14PGX(procData)) {
                 Counter14PGX++;
             }
-            if (drgutility.isValid14PJX(procData)) {
+            if (utility.isValid14PJX(procData)) {
                 Counter14PJX++;
             }
             DRGWSResult Result14PEX = gm.AX(datasource, PEX14, procData);
@@ -131,19 +128,19 @@ public class GetMDC14 {
         int Counter14JX = 0;
 
         int ICD10mdcCounter = 0;
-        if (drgutility.isValid14KX(grouperparameter.getPdx())) {
+        if (utility.isValid14KX(grouperparameter.getPdx())) {
             Counter14KX++;
         }
 
         for (int a = 0; a < SecondaryList.size(); a++) {
             String SDxAxData = SecondaryList.get(a);
-            if (drgutility.isValid14EX(SDxAxData)) {
+            if (utility.isValid14EX(SDxAxData)) {
                 Counter14EX++;
             }
-            if (drgutility.isValid14DX(SDxAxData)) {
+            if (utility.isValid14DX(SDxAxData)) {
                 Counter14DX++;
             }
-            if (drgutility.isValid14DX(SDxAxData)) {
+            if (utility.isValid14DX(SDxAxData)) {
                 Counter14CX++;
             }
             DRGWSResult Result14BX = gm.AX(datasource, BX14, SDxAxData);

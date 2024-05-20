@@ -6,7 +6,6 @@ grouper\methods\mdc\GetMDC23.class
 grouper\structures\ICD10PreMDCResult.class
 grouper\ApplicationConfig.class
 grouper\structures\PreMDC.class
-grouper\utility\Utility$1.class
 grouper\structures\CombinationCode.class
 grouper\methods\mdc\GetMDC10.class
 grouper\methods\mdc\GetMDC20.class

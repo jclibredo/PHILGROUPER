@@ -10,13 +10,12 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collections; 
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,8 +33,6 @@ public class GetMDC16 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC16(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -44,6 +41,7 @@ public class GetMDC16 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
 
             //CHECKING FOR TRAUMA CODES
@@ -59,19 +57,19 @@ public class GetMDC16 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
                 //AX 16PBX Checking
-                if (drgutility.isValid16PBX(proc)) {
+                if (utility.isValid16PBX(proc)) {
                     Counter16PBX++;
                 }
                 //AX 99PDX Checking
-                if (drgutility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc)) {
                     PDXCounter99++;
                 }
                 //AX 99PBX Checking
-                if (drgutility.isValid99PBX(proc)) {
+                if (utility.isValid99PBX(proc)) {
                     PBXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (drgutility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc)) {
                     PCXCounter99++;
                 }
                 DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc);
@@ -93,10 +91,10 @@ public class GetMDC16 {
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 16
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -254,7 +252,7 @@ public class GetMDC16 {
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

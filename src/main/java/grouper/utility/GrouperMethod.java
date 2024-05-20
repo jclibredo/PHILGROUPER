@@ -5,7 +5,7 @@
  */
 package grouper.utility;
 
-import grouper.Grouper;
+import grouper.methods.premdc.ProcessGrouperParameter;
 import grouper.structures.BMDCPreMDCResult;
 import grouper.structures.CCL;
 import grouper.structures.CombinationCode;
@@ -38,14 +38,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import oracle.jdbc.OracleTypes;
 
 /**
  *
  * @author MinoSun
  */
+//@ApplicationScoped
+//@Singleton
 @RequestScoped
 public class GrouperMethod {
 
@@ -82,7 +82,6 @@ public class GrouperMethod {
                 result.setResult(resultset.getString("validcode"));
                 result.setMessage("Record Found");
             } else {
-                result.setSuccess(false);
                 result.setMessage("No ICD10 Record Found");
             }
         } catch (SQLException ex) {
@@ -95,6 +94,9 @@ public class GrouperMethod {
     //public MethodResult GET ACCPDX VALUE FROM ICD10_PREMDC TABLE
     public DRGWSResult GetClaimDuplication(final DataSource datasource, final String accre, final String claimnum) {
         DRGWSResult result = utility.DRGWSResult();
+        result.setSuccess(false);
+        result.setMessage("");
+        result.setResult("");
         try (Connection connection = datasource.getConnection()) {
             CallableStatement getduplication = connection.prepareCall("begin :dupnclaims := MINOSUN.DRGPKGFUNCTION.GET_CHECK_DUPLICATE(:claimnum,:accre); end;");
             getduplication.registerOutParameter("dupnclaims", OracleTypes.CURSOR);
@@ -105,7 +107,7 @@ public class GrouperMethod {
             if (getduplicationResult.next()) {
                 result.setSuccess(true);
             } else {
-                result.setSuccess(false);
+                result.setMessage("N/A");
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
@@ -128,7 +130,7 @@ public class GrouperMethod {
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("pdxmdc");
             if (resultset.next()) {
-                result.setSuccess(true);
+
                 ICD10PreMDCResult premdc = new ICD10PreMDCResult();
                 premdc.setAccPDX(resultset.getString("ACCPDX"));
                 premdc.setAgeDMin(resultset.getString("AGEDMIN"));
@@ -144,9 +146,11 @@ public class GrouperMethod {
                 premdc.setPDC(resultset.getString("PDC"));
                 premdc.setSex(resultset.getString("SEX"));
                 premdc.setTrauma(resultset.getString("TRAUMA"));
+                result.setSuccess(true);
+                result.setMessage("OK");
                 result.setResult(utility.objectMapper().writeValueAsString(premdc));
             } else {
-                result.setSuccess(false);
+                result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
@@ -168,7 +172,6 @@ public class GrouperMethod {
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("accpdxs");
             if (resultset.next()) {
-                result.setSuccess(true);
                 ICD10PreMDCResult premdc = new ICD10PreMDCResult();
                 premdc.setAccPDX(resultset.getString("ACCPDX"));
                 premdc.setAgeDMin(resultset.getString("AGEDMIN"));
@@ -186,6 +189,7 @@ public class GrouperMethod {
                 premdc.setTrauma(resultset.getString("TRAUMA"));
                 result.setResult(utility.objectMapper().writeValueAsString(premdc));
                 result.setMessage(resultset.getString("CCROW"));
+                result.setSuccess(true);
             } else {
                 result.setSuccess(false);
             }
@@ -220,7 +224,7 @@ public class GrouperMethod {
                 result.setResult(ProcListNew);
                 result.setSuccess(true);
             } else {
-                result.setSuccess(false);
+                result.setMessage("N/A");
             }
 
         } catch (SQLException ex) {
@@ -236,6 +240,7 @@ public class GrouperMethod {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        ArrayList<String> errorList = new ArrayList<>();
         SimpleDateFormat timeformat = utility.SimpleDateFormat("HH:mm");
         SimpleDateFormat dateformat = utility.SimpleDateFormat("MM-dd-yyyy");
         ArrayList<GrouperParameter> grouperparameterlsit = new ArrayList<>();
@@ -358,41 +363,36 @@ public class GrouperMethod {
                             ggrouperparameter.setDischargeType("2");
                             break;
                     }
+
+                    grouperparameterlsit.add(ggrouperparameter);
+
                 } else {
-                    result.setSuccess(false);
-                    result.setResult(getDRGParamResult.getString("CLAIMS_SERRIES") + " NOT FOUND");
+                    errorList.add(getDRGParamResult.getString("CLAIMS_SERRIES") + " NOT FOUND");
+                    //AUDIT TRAIL FOR NOT FOUND SERRIES
                 }
-                grouperparameterlsit.add(ggrouperparameter);
             }
-            //========================================================================
+            // System.out.println(grouperparameterlsit);
+            ArrayList<DRGOutput> drgresultList = new ArrayList<>();
+            ProcessGrouperParameter param = new ProcessGrouperParameter();
+            for (int y = 0; y < grouperparameterlsit.size(); y++) {
+                DRGWSResult processResult = param.ProcessGrouperParameter(datasource, grouperparameterlsit.get(y));
+                if (processResult.isSuccess()) {
+                    DRGOutput drgout = utility.objectMapper().readValue(processResult.getResult(), DRGOutput.class);
+                    drgresultList.add(drgout);
+                }
+            }
 
-//            Grouper grouper = new Grouper();
-//            DRGWSResult gpList = grouper.ProcessGrouperParameter(grouperparameterlsit);
-//            if (gpList.isSuccess()) {
-//                result.setMessage(gpList.getMessage());
-//                result.setResult(gpList.getResult());
-//                result.setSuccess(gpList.isSuccess());
-//            } else {
-//                result.setMessage(gpList.getMessage());
-//            }
-
-//            asd.ProcessGrouperParameter(grouperparameterlsit);
-//        ProcessGrouperParameter(grouperparameterlsit);
-            RequestBody requestbody = RequestBody.create(utility.objectMapper().writeValueAsString(grouperparameterlsit), okhttp3.MediaType.parse("application/json; charset=utf-8"));
-            Request request = new Request.Builder().url(utility.GetString("Grouper") + "ProcessGrouperParameter").addHeader("Content-Type", "application/json").post(requestbody).build();
-            okhttp3.Response response = utility.OkHttpClient().newCall(request).execute();
-            if (response.isSuccessful()) {
-                result = utility.objectMapper().readValue(response.body().string(), DRGWSResult.class);
+            if (!drgresultList.isEmpty()) {
+                result.setSuccess(true);
+                result.setMessage("OK");
+                result.setResult(utility.objectMapper().writeValueAsString(drgresultList));
             } else {
-                result.setMessage(response.body().string());
+                result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger
-                    .getLogger(GrouperMethod.class
-                            .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
-
         return result;
     }
 

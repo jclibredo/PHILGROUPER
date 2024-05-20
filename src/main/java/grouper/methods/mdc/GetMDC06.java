@@ -10,7 +10,6 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -35,8 +34,6 @@ public class GetMDC06 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC06(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws IOException {
         DRGWSResult result = utility.DRGWSResult();
@@ -45,7 +42,7 @@ public class GetMDC06 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-
+        GrouperMethod gm = new GrouperMethod();
         //THIS AREA IS FOR CHECKING OF RADIO AND CHECMO
         int CartSDx = 0;
         int CaCRxSDx = 0;
@@ -57,27 +54,27 @@ public class GetMDC06 {
         //Checking SDx RadioTherapy and Chemotherapy
         for (int a = 0; a < SecondaryList.size(); a++) {
             String Secon = SecondaryList.get(a);
-            if (drgutility.isValid99BX(Secon)) {
+            if (utility.isValid99BX(Secon)) {
                 CartSDx++;
             }
-            if (drgutility.isValid99CX(Secon)) {
+            if (utility.isValid99CX(Secon)) {
                 CaCRxSDx++;
             }
         }
         //Checking Procedure RadioTherapy and Chemotherapy
         for (int a = 0; a < ProcedureList.size(); a++) {
             String Proce = ProcedureList.get(a);
-            if (drgutility.isValid99PEX(Proce)) {
+            if (utility.isValid99PEX(Proce)) {
                 CartProc++;
             }
-            if (drgutility.isValid99PFX(Proce)) {
+            if (utility.isValid99PFX(Proce)) {
                 CaCRxProc++;
             }
             DRGWSResult PBX6ProcResult = gm.AX(datasource, PBX6, Proce);
             if (String.valueOf(PBX6ProcResult.isSuccess()).equals("true")) {//Dx Procedure
                 PBX6Proc++;
             }
-            if (drgutility.isValid99PBX(Proce)) { //Blood Transfusion AX 99PBX
+            if (utility.isValid99PBX(Proce)) { //Blood Transfusion AX 99PBX
                 PBX99Proc++;
             }
         }
@@ -137,11 +134,11 @@ public class GetMDC06 {
         for (int x = 0; x < ProcedureList.size(); x++) {
             String proc = ProcedureList.get(x);
             //AX 99PDX Checking
-            if (drgutility.isValid99PDX(proc)) {
+            if (utility.isValid99PDX(proc)) {
                 PDXCounter99++;
             }
             //AX 99PCX Checking
-            if (drgutility.isValid99PCX(proc)) {
+            if (utility.isValid99PCX(proc)) {
                 PCXCounter99++;
             }
         }
@@ -150,8 +147,8 @@ public class GetMDC06 {
         try {
 
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(), drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -212,9 +209,9 @@ public class GetMDC06 {
                                 break;
                             case "6PG":
                             case "6PH":
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(),
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                         grouperparameter.getAdmissionDate()) >= 14
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     if (Counter6PH > 0) { //IF TRUE
                                         drgResult.setDC("0610");
                                     } else {
@@ -232,7 +229,7 @@ public class GetMDC06 {
                                 drgResult.setDC("0629");
                                 break;
                             case "6PJ"://Appendectomy
-                                if (drgutility.isValid6CX(grouperparameter.getPdx())) {
+                                if (utility.isValid6CX(grouperparameter.getPdx())) {
                                     drgResult.setDC("0632");
                                 } else {
                                     drgResult.setDC("0607");
@@ -240,20 +237,20 @@ public class GetMDC06 {
                                 break;
                             case "6PN"://Other Gastroscopy
                                 if (Ax6BXCount > 0) {
-                                    if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                                            drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                                    if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                                            utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                             grouperparameter.getDischargeDate(),
-                                            drgutility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
+                                            utility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
                                         drgResult.setDC("0619");
                                     } else {
                                         drgResult.setDRG("06209");
                                         drgResult.setDC("0620");
                                     }
                                 } else {
-                                    if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                                            drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                                    if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                                            utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                             grouperparameter.getDischargeDate(),
-                                            drgutility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
+                                            utility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
                                         drgResult.setDC("0621");
                                     } else {
                                         drgResult.setDRG("06229");
@@ -265,10 +262,10 @@ public class GetMDC06 {
                                 drgResult.setDC("0623");
                                 break;
                             case "6PQ"://Other Colonoscopy
-                                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                                        drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                         grouperparameter.getDischargeDate(),
-                                        drgutility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
+                                        utility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
                                     drgResult.setDC("0624");
                                 } else {
                                     drgResult.setDRG("06259");
@@ -330,9 +327,9 @@ public class GetMDC06 {
                                 }
                                 break;
                             case "6B"://G.I. Hemorrhage
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(),
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                         grouperparameter.getAdmissionDate()) >= 64
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("0651");
                                 } else {
                                     drgResult.setDC("0652");
@@ -355,18 +352,18 @@ public class GetMDC06 {
                                 }
                                 break;
                             case "6G"://Gastroenteritis
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(),
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                         grouperparameter.getAdmissionDate()) >= 9
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("0657");
                                 } else {
                                     drgResult.setDC("0658");
                                 }
                                 break;
                             case "6H"://Misc Digestive Disorder
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(),
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                         grouperparameter.getAdmissionDate()) >= 9
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("0666");
                                 } else {
                                     drgResult.setDC("0667");
@@ -383,17 +380,17 @@ public class GetMDC06 {
                                 drgResult.setDC("0661");
                                 break;
                             case "6L"://Intestinal Helminthiases
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(),
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                         grouperparameter.getAdmissionDate()) >= 9
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("0662");
                                 } else {
                                     drgResult.setDC("0663");
                                 }
                                 break;
                             case "6M"://Esophagitis, Gastritis & Dyspepsia PDC 6M
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("0664");
                                 } else {
                                     drgResult.setDC("0665");
@@ -468,9 +465,9 @@ public class GetMDC06 {
                         break;
                     case "6PG":
                     case "6PH":
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(),
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                 grouperparameter.getAdmissionDate()) >= 14
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             if (Counter6PH > 0) { //IF TRUE
                                 drgResult.setDC("0610");
                             } else {
@@ -487,7 +484,7 @@ public class GetMDC06 {
                         drgResult.setDC("0629");
                         break;
                     case "6PJ"://Appendectomy
-                        if (drgutility.isValid6CX(grouperparameter.getPdx())) {
+                        if (utility.isValid6CX(grouperparameter.getPdx())) {
                             drgResult.setDC("0632");
                         } else {
                             drgResult.setDC("0607");
@@ -495,20 +492,20 @@ public class GetMDC06 {
                         break;
                     case "6PN"://Other Gastroscopy
                         if (Ax6BXCount > 0) {
-                            if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                                    drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                            if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                     grouperparameter.getDischargeDate(),
-                                    drgutility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
+                                    utility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
                                 drgResult.setDC("0619");
                             } else {
                                 drgResult.setDRG("06209");
                                 drgResult.setDC("0620");
                             }
                         } else {
-                            if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                                    drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                            if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                     grouperparameter.getDischargeDate(),
-                                    drgutility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
+                                    utility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
                                 drgResult.setDC("0621");
                             } else {
                                 drgResult.setDRG("06229");
@@ -520,10 +517,10 @@ public class GetMDC06 {
                         drgResult.setDC("0623");
                         break;
                     case "6PQ"://Other Colonoscopy
-                        if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                                drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                                utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                 grouperparameter.getDischargeDate(),
-                                drgutility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
+                                utility.Convert24to12(grouperparameter.getTimeDischarge())) > 0) {
                             drgResult.setDC("0624");
                         } else {
                             drgResult.setDRG("06259");
@@ -588,8 +585,8 @@ public class GetMDC06 {
                         break;
 
                     case "6B"://G.I. Hemorrhage
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 64
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 64
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("0651");
                         } else {
                             drgResult.setDC("0652");
@@ -613,8 +610,8 @@ public class GetMDC06 {
 
                         break;
                     case "6G"://Gastroenteritis
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("0657");
                         } else {
                             drgResult.setDC("0658");
@@ -622,8 +619,8 @@ public class GetMDC06 {
 
                         break;
                     case "6H"://Misc Digestive Disorder
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("0666");
                         } else {
                             drgResult.setDC("0667");
@@ -640,16 +637,16 @@ public class GetMDC06 {
                         drgResult.setDC("0661");
                         break;
                     case "6L"://Intestinal Helminthiases
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("0662");
                         } else {
                             drgResult.setDC("0663");
                         }
                         break;
                     case "6M"://Esophagitis, Gastritis & Dyspepsia PDC 6M
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("0664");
                         } else {
                             drgResult.setDC("0665");
@@ -660,7 +657,7 @@ public class GetMDC06 {
 
             if (drgResult.getDRG() == null) {
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

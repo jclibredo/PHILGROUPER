@@ -10,7 +10,6 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -34,8 +33,6 @@ public class GetMDC25 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC25(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -44,6 +41,7 @@ public class GetMDC25 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
 
             //CHECKING FOR TRAUMA CODES
@@ -58,11 +56,11 @@ public class GetMDC25 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
                 //AX 99PDX Checking
-                if (drgutility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc)) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (drgutility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc)) {
                     PCXCounter99++;
                 }
                 DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc);
@@ -117,8 +115,8 @@ public class GetMDC25 {
                 Counter25DXPDx++;
             }
             if (PDXCounter99 > 0) {//Trache-ostomy
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(), drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (ORProcedureCounter > 0) {
                         switch (Collections.max(ORProcedureCounterList)) {
                             case 6://OR Proc Level 6
@@ -257,7 +255,7 @@ public class GetMDC25 {
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

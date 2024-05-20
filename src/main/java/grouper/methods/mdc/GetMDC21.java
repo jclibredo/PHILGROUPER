@@ -10,7 +10,6 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -35,8 +34,6 @@ public class GetMDC21 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC21(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -44,6 +41,7 @@ public class GetMDC21 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
 
             //CHECKING FOR TRAUMA CODES
@@ -58,11 +56,11 @@ public class GetMDC21 {
                 String proc = ProcedureList.get(x);
 
                 //AX 99PDX Checking
-                if (drgutility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc)) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (drgutility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc)) {
                     PCXCounter99++;
                 }
                 DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc);
@@ -83,10 +81,10 @@ public class GetMDC21 {
                 }
             }
             if (PDXCounter99 > 0) {
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -140,24 +138,24 @@ public class GetMDC21 {
                     } else {
                         switch (drgResult.getPDC()) {
                             case "21A"://Traumatic Injury
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("2150");
                                 } else {
                                     drgResult.setDC("2151");
                                 }
                                 break;
                             case "21B"://Allergic Reaction
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("2152");
                                 } else {
                                     drgResult.setDC("2153");
                                 }
                                 break;
                             case "21C"://Drugs
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("2154");
                                 } else {
                                     drgResult.setDC("2155");
@@ -233,24 +231,24 @@ public class GetMDC21 {
             } else {
                 switch (drgResult.getPDC()) {
                     case "21A"://Traumatic Injury
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("2150");
                         } else {
                             drgResult.setDC("2151");
                         }
                         break;
                     case "21B"://Allergic Reaction
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("2152");
                         } else {
                             drgResult.setDC("2153");
                         }
                         break;
                     case "21C"://Drugs
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("2154");
                         } else {
                             drgResult.setDC("2155");
@@ -268,7 +266,7 @@ public class GetMDC21 {
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

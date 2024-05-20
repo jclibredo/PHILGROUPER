@@ -10,7 +10,6 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -34,8 +33,6 @@ public class GetMDC13 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC13(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -44,6 +41,7 @@ public class GetMDC13 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
 
             //CHECKING FOR TRAUMA CODES
@@ -64,22 +62,22 @@ public class GetMDC13 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
 
-                if (drgutility.isValid99PEX(proc)) {
+                if (utility.isValid99PEX(proc)) {
                     CartProc++;
                 }
-                if (drgutility.isValid99PFX(proc)) {
+                if (utility.isValid99PFX(proc)) {
                     CaCRxProc++;
                 }
                 //AX 99PDX Checking
-                if (drgutility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc)) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (drgutility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc)) {
                     PCXCounter99++;
                 }
                 //AX 11PBX Checking
-                if (drgutility.isValid11PBX(proc)) {
+                if (utility.isValid11PBX(proc)) {
                     Counter13PBX++;
                 }
                 //THIS AREA IS FOR CHECKING OF OR PROCEDURE
@@ -104,20 +102,20 @@ public class GetMDC13 {
 
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
-                if (drgutility.isValid99BX(Secon)) {
+                if (utility.isValid99BX(Secon)) {
                     CartSDx++;
                 }
-                if (drgutility.isValid99CX(Secon)) {
+                if (utility.isValid99CX(Secon)) {
                     CaCRxSDx++;
                 }
             }
 
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         String PDxPDC = gm.GetPDCUsePDx(datasource, grouperparameter.getPdx());
                         int min = hierarvalue.get(0);
@@ -414,7 +412,7 @@ public class GetMDC13 {
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

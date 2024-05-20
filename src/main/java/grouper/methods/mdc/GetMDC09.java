@@ -10,7 +10,6 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -35,8 +34,6 @@ public class GetMDC09 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC09(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -45,6 +42,7 @@ public class GetMDC09 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
             ArrayList<String> sdxfinder = new ArrayList<>();
 
@@ -59,26 +57,26 @@ public class GetMDC09 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
                 //AX 99PDX Checking
-                if (drgutility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc)) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (drgutility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc)) {
                     PCXCounter99++;
                 }
-                if (drgutility.isValid99PEX(proc)) {
+                if (utility.isValid99PEX(proc)) {
                     CartProc++;
                 }
-                if (drgutility.isValid99PFX(proc)) {
+                if (utility.isValid99PFX(proc)) {
                     CaCRxProc++;
                 }
-                if (drgutility.isValid99PBX(proc)) { //Blood Transfusion AX 99PBX
+                if (utility.isValid99PBX(proc)) { //Blood Transfusion AX 99PBX
                     PBX99Proc++;
                 }
-                if (drgutility.isValid9PCX(proc)) { //Blood Transfusion AX 99PBX
+                if (utility.isValid9PCX(proc)) { //Blood Transfusion AX 99PBX
                     Counter9PCX++;
                 }
-                if (drgutility.isValid9PBX(proc)) { //Blood Transfusion AX 99PBX
+                if (utility.isValid9PBX(proc)) { //Blood Transfusion AX 99PBX
                     Counter9PBX++;
                 }
             }
@@ -95,10 +93,10 @@ public class GetMDC09 {
                 if (String.valueOf(MaligSDxResult.isSuccess()).equals("true")) {
                     SDxMalignantCount++;
                 }
-                if (drgutility.isValid99BX(MalignantCodes)) {
+                if (utility.isValid99BX(MalignantCodes)) {
                     CartSDx++;
                 }
-                if (drgutility.isValid99CX(MalignantCodes)) {
+                if (utility.isValid99CX(MalignantCodes)) {
                     CaCRxSDx++;
                 }
             }
@@ -150,8 +148,8 @@ public class GetMDC09 {
 
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(), drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -295,16 +293,16 @@ public class GetMDC09 {
                                 drgResult.setDC("0955");
                                 break;
                             case "9G"://Cellulites
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("0956");
                                 } else {
                                     drgResult.setDC("0957");
                                 }
                                 break;
                             case "9H"://Trauma
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("0958");
                                 } else {
                                     drgResult.setDC("0959");
@@ -462,16 +460,16 @@ public class GetMDC09 {
                         drgResult.setDC("0955");
                         break;
                     case "9G"://Cellulites
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("0956");
                         } else {
                             drgResult.setDC("0957");
                         }
                         break;
                     case "9H"://Trauma
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("0958");
                         } else {
                             drgResult.setDC("0959");
@@ -483,7 +481,7 @@ public class GetMDC09 {
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

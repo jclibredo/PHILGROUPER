@@ -8,7 +8,6 @@ package grouper.methods.mdc;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -31,8 +30,6 @@ public class GetMDC15 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC15(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws ParseException {
         DRGWSResult result = utility.DRGWSResult();
@@ -41,6 +38,7 @@ public class GetMDC15 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         float AdmWTValues = 0;
 
         if (!grouperparameter.getAdmissionWeight().isEmpty()) {
@@ -105,7 +103,7 @@ public class GetMDC15 {
                     Counter15BX++;
                 }
 
-                if (drgutility.isValid15CX(SeconD)) {
+                if (utility.isValid15CX(SeconD)) {
                     Counter15CX++;
                 }
             }
@@ -121,10 +119,10 @@ public class GetMDC15 {
                 MainCCPDx++;
             }
 
-            if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                    drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+            if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
                     grouperparameter.getDischargeDate(),
-                    drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
+                    utility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
                     && grouperparameter.getDischargeType().equals("4")) {
                 if (Counter15PBX > 0) {
                     drgResult.setDC("1501");
@@ -144,10 +142,10 @@ public class GetMDC15 {
                     }
                 }
 
-            } else if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                    drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+            } else if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
                     grouperparameter.getDischargeDate(),
-                    drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
+                    utility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
                     && grouperparameter.getDischargeType().equals("8")) {
                 if (Counter15PDX > 0) {
                     drgResult.setDC("1501");
@@ -166,8 +164,8 @@ public class GetMDC15 {
                         }
                     }
                 }
-            } else if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(), drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
-                    grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
+            } else if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                    grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
                     && grouperparameter.getDischargeType().equals("9")) {
                 if (Counter15PDX > 0) {
                     drgResult.setDC("1501");
@@ -201,8 +199,8 @@ public class GetMDC15 {
                         drgResult.setDC("1554");
                     }
                 }
-            } else if (drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 27
-                    || drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+            } else if (utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 27
+                    || utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                 if (Counter15PBX > 0) {
                     drgResult.setDC("1509");
                 } else {
@@ -253,7 +251,7 @@ public class GetMDC15 {
             }
             // FINDING FINAL DRG
             if (drgResult.getDRG() == null) {
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                     result.setSuccess(true);
                 } else {

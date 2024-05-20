@@ -10,7 +10,6 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -30,21 +29,23 @@ import javax.sql.DataSource;
  */
 @RequestScoped
 public class GetMDC10 {
-
+    
     public GetMDC10() {
     }
-
+    
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
-
+    
     public DRGWSResult GetMDC10(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
         List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
 
             //CHECKING FOR TRAUMA CODES
@@ -54,14 +55,14 @@ public class GetMDC10 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
                 //AX 99PDX Checking
-                if (drgutility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc)) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (drgutility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc)) {
                     PCXCounter99++;
                 }
-                if (drgutility.isValid10PBX(proc)) {
+                if (utility.isValid10PBX(proc)) {
                     Counter10PBX++;
                 }
             }
@@ -99,8 +100,8 @@ public class GetMDC10 {
 
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(), drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -110,15 +111,15 @@ public class GetMDC10 {
                                 min = hierarvalue.get(i);
                             }
                         }
-
+                        
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                         switch (pdclist.get(hierarvalue.indexOf(min))) {
                             case "10PB"://Pituitary
                                 drgResult.setDC("1001");
                                 break;
                             case "10PC"://Amputation of Lower Limb
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 59
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 59
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("1003");
                                 } else {
                                     drgResult.setDC("1004");
@@ -145,9 +146,9 @@ public class GetMDC10 {
                             case "10PH"://Thyroglossal PDC 10PH
                                 drgResult.setDC("1009");
                                 break;
-
+                            
                         }
-
+                        
                     } else if (ORProcedureCounter > 0) {
                         switch (Collections.max(ORProcedureCounterList)) {
                             case 1:
@@ -169,9 +170,9 @@ public class GetMDC10 {
                                 drgResult.setDC("2606");
                                 break;
                         }
-
+                        
                     } else {
-
+                        
                         switch (drgResult.getPDC()) {
                             case "10A"://Diabetes with Complicated PDx
                                 if (Counter10PBX > 0) {
@@ -181,8 +182,8 @@ public class GetMDC10 {
                                 }
                                 break;
                             case "10B"://Severe Metabolic Disorders
-                                if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("1051");
                                 } else {
                                     drgResult.setDC("1052");
@@ -200,11 +201,11 @@ public class GetMDC10 {
                             case "10F"://Diabetes without Complicated PDx PDC 10F
                                 drgResult.setDC("1056");
                                 break;
-
+                            
                         }
-
+                        
                     }
-
+                    
                 } else {
                     if (PCXCounter99 > 0) {
                         drgResult.setDC("1011");
@@ -221,15 +222,15 @@ public class GetMDC10 {
                         min = hierarvalue.get(i);
                     }
                 }
-
+                
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 switch (pdclist.get(hierarvalue.indexOf(min))) {
                     case "10PB"://Pituitary
                         drgResult.setDC("1001");
                         break;
                     case "10PC"://Amputation of Lower Limb
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 59
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 59
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("1003");
                         } else {
                             drgResult.setDC("1004");
@@ -256,9 +257,9 @@ public class GetMDC10 {
                     case "10PH"://Thyroglossal PDC 10PH
                         drgResult.setDC("1009");
                         break;
-
+                    
                 }
-
+                
             } else if (ORProcedureCounter > 0) {
                 switch (Collections.max(ORProcedureCounterList)) {
                     case 1:
@@ -280,9 +281,9 @@ public class GetMDC10 {
                         drgResult.setDC("2606");
                         break;
                 }
-
+                
             } else {
-
+                
                 switch (drgResult.getPDC()) {
                     case "10A"://Diabetes with Complicated PDx
                         if (Counter10PBX > 0) {
@@ -292,8 +293,8 @@ public class GetMDC10 {
                         }
                         break;
                     case "10B"://Severe Metabolic Disorders
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("1051");
                         } else {
                             drgResult.setDC("1052");
@@ -313,11 +314,11 @@ public class GetMDC10 {
                         break;
                 }
             }
-
+            
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------
@@ -359,16 +360,16 @@ public class GetMDC10 {
                     drgResult.setDRGName("Grouper Error");
                 }
             }
-
+            
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setMessage("MDC 10 Done Checking");
-
+            
         } catch (IOException | ParseException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GetMDC10.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
-
+        
     }
-
+    
 }

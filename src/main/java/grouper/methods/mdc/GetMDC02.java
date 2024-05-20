@@ -5,13 +5,11 @@
  */
 package grouper.methods.mdc;
 
-
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -35,14 +33,13 @@ public class GetMDC02 {
     public GetMDC02() {
     }
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC02(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws IOException {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         //   String MDC = drgResult.getMDC();
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
         List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -103,15 +100,15 @@ public class GetMDC02 {
             if (PdcProcResult2PB.isSuccess()) {
                 pdcprocedureCounter2PB++;
             }
-            if (drgutility.isValid2PDX(proc)) {
+            if (utility.isValid2PDX(proc)) {
                 Counter2PDX++;
             }
 
-            if (drgutility.isValid99PDX(proc)) {
+            if (utility.isValid99PDX(proc)) {
                 PDXCounter99++;
             }
             //AX 99PCX Checking
-            if (drgutility.isValid99PCX(proc)) {
+            if (utility.isValid99PCX(proc)) {
                 PCXCounter99++;
             }
             DRGWSResult Counter2PCXResult = gm.AX(datasource, pcx2, proc);
@@ -138,10 +135,10 @@ public class GetMDC02 {
         //Condition Start this area   
         try {
             if (PDXCounter99 > 0) {
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeDischarge())) >= 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) >= 21) {
                     if (PCXCounter99 > 0) {
                         drgResult.setDC("0214");
                     } else {
@@ -229,9 +226,9 @@ public class GetMDC02 {
                             drgResult.setDC("0250");
                             break;
                         case "2A"://Acute Major Infections
-                            if (drgutility.ComputeYear(grouperparameter.getBirthDate(),
+                            if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                     grouperparameter.getAdmissionDate()) >= 54
-                                    && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                    && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                 drgResult.setDC("0251");
                             } else {
                                 drgResult.setDC("0252");
@@ -333,8 +330,8 @@ public class GetMDC02 {
                         drgResult.setDC("0250");
                         break;
                     case "2A"://Acute Major Infections
-                        if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 54
-                                && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 54
+                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("0251");
                         } else {
                             drgResult.setDC("0252");
@@ -355,7 +352,7 @@ public class GetMDC02 {
 
             if (drgResult.getDRG() == null) {
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

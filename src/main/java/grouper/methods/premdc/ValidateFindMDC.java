@@ -10,7 +10,6 @@ import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.ICD10PreMDCResult;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -35,9 +34,6 @@ public class ValidateFindMDC {
     public ValidateFindMDC() {
     }
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GetValidatedPreMDC getvalidatedpremdc = new GetValidatedPreMDC();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult ValidateFindMDC(final DataSource datasource, final GrouperParameter grouperparameter) throws ParseException {
         String checker = "true";
@@ -45,6 +41,8 @@ public class ValidateFindMDC {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
+        GetValidatedPreMDC getvalidatedpremdc = new GetValidatedPreMDC();
         SimpleDateFormat timeformat = utility.SimpleDateFormat("HH:mm");
         SimpleDateFormat dateformat = utility.SimpleDateFormat("MM-dd-yyyy");
         DRGOutput drgResult = new DRGOutput();
@@ -120,8 +118,8 @@ public class ValidateFindMDC {
             }
 
             //==========================================================================================================
-            String days = String.valueOf(drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
-            String year = String.valueOf(drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+            String days = String.valueOf(utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+            String year = String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
             DRGWSResult geticd10Result = gm.GetICD10PreMDC(datasource, grouperparameter.getPdx());
             DRGWSResult getAgeConfictResult = gm.AgeConfictValidation(datasource, grouperparameter.getPdx(), days, year);
             DRGWSResult getSexConfictResult = gm.GenderConfictValidation(datasource, grouperparameter.getPdx(), grouperparameter.getGender());
@@ -133,7 +131,7 @@ public class ValidateFindMDC {
                 drgResult.setDRGName("Invalid PDx : " + grouperparameter.getPdx());
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
-            } else if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
+            } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
                 drgResult.setDRG("26539");
                 drgResult.setDC("2653");
                 drgResult.setDRGName("PDx : " + grouperparameter.getPdx() + " Having age conflict : ");

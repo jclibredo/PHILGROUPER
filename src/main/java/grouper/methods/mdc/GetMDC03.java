@@ -5,13 +5,11 @@
  */
 package grouper.methods.mdc;
 
-
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -35,8 +33,6 @@ public class GetMDC03 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC03(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws IOException {
         DRGWSResult result = utility.DRGWSResult();
@@ -45,13 +41,13 @@ public class GetMDC03 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-
+        GrouperMethod gm = new GrouperMethod();
         //CHECKING FOR 3PDX USING PROC
         int Counter3PDX = 0;
         for (int x = 0; x < ProcedureList.size(); x++) {
             String pdx3Proc = ProcedureList.get(x);
             //AX 99PDX Checking
-            if (drgutility.isValid3PDX(pdx3Proc)) {
+            if (utility.isValid3PDX(pdx3Proc)) {
                 Counter3PDX++;
             }
         }
@@ -59,7 +55,7 @@ public class GetMDC03 {
         int Counter3PBX = 0;
         for (int x = 0; x < ProcedureList.size(); x++) {
             String pbx3Proc = ProcedureList.get(x);
-            if (drgutility.isValid3PBX(pbx3Proc)) {
+            if (utility.isValid3PBX(pbx3Proc)) {
                 Counter3PBX++;
             }
         }
@@ -73,26 +69,26 @@ public class GetMDC03 {
         //Checking SDx RadioTherapy and Chemotherapy
         for (int a = 0; a < SecondaryList.size(); a++) {
             String Secon = SecondaryList.get(a);
-            if (drgutility.isValid99BX(Secon)) {
+            if (utility.isValid99BX(Secon)) {
                 CartSDx++;
             }
-            if (drgutility.isValid99CX(Secon)) {
+            if (utility.isValid99CX(Secon)) {
                 CaCRxSDx++;
             }
         }
         //Checking Procedure RadioTherapy and Chemotherapy
         for (int a = 0; a < ProcedureList.size(); a++) {
             String Proce = ProcedureList.get(a);
-            if (drgutility.isValid99PEX(Proce)) {
+            if (utility.isValid99PEX(Proce)) {
                 CartProc++;
             }
-            if (drgutility.isValid99PFX(Proce)) {
+            if (utility.isValid99PFX(Proce)) {
                 CaCRxProc++;
             }
-            if (drgutility.isValid3PCX(Proce)) {
+            if (utility.isValid3PCX(Proce)) {
                 PCX3Proc++;
             }
-            if (drgutility.isValid99PBX(Proce)) { //Blood Transfusion AX 99PBX
+            if (utility.isValid99PBX(Proce)) { //Blood Transfusion AX 99PBX
                 PBX99Proc++;
             }
         }
@@ -101,7 +97,7 @@ public class GetMDC03 {
         for (int x = 0; x < ProcedureList.size(); x++) {
             String pex3Proc = ProcedureList.get(x);
             //AX 99PDX Checking
-            if (drgutility.isValid3PEX(pex3Proc)) {
+            if (utility.isValid3PEX(pex3Proc)) {
                 Counter3PEX++;
             }
         }
@@ -141,39 +137,39 @@ public class GetMDC03 {
         for (int x = 0; x < ProcedureList.size(); x++) {
             String proc = ProcedureList.get(x);
             //AX 99PDX Checking
-            if (drgutility.isValid99PDX(proc)) {
+            if (utility.isValid99PDX(proc)) {
                 PDXCounter99++;
             }
             //AX 99PCX Checking
-            if (drgutility.isValid99PCX(proc)) {
+            if (utility.isValid99PCX(proc)) {
                 PCXCounter99++;
             }
         }
         for (int x = 0; x < ProcedureList.size(); x++) {
             String proc = ProcedureList.get(x);
             //AX 99PDX Checking
-            if (drgutility.isValid99PDX(proc)) {
+            if (utility.isValid99PDX(proc)) {
                 PDXCounter99++;
             }
             //AX 99PCX Checking
-            if (drgutility.isValid99PCX(proc)) {
+            if (utility.isValid99PCX(proc)) {
                 PCXCounter99++;
             }
         }
 //CONDITIONAL STATEMENT STARTS HERE
         try {
             if (PDXCounter99 > 0) {
-                if (drgutility.isValid3BX(grouperparameter.getPdx())) {
+                if (utility.isValid3BX(grouperparameter.getPdx())) {
                     if (Counter3PDX > 0) { //Procedures for upper airway obstruction
                         drgResult.setDC("0322");
                     } else {
                         drgResult.setDC("0323");
                     }
                 } else {
-                    if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                            drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                    if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                            utility.Convert24to12(grouperparameter.getTimeAdmission()),
                             grouperparameter.getDischargeDate(),
-                            drgutility.Convert24to12(grouperparameter.getTimeDischarge())) >= 21) {
+                            utility.Convert24to12(grouperparameter.getTimeDischarge())) >= 21) {
                         if (PCXCounter99 > 0) {
                             drgResult.setDC("0318");
                         } else {
@@ -465,7 +461,7 @@ public class GetMDC03 {
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------

@@ -10,7 +10,6 @@ import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.ICD10PreMDCResult;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -33,9 +32,6 @@ public class GetValidatedPreMDC {
     public GetValidatedPreMDC() {
     }
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final ProcessMDC getdc = new ProcessMDC();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetValidatedPreMDC(final DataSource datasource, final GrouperParameter grouperparameter) throws ParseException, IOException {
         DRGWSResult result = utility.DRGWSResult();
@@ -43,13 +39,15 @@ public class GetValidatedPreMDC {
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
+        ProcessMDC getdc = new ProcessMDC();
+        GrouperMethod gm = new GrouperMethod();
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().trim().split(","));
         List<String> SDxList = Arrays.asList(grouperparameter.getSdx().trim().split(","));
         String pdx = "";
 
         try {
-        String Days = String.valueOf(drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
-        String Years = String.valueOf(drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+        String Days = String.valueOf(utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+        String Years = String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
         DRGWSResult icd10SortResult = gm.GetICD10(datasource, grouperparameter.getPdx(), Days, Years, grouperparameter.getGender());
       
             ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(icd10SortResult.getResult(), ICD10PreMDCResult.class);
@@ -130,13 +128,13 @@ public class GetValidatedPreMDC {
                         procSite.add(PROC.getResult());
                         procnewlist.add(PROC.getResult());
                     }
-                    if (drgutility.isValidOPA(proc)) {
+                    if (utility.isValidOPA(proc)) {
                         Counter0PA++;
                     }
-                    if (drgutility.isValidOPD(proc)) {
+                    if (utility.isValidOPD(proc)) {
                         Counter0PD++;
                     }
-                    if (drgutility.isValidOPB(proc)) {
+                    if (utility.isValidOPB(proc)) {
                         Counter0PB++;
                     }
                 }
@@ -184,14 +182,14 @@ public class GetValidatedPreMDC {
             // START OF PARSING PART
             if (GetBMDC.isSuccess()) {
                 BMDCPreMDCResult bmdcResult = utility.objectMapper().readValue(GetBMDC.getResult(), BMDCPreMDCResult.class);
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(), drgutility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0
-                        && drgutility.ComputeTime(grouperparameter.getAdmissionDate(), drgutility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) <= 6
-                        && drgutility.MinutesCompute(grouperparameter.getAdmissionDate(), drgutility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), drgutility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0) {
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0
+                        && utility.ComputeTime(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 6
+                        && utility.MinutesCompute(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0) {
 
-                    if (drgutility.ComputeTime(grouperparameter.getAdmissionDate(),
-                            drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                    if (utility.ComputeTime(grouperparameter.getAdmissionDate(),
+                            utility.Convert24to12(grouperparameter.getTimeAdmission()),
                             grouperparameter.getDischargeDate(),
-                            drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 2) {
+                            utility.Convert24to12(grouperparameter.getTimeDischarge())) < 2) {
                         drgResult.setDRG("26549");
                         drgResult.setDRGName("LOS < 6 Hours");
                     } else {
@@ -227,7 +225,7 @@ public class GetValidatedPreMDC {
                 } else if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("F")) {
                     drgResult.setMDC(bmdcResult.getMDC_F());
                     drgResult.setPDC(bmdcResult.getPDC_F());
-                } else if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) == 0 && drgutility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 28) {
+                } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) == 0 && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 28) {
                     drgResult.setMDC("15");
                 } else {
                     drgResult.setMDC(icd10Result.getMDC());
@@ -235,25 +233,25 @@ public class GetValidatedPreMDC {
                 }
 
             } else {
-                if (drgutility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
+                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
                     drgResult.setDRG("26539");
-                } else if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                } else if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0
-                        && drgutility.ComputeTime(grouperparameter.getAdmissionDate(),
-                                drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0
+                        && utility.ComputeTime(grouperparameter.getAdmissionDate(),
+                                utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                 grouperparameter.getDischargeDate(),
-                                drgutility.Convert24to12(grouperparameter.getTimeDischarge())) <= 6
-                        && drgutility.MinutesCompute(grouperparameter.getAdmissionDate(),
-                                drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                                utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 6
+                        && utility.MinutesCompute(grouperparameter.getAdmissionDate(),
+                                utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                 grouperparameter.getDischargeDate(),
-                                drgutility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0) {
+                                utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0) {
 
-                    if (drgutility.ComputeTime(grouperparameter.getAdmissionDate(),
-                            drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                    if (utility.ComputeTime(grouperparameter.getAdmissionDate(),
+                            utility.Convert24to12(grouperparameter.getTimeAdmission()),
                             grouperparameter.getDischargeDate(),
-                            drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 2) {
+                            utility.Convert24to12(grouperparameter.getTimeDischarge())) < 2) {
 
                         drgResult.setDRG("26549");
                         drgResult.setDRGName("LOS < 6 Hours");
@@ -284,8 +282,8 @@ public class GetValidatedPreMDC {
                     //TRAUMA CHECKING AREA    
                 } else if (icd10Result.getPDC() != null && icd10Result.getPDC().equals("25A")) {
                     drgResult.setMDC("25");
-                } else if (drgutility.ComputeYear(grouperparameter.getBirthDate(),
-                        grouperparameter.getAdmissionDate()) <= 0 && drgutility.ComputeDay(grouperparameter.getBirthDate(),
+                } else if (utility.ComputeYear(grouperparameter.getBirthDate(),
+                        grouperparameter.getAdmissionDate()) <= 0 && utility.ComputeDay(grouperparameter.getBirthDate(),
                         grouperparameter.getAdmissionDate()) < 28) {
                     drgResult.setMDC("15");
                 } else {

@@ -10,7 +10,6 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.DRGUtility;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -34,8 +33,6 @@ public class GetMDC07 {
     }
 
     private final Utility utility = new Utility();
-    private final DRGUtility drgutility = new DRGUtility();
-    private final GrouperMethod gm = new GrouperMethod();
 
     public DRGWSResult GetMDC07(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -44,6 +41,7 @@ public class GetMDC07 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        GrouperMethod gm = new GrouperMethod();
         try {
 
             //CHECKING FOR TRAUMA CODES
@@ -52,11 +50,11 @@ public class GetMDC07 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
                 //AX 99PDX Checking
-                if (drgutility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc)) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (drgutility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc)) {
                     PCXCounter99++;
                 }
             }
@@ -69,11 +67,11 @@ public class GetMDC07 {
             int PBX99Proc = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
-                if (drgutility.isValid99BX(Secon)) {
+                if (utility.isValid99BX(Secon)) {
                     CartSDx++;
                 }
 
-                if (drgutility.isValid99CX(Secon)) {
+                if (utility.isValid99CX(Secon)) {
                     CaCRxSDx++;
                 }
             }
@@ -81,13 +79,13 @@ public class GetMDC07 {
             //Checking Procedure RadioTherapy and Chemotherapy
             for (int a = 0; a < ProcedureList.size(); a++) {
                 String Proce = ProcedureList.get(a);
-                if (drgutility.isValid99PEX(Proce)) {
+                if (utility.isValid99PEX(Proce)) {
                     CartProc++;
                 }
-                if (drgutility.isValid99PFX(Proce)) {
+                if (utility.isValid99PFX(Proce)) {
                     CaCRxProc++;
                 }
-                if (drgutility.isValid99PBX(Proce)) { //Blood Transfusion AX 99PBX
+                if (utility.isValid99PBX(Proce)) { //Blood Transfusion AX 99PBX
                     PBX99Proc++;
                 }
             }
@@ -150,10 +148,10 @@ public class GetMDC07 {
 
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (drgutility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeAdmission()),
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        drgutility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -385,9 +383,9 @@ public class GetMDC07 {
             }
 
             if (drgResult.getDRG() == null) {
-              
+
                 //-------------------------------------------------------------------------------------
-                if (drgutility.isValidDCList(drgResult.getDC())) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------
