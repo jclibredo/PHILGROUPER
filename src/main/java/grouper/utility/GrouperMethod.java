@@ -44,8 +44,6 @@ import oracle.jdbc.OracleTypes;
  *
  * @author MinoSun
  */
-//@ApplicationScoped
-//@Singleton
 @RequestScoped
 public class GrouperMethod {
 
@@ -753,9 +751,7 @@ public class GrouperMethod {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger
-                    .getLogger(GrouperMethod.class
-                            .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return result;
@@ -1360,17 +1356,17 @@ public class GrouperMethod {
                 GetAX.execute();
                 ResultSet AXResultset = (ResultSet) GetAX.getObject("get_ax");
                 if (AXResultset.next()) {
-                    result.setResult(AXResultset.getString("CODES"));
-                    String longwords = AXResultset.getString("CODES").replaceAll("\\s", "");
-                    int val = longwords.indexOf(requestcode.trim());
-                    if (val >= 0) {
-                        result.setResult(requestcode);
-                        result.setSuccess(true);
-                    } else {
-                        result.setSuccess(false);
+                    List<String> asdas = Arrays.asList(AXResultset.getString("CODES").split(","));
+                    for (int x = 0; x < asdas.size(); x++) {
+                        if (requestcode.equals(asdas.get(x).trim())) {
+                            result.setResult(requestcode);
+                            result.setSuccess(true);
+                            break;
+                        } else {
+                            result.setSuccess(false);
+                        }
                     }
                 } else {
-
                     result.setSuccess(false);
                 }
 
@@ -1378,9 +1374,7 @@ public class GrouperMethod {
 
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger
-                    .getLogger(GrouperMethod.class
-                            .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1404,9 +1398,7 @@ public class GrouperMethod {
 
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
-            Logger
-                    .getLogger(GrouperMethod.class
-                            .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -1469,7 +1461,6 @@ public class GrouperMethod {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-
         try (Connection connection = datasource.getConnection()) {
             CallableStatement ps = connection.prepareCall("call MINOSUN.DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:pdx,:sdx,:p_dc)");
             ps.registerOutParameter("p_pccl", OracleTypes.NUMBER);
@@ -1477,15 +1468,17 @@ public class GrouperMethod {
             ps.setString("sdx", sdxfinalList);
             ps.setString("p_dc", drgResult.getDC());
             ps.execute();
+            // if (ps.getString("Message").equals("SUCC")) {
+
             drgResult.setDRG(drgResult.getDC() + "" + ps.getString("p_pccl"));
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setSuccess(true);
-
+//            } else {
+//                result.setMessage(ps.getString("Message"));
+//            }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger
-                    .getLogger(GrouperMethod.class
-                            .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

@@ -13,7 +13,6 @@ import grouper.structures.PDC;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -150,8 +149,7 @@ public class GetMDC23 {
                                 }
                                 break;
                             case "23D"://Other Factors Influencing Health Status PDC 23D
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 54
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 54) {
                                     drgResult.setDC("2353");
                                 } else {
                                     drgResult.setDC("2354");
@@ -217,8 +215,7 @@ public class GetMDC23 {
                         }
                         break;
                     case "23D"://Other Factors Influencing Health Status PDC 23D
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 54
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 54) {
                             drgResult.setDC("2353");
                         } else {
                             drgResult.setDC("2354");
@@ -276,10 +273,8 @@ public class GetMDC23 {
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setMessage("MDC 23 Done Checking");
 
-        } catch (IOException ex) {
+        } catch (IOException | NumberFormatException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GetMDC23.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ParseException ex) {
             Logger.getLogger(GetMDC23.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;

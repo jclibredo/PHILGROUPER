@@ -163,19 +163,19 @@ public class GetMDC17 {
                             } else {
                                 //Radio+Chemotherapy
                                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1756");
+                                    drgResult.setDC("1761");
                                     //Chemotherapy
                                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1757");
+                                    drgResult.setDC("1762");
                                     //Radiotherapy
                                 } else if (CartSDx > 0 && CartProc > 0) {
-                                    drgResult.setDC("1758");
+                                    drgResult.setDC("1763");
                                 } else if (Counter17PBX > 0) { //##Dx Procedure
-                                    drgResult.setDC("1759");
+                                    drgResult.setDC("1764");
                                 } else if (PBX99Proc > 0) {//Blood Transfusion
-                                    drgResult.setDC("1760");
+                                    drgResult.setDC("1765");
                                 } else {//Malignancy 
-                                    drgResult.setDC("1750");
+                                    drgResult.setDC("1751");
                                 }
                             }
                             break;
@@ -189,19 +189,19 @@ public class GetMDC17 {
                             } else {
                                 //Radio+Chemotherapy
                                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1756");
+                                    drgResult.setDC("1766");
                                     //Chemotherapy
                                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1757");
+                                    drgResult.setDC("1767");
                                     //Radiotherapy
                                 } else if (CartSDx > 0 && CartProc > 0) {
-                                    drgResult.setDC("1758");
+                                    drgResult.setDC("1768");
                                 } else if (Counter17PBX > 0) { //##Dx Procedure
-                                    drgResult.setDC("1759");
+                                    drgResult.setDC("1769");
                                 } else if (PBX99Proc > 0) {//Blood Transfusion
-                                    drgResult.setDC("1760");
+                                    drgResult.setDC("1770");
                                 } else {//Malignancy 
-                                    drgResult.setDC("1750");
+                                    drgResult.setDC("1752");
                                 }
                             }
                             break;
@@ -251,19 +251,19 @@ public class GetMDC17 {
                         } else {
                             //Radio+Chemotherapy
                             if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1756");
+                                drgResult.setDC("1761");
                                 //Chemotherapy
                             } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1757");
+                                drgResult.setDC("1762");
                                 //Radiotherapy
                             } else if (CartSDx > 0 && CartProc > 0) {
-                                drgResult.setDC("1758");
+                                drgResult.setDC("1763");
                             } else if (Counter17PBX > 0) { //##Dx Procedure
-                                drgResult.setDC("1759");
+                                drgResult.setDC("1764");
                             } else if (PBX99Proc > 0) {//Blood Transfusion
-                                drgResult.setDC("1760");
+                                drgResult.setDC("1765");
                             } else {//Malignancy 
-                                drgResult.setDC("1750");
+                                drgResult.setDC("1751");
                             }
                         }
                         break;
@@ -277,19 +277,19 @@ public class GetMDC17 {
                         } else {
                             //Radio+Chemotherapy
                             if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1756");
+                                drgResult.setDC("1766");
                                 //Chemotherapy
                             } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1757");
+                                drgResult.setDC("1767");
                                 //Radiotherapy
                             } else if (CartSDx > 0 && CartProc > 0) {
-                                drgResult.setDC("1758");
+                                drgResult.setDC("1768");
                             } else if (Counter17PBX > 0) { //##Dx Procedure
-                                drgResult.setDC("1759");
+                                drgResult.setDC("1769");
                             } else if (PBX99Proc > 0) {//Blood Transfusion
-                                drgResult.setDC("1760");
+                                drgResult.setDC("1770");
                             } else {//Malignancy 
-                                drgResult.setDC("1750");
+                                drgResult.setDC("1752");
                             }
                         }
                         break;

@@ -8,8 +8,6 @@ package grouper.methods.mdc;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.structures.MDCProcedure;
-import grouper.structures.PDC;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -48,10 +46,10 @@ public class GetMDC25 {
             ArrayList<String> sdxfinder = new ArrayList<>();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
-            int mdcprocedureCounter = 0;
+//            int mdcprocedureCounter = 0;
             int ORProcedureCounter = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
+//            ArrayList<Integer> hierarvalue = new ArrayList<>();
+//            ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
@@ -69,17 +67,17 @@ public class GetMDC25 {
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
 
-                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
-                if (JoinResult.isSuccess()) {
-                    mdcprocedureCounter++;
-                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                    if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
-                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
-                        hierarvalue.add(hiarresult.getHIERAR());
-                        pdclist.add(hiarresult.getPDC());
-                    }
-                }
+//                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
+//                if (JoinResult.isSuccess()) {
+//                    mdcprocedureCounter++;
+//                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
+//                    DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+//                    if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
+//                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
+//                        hierarvalue.add(hiarresult.getHIERAR());
+//                        pdclist.add(hiarresult.getPDC());
+//                    }
+//                }
             }
 
             String BX25 = "25BX";
@@ -90,28 +88,32 @@ public class GetMDC25 {
             int Counter25DXSDx = 0;
             int Counter25BXPDx = 0;
             int Counter25DXPDx = 0;
-            for (int a = 0; a < SecondaryList.size(); a++) {
-                String SeconSDx = SecondaryList.get(a);
+            int Counter25CXPDx = 0;
 
-                DRGWSResult ResultBX25SDx = gm.AX(datasource, BX25, SeconSDx);
+            for (int a = 0; a < SecondaryList.size(); a++) {
+                DRGWSResult ResultBX25SDx = gm.AX(datasource, BX25, SecondaryList.get(a));
                 if (String.valueOf(ResultBX25SDx.isSuccess()).equals("true")) {
                     Counter25BXSDx++;
                 }
-                DRGWSResult ResultCX25SDx = gm.AX(datasource, CX25, SeconSDx);
+                DRGWSResult ResultCX25SDx = gm.AX(datasource, CX25, SecondaryList.get(a));
                 if (String.valueOf(ResultCX25SDx.isSuccess()).equals("true")) {
                     Counter25CXSDx++;
                 }
-                DRGWSResult ResultDX25SDx = gm.AX(datasource, DX25, SeconSDx);
+                DRGWSResult ResultDX25SDx = gm.AX(datasource, DX25, SecondaryList.get(a));
                 if (String.valueOf(ResultDX25SDx.isSuccess()).equals("true")) {
                     Counter25DXSDx++;
                 }
             }
-            DRGWSResult ResultBX25SDx = gm.AX(datasource, BX25, grouperparameter.getPdx());
-            if (String.valueOf(ResultBX25SDx.isSuccess()).equals("true")) {
+            DRGWSResult ResultBX25PDx = gm.AX(datasource, BX25, grouperparameter.getPdx());
+            if (String.valueOf(ResultBX25PDx.isSuccess()).equals("true")) {
                 Counter25BXPDx++;
             }
+            DRGWSResult ResultCX25PDx = gm.AX(datasource, CX25, grouperparameter.getPdx());
+            if (ResultCX25PDx.isSuccess()) {
+                Counter25CXPDx++;
+            }
             DRGWSResult ResultDX25PDx = gm.AX(datasource, DX25, grouperparameter.getPdx());
-            if (String.valueOf(ResultDX25PDx.isSuccess()).equals("true")) {
+            if (ResultDX25PDx.isSuccess()) {
                 Counter25DXPDx++;
             }
             if (PDXCounter99 > 0) {//Trache-ostomy
@@ -149,7 +151,7 @@ public class GetMDC25 {
                             drgResult.setSDXFINDER(String.join(",", sdxfinder));
                         }
                         drgResult.setDC("2550");
-                    } else if (Counter25CXSDx > 0 || Counter25BXPDx > 0) {//HIV-related Malignancy
+                    } else if (Counter25CXSDx > 0 || Counter25CXPDx > 0) {//HIV-related Malignancy
                         for (int x = 0; x < SecondaryList.size(); x++) {
                             DRGWSResult sdxfinderResult = gm.AX(datasource, CX25, SecondaryList.get(x));
                             if (sdxfinderResult.isSuccess()) {
@@ -161,6 +163,7 @@ public class GetMDC25 {
                         }
                         drgResult.setDC("2551");
                     } else {
+                        
                         if (Counter25DXSDx > 0 || Counter25DXPDx > 0) {//HIV-related Infection
                             if (grouperparameter.getDischargeType().equals("4")) {
                                 drgResult.setDC("2554");
@@ -219,7 +222,7 @@ public class GetMDC25 {
                     drgResult.setSDXFINDER(String.join(",", sdxfinder));
                 }
                 drgResult.setDC("2550");
-            } else if (Counter25CXSDx > 0 || Counter25BXPDx > 0) {//HIV-related Malignancy
+            } else if (Counter25CXSDx > 0 || Counter25CXPDx > 0) {//HIV-related Malignancy
                 for (int x = 0; x < SecondaryList.size(); x++) {
                     DRGWSResult sdxfinderResult = gm.AX(datasource, CX25, SecondaryList.get(x));
                     if (sdxfinderResult.isSuccess()) {

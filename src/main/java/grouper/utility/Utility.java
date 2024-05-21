@@ -238,7 +238,7 @@ public class Utility {
             long AgeY = (difference_In_Time / (1000l * 60 * 60 * 24 * 365));
             result = AgeY > 124;
         } catch (ParseException ex) {
-            Logger.getLogger(DRGUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 
@@ -270,7 +270,7 @@ public class Utility {
 
             result = (int) Minutes;
         } catch (ParseException ex) {
-            Logger.getLogger(DRGUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -285,7 +285,7 @@ public class Utility {
             long AgeY = (difference_In_Time / (1000l * 60 * 60 * 24 * 365));
             result = (int) AgeY;
         } catch (ParseException ex) {
-            Logger.getLogger(DRGUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 
@@ -300,7 +300,7 @@ public class Utility {
             result = displayFormat.format(dates);
 
         } catch (ParseException ex) {
-            Logger.getLogger(DRGUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -313,7 +313,7 @@ public class Utility {
             Date time24 = displayFormat.parse(times);
             result = parseFormat.format(time24);
         } catch (ParseException ex) {
-            Logger.getLogger(DRGUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -340,7 +340,7 @@ public class Utility {
             long CalLOS = (difference_In_Time / (1000 * 60 * 60 * 24)) % 365;
             result = (int) CalLOS;
         } catch (ParseException ex) {
-            Logger.getLogger(DRGUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

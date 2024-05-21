@@ -27,7 +27,6 @@ grouper\methods\mdc\GetMDC21.class
 grouper\structures\DC.class
 grouper\structures\BMDCPreMDCResult.class
 grouper\structures\NClaimsData.class
-grouper\utility\DRGUtility.class
 grouper\structures\MDCProcedure.class
 grouper\methods\mdc\GetMDC25.class
 grouper\methods\mdc\GetMDC15.class
@@ -51,6 +50,7 @@ grouper\methods\mdc\GetMDC16.class
 grouper\methods\mdc\GetMDC07.class
 grouper\methods\mdc\GetMDC01.class
 grouper\structures\DRGWSResult.class
+grouper\methods\premdc\ProcessGrouperParameter.class
 grouper\methods\premdc\GetValidatedPreMDC.class
 grouper\utility\NamedParameterStatement.class
 grouper\methods\mdc\GetMDC04.class

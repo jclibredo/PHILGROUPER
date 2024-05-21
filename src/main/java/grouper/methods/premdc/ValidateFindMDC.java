@@ -118,10 +118,8 @@ public class ValidateFindMDC {
             }
 
             //==========================================================================================================
-            String days = String.valueOf(utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
-            String year = String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+           
             DRGWSResult geticd10Result = gm.GetICD10PreMDC(datasource, grouperparameter.getPdx());
-            DRGWSResult getAgeConfictResult = gm.AgeConfictValidation(datasource, grouperparameter.getPdx(), days, year);
             DRGWSResult getSexConfictResult = gm.GenderConfictValidation(datasource, grouperparameter.getPdx(), grouperparameter.getGender());
 
             //==========================================================================================================
@@ -137,13 +135,7 @@ public class ValidateFindMDC {
                 drgResult.setDRGName("PDx : " + grouperparameter.getPdx() + " Having age conflict : ");
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
-            } else if (!getAgeConfictResult.isSuccess()) {
-                drgResult.setDRG("26539");
-                drgResult.setDC("2653");
-                drgResult.setDRGName("PDx : " + grouperparameter.getPdx() + " Having conflict with age");
-                result.setResult(utility.objectMapper().writeValueAsString(drgResult));
-                result.setSuccess(true);
-            } else if (!getSexConfictResult.isSuccess()) {
+            }  else if (!getSexConfictResult.isSuccess()) {
                 drgResult.setDRG("26509");
                 drgResult.setDC("2650");
                 drgResult.setDRGName(grouperparameter.getPdx() + " PDx having conflict with sex");
@@ -229,7 +221,7 @@ public class ValidateFindMDC {
 
             }
             //====================================================================== 
-        } catch (IOException ex) {
+        } catch (ParseException | IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(ValidateFindMDC.class.getName()).log(Level.SEVERE, null, ex);
         }

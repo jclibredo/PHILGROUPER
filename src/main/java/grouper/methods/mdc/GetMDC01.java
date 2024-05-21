@@ -512,12 +512,14 @@ public class GetMDC01 {
                         if (drgname.isSuccess()) {
                             drgResult.setDRG(drgValue);
                             drgResult.setDRGName(drgname.getMessage());
+                            System.out.println(drgResult.getDRG());
                         } else {
                             DRGWSResult drgvalues = gm.ValidatePCCL(datasource, drgResult.getDC(), drgValue);
                             if (drgvalues.isSuccess()) {
                                 drgResult.setDRG(drgResult.getDC() + drgvalues.getResult());
                                 DRGWSResult drgnames = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
                                 drgResult.setDRGName(drgnames.getMessage());
+                                System.out.println(drgResult.getDRG());
                             } else {
                                 drgResult.setDRG(drgValue);
                                 drgResult.setDRGName("Grouper Error");

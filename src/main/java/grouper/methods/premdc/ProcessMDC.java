@@ -48,11 +48,11 @@ import javax.sql.DataSource;
  */
 @RequestScoped
 public class ProcessMDC {
-
+    
     public ProcessMDC() {
     }
     private final Utility utility = new Utility();
-
+    
     public DRGWSResult ProcessMDC(final DataSource datasource, final DRGOutput mdcfinderoutput, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         try {
@@ -137,7 +137,6 @@ public class ProcessMDC {
                     result.setMessage(get11Result.getMessage());
                     result.setResult(get11Result.getResult());
                     result.setSuccess(get11Result.isSuccess());
-
                     break;
                 case 12:
                     GetMDC12 get12 = new GetMDC12();
@@ -248,13 +247,13 @@ public class ProcessMDC {
                     result.setMessage("MDC NOT FOUND");
                     break;
             }
-
+            
         } catch (IOException | ParseException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(ProcessMDC.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
         return result;
     }
-
+    
 }

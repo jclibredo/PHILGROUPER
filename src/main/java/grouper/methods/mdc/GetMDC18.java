@@ -110,8 +110,7 @@ public class GetMDC18 {
                     } else {
                         switch (drgResult.getPDC()) {
                             case "18A"://Septicemia
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                     if (grouperparameter.getDischargeType().equals("4")) {
                                         drgResult.setDC("1872");
                                     } else {
@@ -122,16 +121,14 @@ public class GetMDC18 {
                                 }
                                 break;
                             case "18B"://Postop & Posttraumatic Infections
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 54
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 54) {
                                     drgResult.setDC("1852");
                                 } else {
                                     drgResult.setDC("1853");
                                 }
                                 break;
                             case "18C"://Malaria
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                     drgResult.setDC("1854");
                                 } else {
                                     drgResult.setDC("1855");
@@ -139,8 +136,7 @@ public class GetMDC18 {
                                 break;
                             case "18D"://CounterPDxBX18
                                 if (CounterSDxBX18 > 0 || CounterPDxBX18 > 0) {
-                                    if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                            && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                    if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                         drgResult.setDC("1870");
                                     } else {
                                         drgResult.setDC("1871");
@@ -156,8 +152,7 @@ public class GetMDC18 {
                                     }
 
                                 } else {
-                                    if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                            && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                    if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                         drgResult.setDC("1856");
                                     } else {
                                         drgResult.setDC("1857");
@@ -166,48 +161,42 @@ public class GetMDC18 {
                                 break;
 
                             case "18E"://Fever of Unknown Origin
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                     drgResult.setDC("1858");
                                 } else {
                                     drgResult.setDC("1859");
                                 }
                                 break;
                             case "18F"://Viral Illness Except Dengue
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                     drgResult.setDC("1860");
                                 } else {
                                     drgResult.setDC("1861");
                                 }
                                 break;
                             case "18G"://Fungal Diseases
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                     drgResult.setDC("1862");
                                 } else {
                                     drgResult.setDC("1863");
                                 }
                                 break;
                             case "18H"://Other Infectious & Parasitic Diseases
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                     drgResult.setDC("1864");
                                 } else {
                                     drgResult.setDC("1865");
                                 }
                                 break;
                             case "18J"://Melioidosis
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                     drgResult.setDC("1866");
                                 } else {
                                     drgResult.setDC("1867");
                                 }
                                 break;
                             case "18K"://Leptospirosis
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                     drgResult.setDC("1868");
                                 } else {
                                     drgResult.setDC("1869");
@@ -250,8 +239,7 @@ public class GetMDC18 {
             } else {
                 switch (drgResult.getPDC()) {
                     case "18A"://Septicemia
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                             if (grouperparameter.getDischargeType().equals("4")) {
                                 drgResult.setDC("1872");
                             } else {
@@ -262,16 +250,14 @@ public class GetMDC18 {
                         }
                         break;
                     case "18B"://Postop & Posttraumatic Infections
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 54
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 54) {
                             drgResult.setDC("1852");
                         } else {
                             drgResult.setDC("1853");
                         }
                         break;
                     case "18C"://Malaria
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                             drgResult.setDC("1854");
                         } else {
                             drgResult.setDC("1855");
@@ -279,8 +265,7 @@ public class GetMDC18 {
                         break;
                     case "18D"://CounterPDxBX18
                         if (CounterSDxBX18 > 0 || CounterPDxBX18 > 0) {
-                            if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                    && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                            if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                 drgResult.setDC("1870");
                             } else {
                                 drgResult.setDC("1871");
@@ -296,8 +281,7 @@ public class GetMDC18 {
                                 drgResult.setSDXFINDER(String.join(",", sdxfinder));
                             }
                         } else {
-                            if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                    && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                            if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                                 drgResult.setDC("1856");
                             } else {
                                 drgResult.setDC("1857");
@@ -305,48 +289,42 @@ public class GetMDC18 {
                         }
                         break;
                     case "18E"://Fever of Unknown Origin
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                             drgResult.setDC("1858");
                         } else {
                             drgResult.setDC("1859");
                         }
                         break;
                     case "18F"://Viral Illness Except Dengue
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                             drgResult.setDC("1860");
                         } else {
                             drgResult.setDC("1861");
                         }
                         break;
                     case "18G"://Fungal Diseases
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                             drgResult.setDC("1862");
                         } else {
                             drgResult.setDC("1863");
                         }
                         break;
                     case "18H"://Other Infectious & Parasitic Diseases
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                             drgResult.setDC("1864");
                         } else {
                             drgResult.setDC("1865");
                         }
                         break;
                     case "18J"://Melioidosis
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                             drgResult.setDC("1866");
                         } else {
                             drgResult.setDC("1867");
                         }
                         break;
                     case "18K"://Leptospirosis
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 14
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
                             drgResult.setDC("1868");
                         } else {
                             drgResult.setDC("1869");
@@ -404,7 +382,7 @@ public class GetMDC18 {
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setMessage("MDC 18 Done Checking");
 
-        } catch (IOException | ParseException ex) {
+        } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GetMDC18.class.getName()).log(Level.SEVERE, null, ex);
         }
