@@ -57,14 +57,6 @@ public class GetMDC05 {
                     PCXCounter99++;
                 }
             }
-            //AX 5PEX
-            int Counter5PEX = 0;
-            for (int x = 0; x < ProcedureList.size(); x++) {
-                String proc5PEX = ProcedureList.get(x);
-                if (utility.isValid5PEX(proc5PEX)) {
-                    Counter5PEX++;
-                }
-            }
 
             //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
             int mdcprocedureCounter = 0;
@@ -74,29 +66,30 @@ public class GetMDC05 {
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String proc = ProcedureList.get(y);
-                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
+                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
                     DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                    if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
+                    if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc);
-                if (String.valueOf(ORProcedureResult.isSuccess()).equals("true")) {
+                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
+                if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
+
             }
 
             //5BX USES PRIMARY CODES
             String BX5 = "5BX";
             int Counter5BX = 0;
             DRGWSResult Result5BX = gm.AX(datasource, BX5, grouperparameter.getPdx());
-            if (String.valueOf(Result5BX.isSuccess()).equals("true")) {
+            if (Result5BX.isSuccess()) {
                 Counter5BX++;
             }
             // AX 5CX
@@ -109,21 +102,23 @@ public class GetMDC05 {
             for (int x = 0; x < SecondaryList.size(); x++) {
                 String SeconRes = SecondaryList.get(x);
 
-                DRGWSResult CX5Result = gm.AX(datasource, CX5, SeconRes);
+                DRGWSResult CX5Result = gm.AX(datasource, CX5, SeconRes.trim());
                 if (CX5Result.isSuccess()) {
                     Counter5CX++;
                 }
 
-                DRGWSResult SDx5Result = gm.AX(datasource, SDX5, SeconRes);
+                DRGWSResult SDx5Result = gm.AX(datasource, SDX5, SeconRes.trim());
                 if (SDx5Result.isSuccess()) {
                     Counter5DXSDx++;
                 }
             }
 
             DRGWSResult PDx5Result = gm.AX(datasource, SDX5, grouperparameter.getPdx());
-            if (String.valueOf(PDx5Result.getResult()).equals("true")) {
+            if (PDx5Result.isSuccess()) {
                 Counter5DXPDx++;
             }
+            //AX 5PEX
+            int Counter5PEX = 0;
             //AX 5PCX
             int Counter5PCX = 0;
             //AX 5PFX
@@ -145,38 +140,56 @@ public class GetMDC05 {
             int PPCount = 0;
             int Counter5PBX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
-                String proc5PDX = ProcedureList.get(x);
-                String proc5PCX = ProcedureList.get(x);
-                if (utility.isValid5PEX(proc5PCX)) {
+                //AX 5PEX
+                DRGWSResult Result5PEX = gm.AX(datasource, "5PEX", ProcedureList.get(x).trim());
+                if (Result5PEX.isSuccess()) {
+                    Counter5PEX++;
+                }
+                //AX 5PCX
+                DRGWSResult Result5PCX = gm.AX(datasource, "5PCX", ProcedureList.get(x).trim());
+                if (Result5PCX.isSuccess()) {
                     Counter5PCX++;
                 }
-                if (utility.isValid5PEX(proc5PDX)) {
+                //AX 5PFX
+                DRGWSResult Result5PFX = gm.AX(datasource, "5PFX", ProcedureList.get(x).trim());
+                if (Result5PFX.isSuccess()) {
                     Counter5PFX++;
                 }
-                if (utility.isValid5PEX(proc5PDX)) {
+                //AX 5PDX
+                DRGWSResult Result5PDX = gm.AX(datasource, "5PDX", ProcedureList.get(x).trim());
+                if (Result5PDX.isSuccess()) {
                     Counter5PDX++;
                 }
+
                 //AX 5PGX
-                if (utility.isValid5PEX(proc5PDX)) {
+                DRGWSResult Result5PGX = gm.AX(datasource, "5PGX", ProcedureList.get(x).trim());
+                if (Result5PGX.isSuccess()) {
                     Counter5PGX++;
                 }
-                //AX 5PGX
-                if (utility.isValid5PEX(proc5PDX)) {
+
+                //AX 5PHX
+                DRGWSResult Result5PHX = gm.AX(datasource, "5PHX", ProcedureList.get(x).trim());
+                if (Result5PHX.isSuccess()) {
                     Counter5PHX++;
                 }
-                if (utility.isValid5PBX(proc5PDX)) {
+
+                DRGWSResult Result5PJX = gm.AX(datasource, "5PJX", ProcedureList.get(x).trim());
+                if (Result5PJX.isSuccess()) {
                     Counter5PJX++;
                 }
+
                 //Cardiac Cath PDC 5PT
-                DRGWSResult getCardiacResult = gm.Endovasc(datasource, proc5PDX, pdc5PT, drgResult.getMDC());
+                DRGWSResult getCardiacResult = gm.Endovasc(datasource, ProcedureList.get(x).trim(), pdc5PT, drgResult.getMDC());
                 if (getCardiacResult.isSuccess()) {
                     CardiacCount++;
                 }
                 //AX 5PBX
-                if (utility.isValid5PBX(proc5PDX)) {
+                DRGWSResult Result5PBX = gm.AX(datasource, "5PBX", ProcedureList.get(x).trim());
+                if (Result5PBX.isSuccess()) {
                     Counter5PBX++;
                 }
-                DRGWSResult getPPResult = gm.Endovasc(datasource, proc5PDX, pdc5PK, drgResult.getMDC());
+
+                DRGWSResult getPPResult = gm.Endovasc(datasource, ProcedureList.get(x).trim(), pdc5PK, drgResult.getMDC());
                 if (getPPResult.isSuccess()) {
                     PPCount++;
                 }
@@ -188,6 +201,9 @@ public class GetMDC05 {
             if (getAMIResult.isSuccess()) {
                 AMICount++;
             }
+
+            System.out.println("MDC Procedure : " + mdcprocedureCounter);
+            System.out.println("PDx 5DX : " + Counter5DXPDx);
             // THIS AREA WILL START THE CONDITIONAL STATEMENT FOR THIS MDC
             if (PDXCounter99 > 0) {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),

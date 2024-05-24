@@ -138,24 +138,21 @@ public class GetMDC21 {
                     } else {
                         switch (drgResult.getPDC()) {
                             case "21A"://Traumatic Injury
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                                     drgResult.setDC("2150");
                                 } else {
                                     drgResult.setDC("2151");
                                 }
                                 break;
                             case "21B"://Allergic Reaction
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                                     drgResult.setDC("2152");
                                 } else {
                                     drgResult.setDC("2153");
                                 }
                                 break;
                             case "21C"://Drugs
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                                     drgResult.setDC("2154");
                                 } else {
                                     drgResult.setDC("2155");
@@ -231,24 +228,21 @@ public class GetMDC21 {
             } else {
                 switch (drgResult.getPDC()) {
                     case "21A"://Traumatic Injury
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                             drgResult.setDC("2150");
                         } else {
                             drgResult.setDC("2151");
                         }
                         break;
                     case "21B"://Allergic Reaction
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                             drgResult.setDC("2152");
                         } else {
                             drgResult.setDC("2153");
                         }
                         break;
                     case "21C"://Drugs
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                             drgResult.setDC("2154");
                         } else {
                             drgResult.setDC("2155");
@@ -312,7 +306,7 @@ public class GetMDC21 {
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setMessage("MDC 21 Done Checking");
 
-        } catch (IOException | ParseException ex) {
+        } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GetMDC21.class.getName()).log(Level.SEVERE, null, ex);
         }

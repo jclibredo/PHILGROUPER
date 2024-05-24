@@ -42,8 +42,17 @@ public class GetMDC15 {
         float AdmWTValues = 0;
 
         if (!grouperparameter.getAdmissionWeight().isEmpty()) {
-            float totaladmision = Float.parseFloat(grouperparameter.getAdmissionWeight());
+            Float totaladmision = Float.parseFloat(grouperparameter.getAdmissionWeight());
             AdmWTValues = totaladmision * 1000;
+        }
+        int finalage = 0;
+        int days = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+        int year = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+
+        if (year > 0) {
+            finalage = year * 365;
+        } else {
+            finalage = days;
         }
         try {
 
@@ -56,34 +65,27 @@ public class GetMDC15 {
             int MainCCPDx = 0;
             int MainCCSDx = 0;
             int AXMainCC = 0;
-
-            String PBX15 = "15PBX";
-            String PCX15 = "15PCX";
-            String PEX15 = "15PEX";
-            String PDX15 = "15PDX";
-            String BX15 = "15BX";
-            String CX15 = "15CX";
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String procs = ProcedureList.get(x);
                 //AX 99PDX Checking
-                DRGWSResult Result15PBX = gm.AX(datasource, PBX15, procs);
+                DRGWSResult Result15PBX = gm.AX(datasource, "15PBX", procs);
                 if (Result15PBX.isSuccess()) {
                     Counter15PBX++;
                 }
                 //AX 99PDX Checking
-                DRGWSResult Result15PCX = gm.AX(datasource, PCX15, procs);
+                DRGWSResult Result15PCX = gm.AX(datasource, "15PCX", procs);
                 if (Result15PCX.isSuccess()) {
                     Counter15PCX++;
                 }
                 //AX 15PEX
-                DRGWSResult Result15PEX = gm.AX(datasource, PEX15, procs);
+                DRGWSResult Result15PEX = gm.AX(datasource, "15PEX", procs);
                 if (Result15PEX.isSuccess()) {
                     Counter15PEX++;
                 }
 
                 //AX 15PDX
-                DRGWSResult Result15PDX = gm.AX(datasource, PDX15, procs);
-                if (String.valueOf(Result15PDX.isSuccess()).equals("true")) {
+                DRGWSResult Result15PDX = gm.AX(datasource, "15PDX", procs);
+                if (Result15PDX.isSuccess()) {
                     Counter15PDX++;
                 }
 
@@ -92,29 +94,29 @@ public class GetMDC15 {
             for (int y = 0; y < SecondaryList.size(); y++) {
                 String SeconD = SecondaryList.get(y);
                 //AX SDx Main CC
-                DRGWSResult SDxMainCC = gm.AX(datasource, BX15, SeconD);
-                if (String.valueOf(SDxMainCC.isSuccess()).equals("true")) {
+                DRGWSResult SDxMainCC = gm.AX(datasource, "15BX", SeconD.trim());
+                if (SDxMainCC.isSuccess()) {
                     MainCCSDx++;
                 }
                 // THIS AREA IS FOR SDx15BX
 
-                DRGWSResult Result15SDx = gm.AX(datasource, BX15, SeconD);
-                if (String.valueOf(Result15SDx.isSuccess()).equals("true")) {
+                DRGWSResult Result15SDx = gm.AX(datasource, "15BX", SeconD.trim());
+                if (Result15SDx.isSuccess()) {
                     Counter15BX++;
                 }
 
-                if (utility.isValid15CX(SeconD)) {
+                DRGWSResult Result15CX = gm.AX(datasource, "15CX", SeconD.trim());
+                if (Result15CX.isSuccess()) {
                     Counter15CX++;
                 }
             }
             int PDxCounter15CX = 0;
-
-            DRGWSResult Result15PDX = gm.AX(datasource, CX15, grouperparameter.getPdx());
-            if (String.valueOf(Result15PDX.isSuccess()).equals("true")) {
+            DRGWSResult Result15PCX = gm.AX(datasource, "15CX", grouperparameter.getPdx());
+            if (Result15PCX.isSuccess()) {
                 PDxCounter15CX++;
             }
 
-            DRGWSResult Result15BXSDx = gm.AX(datasource, BX15, grouperparameter.getPdx());
+            DRGWSResult Result15BXSDx = gm.AX(datasource, "15BX", grouperparameter.getPdx());
             if (Result15BXSDx.isSuccess()) {
                 MainCCPDx++;
             }
@@ -164,8 +166,10 @@ public class GetMDC15 {
                         }
                     }
                 }
-            } else if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                    grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
+            } else if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                    grouperparameter.getDischargeDate(),
+                    utility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
                     && grouperparameter.getDischargeType().equals("9")) {
                 if (Counter15PDX > 0) {
                     drgResult.setDC("1501");
@@ -199,8 +203,7 @@ public class GetMDC15 {
                         drgResult.setDC("1554");
                     }
                 }
-            } else if (utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 27
-                    || utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+            } else if (finalage > 27 && AdmWTValues < 1.0) {
                 if (Counter15PBX > 0) {
                     drgResult.setDC("1509");
                 } else {
@@ -210,7 +213,6 @@ public class GetMDC15 {
                         drgResult.setDC("1554");
                     }
                 }
-
             } else if (AdmWTValues > 1499.0) {
                 if (Counter15PBX > 0) { // YOUR HERE FOR CHECKING AREA
                     drgResult.setDC("1507");
@@ -287,7 +289,7 @@ public class GetMDC15 {
             result.setSuccess(true);
             result.setMessage("MDC 15 Done Checking");
 
-        } catch (ParseException | IOException ex) {
+        } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GetMDC16.class.getName()).log(Level.SEVERE, null, ex);
         }

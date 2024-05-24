@@ -44,28 +44,15 @@ public class GetMDC03 {
         GrouperMethod gm = new GrouperMethod();
         //CHECKING FOR 3PDX USING PROC
         int Counter3PDX = 0;
-        for (int x = 0; x < ProcedureList.size(); x++) {
-            String pdx3Proc = ProcedureList.get(x);
-            //AX 99PDX Checking
-            if (utility.isValid3PDX(pdx3Proc)) {
-                Counter3PDX++;
-            }
-        }
-        //CHECKING FOR 3PBX USING PROC
         int Counter3PBX = 0;
-        for (int x = 0; x < ProcedureList.size(); x++) {
-            String pbx3Proc = ProcedureList.get(x);
-            if (utility.isValid3PBX(pbx3Proc)) {
-                Counter3PBX++;
-            }
-        }
-        //THIS AREA IS FOR CHECKING OF RADIO AND CHECMO
         int CartSDx = 0;
         int CaCRxSDx = 0;
         int CartProc = 0;
         int CaCRxProc = 0;
         int PCX3Proc = 0;
         int PBX99Proc = 0;
+        int Counter3PEX = 0;
+        int Counter3BX = 0;
         //Checking SDx RadioTherapy and Chemotherapy
         for (int a = 0; a < SecondaryList.size(); a++) {
             String Secon = SecondaryList.get(a);
@@ -76,38 +63,18 @@ public class GetMDC03 {
                 CaCRxSDx++;
             }
         }
-        //Checking Procedure RadioTherapy and Chemotherapy
-        for (int a = 0; a < ProcedureList.size(); a++) {
-            String Proce = ProcedureList.get(a);
-            if (utility.isValid99PEX(Proce)) {
-                CartProc++;
-            }
-            if (utility.isValid99PFX(Proce)) {
-                CaCRxProc++;
-            }
-            if (utility.isValid3PCX(Proce)) {
-                PCX3Proc++;
-            }
-            if (utility.isValid99PBX(Proce)) { //Blood Transfusion AX 99PBX
-                PBX99Proc++;
-            }
-        }
-        //CHECKING FOR 3PEX USING PROC
-        int Counter3PEX = 0;
-        for (int x = 0; x < ProcedureList.size(); x++) {
-            String pex3Proc = ProcedureList.get(x);
-            //AX 99PDX Checking
-            if (utility.isValid3PEX(pex3Proc)) {
-                Counter3PEX++;
-            }
-        }
+
         //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
         int mdcprocedureCounter = 0;
+        int ORProcedureCounter = 0;
+        int PDXCounter99 = 0;
+        int PCXCounter99 = 0;
+        ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
         ArrayList<Integer> hierarvalue = new ArrayList<>();
         ArrayList<String> pdclist = new ArrayList<>();
         for (int y = 0; y < ProcedureList.size(); y++) {
             String proc = ProcedureList.get(y);
-            DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
+            DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
             if (JoinResult.isSuccess()) {
                 mdcprocedureCounter++;
                 MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
@@ -118,48 +85,71 @@ public class GetMDC03 {
                     pdclist.add(hiarresult.getPDC());
                 }
             }
-        }
-        //THIS AREA IS FOR CHECKING OF OR PROCEDURE
-        int ORProcedureCounter = 0;
-        ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-        //  String models = String.join(",", secondaryList);
-        for (int y = 0; y < ProcedureList.size(); y++) {
-            String procs = ProcedureList.get(y);
-            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, procs);
-            if (String.valueOf(ORProcedureResult.isSuccess()).equals("true")) {
+            //AX 3PBX Checking
+            DRGWSResult Result3PBX = gm.AX(datasource, "3PBX", proc.trim());
+            if (Result3PBX.isSuccess()) {
+                Counter3PBX++;
+            }
+            //AX 3PEX Checking
+            DRGWSResult Result3PEX = gm.AX(datasource, "3PEX", proc.trim());
+            if (Result3PEX.isSuccess()) {
+                Counter3PEX++;
+            }
+            //AX 99PEX Checking
+            if (utility.isValid99PEX(proc.trim())) {
+                CartProc++;
+            }
+            //AX 99PFX Checking
+            if (utility.isValid99PFX(proc.trim())) {
+                CaCRxProc++;
+            }
+            //AX 3PCX Checking
+            DRGWSResult Result3PCX = gm.AX(datasource, "3PCX", proc.trim());
+            if (Result3PCX.isSuccess()) {
+                PCX3Proc++;
+            }
+            //AX 99PBX Checking
+            if (utility.isValid99PBX(proc.trim())) { //Blood Transfusion AX 99PBX
+                PBX99Proc++;
+            }
+            //AX 3PDX Checking
+            DRGWSResult Result3PDX = gm.AX(datasource, "3PDX", proc.trim());
+            if (Result3PDX.isSuccess()) {
+                Counter3PDX++;
+            }
+
+            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
+            if (ORProcedureResult.isSuccess()) {
                 ORProcedureCounter++;
                 ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
             }
-        }
-        //CHECKING FOR TRAUMA CODES
-        int PDXCounter99 = 0;
-        int PCXCounter99 = 0;
-        for (int x = 0; x < ProcedureList.size(); x++) {
-            String proc = ProcedureList.get(x);
-            //AX 99PDX Checking
-            if (utility.isValid99PDX(proc)) {
+
+            if (utility.isValid99PDX(proc.trim())) {
                 PDXCounter99++;
             }
             //AX 99PCX Checking
-            if (utility.isValid99PCX(proc)) {
+            if (utility.isValid99PCX(proc.trim())) {
                 PCXCounter99++;
             }
-        }
-        for (int x = 0; x < ProcedureList.size(); x++) {
-            String proc = ProcedureList.get(x);
-            //AX 99PDX Checking
-            if (utility.isValid99PDX(proc)) {
+
+            if (utility.isValid99PDX(proc.trim())) {
                 PDXCounter99++;
             }
             //AX 99PCX Checking
-            if (utility.isValid99PCX(proc)) {
+            if (utility.isValid99PCX(proc.trim())) {
                 PCXCounter99++;
             }
         }
+
+        DRGWSResult Result3BX = gm.AX(datasource, "3BX", grouperparameter.getPdx().toUpperCase().trim());
+        if (Result3BX.isSuccess()) {
+            Counter3BX++;
+        }
+
 //CONDITIONAL STATEMENT STARTS HERE
         try {
             if (PDXCounter99 > 0) {
-                if (utility.isValid3BX(grouperparameter.getPdx())) {
+                if (Counter3BX > 0) {
                     if (Counter3PDX > 0) { //Procedures for upper airway obstruction
                         drgResult.setDC("0322");
                     } else {

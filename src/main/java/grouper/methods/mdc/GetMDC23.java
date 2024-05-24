@@ -57,23 +57,23 @@ public class GetMDC23 {
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
                 //AX 99PDX Checking
-                if (utility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc.trim())) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc.trim())) {
                     PCXCounter99++;
                 }
-                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc);
-                if (String.valueOf(ORProcedureResult.isSuccess()).equals("true")) {
+                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
+                if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                DRGWSResult ResultPBX23 = gm.AX(datasource, PBX23, proc);
+                DRGWSResult ResultPBX23 = gm.AX(datasource, PBX23, proc.trim());
                 if (String.valueOf(ResultPBX23.isSuccess()).equals("true")) {
                     Counter23PBX++;
                 }
-                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
+                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
@@ -95,7 +95,7 @@ public class GetMDC23 {
                     Counter23BX++;
                 }
             }
-
+            System.out.println("MDC PROC : "+mdcprocedureCounter);
             if (PDXCounter99 > 0) {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),

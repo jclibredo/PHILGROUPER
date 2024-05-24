@@ -103,6 +103,7 @@ public class Grouper {
                 if (grouperResult.isSuccess()) {
                     DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
                     drgresultList.add(drgout);
+                    System.out.println(drgout.getDRG());
                 }
             }
             if (grouperparameter.size() > 0) {

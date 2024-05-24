@@ -61,33 +61,34 @@ public class GetMDC13 {
 
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
-
-                if (utility.isValid99PEX(proc)) {
+                if (utility.isValid99PEX(proc.trim())) {
                     CartProc++;
                 }
-                if (utility.isValid99PFX(proc)) {
+                if (utility.isValid99PFX(proc.trim())) {
                     CaCRxProc++;
                 }
                 //AX 99PDX Checking
-                if (utility.isValid99PDX(proc)) {
+                if (utility.isValid99PDX(proc.trim())) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(proc)) {
+                if (utility.isValid99PCX(proc.trim())) {
                     PCXCounter99++;
                 }
-                //AX 11PBX Checking
-                if (utility.isValid11PBX(proc)) {
+                //AX 13PBX Checking
+                DRGWSResult Result13PBX = gm.AX(datasource, "13PBX", proc.trim());
+                if (Result13PBX.isSuccess()) {
                     Counter13PBX++;
                 }
+
                 //THIS AREA IS FOR CHECKING OF OR PROCEDURE
-                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc);
+                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
                 if (String.valueOf(ORProcedureResult.isSuccess()).equals("true")) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
-                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
+                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
@@ -109,7 +110,6 @@ public class GetMDC13 {
                     CaCRxSDx++;
                 }
             }
-
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),

@@ -29,12 +29,12 @@ import javax.sql.DataSource;
  */
 @RequestScoped
 public class GetMDC10 {
-    
+
     public GetMDC10() {
     }
-    
+
     private final Utility utility = new Utility();
-    
+
     public DRGWSResult GetMDC10(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -52,40 +52,26 @@ public class GetMDC10 {
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter10PBX = 0;
-            for (int x = 0; x < ProcedureList.size(); x++) {
-                String proc = ProcedureList.get(x);
-                //AX 99PDX Checking
-                if (utility.isValid99PDX(proc)) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (utility.isValid99PCX(proc)) {
-                    PCXCounter99++;
-                }
-                if (utility.isValid10PBX(proc)) {
-                    Counter10PBX++;
-                }
-            }
-
-            //THIS AREA IS FOR CHECKING OF OR PROCEDURE
             int ORProcedureCounter = 0;
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            //  String models = String.join(",", secondaryList);
-            for (int y = 0; y < ProcedureList.size(); y++) {
-                String procs = ProcedureList.get(y);
-                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, procs);
-                if (String.valueOf(ORProcedureResult.isSuccess()).equals("true")) {
-                    ORProcedureCounter++;
-                    ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
-                }
-            }
-            //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
             int mdcprocedureCounter = 0;
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
-            for (int y = 0; y < ProcedureList.size(); y++) {
-                String proc = ProcedureList.get(y);
-                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            for (int x = 0; x < ProcedureList.size(); x++) {
+                String proc = ProcedureList.get(x);
+                //AX 99PDX Checking
+                if (utility.isValid99PDX(proc.trim())) {
+                    PDXCounter99++;
+                }
+                //AX 99PCX Checking
+                if (utility.isValid99PCX(proc.trim())) {
+                    PCXCounter99++;
+                }
+                if (utility.isValid10PBX(proc.trim())) {
+                    Counter10PBX++;
+                }
+
+                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
@@ -95,6 +81,12 @@ public class GetMDC10 {
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
+                }
+
+                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
+                if (String.valueOf(ORProcedureResult.isSuccess()).equals("true")) {
+                    ORProcedureCounter++;
+                    ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
             }
 
@@ -111,15 +103,14 @@ public class GetMDC10 {
                                 min = hierarvalue.get(i);
                             }
                         }
-                        
+
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                         switch (pdclist.get(hierarvalue.indexOf(min))) {
                             case "10PB"://Pituitary
                                 drgResult.setDC("1001");
                                 break;
                             case "10PC"://Amputation of Lower Limb
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 59
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 59) {
                                     drgResult.setDC("1003");
                                 } else {
                                     drgResult.setDC("1004");
@@ -146,9 +137,9 @@ public class GetMDC10 {
                             case "10PH"://Thyroglossal PDC 10PH
                                 drgResult.setDC("1009");
                                 break;
-                            
+
                         }
-                        
+
                     } else if (ORProcedureCounter > 0) {
                         switch (Collections.max(ORProcedureCounterList)) {
                             case 1:
@@ -170,9 +161,9 @@ public class GetMDC10 {
                                 drgResult.setDC("2606");
                                 break;
                         }
-                        
+
                     } else {
-                        
+
                         switch (drgResult.getPDC()) {
                             case "10A"://Diabetes with Complicated PDx
                                 if (Counter10PBX > 0) {
@@ -182,8 +173,7 @@ public class GetMDC10 {
                                 }
                                 break;
                             case "10B"://Severe Metabolic Disorders
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                                     drgResult.setDC("1051");
                                 } else {
                                     drgResult.setDC("1052");
@@ -201,11 +191,11 @@ public class GetMDC10 {
                             case "10F"://Diabetes without Complicated PDx PDC 10F
                                 drgResult.setDC("1056");
                                 break;
-                            
+
                         }
-                        
+
                     }
-                    
+
                 } else {
                     if (PCXCounter99 > 0) {
                         drgResult.setDC("1011");
@@ -222,15 +212,14 @@ public class GetMDC10 {
                         min = hierarvalue.get(i);
                     }
                 }
-                
+
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 switch (pdclist.get(hierarvalue.indexOf(min))) {
                     case "10PB"://Pituitary
                         drgResult.setDC("1001");
                         break;
                     case "10PC"://Amputation of Lower Limb
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 59
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 59) {
                             drgResult.setDC("1003");
                         } else {
                             drgResult.setDC("1004");
@@ -257,9 +246,9 @@ public class GetMDC10 {
                     case "10PH"://Thyroglossal PDC 10PH
                         drgResult.setDC("1009");
                         break;
-                    
+
                 }
-                
+
             } else if (ORProcedureCounter > 0) {
                 switch (Collections.max(ORProcedureCounterList)) {
                     case 1:
@@ -281,9 +270,8 @@ public class GetMDC10 {
                         drgResult.setDC("2606");
                         break;
                 }
-                
+
             } else {
-                
                 switch (drgResult.getPDC()) {
                     case "10A"://Diabetes with Complicated PDx
                         if (Counter10PBX > 0) {
@@ -293,8 +281,7 @@ public class GetMDC10 {
                         }
                         break;
                     case "10B"://Severe Metabolic Disorders
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                             drgResult.setDC("1051");
                         } else {
                             drgResult.setDC("1052");
@@ -314,7 +301,7 @@ public class GetMDC10 {
                         break;
                 }
             }
-            
+
             if (drgResult.getDRG() == null) {
 
                 //-------------------------------------------------------------------------------------
@@ -360,16 +347,15 @@ public class GetMDC10 {
                     drgResult.setDRGName("Grouper Error");
                 }
             }
-            
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setMessage("MDC 10 Done Checking");
-            
-        } catch (IOException | ParseException ex) {
+
+        } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GetMDC10.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
-        
+
     }
-    
+
 }

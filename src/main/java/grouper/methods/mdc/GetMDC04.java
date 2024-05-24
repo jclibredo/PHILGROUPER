@@ -45,20 +45,17 @@ public class GetMDC04 {
         //THIS AREA IS FOR CHECKING OF OR PROCEDURE
         int ORProcedureCounter = 0;
         ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-        //  String models = String.join(",", secondaryList);
-        for (int y = 0; y < ProcedureList.size(); y++) {
-            String procs = ProcedureList.get(y);
-            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, procs);
-            if (String.valueOf(ORProcedureResult.isSuccess()).equals("true")) {
-                ORProcedureCounter++;
-                ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
-            } else {
-
-            }
-        }
-
         //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
         int mdcprocedureCounter = 0;
+        int PDXCounter99 = 0;
+        int PCXCounter99 = 0;
+        int CartSDx = 0;
+        int CaCRxSDx = 0;
+        int CartProc = 0;
+        int CaCRxProc = 0;
+        int PCX4Proc = 0;
+        int PBX99Proc = 0;
+        int Counter4BX = 0;
         ArrayList<Integer> hierarvalue = new ArrayList<>();
         ArrayList<String> pdclist = new ArrayList<>();
         for (int y = 0; y < ProcedureList.size(); y++) {
@@ -74,12 +71,6 @@ public class GetMDC04 {
                     pdclist.add(hiarresult.getPDC());
                 }
             }
-        }
-        //CHECKING FOR TRAUMA CODES
-        int PDXCounter99 = 0;
-        int PCXCounter99 = 0;
-        for (int x = 0; x < ProcedureList.size(); x++) {
-            String proc = ProcedureList.get(x);
             //AX 99PDX Checking
             if (utility.isValid99PDX(proc)) {
                 PDXCounter99++;
@@ -88,14 +79,29 @@ public class GetMDC04 {
             if (utility.isValid99PCX(proc)) {
                 PCXCounter99++;
             }
+
+            if (utility.isValid99PEX(proc.trim())) {
+                CartProc++;
+            }
+            if (utility.isValid99PFX(proc.trim())) {
+                CaCRxProc++;
+            }
+            //AX 4PCX
+            DRGWSResult Result4PCX = gm.AX(datasource, "4PCX", proc.trim());
+            if (Result4PCX.isSuccess()) {
+                PCX4Proc++;
+            }
+            if (utility.isValid99PBX(proc.trim())) { //Blood Transfusion AX 99PBX
+                PBX99Proc++;
+            }
+
+            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
+            if (ORProcedureResult.isSuccess()) {
+                ORProcedureCounter++;
+                ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
+            }
         }
-        //THIS AREA IS FOR CHECKING OF RADIO AND CHECMO
-        int CartSDx = 0;
-        int CaCRxSDx = 0;
-        int CartProc = 0;
-        int CaCRxProc = 0;
-        int PCX4Proc = 0;
-        int PBX99Proc = 0;
+
         //Checking SDx RadioTherapy and Chemotherapy
         for (int a = 0; a < SecondaryList.size(); a++) {
             String Secon = SecondaryList.get(a);
@@ -106,27 +112,14 @@ public class GetMDC04 {
                 CaCRxSDx++;
             }
         }
-
-        //Checking Procedure RadioTherapy and Chemotherapy
-        for (int a = 0; a < ProcedureList.size(); a++) {
-            String Proce = ProcedureList.get(a);
-            if (utility.isValid99PEX(Proce)) {
-                CartProc++;
-            }
-            if (utility.isValid99PFX(Proce)) {
-                CaCRxProc++;
-            }
-            if (utility.isValid4PCX(Proce)) {
-                PCX4Proc++;
-            }
-            if (utility.isValid99PBX(Proce)) { //Blood Transfusion AX 99PBX
-                PBX99Proc++;
-            }
+        DRGWSResult Result4BX = gm.AX(datasource, "4PBX", grouperparameter.getPdx().trim());
+        if (Result4BX.isSuccess()) {
+            Counter4BX++;
         }
 
         //THIS AREA START FOR CONDITIONAL STATEMENT TO FIND DC
         try {
-            if (PDXCounter99 > 0 || utility.isValid4BX(grouperparameter.getPdx())) {
+            if (PDXCounter99 > 0 || Counter4BX > 0) {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),

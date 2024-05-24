@@ -64,16 +64,14 @@ public class GetMDC01 {
         int CaCRxSDx = 0;
         int CartProc = 0;
         int CaCRxProc = 0;
-        int PBX12Proc = 0;
         int PBX99Proc = 0;
-        int PBX1Proc = 0;
         //Checking SDx RadioTherapy and Chemotherapy
         for (int a = 0; a < SecondaryList.size(); a++) {
             String Secon = SecondaryList.get(a);
-            if (utility.isValid99BX(Secon)) {
+            if (utility.isValid99BX(Secon.trim())) {
                 CartSDx++;
             }
-            if (utility.isValid99CX(Secon)) {
+            if (utility.isValid99CX(Secon.trim())) {
                 CaCRxSDx++;
             }
         }
@@ -89,47 +87,42 @@ public class GetMDC01 {
         int Counter1PBX = 0;
         for (int a = 0; a < ProcedureList.size(); a++) {
             String Proce = ProcedureList.get(a);
-            DRGWSResult EndoRes = gm.Endovasc(datasource, Proce, Pdcs, drgResult.getMDC());
+            DRGWSResult EndoRes = gm.Endovasc(datasource, Proce.trim(), Pdcs, drgResult.getMDC());
             if (EndoRes.isSuccess()) {
                 EndoCounter++;
             }
-            if (utility.isValid99PEX(Proce)) {
+            if (utility.isValid99PEX(Proce.trim())) {
                 CartProc++;
             }
-            if (utility.isValid99PFX(Proce)) {
+            if (utility.isValid99PFX(Proce.trim())) {
                 CaCRxProc++;
             }
-            if (utility.isValid12PBX(Proce)) {
-                PBX12Proc++;
-            }
-            if (utility.isValid99PBX(Proce)) {
+            if (utility.isValid99PBX(Proce.trim())) {
                 PBX99Proc++;
             }
-            DRGWSResult JoinResult = gm.MDCProcedure(datasource, Proce, drgResult.getMDC());
+            DRGWSResult JoinResult = gm.MDCProcedure(datasource, Proce.trim(), drgResult.getMDC());
             if (JoinResult.isSuccess()) {
                 mdcprocedureCounter++;
                 MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
                 DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
+                if (pdcresult.isSuccess()) {
                     PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                     hierarvalue.add(hiarresult.getHIERAR());
                     pdclist.add(hiarresult.getPDC());
                 }
             }
-            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, Proce);
-            if (String.valueOf(ORProcedureResult.isSuccess()).equals("true")) {
+            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, Proce.trim());
+            if (ORProcedureResult.isSuccess()) {
                 ORProcedureCounter++;
                 ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
             }
 
             String Codes1PBX = "1PBX";
-            DRGWSResult Codes1PBXResult = gm.AX(datasource, Codes1PBX, Proce);
+            DRGWSResult Codes1PBXResult = gm.AX(datasource, Codes1PBX, Proce.trim());
             if (Codes1PBXResult.isSuccess()) {
                 Counter1PBX++;
             }
-
         }
-
         // THIS AREA CHECK 1BX AND ICD10 CODES
         String Codes1BX = "1BX";
         DRGWSResult Codes1BXResult = gm.AX(datasource, Codes1BX, grouperparameter.getPdx());
@@ -138,6 +131,7 @@ public class GetMDC01 {
         String Codes1CX = "1CX";
         DRGWSResult Codes1CXResult = gm.AX(datasource, Codes1CX, grouperparameter.getPdx());
         // THIS AREA WILL START STATEMENT TO FIND DC FOR MDC 1
+
         try {
             if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
@@ -160,7 +154,6 @@ public class GetMDC01 {
                     }
                     drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                     switch (pdclist.get(hierarvalue.indexOf(min))) {
-
                         case "1PK":   // drgResult.setDC("0116");
                             if (Codes1BXResult.isSuccess()) {
                                 drgResult.setDC("0112");
@@ -495,7 +488,6 @@ public class GetMDC01 {
 
             //===================================================PROCESS PCCL
             if (drgResult.getDRG() == null) {
-
                 //-------------------------------------------------------------------------------------
                 if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
@@ -512,14 +504,13 @@ public class GetMDC01 {
                         if (drgname.isSuccess()) {
                             drgResult.setDRG(drgValue);
                             drgResult.setDRGName(drgname.getMessage());
-                            System.out.println(drgResult.getDRG());
+
                         } else {
                             DRGWSResult drgvalues = gm.ValidatePCCL(datasource, drgResult.getDC(), drgValue);
                             if (drgvalues.isSuccess()) {
                                 drgResult.setDRG(drgResult.getDC() + drgvalues.getResult());
                                 DRGWSResult drgnames = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
                                 drgResult.setDRGName(drgnames.getMessage());
-                                System.out.println(drgResult.getDRG());
                             } else {
                                 drgResult.setDRG(drgValue);
                                 drgResult.setDRGName("Grouper Error");

@@ -13,7 +13,6 @@ import grouper.structures.PDC;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,17 +47,6 @@ public class GetMDC08 {
             //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
-            for (int x = 0; x < ProcedureList.size(); x++) {
-                String proc = ProcedureList.get(x);
-                //AX 99PDX Checking
-                if (utility.isValid99PDX(proc)) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (utility.isValid99PCX(proc)) {
-                    PCXCounter99++;
-                }
-            }
             //Checking SDx RadioTherapy and Chemotherapy
             int CartSDx = 0;
             int CaCRxSDx = 0;
@@ -68,10 +56,10 @@ public class GetMDC08 {
             int Counter8PFX = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
-                if (utility.isValid99BX(Secon)) {
+                if (utility.isValid99BX(Secon.toUpperCase().trim())) {
                     CartSDx++;
                 }
-                if (utility.isValid99CX(Secon)) {
+                if (utility.isValid99CX(Secon.toUpperCase().trim())) {
                     CaCRxSDx++;
                 }
             }
@@ -79,16 +67,26 @@ public class GetMDC08 {
             //Checking Procedure RadioTherapy and Chemotherapy
             for (int a = 0; a < ProcedureList.size(); a++) {
                 String Proce = ProcedureList.get(a);
-                if (utility.isValid99PEX(Proce)) {
+                //AX 99PDX Checking
+                if (utility.isValid99PDX(Proce.trim())) {
+                    PDXCounter99++;
+                }
+                //AX 99PCX Checking
+                if (utility.isValid99PCX(Proce.trim())) {
+                    PCXCounter99++;
+                }
+
+                if (utility.isValid99PEX(Proce.trim())) {
                     CartProc++;
                 }
-                if (utility.isValid99PFX(Proce)) {
+                if (utility.isValid99PFX(Proce.trim())) {
                     CaCRxProc++;
                 }
-                if (utility.isValid99PBX(Proce)) { //Blood Transfusion AX 99PBX
+                if (utility.isValid99PBX(Proce.trim())) { //Blood Transfusion AX 99PBX
                     PBX99Proc++;
                 }
-                if (utility.isValid8PFX(Proce)) { //Blood Transfusion AX 99PBX
+                DRGWSResult Result8PFX = gm.AX(datasource, "8PFX", Proce.trim());
+                if (Result8PFX.isSuccess()) {
                     Counter8PFX++;
                 }
             }
@@ -240,8 +238,7 @@ public class GetMDC08 {
                                 drgResult.setDC("0808");
                                 break;
                             case "8PJ"://Hip and Femur Procedures Except Replacement
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                                     drgResult.setDC("0810");
                                 } else {
                                     drgResult.setDC("0811");
@@ -271,8 +268,7 @@ public class GetMDC08 {
                                 break;
                             case "8PM"://Humerus, Tibia, Fibula & Ankle Procedures Except Replacement
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) >= 17
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        grouperparameter.getAdmissionDate()) > 17) {
                                     drgResult.setDC("0814");
                                 } else {
                                     drgResult.setDC("0815");
@@ -379,8 +375,7 @@ public class GetMDC08 {
                                 break;
                             case "8P"://Fracture, Sprain, Strain and Dislocation of Forearm, Hand and Foot
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) >= 17
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        grouperparameter.getAdmissionDate()) > 17) {
                                     drgResult.setDC("0863");
                                 } else {
                                     drgResult.setDC("0864");
@@ -388,8 +383,7 @@ public class GetMDC08 {
                                 break;
                             case "8Q"://Fracture, Sprain, Strain and Dislocation of Forearm, Hand and Foot
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) >= 17
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        grouperparameter.getAdmissionDate()) > 17) {
                                     drgResult.setDC("0865");
                                 } else {
                                     drgResult.setDC("0866");
@@ -480,8 +474,7 @@ public class GetMDC08 {
                         drgResult.setDC("0808");
                         break;
                     case "8PJ"://Hip and Femur Procedures Except Replacement
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                             drgResult.setDC("0810");
                         } else {
                             drgResult.setDC("0811");
@@ -510,8 +503,7 @@ public class GetMDC08 {
                         drgResult.setDC("0813");
                         break;
                     case "8PM"://Humerus, Tibia, Fibula & Ankle Procedures Except Replacement
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                             drgResult.setDC("0814");
                         } else {
                             drgResult.setDC("0815");
@@ -618,16 +610,14 @@ public class GetMDC08 {
                         drgResult.setDC("0862");
                         break;
                     case "8P"://Fracture, Sprain, Strain and Dislocation of Forearm, Hand and Foot
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                             drgResult.setDC("0863");
                         } else {
                             drgResult.setDC("0864");
                         }
                         break;
                     case "8Q"://Fracture, Sprain, Strain and Dislocation of Forearm, Hand and Foot
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
                             drgResult.setDC("0865");
                         } else {
                             drgResult.setDC("0866");
@@ -692,7 +682,7 @@ public class GetMDC08 {
             //System.out.println(drgResult.getDRG());
             result.setMessage("MDC 08 Done Checking");
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
-        } catch (IOException | ParseException ex) {
+        } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GetMDC08.class.getName()).log(Level.SEVERE, null, ex);
         }

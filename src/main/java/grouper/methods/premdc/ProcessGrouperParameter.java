@@ -187,6 +187,7 @@ public class ProcessGrouperParameter {
             DRGWSResult geticd10Result = gm.GetICD10PreMDC(datasource, grouperparameter.getPdx());
             if (!geticd10Result.isSuccess()) {
                 drgresult.setDRG("26519");
+                drgresult.setDC("2651");
                 drgresult.setDRGName("Unacceptable PDx");
             }
             if (newGrouperParam.getAdmissionDate().isEmpty()) {

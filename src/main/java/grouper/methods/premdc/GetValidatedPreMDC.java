@@ -107,12 +107,13 @@ public class GetValidatedPreMDC {
                 String OCX = "0CX";
                 String ODX = "0DX";
                 String OEX = "0EX";
-                int Counter0PB = 0;
-                int Counter0PA = 0;
-                int Counter0PD = 0;
+
                 int Counter0CX = 0;
                 int Counter0DX = 0;
                 int Counter0EX = 0;
+                int PDC0PB = 0;
+                int PDC0PD = 0;
+                int PDC0PA = 0;
                 DRGWSResult ResultOCX = gm.AX(datasource, OCX, grouperparameter.getPdx());
                 if (ResultOCX.isSuccess()) {
                     Counter0CX++;
@@ -135,15 +136,20 @@ public class GetValidatedPreMDC {
                             procSite.add(PROC.getResult());
                             procnewlist.add(PROC.getResult());
                         }
-                        if (utility.isValidOPA(proc)) {
-                            Counter0PA++;
+                        DRGWSResult PDC0pb = gm.Endovasc(datasource, proc, "0PB", "0");
+                        if (PDC0pb.isSuccess()) {
+                            PDC0PB++;
                         }
-                        if (utility.isValidOPD(proc)) {
-                            Counter0PD++;
+
+                        DRGWSResult PDC0pd = gm.Endovasc(datasource, proc, "0PD", "0");
+                        if (PDC0pd.isSuccess()) {
+                            PDC0PD++;
                         }
-                        if (utility.isValidOPB(proc)) {
-                            Counter0PB++;
+                        DRGWSResult PDC0pa = gm.Endovasc(datasource, proc, "0PA", "0");
+                        if (PDC0pa.isSuccess()) {
+                            PDC0PA++;
                         }
+
                     }
                 }
                 //Proc Validation for MDC 24
@@ -188,6 +194,7 @@ public class GetValidatedPreMDC {
 
                 // START OF PARSING PART
                 if (GetBMDC.isSuccess()) {
+                    DRGWSResult restA = gm.COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx());
                     BMDCPreMDCResult bmdcResult = utility.objectMapper().readValue(GetBMDC.getResult(), BMDCPreMDCResult.class);
                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
                         drgResult.setDRG("26539");
@@ -195,7 +202,6 @@ public class GetValidatedPreMDC {
                     } else if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0
                             && utility.ComputeTime(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 6
                             && utility.MinutesCompute(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0) {
-
                         if (utility.ComputeTime(grouperparameter.getAdmissionDate(),
                                 utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                 grouperparameter.getDischargeDate(),
@@ -205,17 +211,20 @@ public class GetValidatedPreMDC {
                         } else {
                             drgResult.setMDC("28");
                         }
-                    } else if (Counter0CX > 0 && Counter0PA > 0) { //Liver Transplant
+                    } else if (Counter0CX > 0 && PDC0PA > 0) { //Liver Transplant
                         drgResult.setDC("0001");
                         drgResult.setDRG("00019");
+                        drgResult.setMDC("00");
                         drgResult.setDRGName("Liver Transplant");
-                    } else if (Counter0DX > 0 && Counter0PB > 0) {//Heart-Lung Transplant
+                    } else if (Counter0DX > 0 && PDC0PB > 0) {//Heart-Lung Transplant
                         drgResult.setDC("0002");
                         drgResult.setDRG("00029");
+                        drgResult.setMDC("00");
                         drgResult.setDRGName("Heart-Lung Transplant");
-                    } else if (Counter0EX > 0 && Counter0PD > 0) {//Bone Marrow Transplant
+                    } else if (Counter0EX > 0 && PDC0PD > 0) {//Bone Marrow Transplant
                         drgResult.setDC("0004");
                         drgResult.setDRG("00049");
+                        drgResult.setMDC("00");
                         drgResult.setDRGName("Bone Marrow Transplant");
                         //TRAUMA CHECKING AREA 
                     } else if (TraumaCounterPDXO > 0 && finalsdxnewlist.size() >= 2) {
@@ -229,19 +238,19 @@ public class GetValidatedPreMDC {
                         //TRAUMA CHECKING AREA  
                     } else if (icd10Result.getPDC() != null && icd10Result.getPDC().equals("25A")) {
                         drgResult.setMDC("25");
-                    } else if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("M")) {
-                        drgResult.setMDC(bmdcResult.getMDC_M());
-                        drgResult.setPDC(bmdcResult.getPDC_M());
-                    } else if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("F")) {
-                        drgResult.setMDC(bmdcResult.getMDC_F());
-                        drgResult.setPDC(bmdcResult.getPDC_F());
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) == 0 && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 28) {
                         drgResult.setMDC("15");
+                    } else if (restA.isSuccess()) {
+                        if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("M")) {
+                            drgResult.setMDC(bmdcResult.getMDC_M());
+                            drgResult.setPDC(bmdcResult.getPDC_M());
+                        } else if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("F")) {
+                            drgResult.setMDC(bmdcResult.getMDC_F());
+                            drgResult.setPDC(bmdcResult.getPDC_F());
+                        }
                     } else {
                         drgResult.setMDC(icd10Result.getMDC());
                         drgResult.setPDC(icd10Result.getPDC());
-                        System.out.println(icd10Result.getMDC());
-                        System.out.println(icd10Result.getPDC());
                     }
                 } else {
                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
@@ -264,23 +273,25 @@ public class GetValidatedPreMDC {
                                 utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                 grouperparameter.getDischargeDate(),
                                 utility.Convert24to12(grouperparameter.getTimeDischarge())) < 2) {
-
                             drgResult.setDRG("26549");
                             drgResult.setDRGName("LOS < 6 Hours");
                         } else {
                             drgResult.setMDC("28");
                         }
-                    } else if (Counter0CX > 0 && Counter0PA > 0) { //Liver Transplant
+                    } else if (Counter0CX > 0 && PDC0PA > 0) { //Liver Transplant
                         drgResult.setDC("0001");
                         drgResult.setDRG("00019");
+                        drgResult.setMDC("00");
                         drgResult.setDRGName("Liver Transplant");
-                    } else if (Counter0DX > 0 && Counter0PB > 0) {//Heart-Lung Transplant
+                    } else if (Counter0DX > 0 && PDC0PB > 0) {//Heart-Lung Transplant
                         drgResult.setDC("0002");
                         drgResult.setDRG("00029");
+                        drgResult.setMDC("00");
                         drgResult.setDRGName("Heart-Lung Transplant");
-                    } else if (Counter0EX > 0 && Counter0PD > 0) {//Bone Marrow Transplant
+                    } else if (Counter0EX > 0 && PDC0PD > 0) {//Bone Marrow Transplant
                         drgResult.setDC("0004");
                         drgResult.setDRG("00049");
+                        drgResult.setMDC("00");
                         drgResult.setDRGName("Bone Marrow Transplant");
                         //TRAUMA CHECKING AREA 
                     } else if (TraumaCounterPDXO > 0 && finalsdxnewlist.size() >= 2) {
@@ -301,8 +312,7 @@ public class GetValidatedPreMDC {
                     } else {
                         drgResult.setMDC(icd10Result.getMDC());
                         drgResult.setPDC(icd10Result.getPDC());
-                        System.out.println(icd10Result.getMDC());
-                        System.out.println(icd10Result.getPDC());
+
                     }
                 }
             }
@@ -312,6 +322,7 @@ public class GetValidatedPreMDC {
                 if (drgResult.getMDC().equals("30")) {
                     if (drgResult.getPDC().isEmpty()) {
                         drgResult.setDRG("26519");
+                        drgResult.setDC("2651");
                         drgResult.setDRGName("UNACCEPTABLE PRINCIPAL DIAGNOSIS");
                         result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                         result.setSuccess(true);
@@ -322,12 +333,16 @@ public class GetValidatedPreMDC {
                         drgResults.setDC(drgResult.getDC());
                         drgResults.setDRG(drgResult.getDRG());
                         drgResults.setDRGName(drgResult.getDRGName());
-                        drgResults.setMDC(drgResult.getPDC().substring(0, 1));
+                        if (drgResult.getPDC().length() > 2) {
+                            drgResults.setMDC(drgResult.getPDC().substring(0, 2));
+                        } else {
+                            drgResults.setMDC(drgResult.getPDC().substring(0, 1));
+                        }
                         drgResults.setMDF(drgResult.getMDF());
                         drgResults.setOT(drgResult.getOT());
                         drgResults.setPDC(drgResult.getPDC());
                         drgResults.setRW(drgResult.getRW());
-                        //-----------------------------------------------
+//                        //-----------------------------------------------
                         DRGWSResult getdcResult = getdc.ProcessMDC(datasource, drgResults, grouperparameter);
                         result.setMessage(getdcResult.getMessage());
                         result.setSuccess(getdcResult.isSuccess());

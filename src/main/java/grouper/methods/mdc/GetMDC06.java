@@ -13,7 +13,6 @@ import grouper.structures.PDC;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,28 +53,11 @@ public class GetMDC06 {
         //Checking SDx RadioTherapy and Chemotherapy
         for (int a = 0; a < SecondaryList.size(); a++) {
             String Secon = SecondaryList.get(a);
-            if (utility.isValid99BX(Secon)) {
+            if (utility.isValid99BX(Secon.trim())) {
                 CartSDx++;
             }
-            if (utility.isValid99CX(Secon)) {
+            if (utility.isValid99CX(Secon.trim())) {
                 CaCRxSDx++;
-            }
-        }
-        //Checking Procedure RadioTherapy and Chemotherapy
-        for (int a = 0; a < ProcedureList.size(); a++) {
-            String Proce = ProcedureList.get(a);
-            if (utility.isValid99PEX(Proce)) {
-                CartProc++;
-            }
-            if (utility.isValid99PFX(Proce)) {
-                CaCRxProc++;
-            }
-            DRGWSResult PBX6ProcResult = gm.AX(datasource, PBX6, Proce);
-            if (String.valueOf(PBX6ProcResult.isSuccess()).equals("true")) {//Dx Procedure
-                PBX6Proc++;
-            }
-            if (utility.isValid99PBX(Proce)) { //Blood Transfusion AX 99PBX
-                PBX99Proc++;
             }
         }
 
@@ -99,12 +81,14 @@ public class GetMDC06 {
         //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
         int mdcprocedureCounter = 0;
         int ORProcedureCounter = 0;
+        int PDXCounter99 = 0;
+        int PCXCounter99 = 0;
         ArrayList<Integer> hierarvalue = new ArrayList<>();
         ArrayList<String> pdclist = new ArrayList<>();
         ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
         for (int y = 0; y < ProcedureList.size(); y++) {
             String proc = ProcedureList.get(y);
-            DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
+            DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
             if (JoinResult.isSuccess()) {
                 mdcprocedureCounter++;
                 MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
@@ -116,33 +100,37 @@ public class GetMDC06 {
                 }
             }
             //Inguinal or Femoral PDC 6PH
-            DRGWSResult getpdc6PHCountResult = gm.Endovasc(datasource, proc, pdc6PH, drgResult.getMDC());
+            DRGWSResult getpdc6PHCountResult = gm.Endovasc(datasource, proc.trim(), pdc6PH, drgResult.getMDC());
             if (getpdc6PHCountResult.isSuccess()) {
                 Counter6PH++;
             }
-
-            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc);
+            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
             if (ORProcedureResult.isSuccess()) {
                 ORProcedureCounter++;
                 ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
             }
-        }
-
-        //CHECKING FOR TRAUMA CODES
-        int PDXCounter99 = 0;
-        int PCXCounter99 = 0;
-        for (int x = 0; x < ProcedureList.size(); x++) {
-            String proc = ProcedureList.get(x);
             //AX 99PDX Checking
-            if (utility.isValid99PDX(proc)) {
+            if (utility.isValid99PDX(proc.trim())) {
                 PDXCounter99++;
             }
             //AX 99PCX Checking
-            if (utility.isValid99PCX(proc)) {
+            if (utility.isValid99PCX(proc.trim())) {
                 PCXCounter99++;
             }
+            if (utility.isValid99PEX(proc.trim())) {
+                CartProc++;
+            }
+            if (utility.isValid99PFX(proc.trim())) {
+                CaCRxProc++;
+            }
+            DRGWSResult PBX6ProcResult = gm.AX(datasource, PBX6, proc.trim());
+            if (PBX6ProcResult.isSuccess()) {//Dx Procedure
+                PBX6Proc++;
+            }
+            if (utility.isValid99PBX(proc.trim())) { //Blood Transfusion AX 99PBX
+                PBX99Proc++;
+            }
         }
-
         //CONDITIONAL STATEMENT STARTS HERE FOR MDC 06
         try {
 
@@ -210,8 +198,7 @@ public class GetMDC06 {
                             case "6PG":
                             case "6PH":
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) >= 14
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        grouperparameter.getAdmissionDate()) > 14) {
                                     if (Counter6PH > 0) { //IF TRUE
                                         drgResult.setDC("0610");
                                     } else {
@@ -328,8 +315,7 @@ public class GetMDC06 {
                                 break;
                             case "6B"://G.I. Hemorrhage
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) >= 64
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        grouperparameter.getAdmissionDate()) > 64) {
                                     drgResult.setDC("0651");
                                 } else {
                                     drgResult.setDC("0652");
@@ -353,8 +339,7 @@ public class GetMDC06 {
                                 break;
                             case "6G"://Gastroenteritis
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) >= 9
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        grouperparameter.getAdmissionDate()) > 9) {
                                     drgResult.setDC("0657");
                                 } else {
                                     drgResult.setDC("0658");
@@ -362,8 +347,7 @@ public class GetMDC06 {
                                 break;
                             case "6H"://Misc Digestive Disorder
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) >= 9
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        grouperparameter.getAdmissionDate()) > 9) {
                                     drgResult.setDC("0666");
                                 } else {
                                     drgResult.setDC("0667");
@@ -381,16 +365,14 @@ public class GetMDC06 {
                                 break;
                             case "6L"://Intestinal Helminthiases
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) >= 9
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                        grouperparameter.getAdmissionDate()) > 9) {
                                     drgResult.setDC("0662");
                                 } else {
                                     drgResult.setDC("0663");
                                 }
                                 break;
                             case "6M"://Esophagitis, Gastritis & Dyspepsia PDC 6M
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 9) {
                                     drgResult.setDC("0664");
                                 } else {
                                     drgResult.setDC("0665");
@@ -466,8 +448,7 @@ public class GetMDC06 {
                     case "6PG":
                     case "6PH":
                         if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                grouperparameter.getAdmissionDate()) >= 14
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                grouperparameter.getAdmissionDate()) > 14) {
                             if (Counter6PH > 0) { //IF TRUE
                                 drgResult.setDC("0610");
                             } else {
@@ -585,8 +566,7 @@ public class GetMDC06 {
                         break;
 
                     case "6B"://G.I. Hemorrhage
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 64
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 64) {
                             drgResult.setDC("0651");
                         } else {
                             drgResult.setDC("0652");
@@ -610,8 +590,7 @@ public class GetMDC06 {
 
                         break;
                     case "6G"://Gastroenteritis
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 9) {
                             drgResult.setDC("0657");
                         } else {
                             drgResult.setDC("0658");
@@ -619,8 +598,7 @@ public class GetMDC06 {
 
                         break;
                     case "6H"://Misc Digestive Disorder
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 9) {
                             drgResult.setDC("0666");
                         } else {
                             drgResult.setDC("0667");
@@ -637,16 +615,14 @@ public class GetMDC06 {
                         drgResult.setDC("0661");
                         break;
                     case "6L"://Intestinal Helminthiases
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 9) {
                             drgResult.setDC("0662");
                         } else {
                             drgResult.setDC("0663");
                         }
                         break;
                     case "6M"://Esophagitis, Gastritis & Dyspepsia PDC 6M
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 9
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 9) {
                             drgResult.setDC("0664");
                         } else {
                             drgResult.setDC("0665");
@@ -702,7 +678,7 @@ public class GetMDC06 {
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setMessage("MDC 06 Done Checking");
 
-        } catch (IOException | ParseException ex) {
+        } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GetMDC06.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -49,20 +49,20 @@ public class GetMDC12 {
             ArrayList<String> pdclist = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String proc = ProcedureList.get(y);
-                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
+                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
                     DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                    if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
+                    if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
 
-                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc);
-                if (String.valueOf(ORProcedureResult.isSuccess()).equals("true")) {
+                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
+                if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
@@ -88,28 +88,26 @@ public class GetMDC12 {
 
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y);
-//                DRGWSResult getICD9Result = gm.GetICD9cm(datasource, procS);
-//                if (String.valueOf(getICD9Result.isSuccess()).equals("true")) {
-//                    ICD9CMFindDC++;
-//                }
-                //AX 99PDX Checking
-                if (utility.isValid99PDX(procS)) {
+                if (utility.isValid99PDX(procS.trim())) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(procS)) {
+                if (utility.isValid99PCX(procS.trim())) {
                     PCXCounter99++;
                 }
-                if (utility.isValid99PEX(procS)) {
+                if (utility.isValid99PEX(procS.trim())) {
                     CartProc++;
                 }
-                if (utility.isValid99PFX(procS)) {
+                if (utility.isValid99PFX(procS.trim())) {
                     CaCRxProc++;
                 }
-                if (utility.isValid12PBX(procS)) {
+               
+                DRGWSResult Result12PBX = gm.AX(datasource, "12PBX", procS.trim());
+                if (Result12PBX.isSuccess()) {
                     PBX12Proc++;
                 }
-                if (utility.isValid99PBX(procS)) {
+
+                if (utility.isValid99PBX(procS.trim())) {
                     PBX99Proc++;
                 }
             }
@@ -117,10 +115,10 @@ public class GetMDC12 {
             //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
-                if (utility.isValid99BX(Secon)) {
+                if (utility.isValid99BX(Secon.trim())) {
                     CartSDx++;
                 }
-                if (utility.isValid99CX(Secon)) {
+                if (utility.isValid99CX(Secon.trim())) {
                     CaCRxSDx++;
                 }
             }
@@ -162,7 +160,6 @@ public class GetMDC12 {
                             } else {
                                 drgResult.setDC("1207");
                             }
-                            drgResult.setDC("1207");
                             break;
                         case "12PC":  //Testis Procedures
                             drgResult.setDC("1203");
@@ -217,7 +214,6 @@ public class GetMDC12 {
                             } else {
                                 drgResult.setDC("1250");
                             }
-
                             break;
                         case "12B": //#Benign prostatic hypertrophy
                             drgResult.setDC("1251");
@@ -261,7 +257,6 @@ public class GetMDC12 {
                         } else {
                             drgResult.setDC("1207");
                         }
-                        drgResult.setDC("1207");
                         break;
                     case "12PC":  //Testis Procedures
                         drgResult.setDC("1203");
@@ -333,7 +328,6 @@ public class GetMDC12 {
             }
 
             if (drgResult.getDRG() == null) {
-
                 //-------------------------------------------------------------------------------------
                 if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
