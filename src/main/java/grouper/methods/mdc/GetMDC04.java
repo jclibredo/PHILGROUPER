@@ -72,26 +72,31 @@ public class GetMDC04 {
                 }
             }
             //AX 99PDX Checking
-            if (utility.isValid99PDX(proc)) {
+            DRGWSResult Result99PDX = gm.AX(datasource, "99PDX", proc.trim());
+            if (Result99PDX.isSuccess()) {
                 PDXCounter99++;
             }
             //AX 99PCX Checking
-            if (utility.isValid99PCX(proc)) {
+            DRGWSResult Result99PCX = gm.AX(datasource, "99PCX", proc.trim());
+            if (Result99PCX.isSuccess()) {
                 PCXCounter99++;
             }
-
-            if (utility.isValid99PEX(proc.trim())) {
+            DRGWSResult Result99PEX = gm.AX(datasource, "99PEX", proc.trim());
+            if (Result99PEX.isSuccess()) {
                 CartProc++;
             }
-            if (utility.isValid99PFX(proc.trim())) {
+            DRGWSResult Result99PFX = gm.AX(datasource, "99PFX", proc.trim());
+            if (Result99PFX.isSuccess()) {
                 CaCRxProc++;
             }
+
             //AX 4PCX
             DRGWSResult Result4PCX = gm.AX(datasource, "4PCX", proc.trim());
             if (Result4PCX.isSuccess()) {
                 PCX4Proc++;
             }
-            if (utility.isValid99PBX(proc.trim())) { //Blood Transfusion AX 99PBX
+            DRGWSResult Result99PBX = gm.AX(datasource, "99PBX", proc.trim());
+            if (Result99PBX.isSuccess()) {
                 PBX99Proc++;
             }
 
@@ -105,10 +110,12 @@ public class GetMDC04 {
         //Checking SDx RadioTherapy and Chemotherapy
         for (int a = 0; a < SecondaryList.size(); a++) {
             String Secon = SecondaryList.get(a);
-            if (utility.isValid99BX(Secon)) {
+            DRGWSResult Result99BX = gm.AX(datasource, "99BX", Secon.trim());
+            if (Result99BX.isSuccess()) {
                 CartSDx++;
             }
-            if (utility.isValid99CX(Secon)) {
+            DRGWSResult Result99CX = gm.AX(datasource, "99CX", Secon.trim());
+            if (Result99CX.isSuccess()) {
                 CaCRxSDx++;
             }
         }

@@ -35,7 +35,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 @ApplicationScoped
 @Singleton
 public class Utility {
-
     public Utility() {
     }
 
@@ -64,16 +63,14 @@ public class Utility {
     String[] PCX99 = {"9672"};
 
     //AX 2PDX Cataract Frag/Asp
-    String[] PDX2 = {"1342"};
-
     //AX 99PDX Tracheostomy
     String[] PDX99 = {"311", "3121", "3129"};
 
     //AX 99PEX Radiotherapeutic procedure
-    String[] PEX99 = {"9223", "9224", "9225", "9227", "9228", "9229", "9230", "9231", "9232"};
+    String[] PEX99 = {"9223", "9224", "9225", "9227", "9228", "9229", "9230", "9231", "9232","9241"};
 
     //AX 99PFX Parenteral cancer chemotherapy
-    String[] PFX99 = {"9925"};
+    String[] PFX99 = {"9925","1770"};
     //AX 2BX Parenteral cancer chemotherapy
 
     //Procedures for upper airway obstruction
@@ -302,12 +299,6 @@ public class Utility {
         result = Arrays.asList(OPA).contains(icd10);
         return result;
 
-    }
-
-    public boolean isValid2PDX(String procs) {
-        boolean result = false;
-        result = Arrays.asList(PDX2).contains(procs);
-        return result;
     }
 
     public boolean isValidOPB(String icd10) {

@@ -368,7 +368,6 @@ public class GrouperMethod {
                     //AUDIT TRAIL FOR NOT FOUND SERRIES
                 }
             }
-            // System.out.println(grouperparameterlsit);
             ArrayList<DRGOutput> drgresultList = new ArrayList<>();
             ProcessGrouperParameter param = new ProcessGrouperParameter();
             for (int y = 0; y < grouperparameterlsit.size(); y++) {
@@ -396,19 +395,18 @@ public class GrouperMethod {
     //Validation for Dagger Asterisk
     public DRGWSResult GetDA(final DataSource datasource, final String dagger, final String asterisk) {
         DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setSuccess(false);
+        result.setResult("");
         try (Connection connection = datasource.getConnection()) {
             CallableStatement conn = connection.prepareCall("begin :DaggerAs := MINOSUN.DRGPKGFUNCTION.get_da(:dagger,:asterisk); end;");
             conn.registerOutParameter("DaggerAs", OracleTypes.CURSOR);
-            conn.setString("dagger", dagger);
-            conn.setString("asterisk", asterisk);
+            conn.setString("dagger", dagger.toUpperCase().trim());
+            conn.setString("asterisk", asterisk.toUpperCase().trim());
             conn.execute();
             ResultSet connResult = (ResultSet) conn.getObject("DaggerAs");
             if (connResult.next()) {
                 result.setSuccess(true);
-                result.setResult("true");
-            } else {
-                result.setSuccess(false);
-                result.setResult("false");
             }
         } catch (SQLException ex) {
             result.setMessage(ex.toString());

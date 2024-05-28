@@ -95,7 +95,6 @@ public class GetMDC23 {
                     Counter23BX++;
                 }
             }
-            System.out.println("MDC PROC : "+mdcprocedureCounter);
             if (PDXCounter99 > 0) {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),

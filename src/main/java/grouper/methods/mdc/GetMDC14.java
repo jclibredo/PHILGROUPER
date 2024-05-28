@@ -44,7 +44,6 @@ public class GetMDC14 {
         String PDX14 = "14PDX";
         String PEX14 = "14PEX";
         String PBX14 = "14PBX";
-        String PCX14 = "14PCX";
         String PHX14 = "14PHX";
         String CX14 = "14CX";
         String DX14 = "14DX";
@@ -93,16 +92,16 @@ public class GetMDC14 {
             if (Result14PBX.isSuccess()) {
                 Counter14PBX++;
             }
-            DRGWSResult Result14PCX = gm.AX(datasource, PCX14, procData.trim());
+            DRGWSResult Result14PCX = gm.AX(datasource, "14PCX", procData.trim());
             if (Result14PCX.isSuccess()) {
                 Counter14PCX++;
             }
             DRGWSResult Result14PHX = gm.AX(datasource, PHX14, procData.trim());
             if (Result14PHX.isSuccess()) {
-                DRGWSResult NonORProcedure = gm.ORProcedure(datasource, Result14PHX.getResult());
-                if (NonORProcedure.isSuccess()) {
-                    Counter14PHX++;
-                }
+//                DRGWSResult NonORProcedure = gm.ORProcedure(datasource, Result14PHX.getResult());
+//                if (NonORProcedure.isSuccess()) {
+                Counter14PHX++;
+                //}
             }
             DRGWSResult Result14PDX = gm.AX(datasource, PDX14, procData.trim());
             if (Result14PDX.isSuccess()) {
@@ -315,7 +314,6 @@ public class GetMDC14 {
                 drgResult.setDC("2652");
                 //11
             } else {
-                //  System.out.println(drgResult.getPDC());
                 switch (drgResult.getPDC()) {
                     case "14A"://Labour and Delivery
                         //COTNINUE TO 1
@@ -483,6 +481,7 @@ public class GetMDC14 {
                                 } else {
                                     drgResult.setDC("1450");
                                 }
+
                             }
                         } else {
                             //COTNINUE TO 2
@@ -610,31 +609,77 @@ public class GetMDC14 {
             //PROCESS LAST DRG DIGIT
             // DC to DRG for DC 1401,1402,1407,1408,1409,1450
             if (drgResult.getDRG() == null) {
-                // PROCESS LAST DRG DIGIT
-                if (pdxax14cx > 0 || Counter14CX > 0) {
-                    if (Counter14CX > 1) {
-                        drgResult.setDRG(drgResult.getDC() + "3");
+                String rest = drgResult.getDC().substring(0, 2);
+                if (Integer.parseInt(rest) == 26) {
+                    if (utility.isValidDCList(drgResult.getDC())) {
+                        drgResult.setDRG(drgResult.getDC() + "9");
                     } else {
-                        if (pdxax14dx > 0 || Counter14DX > 0) {
-                            drgResult.setDRG(drgResult.getDC() + "3");
+                        //----------------------------------------------------------------------
+                        //  String sdxfinalList = gm.CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
+                        String sdxfinalList = gm.CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
+                        DRGWSResult getpcclvalue = gm.GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
+                        if (getpcclvalue.isSuccess()) {
+                            DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
+                            String drgValue = finaldrgresult.getDRG();
+                            DRGWSResult drgname = gm.DRG(datasource, drgResult.getDC(), drgValue);
+                            //-----------------------------------------------------------------------
+                            if (drgname.isSuccess()) {
+                                drgResult.setDRG(drgValue);
+                                drgResult.setDRGName(drgname.getMessage());
+
+                            } else {
+                                DRGWSResult drgvalues = gm.ValidatePCCL(datasource, drgResult.getDC(), drgValue);
+                                if (drgvalues.isSuccess()) {
+                                    drgResult.setDRG(drgResult.getDC() + drgvalues.getResult());
+                                    DRGWSResult drgnames = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
+                                    drgResult.setDRGName(drgnames.getMessage());
+                                } else {
+                                    drgResult.setDRG(drgValue);
+                                    drgResult.setDRGName("Grouper Error");
+                                }
+                            }
                         } else {
-                            drgResult.setDRG(drgResult.getDC() + "2");
+                            drgResult.setDRG("00000");
+                            drgResult.setDRGName("Grouper Error");
                         }
                     }
+
                 } else {
-                    if (pdxax14dx > 0 || Counter14DX > 0) {
-                        drgResult.setDRG(drgResult.getDC() + "1");
+                    // PROCESS LAST DRG DIGIT
+                    if (pdxax14cx > 0 || Counter14CX > 0) {
+                        if (Counter14CX > 1) {
+                            drgResult.setDRG(drgResult.getDC() + "3");
+                        } else {
+                            if (pdxax14dx > 0 || Counter14DX > 0) {
+                                drgResult.setDRG(drgResult.getDC() + "3");
+                            } else {
+                                drgResult.setDRG(drgResult.getDC() + "2");
+                            }
+                        }
                     } else {
-                        drgResult.setDRG(drgResult.getDC() + "0");
+                        if (pdxax14dx > 0 || Counter14DX > 0) {
+                            drgResult.setDRG(drgResult.getDC() + "1");
+                        } else {
+                            drgResult.setDRG(drgResult.getDC() + "0");
+                        }
                     }
+
+                    if (drgResult.getDRG().equals("26041")) {
+                        drgResult.setDRG("26040");
+                        drgResult.setDC("2604");
+                        DRGWSResult drgname = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
+                        if (drgname.isSuccess()) {
+                            drgResult.setDRGName(drgname.getMessage());
+                        }
+                    } else {
+                        DRGWSResult drgname = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
+                        if (drgname.isSuccess()) {
+                            drgResult.setDRGName(drgname.getMessage());
+                        }
+                    }
+                    //=======================================
                 }
 
-                DRGWSResult drgname = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
-                if (drgname.isSuccess()) {
-                    drgResult.setDRGName(drgname.getMessage());
-                } else {
-                    drgResult.setDRGName("Grouper Error");
-                }
                 result.setSuccess(true);
             } else {
                 result.setSuccess(true);
@@ -645,7 +690,6 @@ public class GetMDC14 {
                     drgResult.setDRGName("Grouper Error");
                 }
             }
-
             result.setMessage("MDC 14 Done Checking");
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
         } catch (IOException ex) {

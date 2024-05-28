@@ -104,6 +104,7 @@ public class Grouper {
                     DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
                     drgresultList.add(drgout);
                     System.out.println(drgout.getDRG());
+                    System.out.println(drgout.getDRGName());
                 }
             }
             if (grouperparameter.size() > 0) {

@@ -202,8 +202,6 @@ public class GetMDC05 {
                 AMICount++;
             }
 
-            System.out.println("MDC Procedure : " + mdcprocedureCounter);
-            System.out.println("PDx 5DX : " + Counter5DXPDx);
             // THIS AREA WILL START THE CONDITIONAL STATEMENT FOR THIS MDC
             if (PDXCounter99 > 0) {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),

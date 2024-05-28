@@ -679,7 +679,6 @@ public class GetMDC08 {
                 }
             }
 
-            //System.out.println(drgResult.getDRG());
             result.setMessage("MDC 08 Done Checking");
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
         } catch (IOException ex) {

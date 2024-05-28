@@ -50,11 +50,13 @@ public class GetMDC01 {
         for (int x = 0; x < ProcedureList.size(); x++) {
             String proc = ProcedureList.get(x);
             //AX 99PDX Checking
-            if (utility.isValid99PDX(proc)) {
+            DRGWSResult Result99PDX = gm.AX(datasource, "99PDX", proc.trim());
+            if (Result99PDX.isSuccess()) {
                 PDXCounter99++;
             }
             //AX 99PCX Checking
-            if (utility.isValid99PCX(proc)) {
+            DRGWSResult Result99PCX = gm.AX(datasource, "99PCX", proc.trim());
+            if (Result99PCX.isSuccess()) {
                 PCXCounter99++;
             }
         }
@@ -68,10 +70,12 @@ public class GetMDC01 {
         //Checking SDx RadioTherapy and Chemotherapy
         for (int a = 0; a < SecondaryList.size(); a++) {
             String Secon = SecondaryList.get(a);
-            if (utility.isValid99BX(Secon.trim())) {
+            DRGWSResult Result99BX = gm.AX(datasource, "99BX", Secon.trim());
+            if (Result99BX.isSuccess()) {
                 CartSDx++;
             }
-            if (utility.isValid99CX(Secon.trim())) {
+            DRGWSResult Result99CX = gm.AX(datasource, "99CX", Secon.trim());
+            if (Result99CX.isSuccess()) {
                 CaCRxSDx++;
             }
         }
@@ -91,15 +95,19 @@ public class GetMDC01 {
             if (EndoRes.isSuccess()) {
                 EndoCounter++;
             }
-            if (utility.isValid99PEX(Proce.trim())) {
+            DRGWSResult Result99PEX = gm.AX(datasource, "99PEX", Proce.trim());
+            if (Result99PEX.isSuccess()) {
                 CartProc++;
             }
-            if (utility.isValid99PFX(Proce.trim())) {
+            DRGWSResult Result99PFX = gm.AX(datasource, "99PFX", Proce.trim());
+            if (Result99PFX.isSuccess()) {
                 CaCRxProc++;
             }
-            if (utility.isValid99PBX(Proce.trim())) {
+            DRGWSResult Result99PBX = gm.AX(datasource, "99PBX", Proce.trim());
+            if (Result99PBX.isSuccess()) {
                 PBX99Proc++;
             }
+
             DRGWSResult JoinResult = gm.MDCProcedure(datasource, Proce.trim(), drgResult.getMDC());
             if (JoinResult.isSuccess()) {
                 mdcprocedureCounter++;

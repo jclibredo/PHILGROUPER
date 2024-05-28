@@ -32,6 +32,7 @@ public class GetMDC17 {
     }
 
     private final Utility utility = new Utility();
+
     public DRGWSResult GetMDC17(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
@@ -40,6 +41,10 @@ public class GetMDC17 {
         result.setResult("");
         result.setSuccess(false);
         GrouperMethod gm = new GrouperMethod();
+        
+        
+        
+        
         try {
 
             //CHECKING FOR TRAUMA CODES
@@ -63,18 +68,17 @@ public class GetMDC17 {
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String proc = ProcedureList.get(x);
-
-                DRGWSResult PA17Result = gm.MajorORPRrocedure(datasource, proc, drgResult.getMDC(), drgResult.getPDC());
-                if (String.valueOf(PA17Result.isSuccess()).equals("true")) {
+                DRGWSResult PA17Result = gm.Endovasc(datasource, proc.trim(), "17PA", drgResult.getMDC());
+                if (PA17Result.isSuccess()) {
                     Counter17PA++;
                 }
-                if (utility.isValid99PEX(proc)) {
+                if (utility.isValid99PEX(proc.trim())) {
                     CartProc++;
                 }
-                if (utility.isValid99PFX(proc)) {
+                if (utility.isValid99PFX(proc.trim())) {
                     CaCRxProc++;
                 }
-                if (utility.isValid99PBX(proc)) { //Blood Transfusion AX 99PBX
+                if (utility.isValid99PBX(proc.trim())) { //Blood Transfusion AX 99PBX
                     PBX99Proc++;
                 }
                 DRGWSResult PBX17Result = gm.AX(datasource, PBX17, proc);
@@ -97,7 +101,6 @@ public class GetMDC17 {
                 if (String.valueOf(ORProcedureResult.isSuccess()).equals("true")) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
-
                 }
                 DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
                 if (JoinResult.isSuccess()) {

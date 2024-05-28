@@ -77,7 +77,6 @@ public class GetValidatedPreMDC {
                         TraumaCounterPDXO++;
                     }
                 }
-                // System.out.println("PDx Trauma Checking : "+TraumaPrimary.getResult());
                 int ProccCount = 0;
                 int SDXcountO = 0;
                 int SDXcountI = 0;
@@ -140,7 +139,6 @@ public class GetValidatedPreMDC {
                         if (PDC0pb.isSuccess()) {
                             PDC0PB++;
                         }
-
                         DRGWSResult PDC0pd = gm.Endovasc(datasource, proc, "0PD", "0");
                         if (PDC0pd.isSuccess()) {
                             PDC0PD++;

@@ -133,7 +133,6 @@ public class GetMDC06 {
         }
         //CONDITIONAL STATEMENT STARTS HERE FOR MDC 06
         try {
-
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {

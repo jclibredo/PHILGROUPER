@@ -14,7 +14,6 @@ import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -43,8 +42,6 @@ public class ValidateFindMDC {
         result.setSuccess(false);
         GrouperMethod gm = new GrouperMethod();
         GetValidatedPreMDC getvalidatedpremdc = new GetValidatedPreMDC();
-        SimpleDateFormat timeformat = utility.SimpleDateFormat("HH:mm");
-        SimpleDateFormat dateformat = utility.SimpleDateFormat("MM-dd-yyyy");
         DRGOutput drgResult = new DRGOutput();
         try {
             List<String> ProcList = Arrays.asList(grouperparameter.getProc().split(","));
@@ -85,7 +82,11 @@ public class ValidateFindMDC {
             List<String> SDxList = Arrays.asList(grouperparameter.getSdx().split(","));
             for (int b = 0; b < SDxList.size(); b++) {
                 DRGWSResult gDAResult = gm.GetDA(datasource, grouperparameter.getPdx(), SDxList.get(b).trim());
-                asterisk.add(String.valueOf(gDAResult.isSuccess()));
+                if (gDAResult.isSuccess()) {
+                    asterisk.add("true");
+                } else {
+                    asterisk.add("false");
+                }
             }
             //GETTING THE INDEX AREA 
             String FinalPrimary = "";
@@ -104,10 +105,6 @@ public class ValidateFindMDC {
                 List<String> NewPrimary = Arrays.asList(grouperparameter.getSdx().split(","));
                 FinalPrimary = NewPrimary.get(indexNumber);
                 swapping.setNewpdx(NewPrimary.get(indexNumber));
-
-//                String icdCode = grouperparameter.getPdx() + "+ " + swapping.getNewpdx() + "*";
-//                DRGWSResult daValidation = gm.GetValidCodeICD10(datasource, icdCode);
-//                DagAstValidation = daValidation.isSuccess();
             } else {
                 if (!grouperparameter.getSdx().isEmpty()) {
                     swapping.setNewpdx(grouperparameter.getPdx());
@@ -118,9 +115,8 @@ public class ValidateFindMDC {
             }
 
             //==========================================================================================================
-           
-            DRGWSResult geticd10Result = gm.GetICD10PreMDC(datasource, grouperparameter.getPdx());
-            DRGWSResult getSexConfictResult = gm.GenderConfictValidation(datasource, grouperparameter.getPdx(), grouperparameter.getGender());
+            DRGWSResult geticd10Result = gm.GetICD10PreMDC(datasource, swapping.getNewpdx());
+            DRGWSResult getSexConfictResult = gm.GenderConfictValidation(datasource, swapping.getNewpdx(), grouperparameter.getGender());
 
             //==========================================================================================================
             if (!geticd10Result.isSuccess()) {
@@ -130,12 +126,12 @@ public class ValidateFindMDC {
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
             } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
-                drgResult.setDRG("26539");
-                drgResult.setDC("2653");
+                drgResult.setDRG("26509");
+                drgResult.setDC("2650");
                 drgResult.setDRGName("PDx : " + grouperparameter.getPdx() + " Having age conflict : ");
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
-            }  else if (!getSexConfictResult.isSuccess()) {
+            } else if (!getSexConfictResult.isSuccess()) {
                 drgResult.setDRG("26509");
                 drgResult.setDC("2650");
                 drgResult.setDRGName(grouperparameter.getPdx() + " PDx having conflict with sex");
@@ -144,8 +140,8 @@ public class ValidateFindMDC {
             } else if (!asterisk.contains(checker)) {
                 ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(geticd10Result.getResult(), ICD10PreMDCResult.class);
                 if (!icd10Result.getAccPDX().equals("Y")) {
-                    drgResult.setDRG("26519");
-                    drgResult.setDC("2651");
+                    drgResult.setDRG("26509");
+                    drgResult.setDC("2650");
                     drgResult.setDRGName("Unacceptable PDx" + grouperparameter.getPdx());
                     result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                     result.setSuccess(true);
@@ -182,7 +178,6 @@ public class ValidateFindMDC {
                     result.setSuccess(getvalidatedpremdcResult.isSuccess());
                     result.setMessage(getvalidatedpremdcResult.getMessage());
                     result.setResult(getvalidatedpremdcResult.getResult());
-
                 }
             } else {
                 GrouperParameter Newgrouperparam = new GrouperParameter();
@@ -217,7 +212,6 @@ public class ValidateFindMDC {
                 result.setSuccess(getvalidatedpremdcResult.isSuccess());
                 result.setResult(getvalidatedpremdcResult.getResult());
                 result.setMessage(getvalidatedpremdcResult.getMessage());
-//                System.out.println(Newgrouperparam);
 
             }
             //====================================================================== 

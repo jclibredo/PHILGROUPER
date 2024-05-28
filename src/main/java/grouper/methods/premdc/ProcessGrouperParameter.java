@@ -62,7 +62,25 @@ public class ProcessGrouperParameter {
             newGrouperParam.setGender(grouperparameter.getGender());
             newGrouperParam.setIdseries(grouperparameter.getIdseries());
             newGrouperParam.setPdx(grouperparameter.getPdx());
-            newGrouperParam.setProc(grouperparameter.getProc());
+
+            //CLEANING PROC DATA
+            if (!grouperparameter.getProc().trim().isEmpty()) {
+                LinkedList<String> newprocList = new LinkedList<>();
+                List<String> procList = Arrays.asList(grouperparameter.getProc().split(","));
+                for (int m = 0; m < procList.size(); m++) {
+                    newprocList.add(procList.get(m));
+                }
+                for (int pro = 0; pro < procList.size(); pro++) {
+                    DRGWSResult sexvalidationresult = gm.GenderConfictValidationProc(datasource, procList.get(pro).trim(), grouperparameter.getGender());
+                    if (!sexvalidationresult.isSuccess()) {
+                        newprocList.remove(procList.get(pro).trim());
+                    }
+                }
+                newGrouperParam.setProc(String.join(",", newprocList));
+            } else {
+                newGrouperParam.setProc(grouperparameter.getProc());
+            }
+
             newGrouperParam.setResult_id(grouperparameter.getResult_id());
             //CLEANING SDX
             if (!grouperparameter.getSdx().isEmpty()) {
@@ -77,20 +95,26 @@ public class ProcessGrouperParameter {
                     } else {
                         if (!grouperparameter.getBirthDate().isEmpty()
                                 && !grouperparameter.getAdmissionDate().isEmpty()) {
-                            String days = String.valueOf(utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+                            int daysfinal = 0;
                             String year = String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+                            if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                                daysfinal = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) * 365;
+                            } else {
+                                daysfinal = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+                            }
                             if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 0
                                     && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 0) {
                                 if (!grouperparameter.getBirthDate().isEmpty() && !grouperparameter.getAdmissionDate().isEmpty()) {
                                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 0
                                             && utility.ComputeDay(grouperparameter.getBirthDate(),
                                                     grouperparameter.getAdmissionDate()) >= 0 && !sdxList.get(u).isEmpty()) {
-                                        DRGWSResult SDxResult = gm.GetICD10(datasource, sdxList.get(u));
+                                        DRGWSResult SDxResult = gm.GetICD10(datasource, sdxList.get(u).toUpperCase().trim());
                                         if (SDxResult.isSuccess()) {
                                             //CHECKING FOR AGE CONFLICT
-                                            DRGWSResult getAgeConfictResult = gm.AgeConfictValidation(datasource, sdxList.get(u), days, year);
+                                            DRGWSResult getAgeConfictResult = gm.AgeConfictValidation(datasource, sdxList.get(u).toUpperCase().trim(),
+                                                    String.valueOf(daysfinal), year);
                                             if (!getAgeConfictResult.isSuccess()) {
-                                                //errors.add(" SDx:" + SDxCode + " conflict with age");
+//                                                //errors.add(" SDx:" + SDxCode + " conflict with age");
                                                 newsdxList.remove(sdxList.get(u));
                                             }
                                             //CHECKING FOR GENDER CONFLICT
@@ -186,8 +210,8 @@ public class ProcessGrouperParameter {
 //                //REQUIRED DATE DATA NEEDED FOR GROUPER
             DRGWSResult geticd10Result = gm.GetICD10PreMDC(datasource, grouperparameter.getPdx());
             if (!geticd10Result.isSuccess()) {
-                drgresult.setDRG("26519");
-                drgresult.setDC("2651");
+                drgresult.setDRG("26509");
+                drgresult.setDC("2650");
                 drgresult.setDRGName("Unacceptable PDx");
             }
             if (newGrouperParam.getAdmissionDate().isEmpty()) {

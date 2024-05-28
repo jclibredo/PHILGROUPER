@@ -56,14 +56,16 @@ public class GetMDC03 {
         //Checking SDx RadioTherapy and Chemotherapy
         for (int a = 0; a < SecondaryList.size(); a++) {
             String Secon = SecondaryList.get(a);
-            if (utility.isValid99BX(Secon)) {
+            DRGWSResult Result99BX = gm.AX(datasource, "99BX", Secon.toUpperCase().trim());
+            if (Result99BX.isSuccess()) {
                 CartSDx++;
             }
-            if (utility.isValid99CX(Secon)) {
+            DRGWSResult Result99CX = gm.AX(datasource, "99CX", Secon.toUpperCase().trim());
+            if (Result99CX.isSuccess()) {
                 CaCRxSDx++;
             }
-        }
 
+        }
         //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
         int mdcprocedureCounter = 0;
         int ORProcedureCounter = 0;
@@ -96,22 +98,27 @@ public class GetMDC03 {
                 Counter3PEX++;
             }
             //AX 99PEX Checking
-            if (utility.isValid99PEX(proc.trim())) {
+            DRGWSResult Result99PEX = gm.AX(datasource, "99PEX", proc.trim());
+            if (Result99PEX.isSuccess()) {
                 CartProc++;
             }
             //AX 99PFX Checking
-            if (utility.isValid99PFX(proc.trim())) {
+            DRGWSResult Result99PFX = gm.AX(datasource, "99PFX", proc.trim());
+            if (Result99PFX.isSuccess()) {
                 CaCRxProc++;
             }
+
             //AX 3PCX Checking
             DRGWSResult Result3PCX = gm.AX(datasource, "3PCX", proc.trim());
             if (Result3PCX.isSuccess()) {
                 PCX3Proc++;
             }
             //AX 99PBX Checking
-            if (utility.isValid99PBX(proc.trim())) { //Blood Transfusion AX 99PBX
+            DRGWSResult Result99PBX = gm.AX(datasource, "99PBX", proc.trim());
+            if (Result99PBX.isSuccess()) {
                 PBX99Proc++;
             }
+
             //AX 3PDX Checking
             DRGWSResult Result3PDX = gm.AX(datasource, "3PDX", proc.trim());
             if (Result3PDX.isSuccess()) {
@@ -123,20 +130,14 @@ public class GetMDC03 {
                 ORProcedureCounter++;
                 ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
             }
-
-            if (utility.isValid99PDX(proc.trim())) {
+            DRGWSResult Result99PDX = gm.AX(datasource, "99PDX", proc.trim());
+            if (Result99PDX.isSuccess()) {
                 PDXCounter99++;
             }
-            //AX 99PCX Checking
-            if (utility.isValid99PCX(proc.trim())) {
-                PCXCounter99++;
-            }
 
-            if (utility.isValid99PDX(proc.trim())) {
-                PDXCounter99++;
-            }
             //AX 99PCX Checking
-            if (utility.isValid99PCX(proc.trim())) {
+            DRGWSResult Result99PCX = gm.AX(datasource, "99PCX", proc.trim());
+            if (Result99PCX.isSuccess()) {
                 PCXCounter99++;
             }
         }
