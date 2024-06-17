@@ -11,10 +11,15 @@ import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.GrouperMethod;
+import grouper.utility.NamedParameterStatement;
 import grouper.utility.TestParamObject;
 import grouper.utility.Utility;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,9 +58,30 @@ public class Grouper {
      * Retrieves representation of an instance of
      * drg.claims.drgapplication.Grouper
      *
-     * @param grouperparameter
      * @return an instance of java.lang.String
      */
+    //Gget Server Data and Time
+    @GET
+    @Path("GetServerDateTime")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String GetServerDateTime() {
+        String result = "";
+        SimpleDateFormat sdf = utility.SimpleDateFormat("hh:mm:ss a");
+        try (Connection connection = datasource.getConnection()) {
+            String query = "SELECT SYSDATE FROM DUAL";
+            NamedParameterStatement SDxVal = new NamedParameterStatement(connection, query);
+            SDxVal.execute();
+            ResultSet rest = SDxVal.executeQuery();
+            if (rest.next()) {
+                result = sdf.format(rest.getDate("SYSDATE"));
+            }
+        } catch (SQLException ex) {
+            result = ex.toString();
+            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
     //FOR FRONT VALIDATION KEYVALUE PAIR METHOD
     @POST
     @Path("PROCESSGrouper")

@@ -46,7 +46,7 @@ public class ProcessGrouperParameter {
         result.setSuccess(false);
         GrouperMethod gm = new GrouperMethod();
         try {
-            File path = new File("D:\\DRG Result Log Files\\LogFileForgrouperResult.txt");
+//            File path = new File("D:\\DRG Result Log Files\\LogFileForgrouperResult.txt");
             //  for (int g = 0; g < grouperparameter.size(); g++) {
             DRGOutput drgresult = utility.DRGOutput();
             GrouperParameter newGrouperParam = utility.GrouperParameter();
@@ -127,7 +127,6 @@ public class ProcessGrouperParameter {
                                             //  errors.add(" SDx:" + SDxCode + " Invalid SDx");
                                             newsdxList.remove(sdxList.get(u));
                                         }
-
                                     }
                                 }
                             }
@@ -295,23 +294,23 @@ public class ProcessGrouperParameter {
                 result.setResult(utility.objectMapper().writeValueAsString(drgresult));
 
                 //------------------------------ FILE WRITER PART--------------------------------
-                FileReader fr = new FileReader(path);
-                ArrayList<String> oldContent;
-                try (BufferedReader br = new BufferedReader(fr)) {
-                    String line;
-                    oldContent = new ArrayList<>();
-                    while ((line = br.readLine()) != null) {
-                        oldContent.add(line);
-                    }
-                }
-
-                try (PrintWriter pw = new PrintWriter(path)) {
-                    for (int a = 0; a < oldContent.size(); a++) {
-                        pw.write(oldContent.get(a) + "\n");
-                    }
-                    pw.write(drgresult.getDRG() + "\n");
-                    pw.flush();
-                }
+//                FileReader fr = new FileReader(path);
+//                ArrayList<String> oldContent;
+//                try (BufferedReader br = new BufferedReader(fr)) {
+//                    String line;
+//                    oldContent = new ArrayList<>();
+//                    while ((line = br.readLine()) != null) {
+//                        oldContent.add(line);
+//                    }
+//                }
+//
+//                try (PrintWriter pw = new PrintWriter(path)) {
+//                    for (int a = 0; a < oldContent.size(); a++) {
+//                        pw.write(oldContent.get(a) + "\n");
+//                    }
+//                    pw.write(drgresult.getDRG() + "\n");
+//                    pw.flush();
+//                }
 
                 //------------------------------ FILE WRITER PART--------------------------------
             } else {
@@ -342,41 +341,41 @@ public class ProcessGrouperParameter {
                     //singleresult.setMessage(updatedrgresult.getMessage() + " LOGS:" + grouperauditrail.getMessage());
                     //resultdata.add(singleresult);
                     //------------------------------ FILE WRITER PART--------------------------------
-                    FileReader fr = new FileReader(path);
-                    ArrayList<String> oldContent;
-                    try (BufferedReader br = new BufferedReader(fr)) {
-                        String line;
-                        oldContent = new ArrayList<>();
-                        while ((line = br.readLine()) != null) {
-                            oldContent.add(line);
-                        }
-                    }
-                    try (PrintWriter pw = new PrintWriter(path)) {
-                        for (int a = 0; a < oldContent.size(); a++) {
-                            pw.write(oldContent.get(a) + "\n");
-                        }
-                        pw.write(drgResults.getDRG() + "\n");
-                        pw.flush();
-                    }
+//                    FileReader fr = new FileReader(path);
+//                    ArrayList<String> oldContent;
+//                    try (BufferedReader br = new BufferedReader(fr)) {
+//                        String line;
+//                        oldContent = new ArrayList<>();
+//                        while ((line = br.readLine()) != null) {
+//                            oldContent.add(line);
+//                        }
+//                    }
+//                    try (PrintWriter pw = new PrintWriter(path)) {
+//                        for (int a = 0; a < oldContent.size(); a++) {
+//                            pw.write(oldContent.get(a) + "\n");
+//                        }
+//                        pw.write(drgResults.getDRG() + "\n");
+//                        pw.flush();
+//                    }
                     //------------------------------ FILE WRITER PART--------------------------------
                 } else {
 
-                    FileReader fr = new FileReader(path);
-                    ArrayList<String> oldContent;
-                    try (BufferedReader br = new BufferedReader(fr)) {
-                        String line;
-                        oldContent = new ArrayList<>();
-                        while ((line = br.readLine()) != null) {
-                            oldContent.add(line);
-                        }
-                    }
-                    try (PrintWriter pw = new PrintWriter(path)) {
-                        for (int a = 0; a < oldContent.size(); a++) {
-                            pw.write(oldContent.get(a) + "\n");
-                        }
-                        pw.write(validateresult.getMessage() + "\n");
-                        pw.flush();
-                    }
+//                    FileReader fr = new FileReader(path);
+//                    ArrayList<String> oldContent;
+//                    try (BufferedReader br = new BufferedReader(fr)) {
+//                        String line;
+//                        oldContent = new ArrayList<>();
+//                        while ((line = br.readLine()) != null) {
+//                            oldContent.add(line);
+//                        }
+//                    }
+//                    try (PrintWriter pw = new PrintWriter(path)) {
+//                        for (int a = 0; a < oldContent.size(); a++) {
+//                            pw.write(oldContent.get(a) + "\n");
+//                        }
+//                        pw.write(validateresult.getMessage() + "\n");
+//                        pw.flush();
+//                    }
 
                     //DRG Grouper Auditrail
 //                        DRGWSResult grouperauditrail = gm.InsertGrouperAuditTrail(datasource,
