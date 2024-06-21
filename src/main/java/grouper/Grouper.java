@@ -73,7 +73,7 @@ public class Grouper {
             SDxVal.execute();
             ResultSet rest = SDxVal.executeQuery();
             if (rest.next()) {
-                result = sdf.format(rest.getDate("SYSDATE"));
+                result = "SERVER DATE AND TIME : "+sdf.format(rest.getTime("SYSDATE"));
             }
         } catch (SQLException ex) {
             result = ex.toString();
@@ -122,6 +122,7 @@ public class Grouper {
         result.setResult("");
         result.setSuccess(false);
         ArrayList<DRGOutput> drgresultList = new ArrayList<>();
+        ArrayList<String> errorList = new ArrayList<>();
         ProcessGrouperParameter processparameter = new ProcessGrouperParameter();
         try {
             for (int g = 0; g < grouperparameter.size(); g++) {
@@ -129,13 +130,14 @@ public class Grouper {
                 if (grouperResult.isSuccess()) {
                     DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
                     drgresultList.add(drgout);
-                    System.out.println(drgout.getDRG());
-                    System.out.println(drgout.getDRGName());
+                } else {
+                    errorList.add(grouperResult.getMessage());
                 }
             }
             if (grouperparameter.size() > 0) {
-                result.setMessage("Grouper Process : " + grouperparameter.size() + " DRG Claims");
+                result.setMessage("Data Process : " + grouperparameter.size() + " DRG Claims , Error Ecounter : " + errorList.toString());
                 result.setSuccess(true);
+                result.setResult(utility.objectMapper().writeValueAsString(drgresultList));
             } else {
                 result.setMessage("NO DATA AVAILABLE TO PROCESS");
             }
