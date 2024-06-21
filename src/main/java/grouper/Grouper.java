@@ -43,10 +43,10 @@ import javax.ws.rs.core.MediaType;
 @Path("Grouper")
 @RequestScoped
 public class Grouper {
-
+    
     public Grouper() {
     }
-
+    
     @Resource(lookup = "jdbc/drgsbuser")
     private DataSource datasource;
     private final Utility utility = new Utility();
@@ -66,14 +66,14 @@ public class Grouper {
     @Produces(MediaType.APPLICATION_JSON)
     public String GetServerDateTime() {
         String result = "";
-        SimpleDateFormat sdf = utility.SimpleDateFormat("hh:mm:ss a");
+        SimpleDateFormat sdf = utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
         try (Connection connection = datasource.getConnection()) {
             String query = "SELECT SYSDATE FROM DUAL";
             NamedParameterStatement SDxVal = new NamedParameterStatement(connection, query);
             SDxVal.execute();
             ResultSet rest = SDxVal.executeQuery();
             if (rest.next()) {
-                result = "SERVER DATE AND TIME : "+sdf.format(rest.getTime("SYSDATE"));
+                result = "SERVER DATE AND TIME : " + String.valueOf(sdf.format(rest.getTime("SYSDATE")));
             }
         } catch (SQLException ex) {
             result = ex.toString();
@@ -141,7 +141,7 @@ public class Grouper {
             } else {
                 result.setMessage("NO DATA AVAILABLE TO PROCESS");
             }
-
+            
         } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
@@ -204,7 +204,7 @@ public class Grouper {
                 result.setMessage(testinsert.getMessage());
                 result.setResult(testinsert.getResult());
             }
-
+            
         } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
@@ -225,9 +225,9 @@ public class Grouper {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-
+        
         try {
-
+            
             DRGOutput drgresult = utility.DRGOutput();
             GrouperParameter newGrouperParam = utility.GrouperParameter();
             //======================== TIME FORMAT CONVERTER ==============================
@@ -377,7 +377,7 @@ public class Grouper {
                     }
                 }
             }
-
+            
             if (drgresult.getDRG() != null) {
                 result.setMessage("UNGROUPABLE DRG CODES");
                 result.setSuccess(true);
@@ -403,5 +403,5 @@ public class Grouper {
         }
         return result;
     }
-
+    
 }
