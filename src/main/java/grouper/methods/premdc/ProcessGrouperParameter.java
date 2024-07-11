@@ -13,6 +13,7 @@ import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -46,7 +47,7 @@ public class ProcessGrouperParameter {
         result.setSuccess(false);
         GrouperMethod gm = new GrouperMethod();
         try {
-//            File path = new File("D:\\DRG Result Log Files\\LogFileForgrouperResult.txt");
+            File path = new File("D:\\DRG Result Log Files\\LogFileForgrouperResult.txt");
             //  for (int g = 0; g < grouperparameter.size(); g++) {
             DRGOutput drgresult = utility.DRGOutput();
             GrouperParameter newGrouperParam = utility.GrouperParameter();
@@ -62,7 +63,6 @@ public class ProcessGrouperParameter {
             newGrouperParam.setGender(grouperparameter.getGender());
             newGrouperParam.setIdseries(grouperparameter.getIdseries());
             newGrouperParam.setPdx(grouperparameter.getPdx());
-
             //CLEANING PROC DATA
             if (!grouperparameter.getProc().trim().isEmpty()) {
                 LinkedList<String> newprocList = new LinkedList<>();
@@ -281,37 +281,19 @@ public class ProcessGrouperParameter {
             }
 //
             if (drgresult.getDRG() != null) {
-//                    DRGWSResult updatedrgresult = gm.UpdateDRGResult(datasource,
-//                            drgresult.getMDC(),
-//                            drgresult.getPDC(),
-//                            drgresult.getDC(),
-//                            newGrouperParam.getResult_id(),
-//                            newGrouperParam.getClaimseries(),
-//                            drgresult.getDRG());
-//                    singleresult.setMessage(updatedrgresult.getMessage());
+                DRGWSResult updatedrgresult = gm.UpdateDRGResult(datasource,
+                        drgresult.getMDC(),
+                        drgresult.getPDC(),
+                        drgresult.getDC(),
+                        newGrouperParam.getResult_id(),
+                        newGrouperParam.getClaimseries(),
+                        drgresult.getDRG());
+                // singleresult.setMessage(updatedrgresult.getMessage());
                 result.setMessage("OK");
                 result.setSuccess(true);
                 result.setResult(utility.objectMapper().writeValueAsString(drgresult));
-
                 //------------------------------ FILE WRITER PART--------------------------------
-//                FileReader fr = new FileReader(path);
-//                ArrayList<String> oldContent;
-//                try (BufferedReader br = new BufferedReader(fr)) {
-//                    String line;
-//                    oldContent = new ArrayList<>();
-//                    while ((line = br.readLine()) != null) {
-//                        oldContent.add(line);
-//                    }
-//                }
-//
-//                try (PrintWriter pw = new PrintWriter(path)) {
-//                    for (int a = 0; a < oldContent.size(); a++) {
-//                        pw.write(oldContent.get(a) + "\n");
-//                    }
-//                    pw.write(drgresult.getDRG() + "\n");
-//                    pw.flush();
-//                }
-
+                FileWriter(path, drgresult.getDRG());
                 //------------------------------ FILE WRITER PART--------------------------------
             } else {
                 ValidateFindMDC vfm = new ValidateFindMDC();
@@ -320,73 +302,28 @@ public class ProcessGrouperParameter {
                 if (validateresult.isSuccess()) {
                     DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
                     //=================================================================================
-//                        DRGWSResult updatedrgresult = gm.UpdateDRGResult(datasource,
-//                                drgResults.getMDC(),
-//                                drgResults.getPDC(),
-//                                drgResults.getDC(),
-//                                newGrouperParam.getResult_id(),
-//                                newGrouperParam.getClaimseries(),
-//                                drgResults.getDRG());
+                    DRGWSResult updatedrgresult = gm.UpdateDRGResult(datasource,
+                            drgResults.getMDC(),
+                            drgResults.getPDC(),
+                            drgResults.getDC(),
+                            newGrouperParam.getResult_id(),
+                            newGrouperParam.getClaimseries(),
+                            drgResults.getDRG());
                     result.setSuccess(true);
                     result.setResult(utility.objectMapper().writeValueAsString(drgResults));
                     result.setMessage("OK");
-//                        //String dataResult = "DRG:" + drgResults.getDRG() + "|MDC:" + drgResults.getMDC();
-//                        //DRG Grouper Auditrail
-//                        //System.out.println(dataResult);
-//                        DRGWSResult grouperauditrail = gm.InsertGrouperAuditTrail(datasource,
-//                                newGrouperParam.getClaimseries(), newGrouperParam.getIdseries(),
-//                                updatedrgresult.getMessage(),
-//                                "SUCCESS");
-                    //DRG Grouper Auditrail
-                    //singleresult.setMessage(updatedrgresult.getMessage() + " LOGS:" + grouperauditrail.getMessage());
-                    //resultdata.add(singleresult);
+                    DRGAuditTrail(datasource, newGrouperParam.getClaimseries(),
+                            newGrouperParam.getIdseries(),
+                            updatedrgresult.getMessage(), "SUCCESS");
                     //------------------------------ FILE WRITER PART--------------------------------
-//                    FileReader fr = new FileReader(path);
-//                    ArrayList<String> oldContent;
-//                    try (BufferedReader br = new BufferedReader(fr)) {
-//                        String line;
-//                        oldContent = new ArrayList<>();
-//                        while ((line = br.readLine()) != null) {
-//                            oldContent.add(line);
-//                        }
-//                    }
-//                    try (PrintWriter pw = new PrintWriter(path)) {
-//                        for (int a = 0; a < oldContent.size(); a++) {
-//                            pw.write(oldContent.get(a) + "\n");
-//                        }
-//                        pw.write(drgResults.getDRG() + "\n");
-//                        pw.flush();
-//                    }
+                    FileWriter(path, drgResults.getDRG());
                     //------------------------------ FILE WRITER PART--------------------------------
                 } else {
-
-//                    FileReader fr = new FileReader(path);
-//                    ArrayList<String> oldContent;
-//                    try (BufferedReader br = new BufferedReader(fr)) {
-//                        String line;
-//                        oldContent = new ArrayList<>();
-//                        while ((line = br.readLine()) != null) {
-//                            oldContent.add(line);
-//                        }
-//                    }
-//                    try (PrintWriter pw = new PrintWriter(path)) {
-//                        for (int a = 0; a < oldContent.size(); a++) {
-//                            pw.write(oldContent.get(a) + "\n");
-//                        }
-//                        pw.write(validateresult.getMessage() + "\n");
-//                        pw.flush();
-//                    }
-
-                    //DRG Grouper Auditrail
-//                        DRGWSResult grouperauditrail = gm.InsertGrouperAuditTrail(datasource,
-//                                newGrouperParam.getClaimseries(), newGrouperParam.getIdseries(),
-//                                validateresult.getMessage(),
-//                                "FAILED");
-                    //DRG Grouper Auditrail
-                    // singleresult.setMessage(validateresult.getMessage()); //+ " LOGS:" + grouperauditrail.getMessage());
+                    FileWriter(path, validateresult.getMessage());
+                    DRGAuditTrail(datasource, newGrouperParam.getClaimseries(), newGrouperParam.getIdseries(), validateresult.getMessage(), "FAILED");
+                    //singleresult.setMessage(validateresult.getMessage()); //+ " LOGS:" + grouperauditrail.getMessage());
                     result.setResult(utility.objectMapper().writeValueAsString(validateresult.getResult()));
                     result.setMessage("OK");
-
                 }
             }
         } catch (ParseException ex) {
@@ -394,6 +331,31 @@ public class ProcessGrouperParameter {
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
+    }
+
+    public void FileWriter(File path, String messasge) throws FileNotFoundException, IOException {
+        FileReader fr = new FileReader(path);
+        ArrayList<String> oldContent;
+        try (BufferedReader br = new BufferedReader(fr)) {
+            String line;
+            oldContent = new ArrayList<>();
+            while ((line = br.readLine()) != null) {
+                oldContent.add(line);
+            }
+        }
+        try (PrintWriter pw = new PrintWriter(path)) {
+            for (int a = 0; a < oldContent.size(); a++) {
+                pw.write(oldContent.get(a) + "\n");
+            }
+            pw.write(messasge + "\n");
+            pw.flush();
+        }
+    }
+
+    public String DRGAuditTrail(final DataSource datasource, String claimsSeries, String idSeries, String deTails, String status) {
+        GrouperMethod gm = new GrouperMethod();
+        DRGWSResult grouperauditrail = gm.InsertGrouperAuditTrail(datasource, claimsSeries, idSeries, deTails, status);
+        return grouperauditrail.getMessage();
     }
 
 }

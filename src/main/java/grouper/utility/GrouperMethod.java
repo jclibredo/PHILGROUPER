@@ -188,7 +188,7 @@ public class GrouperMethod {
                 result.setMessage(resultset.getString("CCROW"));
                 result.setSuccess(true);
             } else {
-                result.setSuccess(false);
+                result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
@@ -255,9 +255,14 @@ public class GrouperMethod {
                 drgresultparam.setResult_id(getDRGParamResult.getString("RESULT_ID"));
                 ggrouperparameter.setResult_id(getDRGParamResult.getString("RESULT_ID"));
                 drgresultparam.setSeriesnum(getDRGParamResult.getString("CLAIMS_SERRIES"));
+                if (getDRGParamResult.getString("PDX") == null) {
+                    drgresultparam.setPdx("");
+                    ggrouperparameter.setPdx("");
+                } else {
+                    drgresultparam.setPdx(getDRGParamResult.getString("PDX"));
+                    ggrouperparameter.setPdx(getDRGParamResult.getString("PDX"));
+                }
                 drgresultparam.setLhio(getDRGParamResult.getString("LHIO"));
-                drgresultparam.setPdx(getDRGParamResult.getString("PDX"));
-                ggrouperparameter.setPdx(getDRGParamResult.getString("PDX"));
                 ggrouperparameter.setIdseries(getDRGParamResult.getString("CLAIM_ID"));
                 //=====================================================================
                 if (getDRGParamResult.getString("PROC") == null) {
@@ -280,11 +285,10 @@ public class GrouperMethod {
                 //========================================== DRG XML GET PATIENT INFO
                 CallableStatement getdrg_info = connection.prepareCall("begin :getdrginfo := MINOSUN.DRGPKGFUNCTION.GET_DRG_INFO(:seriesnums); end;");
                 getdrg_info.registerOutParameter("getdrginfo", OracleTypes.CURSOR);
-                getdrg_info.setString("seriesnums", getDRGParamResult.getString("CLAIMS_SERRIES"));
+                getdrg_info.setString("seriesnums", getDRGParamResult.getString("CLAIMS_SERRIES").trim());
                 getdrg_info.execute();
                 ResultSet getdrg_infoResult = (ResultSet) getdrg_info.getObject("getdrginfo");
                 if (getdrg_infoResult.next()) {
-                    ggrouperparameter.setTimeOfBirth(getdrg_infoResult.getString("NB_TOB"));
                     ggrouperparameter.setAdmissionWeight(getdrg_infoResult.getString("NB_ADMWEIGHT"));
                 }
                 //==============================================ECLAIMS XML GET NCLAIMS DATA============================================================
@@ -296,49 +300,55 @@ public class GrouperMethod {
                 if (getdrg_nclaims_result.next()) {
                     ggrouperparameter.setClaimseries(getDRGParamResult.getString("CLAIMS_SERRIES"));
                     //EXPIREDTIME
-                    if (getdrg_nclaims_result.getTime("EXPIREDTIME") == null) {
+                    if (getdrg_nclaims_result.getTimestamp("EXPIREDTIME") == null) {
                         ggrouperparameter.setExpireTime("");
                     } else {
-                        ggrouperparameter.setExpireTime(timeformat.format(getdrg_nclaims_result.getTime("EXPIREDTIME")));
+                        ggrouperparameter.setExpireTime(timeformat.format(getdrg_nclaims_result.getTimestamp("EXPIREDTIME")));
                     }
                     //TIMEADMISSION
-                    if (getdrg_nclaims_result.getTime("TIMEADMISSION") == null) {
+                    if (getdrg_nclaims_result.getTimestamp("TIMEADMISSION") == null) {
                         ggrouperparameter.setTimeAdmission("");
                     } else {
-                        ggrouperparameter.setTimeAdmission(timeformat.format(getdrg_nclaims_result.getTime("TIMEADMISSION")));
+                        ggrouperparameter.setTimeAdmission(timeformat.format(getdrg_nclaims_result.getTimestamp("TIMEADMISSION")));
                     }
                     //TIMEDISCHARGE
-                    if (getdrg_nclaims_result.getTime("TIMEDISCHARGE") == null) {
+                    if (getdrg_nclaims_result.getTimestamp("TIMEDISCHARGE") == null) {
                         ggrouperparameter.setTimeDischarge("");
                     } else {
-                        ggrouperparameter.setTimeDischarge(timeformat.format(getdrg_nclaims_result.getTime("TIMEDISCHARGE")));
+                        ggrouperparameter.setTimeDischarge(timeformat.format(getdrg_nclaims_result.getTimestamp("TIMEDISCHARGE")));
                     }
                     //===============================FECTHING DATE AREA ========================================================
                     //DISCHARGEDATE
-                    if (getdrg_nclaims_result.getDate("DISCHARGEDATE") == null) {
+                    if (getdrg_nclaims_result.getTimestamp("DISCHARGEDATE") == null) {
                         ggrouperparameter.setDischargeDate("");
                     } else {
-                        ggrouperparameter.setDischargeDate(dateformat.format(getdrg_nclaims_result.getDate("DISCHARGEDATE")));
+                        ggrouperparameter.setDischargeDate(dateformat.format(getdrg_nclaims_result.getTimestamp("DISCHARGEDATE")));
                     }
                     //ADMISSIONDATE
-                    if (getdrg_nclaims_result.getDate("ADMISSIONDATE") == null) {
+                    if (getdrg_nclaims_result.getTimestamp("ADMISSIONDATE") == null) {
                         ggrouperparameter.setAdmissionDate("");
                     } else {
-                        ggrouperparameter.setAdmissionDate(dateformat.format(getdrg_nclaims_result.getDate("ADMISSIONDATE")));
+                        ggrouperparameter.setAdmissionDate(dateformat.format(getdrg_nclaims_result.getTimestamp("ADMISSIONDATE")));
                     }
                     //EXPIREDDATE
-                    if (getdrg_nclaims_result.getDate("EXPIREDDATE") == null) {
+                    if (getdrg_nclaims_result.getTimestamp("EXPIREDDATE") == null) {
                         ggrouperparameter.setExpiredDate("");
                     } else {
-                        ggrouperparameter.setExpiredDate(dateformat.format(getdrg_nclaims_result.getDate("EXPIREDDATE")));
+                        ggrouperparameter.setExpiredDate(dateformat.format(getdrg_nclaims_result.getTimestamp("EXPIREDDATE")));
                     }
                     //DATEOFBIRTH
-                    if (getdrg_nclaims_result.getDate("DATEOFBIRTH") == null) {
+                    if (getdrg_nclaims_result.getTimestamp("DATEOFBIRTH") == null) {
                         ggrouperparameter.setBirthDate("");
                     } else {
-                        ggrouperparameter.setBirthDate(dateformat.format(getdrg_nclaims_result.getDate("DATEOFBIRTH")));
+                        ggrouperparameter.setBirthDate(dateformat.format(getdrg_nclaims_result.getTimestamp("DATEOFBIRTH")));
                     }
-                    ggrouperparameter.setGender(getdrg_nclaims_result.getString("GENDER"));
+
+                    if (getdrg_nclaims_result.getString("GENDER") == null) {
+                        ggrouperparameter.setGender("");
+                    } else {
+                        ggrouperparameter.setGender(getdrg_nclaims_result.getString("GENDER"));
+                    }
+
                     switch (getdrg_nclaims_result.getString("DISCHARGETYPE")) {
                         case "E":
                             ggrouperparameter.setDischargeType("8");
@@ -359,8 +369,12 @@ public class GrouperMethod {
                         case "H":
                             ggrouperparameter.setDischargeType("2");
                             break;
+                        default:
+                            ggrouperparameter.setDischargeType("");
+                            break;
                     }
 
+                    System.out.println(ggrouperparameter);
                     grouperparameterlsit.add(ggrouperparameter);
 
                 } else {
@@ -454,25 +468,29 @@ public class GrouperMethod {
     }
 
 //count rvs value
-    public int CountProc(final DataSource datasource, final String codes) {
-        int icd9 = 0;
-        try (Connection connection = datasource.getConnection()) {
-            CallableStatement getResult = connection.prepareCall("begin :count_output := MINOSUN..DRGPKGFUNCTION.GET_COUNT(:codes); end;");
-            getResult.registerOutParameter("count_output", OracleTypes.CURSOR);
-            getResult.setString("codes", codes);
-            getResult.execute();
-            ResultSet rest = (ResultSet) getResult.getObject("count_output");
-            if (rest.next()) {
-                icd9 = Integer.parseInt(rest.getString("countrest"));
-
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return icd9;
-
-    }
-
+//    public DRGWSResult CountProc(final DataSource datasource, final String codes) {
+//        DRGWSResult result = utility.DRGWSResult();
+//        result.setMessage("");
+//        result.setSuccess(false);
+//        result.setResult("");
+//        try (Connection connection = datasource.getConnection()) {
+//            CallableStatement getResult = connection.prepareCall("begin :count_output := MINOSUN..DRGPKGFUNCTION.GET_COUNT(:codes); end;");
+//            getResult.registerOutParameter("count_output", OracleTypes.CURSOR);
+//            getResult.setString("codes", codes.trim());
+//            getResult.execute();
+//            ResultSet rest = (ResultSet) getResult.getObject("count_output");
+//            if (rest.next()) {
+//                result.setSuccess(true);
+//            } else {
+//                result.setMessage("N/A");
+//            }
+//        } catch (SQLException ex) {
+//            result.setMessage(ex.getLocalizedMessage());
+//            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return result;
+//
+//    }
     //public MethodResult GET ACCPDX VALUE FROM ICD10_PREMDC TABLE
     public DRGWSResult GetWarningError(final DataSource datasource, final String claimsid) {
         DRGWSResult result = utility.DRGWSResult();
