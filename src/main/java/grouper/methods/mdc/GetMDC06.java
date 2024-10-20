@@ -34,105 +34,106 @@ public class GetMDC06 {
 
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC06(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws IOException {
+    public DRGWSResult GetMDC06(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
         List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        GrouperMethod gm = new GrouperMethod();
-        //THIS AREA IS FOR CHECKING OF RADIO AND CHECMO
-        int CartSDx = 0;
-        int CaCRxSDx = 0;
-        int CartProc = 0;
-        int CaCRxProc = 0;
-        int PBX6Proc = 0;
-        int PBX99Proc = 0;
-        String PBX6 = "6PBX";
-        //Checking SDx RadioTherapy and Chemotherapy
-        for (int a = 0; a < SecondaryList.size(); a++) {
-            String Secon = SecondaryList.get(a);
-            if (utility.isValid99BX(Secon.trim())) {
-                CartSDx++;
-            }
-            if (utility.isValid99CX(Secon.trim())) {
-                CaCRxSDx++;
-            }
-        }
-
-        //Malignantn PDC 6A
-        String pdc6A = "6A";
-        int MalignantCount = 0;
-        DRGWSResult getMalignantnCountResult = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), pdc6A);
-        if (getMalignantnCountResult.isSuccess()) {
-            MalignantCount++;
-        }
-        //Maj Dig Dis AX 6BX
-        String pdcAx6BX = "6BX";
-        int Ax6BXCount = 0;
-        DRGWSResult getpdcAx6BXCountResult = gm.AX(datasource, pdcAx6BX, grouperparameter.getPdx());
-        if (getpdcAx6BXCountResult.isSuccess()) {
-            Ax6BXCount++;
-        }
-        //Inguinal or Femoral PDC 6PH
-        String pdc6PH = "6PH";
-        int Counter6PH = 0;
-        //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
-        int mdcprocedureCounter = 0;
-        int ORProcedureCounter = 0;
-        int PDXCounter99 = 0;
-        int PCXCounter99 = 0;
-        ArrayList<Integer> hierarvalue = new ArrayList<>();
-        ArrayList<String> pdclist = new ArrayList<>();
-        ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-        for (int y = 0; y < ProcedureList.size(); y++) {
-            String proc = ProcedureList.get(y);
-            DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
-            if (JoinResult.isSuccess()) {
-                mdcprocedureCounter++;
-                MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
-                    PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
-                    hierarvalue.add(hiarresult.getHIERAR());
-                    pdclist.add(hiarresult.getPDC());
+        try {
+            GrouperMethod gm = new GrouperMethod();
+            //THIS AREA IS FOR CHECKING OF RADIO AND CHECMO
+            int CartSDx = 0;
+            int CaCRxSDx = 0;
+            int CartProc = 0;
+            int CaCRxProc = 0;
+            int PBX6Proc = 0;
+            int PBX99Proc = 0;
+            String PBX6 = "6PBX";
+            //Checking SDx RadioTherapy and Chemotherapy
+            for (int a = 0; a < SecondaryList.size(); a++) {
+                String Secon = SecondaryList.get(a);
+                if (utility.isValid99BX(Secon.trim())) {
+                    CartSDx++;
+                }
+                if (utility.isValid99CX(Secon.trim())) {
+                    CaCRxSDx++;
                 }
             }
+
+            //Malignantn PDC 6A
+            String pdc6A = "6A";
+            int MalignantCount = 0;
+            DRGWSResult getMalignantnCountResult = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), pdc6A);
+            if (getMalignantnCountResult.isSuccess()) {
+                MalignantCount++;
+            }
+            //Maj Dig Dis AX 6BX
+            String pdcAx6BX = "6BX";
+            int Ax6BXCount = 0;
+            DRGWSResult getpdcAx6BXCountResult = gm.AX(datasource, pdcAx6BX, grouperparameter.getPdx());
+            if (getpdcAx6BXCountResult.isSuccess()) {
+                Ax6BXCount++;
+            }
             //Inguinal or Femoral PDC 6PH
-            DRGWSResult getpdc6PHCountResult = gm.Endovasc(datasource, proc.trim(), pdc6PH, drgResult.getMDC());
-            if (getpdc6PHCountResult.isSuccess()) {
-                Counter6PH++;
+            String pdc6PH = "6PH";
+            int Counter6PH = 0;
+            //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
+            int mdcprocedureCounter = 0;
+            int ORProcedureCounter = 0;
+            int PDXCounter99 = 0;
+            int PCXCounter99 = 0;
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            for (int y = 0; y < ProcedureList.size(); y++) {
+                String proc = ProcedureList.get(y);
+                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
+                if (JoinResult.isSuccess()) {
+                    mdcprocedureCounter++;
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
+                    DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
+                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
+                        hierarvalue.add(hiarresult.getHIERAR());
+                        pdclist.add(hiarresult.getPDC());
+                    }
+                }
+                //Inguinal or Femoral PDC 6PH
+                DRGWSResult getpdc6PHCountResult = gm.Endovasc(datasource, proc.trim(), pdc6PH, drgResult.getMDC());
+                if (getpdc6PHCountResult.isSuccess()) {
+                    Counter6PH++;
+                }
+                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
+                if (ORProcedureResult.isSuccess()) {
+                    ORProcedureCounter++;
+                    ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
+                }
+                //AX 99PDX Checking
+                if (utility.isValid99PDX(proc.trim())) {
+                    PDXCounter99++;
+                }
+                //AX 99PCX Checking
+                if (utility.isValid99PCX(proc.trim())) {
+                    PCXCounter99++;
+                }
+                if (utility.isValid99PEX(proc.trim())) {
+                    CartProc++;
+                }
+                if (utility.isValid99PFX(proc.trim())) {
+                    CaCRxProc++;
+                }
+                DRGWSResult PBX6ProcResult = gm.AX(datasource, PBX6, proc.trim());
+                if (PBX6ProcResult.isSuccess()) {//Dx Procedure
+                    PBX6Proc++;
+                }
+                if (utility.isValid99PBX(proc.trim())) { //Blood Transfusion AX 99PBX
+                    PBX99Proc++;
+                }
             }
-            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
-            if (ORProcedureResult.isSuccess()) {
-                ORProcedureCounter++;
-                ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
-            }
-            //AX 99PDX Checking
-            if (utility.isValid99PDX(proc.trim())) {
-                PDXCounter99++;
-            }
-            //AX 99PCX Checking
-            if (utility.isValid99PCX(proc.trim())) {
-                PCXCounter99++;
-            }
-            if (utility.isValid99PEX(proc.trim())) {
-                CartProc++;
-            }
-            if (utility.isValid99PFX(proc.trim())) {
-                CaCRxProc++;
-            }
-            DRGWSResult PBX6ProcResult = gm.AX(datasource, PBX6, proc.trim());
-            if (PBX6ProcResult.isSuccess()) {//Dx Procedure
-                PBX6Proc++;
-            }
-            if (utility.isValid99PBX(proc.trim())) { //Blood Transfusion AX 99PBX
-                PBX99Proc++;
-            }
-        }
-        //CONDITIONAL STATEMENT STARTS HERE FOR MDC 06
-        try {
+            //CONDITIONAL STATEMENT STARTS HERE FOR MDC 06
+
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {

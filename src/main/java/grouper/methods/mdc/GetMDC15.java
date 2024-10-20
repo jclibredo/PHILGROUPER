@@ -11,7 +11,6 @@ import grouper.structures.GrouperParameter;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -31,31 +30,29 @@ public class GetMDC15 {
 
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC15(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws ParseException {
+    public DRGWSResult GetMDC15(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
         List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        GrouperMethod gm = new GrouperMethod();
-        float AdmWTValues = 0;
-
-        if (!grouperparameter.getAdmissionWeight().isEmpty()) {
-            Float totaladmision = Float.parseFloat(grouperparameter.getAdmissionWeight());
-            AdmWTValues = totaladmision * 1000;
-        }
-        int finalage = 0;
-        int days = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
-        int year = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
-
-        if (year > 0) {
-            finalage = year * 365;
-        } else {
-            finalage = days;
-        }
         try {
+            GrouperMethod gm = new GrouperMethod();
+            float AdmWTValues = 0;
+            if (!grouperparameter.getAdmissionWeight().isEmpty()) {
+                Float totaladmision = Float.parseFloat(grouperparameter.getAdmissionWeight());
+                AdmWTValues = totaladmision * 1000;
+            }
+            int finalage = 0;
+            int days = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+            int year = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
 
+            if (year > 0) {
+                finalage = year * 365;
+            } else {
+                finalage = days;
+            }
             int Counter15PBX = 0;
             int Counter15BX = 0;
             int Counter15CX = 0;

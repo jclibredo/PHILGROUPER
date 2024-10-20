@@ -215,7 +215,7 @@ public class ValidateFindMDC {
 
             }
             //====================================================================== 
-        } catch (ParseException | IOException ex) {
+        } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(ValidateFindMDC.class.getName()).log(Level.SEVERE, null, ex);
         }

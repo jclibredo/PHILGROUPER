@@ -32,241 +32,242 @@ public class GetMDC14 {
 
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC14(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws IOException {
+    public DRGWSResult GetMDC14(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
         List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        GrouperMethod gm = new GrouperMethod();
-        //14PDX Procedure Codes
-        String PDX14 = "14PDX";
-        String PEX14 = "14PEX";
-        String PBX14 = "14PBX";
-        String PHX14 = "14PHX";
-        String CX14 = "14CX";
-        String DX14 = "14DX";
+        try {
+            GrouperMethod gm = new GrouperMethod();
+            //14PDX Procedure Codes
+            String PDX14 = "14PDX";
+            String PEX14 = "14PEX";
+            String PBX14 = "14PBX";
+            String PHX14 = "14PHX";
+            String CX14 = "14CX";
+            String DX14 = "14DX";
 
-        int Counter14PDX = 0;
-        int Counter14PFX = 0;
-        int Counter14PEX = 0;
-        int Counter14PBX = 0;
-        int Counter14PCX = 0;
-        int Counter14PGX = 0;
-        int Counter14PJX = 0;
-        int Counter14PHX = 0;
-        int ORProcedureCounter = 0;
-        int UnralatedORProcedure = 0;
-        ArrayList<String> sdxfinder = new ArrayList<>();
-        ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-        for (int y = 0; y < ProcedureList.size(); y++) {
-            String procData = ProcedureList.get(y);
-            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, procData.trim());
-            if (ORProcedureResult.isSuccess()) {
-                ORProcedureCounter++;
-                ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
-                DRGWSResult ResultUnralated = gm.UnralatedANDORProc(datasource,
-                        procData.trim(), drgResult.getMDC());
-                if (!ResultUnralated.isSuccess()) {
-                    UnralatedORProcedure++;
+            int Counter14PDX = 0;
+            int Counter14PFX = 0;
+            int Counter14PEX = 0;
+            int Counter14PBX = 0;
+            int Counter14PCX = 0;
+            int Counter14PGX = 0;
+            int Counter14PJX = 0;
+            int Counter14PHX = 0;
+            int ORProcedureCounter = 0;
+            int UnralatedORProcedure = 0;
+            ArrayList<String> sdxfinder = new ArrayList<>();
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            for (int y = 0; y < ProcedureList.size(); y++) {
+                String procData = ProcedureList.get(y);
+                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, procData.trim());
+                if (ORProcedureResult.isSuccess()) {
+                    ORProcedureCounter++;
+                    ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
+                    DRGWSResult ResultUnralated = gm.UnralatedANDORProc(datasource,
+                            procData.trim(), drgResult.getMDC());
+                    if (!ResultUnralated.isSuccess()) {
+                        UnralatedORProcedure++;
+                    }
                 }
-            }
-            DRGWSResult Result14PFX = gm.AX(datasource, "14PFX", procData.trim());
-            if (Result14PFX.isSuccess()) {
-                Counter14PFX++;
-            }
-            DRGWSResult Result14PGX = gm.AX(datasource, "14PGX", procData.trim());
-            if (Result14PGX.isSuccess()) {
-                Counter14PGX++;
-            }
-            DRGWSResult Result14PJX = gm.AX(datasource, "14PJX", procData.trim());
-            if (Result14PJX.isSuccess()) {
-                Counter14PJX++;
-            }
-            DRGWSResult Result14PEX = gm.AX(datasource, PEX14, procData.trim());
-            if (Result14PEX.isSuccess()) {
-                Counter14PEX++;
-            }
-            DRGWSResult Result14PBX = gm.AX(datasource, PBX14, procData.trim());
-            if (Result14PBX.isSuccess()) {
-                Counter14PBX++;
-            }
-            DRGWSResult Result14PCX = gm.AX(datasource, "14PCX", procData.trim());
-            if (Result14PCX.isSuccess()) {
-                Counter14PCX++;
-            }
-            DRGWSResult Result14PHX = gm.AX(datasource, PHX14, procData.trim());
-            if (Result14PHX.isSuccess()) {
+                DRGWSResult Result14PFX = gm.AX(datasource, "14PFX", procData.trim());
+                if (Result14PFX.isSuccess()) {
+                    Counter14PFX++;
+                }
+                DRGWSResult Result14PGX = gm.AX(datasource, "14PGX", procData.trim());
+                if (Result14PGX.isSuccess()) {
+                    Counter14PGX++;
+                }
+                DRGWSResult Result14PJX = gm.AX(datasource, "14PJX", procData.trim());
+                if (Result14PJX.isSuccess()) {
+                    Counter14PJX++;
+                }
+                DRGWSResult Result14PEX = gm.AX(datasource, PEX14, procData.trim());
+                if (Result14PEX.isSuccess()) {
+                    Counter14PEX++;
+                }
+                DRGWSResult Result14PBX = gm.AX(datasource, PBX14, procData.trim());
+                if (Result14PBX.isSuccess()) {
+                    Counter14PBX++;
+                }
+                DRGWSResult Result14PCX = gm.AX(datasource, "14PCX", procData.trim());
+                if (Result14PCX.isSuccess()) {
+                    Counter14PCX++;
+                }
+                DRGWSResult Result14PHX = gm.AX(datasource, PHX14, procData.trim());
+                if (Result14PHX.isSuccess()) {
 //                DRGWSResult NonORProcedure = gm.ORProcedure(datasource, Result14PHX.getResult());
 //                if (NonORProcedure.isSuccess()) {
-                Counter14PHX++;
-                //}
+                    Counter14PHX++;
+                    //}
+                }
+                DRGWSResult Result14PDX = gm.AX(datasource, PDX14, procData.trim());
+                if (Result14PDX.isSuccess()) {
+                    Counter14PDX++;
+                }
+
             }
-            DRGWSResult Result14PDX = gm.AX(datasource, PDX14, procData.trim());
-            if (Result14PDX.isSuccess()) {
-                Counter14PDX++;
+            // SDx Related AX Code
+            String BX14 = "14BX";
+            String EX14 = "14EX";
+            String KX14 = "14KX";
+            String FX14 = "14FX";
+            String HX14 = "14HX";
+            String GX14 = "14GX";
+            String JX14 = "14JX";
+            int Counter14BX = 0;
+            int Counter14EX = 0;
+            int Counter14KX = 0;
+            int Counter14DX = 0;
+            int Counter14CX = 0;
+            int Counter14FX = 0;
+            int Counter14HX = 0;
+            int Counter14GX = 0;
+            int Counter14JX = 0;
+            int ICD10mdcCounter = 0;
+            DRGWSResult Result14KX = gm.AX(datasource, KX14, grouperparameter.getPdx().trim());
+            if (Result14KX.isSuccess()) {
+                Counter14KX++;
             }
 
-        }
-        // SDx Related AX Code
-        String BX14 = "14BX";
-        String EX14 = "14EX";
-        String KX14 = "14KX";
-        String FX14 = "14FX";
-        String HX14 = "14HX";
-        String GX14 = "14GX";
-        String JX14 = "14JX";
-        int Counter14BX = 0;
-        int Counter14EX = 0;
-        int Counter14KX = 0;
-        int Counter14DX = 0;
-        int Counter14CX = 0;
-        int Counter14FX = 0;
-        int Counter14HX = 0;
-        int Counter14GX = 0;
-        int Counter14JX = 0;
-        int ICD10mdcCounter = 0;
-        DRGWSResult Result14KX = gm.AX(datasource, KX14, grouperparameter.getPdx().trim());
-        if (Result14KX.isSuccess()) {
-            Counter14KX++;
-        }
+            for (int a = 0; a < SecondaryList.size(); a++) {
+                String SDxAxData = SecondaryList.get(a);
 
-        for (int a = 0; a < SecondaryList.size(); a++) {
-            String SDxAxData = SecondaryList.get(a);
+                DRGWSResult Result14EX = gm.AX(datasource, EX14, SDxAxData.trim());
+                if (Result14EX.isSuccess()) {
+                    Counter14EX++;
+                }
+                DRGWSResult Result14DX = gm.AX(datasource, DX14, SDxAxData.trim());
+                if (Result14DX.isSuccess()) {
+                    Counter14DX++;
+                }
+                DRGWSResult Result14CX = gm.AX(datasource, CX14, SDxAxData.trim());
+                if (Result14CX.isSuccess()) {
+                    Counter14CX++;
+                }
+                DRGWSResult Result14BX = gm.AX(datasource, BX14, SDxAxData.trim());
+                if (Result14BX.isSuccess()) {
+                    Counter14BX++;
+                }
+                DRGWSResult Result14HX = gm.AX(datasource, HX14, SDxAxData.trim());
+                if (Result14HX.isSuccess()) {
+                    Counter14HX++;
+                }
+                DRGWSResult Result14FX = gm.AX(datasource, FX14, SDxAxData.trim());
+                if (Result14FX.isSuccess()) {
+                    Counter14FX++;
+                }
+                DRGWSResult pdxResult = gm.PDXandMDC(datasource, SDxAxData.trim(), drgResult.getMDC());
+                if (pdxResult.isSuccess()) {
+                    ICD10mdcCounter++;
+                }
 
-            DRGWSResult Result14EX = gm.AX(datasource, EX14, SDxAxData.trim());
-            if (Result14EX.isSuccess()) {
-                Counter14EX++;
-            }
-            DRGWSResult Result14DX = gm.AX(datasource, DX14, SDxAxData.trim());
-            if (Result14DX.isSuccess()) {
-                Counter14DX++;
-            }
-            DRGWSResult Result14CX = gm.AX(datasource, CX14, SDxAxData.trim());
-            if (Result14CX.isSuccess()) {
-                Counter14CX++;
-            }
-            DRGWSResult Result14BX = gm.AX(datasource, BX14, SDxAxData.trim());
-            if (Result14BX.isSuccess()) {
-                Counter14BX++;
-            }
-            DRGWSResult Result14HX = gm.AX(datasource, HX14, SDxAxData.trim());
-            if (Result14HX.isSuccess()) {
-                Counter14HX++;
-            }
-            DRGWSResult Result14FX = gm.AX(datasource, FX14, SDxAxData.trim());
-            if (Result14FX.isSuccess()) {
-                Counter14FX++;
-            }
-            DRGWSResult pdxResult = gm.PDXandMDC(datasource, SDxAxData.trim(), drgResult.getMDC());
-            if (pdxResult.isSuccess()) {
-                ICD10mdcCounter++;
+                DRGWSResult SDX14gxresult = gm.AX(datasource, GX14, SDxAxData.trim());
+                if (SDX14gxresult.isSuccess()) {
+                    Counter14GX++;
+                }
+
+                DRGWSResult SDX14jxresult = gm.AX(datasource, JX14, SDxAxData.trim());
+                if (SDX14jxresult.isSuccess()) {
+                    Counter14JX++;
+                }
+
             }
 
-            DRGWSResult SDX14gxresult = gm.AX(datasource, GX14, SDxAxData.trim());
-            if (SDX14gxresult.isSuccess()) {
-                Counter14GX++;
+            int pdxax14bx = 0;
+            int pdxax14cx = 0;
+            int pdxax14dx = 0;
+            int dxax14Hx = 0;
+            int dxax14Gx = 0;
+            int dxax14Jx = 0;
+            int dxas14Fx = 0;
+
+            DRGWSResult pdxax14cxresult = gm.AX(datasource, CX14, grouperparameter.getPdx());
+            if (pdxax14cxresult.isSuccess()) {
+                pdxax14cx++;
+            }
+            DRGWSResult pdxax14dxresult = gm.AX(datasource, DX14, grouperparameter.getPdx());
+            if (pdxax14dxresult.isSuccess()) {
+                pdxax14dx++;
             }
 
-            DRGWSResult SDX14jxresult = gm.AX(datasource, JX14, SDxAxData.trim());
-            if (SDX14jxresult.isSuccess()) {
-                Counter14JX++;
+            DRGWSResult pdxax14fxresult = gm.AX(datasource, FX14, grouperparameter.getPdx().trim());
+            if (pdxax14fxresult.isSuccess()) {
+                dxas14Fx++;
             }
+            DRGWSResult pdxax14bxresult = gm.AX(datasource, BX14, grouperparameter.getPdx());
+            if (pdxax14bxresult.isSuccess()) {
+                pdxax14bx++;
+            }
+            DRGWSResult dxasax14hxresult = gm.AX(datasource, HX14, grouperparameter.getPdx());
+            if (dxasax14hxresult.isSuccess()) {
+                dxax14Hx++;
+            }
+            DRGWSResult dxasax14gxresult = gm.AX(datasource, GX14, grouperparameter.getPdx());
+            if (dxasax14gxresult.isSuccess()) {
+                dxax14Gx++;
+            }
+            DRGWSResult dxasax14jxresult = gm.AX(datasource, JX14, grouperparameter.getPdx());
+            if (dxasax14jxresult.isSuccess()) {
+                dxax14Jx++;
+            }
+            //PDC 14D
+            String D14 = "14D";
+            String E14 = "14E";
+            String G14 = "14G";
+            String H14 = "14H";
+            String K14 = "14K";
+            String L14 = "14L";
+            String J14 = "14J";
+            int D14Counter = 0;
+            int E14Counter = 0;
+            int G14Counter = 0;
+            int H14Counter = 0;
+            int K14Counter = 0;
+            int L14Counter = 0;
+            int J14Counter = 0;
 
-        }
+            DRGWSResult D14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), D14);
+            if (D14Result.isSuccess()) {
+                D14Counter++;
+            }
+            DRGWSResult E14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), E14);
+            if (E14Result.isSuccess()) {
+                E14Counter++;
+            }
+            DRGWSResult G14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), G14);
+            if (G14Result.isSuccess()) {
+                G14Counter++;
+            }
+            DRGWSResult H14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), H14);
+            if (H14Result.isSuccess()) {
+                H14Counter++;
+            }
+            DRGWSResult K14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), K14);
+            if (K14Result.isSuccess()) {
+                K14Counter++;
+            }
+            DRGWSResult L14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), L14);
+            if (L14Result.isSuccess()) {
+                L14Counter++;
+            }
+            DRGWSResult J14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), J14);
+            if (J14Result.isSuccess()) {
+                J14Counter++;
+            }
+            //----------------------------------------
+            //AREA 3
+            int area1 = dxax14Gx + Counter14GX;
+            int area2 = dxax14Hx + Counter14HX;
+            int area3 = Counter14JX + dxax14Jx;
+            //----------------------------------------
+            //AREA 3
+            int area4 = dxax14Hx + Counter14HX;
+            //----------------------------------------
 
-        int pdxax14bx = 0;
-        int pdxax14cx = 0;
-        int pdxax14dx = 0;
-        int dxax14Hx = 0;
-        int dxax14Gx = 0;
-        int dxax14Jx = 0;
-        int dxas14Fx = 0;
-
-        DRGWSResult pdxax14cxresult = gm.AX(datasource, CX14, grouperparameter.getPdx());
-        if (pdxax14cxresult.isSuccess()) {
-            pdxax14cx++;
-        }
-        DRGWSResult pdxax14dxresult = gm.AX(datasource, DX14, grouperparameter.getPdx());
-        if (pdxax14dxresult.isSuccess()) {
-            pdxax14dx++;
-        }
-
-        DRGWSResult pdxax14fxresult = gm.AX(datasource, FX14, grouperparameter.getPdx().trim());
-        if (pdxax14fxresult.isSuccess()) {
-            dxas14Fx++;
-        }
-        DRGWSResult pdxax14bxresult = gm.AX(datasource, BX14, grouperparameter.getPdx());
-        if (pdxax14bxresult.isSuccess()) {
-            pdxax14bx++;
-        }
-        DRGWSResult dxasax14hxresult = gm.AX(datasource, HX14, grouperparameter.getPdx());
-        if (dxasax14hxresult.isSuccess()) {
-            dxax14Hx++;
-        }
-        DRGWSResult dxasax14gxresult = gm.AX(datasource, GX14, grouperparameter.getPdx());
-        if (dxasax14gxresult.isSuccess()) {
-            dxax14Gx++;
-        }
-        DRGWSResult dxasax14jxresult = gm.AX(datasource, JX14, grouperparameter.getPdx());
-        if (dxasax14jxresult.isSuccess()) {
-            dxax14Jx++;
-        }
-        //PDC 14D
-        String D14 = "14D";
-        String E14 = "14E";
-        String G14 = "14G";
-        String H14 = "14H";
-        String K14 = "14K";
-        String L14 = "14L";
-        String J14 = "14J";
-        int D14Counter = 0;
-        int E14Counter = 0;
-        int G14Counter = 0;
-        int H14Counter = 0;
-        int K14Counter = 0;
-        int L14Counter = 0;
-        int J14Counter = 0;
-
-        DRGWSResult D14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), D14);
-        if (D14Result.isSuccess()) {
-            D14Counter++;
-        }
-        DRGWSResult E14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), E14);
-        if (E14Result.isSuccess()) {
-            E14Counter++;
-        }
-        DRGWSResult G14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), G14);
-        if (G14Result.isSuccess()) {
-            G14Counter++;
-        }
-        DRGWSResult H14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), H14);
-        if (H14Result.isSuccess()) {
-            H14Counter++;
-        }
-        DRGWSResult K14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), K14);
-        if (K14Result.isSuccess()) {
-            K14Counter++;
-        }
-        DRGWSResult L14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), L14);
-        if (L14Result.isSuccess()) {
-            L14Counter++;
-        }
-        DRGWSResult J14Result = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), J14);
-        if (J14Result.isSuccess()) {
-            J14Counter++;
-        }
-        //----------------------------------------
-        //AREA 3
-        int area1 = dxax14Gx + Counter14GX;
-        int area2 = dxax14Hx + Counter14HX;
-        int area3 = Counter14JX + dxax14Jx;
-        //----------------------------------------
-        //AREA 3
-        int area4 = dxax14Hx + Counter14HX;
-        //----------------------------------------
-        try {
             if (pdxax14bx > 0 && ICD10mdcCounter > 0) { //PDx as AX 14BX and SDx in this MDC
                 drgResult.setDRG("26529");
                 drgResult.setDC("2652");

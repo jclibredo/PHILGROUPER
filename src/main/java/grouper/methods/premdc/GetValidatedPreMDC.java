@@ -13,7 +13,6 @@ import grouper.structures.ICD10PreMDCResult;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +32,7 @@ public class GetValidatedPreMDC {
     }
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetValidatedPreMDC(final DataSource datasource, final GrouperParameter grouperparameter) throws ParseException, IOException {
+    public DRGWSResult GetValidatedPreMDC(final DataSource datasource, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         DRGOutput drgResult = new DRGOutput();
         result.setSuccess(false);
@@ -358,7 +357,7 @@ public class GetValidatedPreMDC {
                 result.setSuccess(true);
                 result.setMessage("Grouper Done in Pre-MDC level only");
             }
-        } catch (IOException | ParseException ex) {
+        } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GetValidatedPreMDC.class.getName()).log(Level.SEVERE, null, ex);
         }

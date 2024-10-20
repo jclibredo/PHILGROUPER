@@ -50,7 +50,6 @@ public class GetMDC19 {
                     Counter19PBX++;
                 }
             }
-
             switch (drgResult.getPDC()) {
                 case "19A"://Acute Psychotic Disorders
                     if (Counter19PBX > 0) {

@@ -44,7 +44,6 @@ public class GetMDC11 {
         result.setSuccess(false);
         GrouperMethod gm = new GrouperMethod();
         try {
-
             //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
@@ -490,7 +489,7 @@ public class GetMDC11 {
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setMessage("MDC 11 Done Checking");
 
-        } catch (IOException | ParseException ex) {
+        } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GetMDC11.class.getName()).log(Level.SEVERE, null, ex);
         }

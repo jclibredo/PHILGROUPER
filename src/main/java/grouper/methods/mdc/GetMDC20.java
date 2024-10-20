@@ -35,7 +35,6 @@ public class GetMDC20 {
         result.setSuccess(false);
         GrouperMethod gm = new GrouperMethod();
         try {
-
             switch (drgResult.getPDC()) {
                 case "20A"://Alcohol Intoxication and Withdrawal
                     drgResult.setDC("2050");

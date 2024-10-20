@@ -33,114 +33,114 @@ public class GetMDC01 {
     }
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC01(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws IOException {
+    public DRGWSResult GetMDC01(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        GrouperMethod gm = new GrouperMethod();
-        List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
-        List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+        try {
+            GrouperMethod gm = new GrouperMethod();
+            List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
+            List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
 
-        // THIS AREA IS FOR CHECKING OF TRACHEOSTOMY AND CONT. MECH VENT
-        int PDXCounter99 = 0;
-        int procCounter = 0;
-        int PCXCounter99 = 0;
+            // THIS AREA IS FOR CHECKING OF TRACHEOSTOMY AND CONT. MECH VENT
+            int PDXCounter99 = 0;
+            int procCounter = 0;
+            int PCXCounter99 = 0;
 
-        for (int x = 0; x < ProcedureList.size(); x++) {
-            String proc = ProcedureList.get(x);
-            //AX 99PDX Checking
-            DRGWSResult Result99PDX = gm.AX(datasource, "99PDX", proc.trim());
-            if (Result99PDX.isSuccess()) {
-                PDXCounter99++;
-            }
-            //AX 99PCX Checking
-            DRGWSResult Result99PCX = gm.AX(datasource, "99PCX", proc.trim());
-            if (Result99PCX.isSuccess()) {
-                PCXCounter99++;
-            }
-        }
-
-        //THIS AREA IS FOR CHECKING FOR TRAUMA AND CART AND CARCX
-        int CartSDx = 0;
-        int CaCRxSDx = 0;
-        int CartProc = 0;
-        int CaCRxProc = 0;
-        int PBX99Proc = 0;
-        //Checking SDx RadioTherapy and Chemotherapy
-        for (int a = 0; a < SecondaryList.size(); a++) {
-            String Secon = SecondaryList.get(a);
-            DRGWSResult Result99BX = gm.AX(datasource, "99BX", Secon.trim());
-            if (Result99BX.isSuccess()) {
-                CartSDx++;
-            }
-            DRGWSResult Result99CX = gm.AX(datasource, "99CX", Secon.trim());
-            if (Result99CX.isSuccess()) {
-                CaCRxSDx++;
-            }
-        }
-        // CHECLING FOR ENDOVASC 
-        int EndoCounter = 0;
-        int mdcprocedureCounter = 0;
-        int ORProcedureCounter = 0;
-        ArrayList<Integer> hierarvalue = new ArrayList<>();
-        ArrayList<String> pdclist = new ArrayList<>();
-        ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-        String Pdcs = "1PJ";
-        //Checking Procedure RadioTherapy and Chemotherapy
-        int Counter1PBX = 0;
-        for (int a = 0; a < ProcedureList.size(); a++) {
-            String Proce = ProcedureList.get(a);
-            DRGWSResult EndoRes = gm.Endovasc(datasource, Proce.trim(), Pdcs, drgResult.getMDC());
-            if (EndoRes.isSuccess()) {
-                EndoCounter++;
-            }
-            DRGWSResult Result99PEX = gm.AX(datasource, "99PEX", Proce.trim());
-            if (Result99PEX.isSuccess()) {
-                CartProc++;
-            }
-            DRGWSResult Result99PFX = gm.AX(datasource, "99PFX", Proce.trim());
-            if (Result99PFX.isSuccess()) {
-                CaCRxProc++;
-            }
-            DRGWSResult Result99PBX = gm.AX(datasource, "99PBX", Proce.trim());
-            if (Result99PBX.isSuccess()) {
-                PBX99Proc++;
-            }
-
-            DRGWSResult JoinResult = gm.MDCProcedure(datasource, Proce.trim(), drgResult.getMDC());
-            if (JoinResult.isSuccess()) {
-                mdcprocedureCounter++;
-                MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                if (pdcresult.isSuccess()) {
-                    PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
-                    hierarvalue.add(hiarresult.getHIERAR());
-                    pdclist.add(hiarresult.getPDC());
+            for (int x = 0; x < ProcedureList.size(); x++) {
+                String proc = ProcedureList.get(x);
+                //AX 99PDX Checking
+                DRGWSResult Result99PDX = gm.AX(datasource, "99PDX", proc.trim());
+                if (Result99PDX.isSuccess()) {
+                    PDXCounter99++;
+                }
+                //AX 99PCX Checking
+                DRGWSResult Result99PCX = gm.AX(datasource, "99PCX", proc.trim());
+                if (Result99PCX.isSuccess()) {
+                    PCXCounter99++;
                 }
             }
-            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, Proce.trim());
-            if (ORProcedureResult.isSuccess()) {
-                ORProcedureCounter++;
-                ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
+
+            //THIS AREA IS FOR CHECKING FOR TRAUMA AND CART AND CARCX
+            int CartSDx = 0;
+            int CaCRxSDx = 0;
+            int CartProc = 0;
+            int CaCRxProc = 0;
+            int PBX99Proc = 0;
+            //Checking SDx RadioTherapy and Chemotherapy
+            for (int a = 0; a < SecondaryList.size(); a++) {
+                String Secon = SecondaryList.get(a);
+                DRGWSResult Result99BX = gm.AX(datasource, "99BX", Secon.trim());
+                if (Result99BX.isSuccess()) {
+                    CartSDx++;
+                }
+                DRGWSResult Result99CX = gm.AX(datasource, "99CX", Secon.trim());
+                if (Result99CX.isSuccess()) {
+                    CaCRxSDx++;
+                }
             }
+            // CHECLING FOR ENDOVASC 
+            int EndoCounter = 0;
+            int mdcprocedureCounter = 0;
+            int ORProcedureCounter = 0;
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            String Pdcs = "1PJ";
+            //Checking Procedure RadioTherapy and Chemotherapy
+            int Counter1PBX = 0;
+            for (int a = 0; a < ProcedureList.size(); a++) {
+                String Proce = ProcedureList.get(a);
+                DRGWSResult EndoRes = gm.Endovasc(datasource, Proce.trim(), Pdcs, drgResult.getMDC());
+                if (EndoRes.isSuccess()) {
+                    EndoCounter++;
+                }
+                DRGWSResult Result99PEX = gm.AX(datasource, "99PEX", Proce.trim());
+                if (Result99PEX.isSuccess()) {
+                    CartProc++;
+                }
+                DRGWSResult Result99PFX = gm.AX(datasource, "99PFX", Proce.trim());
+                if (Result99PFX.isSuccess()) {
+                    CaCRxProc++;
+                }
+                DRGWSResult Result99PBX = gm.AX(datasource, "99PBX", Proce.trim());
+                if (Result99PBX.isSuccess()) {
+                    PBX99Proc++;
+                }
 
-            String Codes1PBX = "1PBX";
-            DRGWSResult Codes1PBXResult = gm.AX(datasource, Codes1PBX, Proce.trim());
-            if (Codes1PBXResult.isSuccess()) {
-                Counter1PBX++;
+                DRGWSResult JoinResult = gm.MDCProcedure(datasource, Proce.trim(), drgResult.getMDC());
+                if (JoinResult.isSuccess()) {
+                    mdcprocedureCounter++;
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
+                    DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    if (pdcresult.isSuccess()) {
+                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
+                        hierarvalue.add(hiarresult.getHIERAR());
+                        pdclist.add(hiarresult.getPDC());
+                    }
+                }
+                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, Proce.trim());
+                if (ORProcedureResult.isSuccess()) {
+                    ORProcedureCounter++;
+                    ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
+                }
+
+                String Codes1PBX = "1PBX";
+                DRGWSResult Codes1PBXResult = gm.AX(datasource, Codes1PBX, Proce.trim());
+                if (Codes1PBXResult.isSuccess()) {
+                    Counter1PBX++;
+                }
             }
-        }
-        // THIS AREA CHECK 1BX AND ICD10 CODES
-        String Codes1BX = "1BX";
-        DRGWSResult Codes1BXResult = gm.AX(datasource, Codes1BX, grouperparameter.getPdx());
+            // THIS AREA CHECK 1BX AND ICD10 CODES
+            String Codes1BX = "1BX";
+            DRGWSResult Codes1BXResult = gm.AX(datasource, Codes1BX, grouperparameter.getPdx());
 
-        // THIS AREA CHECK 1BX AND ICD10 CODES
-        String Codes1CX = "1CX";
-        DRGWSResult Codes1CXResult = gm.AX(datasource, Codes1CX, grouperparameter.getPdx());
-        // THIS AREA WILL START STATEMENT TO FIND DC FOR MDC 1
+            // THIS AREA CHECK 1BX AND ICD10 CODES
+            String Codes1CX = "1CX";
+            DRGWSResult Codes1CXResult = gm.AX(datasource, Codes1CX, grouperparameter.getPdx());
+            // THIS AREA WILL START STATEMENT TO FIND DC FOR MDC 1
 
-        try {
             if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),

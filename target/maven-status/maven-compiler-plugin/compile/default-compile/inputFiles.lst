@@ -4,6 +4,7 @@ D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC11.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\premdc\ProcessGrouperParameter.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC08.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC02.java
+D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\DRGPayload.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\ApplicationConfig.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC24.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC16.java
@@ -27,6 +28,7 @@ D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\MDC.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC22.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC28.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\CCL.java
+D:\Java Swing\PHILGROUPER\src\main\java\drgseeker\utilities\SeekerUser.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC05.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\FindMDC.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\DC.java
@@ -53,4 +55,7 @@ D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC10.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\ICD10PreMDCResult.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\premdc\ProcessMDC.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\PreMDC.java
+D:\Java Swing\PHILGROUPER\src\main\java\grouper\Seeker.java
 D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\PDC.java
+D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\RVS.java
+D:\Java Swing\PHILGROUPER\src\main\java\drgseeker\utilities\SeekerMethods.java

@@ -13,7 +13,6 @@ import grouper.structures.PDC;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,112 +33,113 @@ public class GetMDC02 {
     }
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC02(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws IOException {
+    public DRGWSResult GetMDC02(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        GrouperMethod gm = new GrouperMethod();
-        //   String MDC = drgResult.getMDC();
-        List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
-        List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+        try {
+            GrouperMethod gm = new GrouperMethod();
+            //   String MDC = drgResult.getMDC();
+            List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
+            List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
 
-        // THIS AREA IS FOR ORProcedure 
-        int ORProcedureCounter = 0;
-        ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-        //CHECK AGE YEAR
-        String pdc2E = "2E";
-        int MalignantCount = 0;
+            // THIS AREA IS FOR ORProcedure 
+            int ORProcedureCounter = 0;
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            //CHECK AGE YEAR
+            String pdc2E = "2E";
+            int MalignantCount = 0;
 
-        //Malignant Counter for Primay Code (PDx)
-        String pcx2 = "2PCX";
-        String bx2 = "2BX";
-        int Counter2PCX = 0;
-        int PDXCounter99 = 0;
-        int PCXCounter99 = 0;
-        // THIS AREA IS FOR PDC CHECK PROCEDURE COUNTER 2PA
-        int mdcprocedureCounter = 0;
-        int pdcprocedureCounter2PA = 0;
-        int pdcprocedureCounter2PJ = 0;
-        int pdcprocedureCounter2PH = 0;
-        int pdcprocedureCounter2PB = 0;
-        String pdcs2PB = "2PB";
-        String pdcs2PJ = "2PJ";
-        String pdcs2PA = "2PA";
-        String pdcs2PH = "2PH";
+            //Malignant Counter for Primay Code (PDx)
+            String pcx2 = "2PCX";
+            String bx2 = "2BX";
+            int Counter2PCX = 0;
+            int PDXCounter99 = 0;
+            int PCXCounter99 = 0;
+            // THIS AREA IS FOR PDC CHECK PROCEDURE COUNTER 2PA
+            int mdcprocedureCounter = 0;
+            int pdcprocedureCounter2PA = 0;
+            int pdcprocedureCounter2PJ = 0;
+            int pdcprocedureCounter2PH = 0;
+            int pdcprocedureCounter2PB = 0;
+            String pdcs2PB = "2PB";
+            String pdcs2PJ = "2PJ";
+            String pdcs2PA = "2PA";
+            String pdcs2PH = "2PH";
 
-        ArrayList<Integer> hierarvalue = new ArrayList<>();
-        ArrayList<String> pdclist = new ArrayList<>();
-        int Counter2PDX = 0;
-        for (int y = 0; y < ProcedureList.size(); y++) {
-            String proc = ProcedureList.get(y);
-            DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
-            if (JoinResult.isSuccess()) {
-                mdcprocedureCounter++;
-                MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC().trim(), drgResult.getMDC());
-                if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
-                    PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
-                    hierarvalue.add(hiarresult.getHIERAR());
-                    pdclist.add(hiarresult.getPDC());
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            int Counter2PDX = 0;
+            for (int y = 0; y < ProcedureList.size(); y++) {
+                String proc = ProcedureList.get(y);
+                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
+                if (JoinResult.isSuccess()) {
+                    mdcprocedureCounter++;
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
+                    DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC().trim(), drgResult.getMDC());
+                    if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
+                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
+                        hierarvalue.add(hiarresult.getHIERAR());
+                        pdclist.add(hiarresult.getPDC());
+                    }
+                }
+
+                DRGWSResult PdcProcResult2PA = gm.Endovasc(datasource, proc.trim(), pdcs2PA.trim(), drgResult.getMDC());
+                if (PdcProcResult2PA.isSuccess()) {
+                    pdcprocedureCounter2PA++;
+                }
+                DRGWSResult PdcProcResult2PJ = gm.Endovasc(datasource, proc.trim(), pdcs2PJ.trim(), drgResult.getMDC());
+                if (PdcProcResult2PJ.isSuccess()) {
+                    pdcprocedureCounter2PJ++;
+                }
+                DRGWSResult PdcProcResult2PH = gm.Endovasc(datasource, proc.trim(), pdcs2PH.trim(), drgResult.getMDC());
+                if (PdcProcResult2PH.isSuccess()) {
+                    pdcprocedureCounter2PH++;
+                }
+                DRGWSResult PdcProcResult2PB = gm.Endovasc(datasource, proc, pdcs2PB.trim(), drgResult.getMDC());
+                if (PdcProcResult2PB.isSuccess()) {
+                    pdcprocedureCounter2PB++;
+                }
+
+                DRGWSResult Counter2PDXResult = gm.AX(datasource, "2PDX", proc.trim());
+                if (Counter2PDXResult.isSuccess()) {
+                    Counter2PDX++;
+                }
+                //AX 99PDX Checking
+                DRGWSResult Counter99PDXResult = gm.AX(datasource, "99PDX", proc.trim());
+                if (Counter99PDXResult.isSuccess()) {
+                    PDXCounter99++;
+                }
+
+                //AX 99PCX Checking
+                DRGWSResult Counter99PCXResult = gm.AX(datasource, "99PCX", proc.trim());
+                if (Counter99PCXResult.isSuccess()) {
+                    PCXCounter99++;
+                }
+
+                DRGWSResult Counter2PCXResult = gm.AX(datasource, pcx2.trim(), proc.trim());
+                if (Counter2PCXResult.isSuccess()) {
+                    Counter2PCX++;
+                }
+                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
+                if (ORProcedureResult.isSuccess()) {
+                    ORProcedureCounter++;
+                    ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
             }
-
-            DRGWSResult PdcProcResult2PA = gm.Endovasc(datasource, proc.trim(), pdcs2PA.trim(), drgResult.getMDC());
-            if (PdcProcResult2PA.isSuccess()) {
-                pdcprocedureCounter2PA++;
-            }
-            DRGWSResult PdcProcResult2PJ = gm.Endovasc(datasource, proc.trim(), pdcs2PJ.trim(), drgResult.getMDC());
-            if (PdcProcResult2PJ.isSuccess()) {
-                pdcprocedureCounter2PJ++;
-            }
-            DRGWSResult PdcProcResult2PH = gm.Endovasc(datasource, proc.trim(), pdcs2PH.trim(), drgResult.getMDC());
-            if (PdcProcResult2PH.isSuccess()) {
-                pdcprocedureCounter2PH++;
-            }
-            DRGWSResult PdcProcResult2PB = gm.Endovasc(datasource, proc, pdcs2PB.trim(), drgResult.getMDC());
-            if (PdcProcResult2PB.isSuccess()) {
-                pdcprocedureCounter2PB++;
+            int CounterPDx2BX = 0;
+            DRGWSResult Counter2BXResult = gm.AX(datasource, bx2.trim(), grouperparameter.getPdx());
+            if (Counter2BXResult.isSuccess()) {
+                CounterPDx2BX++;
             }
 
-            DRGWSResult Counter2PDXResult = gm.AX(datasource, "2PDX", proc.trim());
-            if (Counter2PDXResult.isSuccess()) {
-                Counter2PDX++;
+            DRGWSResult getMalignantResult = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), pdc2E.trim());
+            if (getMalignantResult.isSuccess()) {
+                MalignantCount++;
             }
-            //AX 99PDX Checking
-            DRGWSResult Counter99PDXResult = gm.AX(datasource, "99PDX", proc.trim());
-            if (Counter99PDXResult.isSuccess()) {
-                PDXCounter99++;
-            }
+            //Condition Start this area   
 
-            //AX 99PCX Checking
-            DRGWSResult Counter99PCXResult = gm.AX(datasource, "99PCX", proc.trim());
-            if (Counter99PCXResult.isSuccess()) {
-                PCXCounter99++;
-            }
-
-            DRGWSResult Counter2PCXResult = gm.AX(datasource, pcx2.trim(), proc.trim());
-            if (Counter2PCXResult.isSuccess()) {
-                Counter2PCX++;
-            }
-            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
-            if (ORProcedureResult.isSuccess()) {
-                ORProcedureCounter++;
-                ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
-            }
-        }
-        int CounterPDx2BX = 0;
-        DRGWSResult Counter2BXResult = gm.AX(datasource, bx2.trim(), grouperparameter.getPdx());
-        if (Counter2BXResult.isSuccess()) {
-            CounterPDx2BX++;
-        }
-
-        DRGWSResult getMalignantResult = gm.PDxMalignancy(datasource, grouperparameter.getPdx(), pdc2E.trim());
-        if (getMalignantResult.isSuccess()) {
-            MalignantCount++;
-        }
-        //Condition Start this area   
-        try {
             if (PDXCounter99 > 0) {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),

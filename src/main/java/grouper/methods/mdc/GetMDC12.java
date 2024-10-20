@@ -39,7 +39,6 @@ public class GetMDC12 {
         GrouperMethod gm = new GrouperMethod();
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
         List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
-
         try {
             // CHECKING ICD9 TO MDC START
             int ORProcedureCounter = 0;

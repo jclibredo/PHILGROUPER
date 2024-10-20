@@ -6,25 +6,45 @@
 package grouper.utility;
 
 import grouper.structures.DRGOutput;
+import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 import javax.ejb.Singleton;
 import javax.enterprise.context.ApplicationScoped;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import javax.xml.bind.DatatypeConverter;
 import okhttp3.OkHttpClient;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -35,15 +55,17 @@ import org.codehaus.jackson.map.ObjectMapper;
 @ApplicationScoped
 @Singleton
 public class Utility {
+
     public Utility() {
     }
 
-    private Pattern pattern;
-    private Matcher matcher;
-//
-//    private static final String email_pattern
-//            = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-//            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private static SecretKeySpec secretkey;
+    private byte[] key;
+    String regex = "^(?=.*[0-9])"
+            + "(?=.*[a-z])(?=.*[A-Z])"
+            + "(?=.*[@#$%^&+=])"
+            + "(?=\\S+$).{8,20}$";
+    private static final String CIPHERKEY = "A263B7980A15ADE7";
 
     String[] pkgcode = {"", "", "", ""};
     String[] OPA = {"5051", "5059"};
@@ -67,10 +89,10 @@ public class Utility {
     String[] PDX99 = {"311", "3121", "3129"};
 
     //AX 99PEX Radiotherapeutic procedure
-    String[] PEX99 = {"9223", "9224", "9225", "9227", "9228", "9229", "9230", "9231", "9232","9241"};
+    String[] PEX99 = {"9223", "9224", "9225", "9227", "9228", "9229", "9230", "9231", "9232", "9241"};
 
     //AX 99PFX Parenteral cancer chemotherapy
-    String[] PFX99 = {"9925","1770"};
+    String[] PFX99 = {"9925", "1770"};
     //AX 2BX Parenteral cancer chemotherapy
 
     //Procedures for upper airway obstruction
@@ -105,19 +127,142 @@ public class Utility {
             Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
+    }
+
+    public DRGPayload DRGPayload() {
+        return new DRGPayload();
+    }
+
+    public String Create2FACode() {
+        int randnums = 0;
+        for (int i = 0; i < 1; i++) {
+            randnums += (int) ((Math.random() * 88881) + 22220);
+        }
+        return String.valueOf(randnums);
+    }
+
+    //GENERATE TOKEN METHODS
+    public String GenerateToken(String username, String password, String expiration) {
+        SignatureAlgorithm algorithm = SignatureAlgorithm.HS256;
+        byte[] userkeybytes = DatatypeConverter.parseBase64Binary(CIPHERKEY);
+        Key signingkey = new SecretKeySpec(userkeybytes, algorithm.getJcaName());
+        JwtBuilder builder = Jwts.builder()
+                .claim("Code1", EncryptString(username))
+                .claim("Code2", EncryptString(password))
+                .setExpiration(new Date(System.currentTimeMillis() + 30 * Integer.parseInt(expiration)))//ADD EXPIRE TIME 8HOURS
+                .signWith(algorithm, signingkey);
+        return builder.compact();
 
     }
 
-    public int ComputeTime(String DateIn, String TimeIn, String DateOut, String TimeOut) throws ParseException {
-        String IN = DateIn + TimeIn;
-        String OUT = DateOut + TimeOut;
-        SimpleDateFormat times = this.SimpleDateFormat("MM-dd-yyyyhh:mmaa");
-        Date AdmissionTime = times.parse(IN.replaceAll("\\s", "")); //PARAM
-        Date DischargeTime = times.parse(OUT.replaceAll("\\s", ""));//PARAM
-        long Time_difference = DischargeTime.getTime() - AdmissionTime.getTime();
-        long Hours_difference = (Time_difference / (1000 * 60 * 60)) % 24;
-        int result = (int) Hours_difference;
+    public String EncryptString(String string) {
+        String result = null;
+        try {
+            SetKey();
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretkey);
+            result = Base64.getEncoder().encodeToString(cipher.doFinal(string.getBytes("UTF-8"))).replaceAll("=", "");
+        } catch (UnsupportedEncodingException | InvalidKeyException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException ex) {
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
 
+    private void SetKey() {
+        MessageDigest sha = null;
+        try {
+            String userkey = CIPHERKEY;
+            key = userkey.getBytes("UTF-8");
+            sha = MessageDigest.getInstance("SHA-1");
+            key = sha.digest(key);
+            key = Arrays.copyOf(key, 16);
+            secretkey = new SecretKeySpec(key, "AES");
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public boolean ValidateToken(final String token) {
+        boolean result = false;
+        try {
+            Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(CIPHERKEY))
+                    .parseClaimsJws(token).getBody();
+            result = true;
+        } catch (ExpiredJwtException | MalformedJwtException | SignatureException | UnsupportedJwtException | IllegalArgumentException ex) {
+        }
+        return result;
+    }
+
+    public String DecryptString(String string) {
+        String result = null;
+        try {
+            SetKey();
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretkey);
+            result = new String(cipher.doFinal(Base64.getDecoder().decode(string)));
+        } catch (InvalidKeyException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException ex) {
+            result = ex.toString();
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public DRGWSResult GetPayload(String token) {
+        DRGWSResult result = this.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        try {
+            if (token.equals("")) {
+                result.setMessage("Token is required");
+            } else {
+                if (this.ValidateToken(token) == true) {
+                    Claims claims = Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(CIPHERKEY)).parseClaimsJws(token).getBody();
+                    DRGPayload payload = this.DRGPayload();
+                    payload.setCode1(this.DecryptString((String) claims.get("Code1")));
+                    payload.setCode2(this.DecryptString((String) claims.get("Code2")));
+                    if (!this.isJWTExpired(claims)) {
+                        result.setSuccess(true);
+                        result.setResult(this.objectMapper().writeValueAsString(payload));
+                    } else {
+                        result.setMessage("Token is expired");
+                    }
+                } else {
+                    result.setMessage("Invalid Token");
+                }
+            }
+        } catch (ExpiredJwtException | MalformedJwtException | SignatureException | UnsupportedJwtException | IllegalArgumentException | IOException ex) {
+            result.setMessage(ex.getLocalizedMessage());
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+
+        }
+        return result;
+    }
+
+    public boolean isJWTExpired(Claims claims) {
+        if (claims.getExpiration() == null) {
+            return true;
+        } else {
+            Date expiresAt = claims.getExpiration();
+            return expiresAt.before(new Date());
+        }
+    }
+
+    public int ComputeTime(String DateIn, String TimeIn, String DateOut, String TimeOut) {
+        int result = 0;
+        try {
+            String IN = DateIn + TimeIn;
+            String OUT = DateOut + TimeOut;
+            SimpleDateFormat times = this.SimpleDateFormat("MM-dd-yyyyhh:mmaa");
+            Date AdmissionTime = times.parse(IN.replaceAll("\\s", "")); //PARAM
+            Date DischargeTime = times.parse(OUT.replaceAll("\\s", ""));//PARAM
+            long Time_difference = DischargeTime.getTime() - AdmissionTime.getTime();
+            long Hours_difference = (Time_difference / (1000 * 60 * 60)) % 24;
+            result = (int) Hours_difference;
+        } catch (ParseException ex) {
+            ex.getLocalizedMessage();
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return result;
     }
 
@@ -182,13 +327,19 @@ public class Utility {
         return result;
     }
 
-    public int ComputeDay(String DOB, String AD) throws ParseException {
+    public int ComputeDay(String DOB, String AD) {
         SimpleDateFormat sdf = this.SimpleDateFormat("MM-dd-yyyy");
-        Date DateOfBirth = sdf.parse(DOB);
-        Date AdmissioDate = sdf.parse(AD);//PARAM
-        long difference_In_Time = AdmissioDate.getTime() - DateOfBirth.getTime();
-        long difference_In_Days = (difference_In_Time / (1000 * 60 * 60 * 24)) % 365;
-        int result = (int) difference_In_Days;
+        int result = 0;
+        try {
+            Date DateOfBirth = sdf.parse(DOB);
+            Date AdmissioDate = sdf.parse(AD);//PARAM
+            long difference_In_Time = AdmissioDate.getTime() - DateOfBirth.getTime();
+            long difference_In_Days = (difference_In_Time / (1000 * 60 * 60 * 24)) % 365;
+            result = (int) difference_In_Days;
+        } catch (ParseException ex) {
+            ex.getLocalizedMessage();
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return result;
     }
 
@@ -203,7 +354,9 @@ public class Utility {
             long difference_In_Time = DischargeDate.getTime() - AdmissioDate.getTime();
             long CalLOS = (difference_In_Time / (1000 * 60 * 60 * 24)) % 365;
             result = (int) CalLOS;
+
         } catch (ParseException ex) {
+            ex.getLocalizedMessage();
             Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -260,11 +413,13 @@ public class Utility {
         result = Arrays.asList(PBX28).contains(icd10);
         return result;
     }
+
     public boolean isValid16PBX(String icd10) {
         boolean result = false;
         result = Arrays.asList(PBX16).contains(icd10);
         return result;
     }
+
     public boolean isValid11PBX(String icd10) {
         boolean result = false;
         result = Arrays.asList(PBX11).contains(icd10);
@@ -276,6 +431,7 @@ public class Utility {
         result = Arrays.asList(PBX10).contains(icd10);
         return result;
     }
+
     public boolean isValid9PBX(String icd10) {
         boolean result = false;
         result = Arrays.asList(PBX9).contains(icd10);
@@ -388,8 +544,10 @@ public class Utility {
             Context context = new InitialContext();
             Context environment = (Context) context.lookup("java:comp/env");
             result = (String) environment.lookup(name);
+
         } catch (NamingException ex) {
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Utility.class
+                    .getName()).log(Level.SEVERE, null, ex);
             result = ex.getMessage();
         }
         return result;
@@ -546,6 +704,16 @@ public class Utility {
             result = false;
         }
         return result;
+    }
+
+    public Date StringToDate(String stringdate) {
+        java.util.Date sf = null;
+        try {
+            sf = this.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a").parse(stringdate);
+        } catch (ParseException ex) {
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return sf;
     }
 
 }

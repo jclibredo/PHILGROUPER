@@ -5,7 +5,6 @@
  */
 package grouper.methods.premdc;
 
-import grouper.Grouper;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
@@ -13,7 +12,6 @@ import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -38,7 +36,7 @@ public class ProcessGrouperParameter {
     }
     private final Utility utility = new Utility();
 
-    public DRGWSResult ProcessGrouperParameter(final DataSource datasource, final GrouperParameter grouperparameter) throws IOException {
+    public DRGWSResult ProcessGrouperParameter(final DataSource datasource, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         String[] sex = {"M", "F"};
         String[] disposition = {"1", "2", "3", "4", "5", "8", "9"};
@@ -293,7 +291,7 @@ public class ProcessGrouperParameter {
                 result.setSuccess(true);
                 result.setResult(utility.objectMapper().writeValueAsString(drgresult));
                 //------------------------------ FILE WRITER PART--------------------------------
-                FileWriter(path, drgresult.getDRG());
+                //FileWriter(path, drgresult.getDRG());
                 //------------------------------ FILE WRITER PART--------------------------------
             } else {
                 ValidateFindMDC vfm = new ValidateFindMDC();
@@ -316,39 +314,43 @@ public class ProcessGrouperParameter {
                             newGrouperParam.getIdseries(),
                             updatedrgresult.getMessage(), "SUCCESS");
                     //------------------------------ FILE WRITER PART--------------------------------
-                    FileWriter(path, drgResults.getDRG());
+                    //FileWriter(path, drgResults.getDRG());
                     //------------------------------ FILE WRITER PART--------------------------------
                 } else {
-                    FileWriter(path, validateresult.getMessage());
+                    //FileWriter(path, validateresult.getMessage());
                     DRGAuditTrail(datasource, newGrouperParam.getClaimseries(), newGrouperParam.getIdseries(), validateresult.getMessage(), "FAILED");
                     //singleresult.setMessage(validateresult.getMessage()); //+ " LOGS:" + grouperauditrail.getMessage());
                     result.setResult(utility.objectMapper().writeValueAsString(validateresult.getResult()));
                     result.setMessage("OK");
                 }
             }
-        } catch (ParseException ex) {
+        } catch (ParseException | IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ProcessGrouperParameter.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
 
-    public void FileWriter(File path, String messasge) throws FileNotFoundException, IOException {
-        FileReader fr = new FileReader(path);
-        ArrayList<String> oldContent;
-        try (BufferedReader br = new BufferedReader(fr)) {
-            String line;
-            oldContent = new ArrayList<>();
-            while ((line = br.readLine()) != null) {
-                oldContent.add(line);
+    public void FileWriter(File path, String messasge) {
+        try {
+            FileReader fr = new FileReader(path);
+            ArrayList<String> oldContent;
+            try (BufferedReader br = new BufferedReader(fr)) {
+                String line;
+                oldContent = new ArrayList<>();
+                while ((line = br.readLine()) != null) {
+                    oldContent.add(line);
+                }
             }
-        }
-        try (PrintWriter pw = new PrintWriter(path)) {
-            for (int a = 0; a < oldContent.size(); a++) {
-                pw.write(oldContent.get(a) + "\n");
+            try (PrintWriter pw = new PrintWriter(path)) {
+                for (int a = 0; a < oldContent.size(); a++) {
+                    pw.write(oldContent.get(a) + "\n");
+                }
+                pw.write(messasge + "\n");
+                pw.flush();
             }
-            pw.write(messasge + "\n");
-            pw.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(ProcessGrouperParameter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

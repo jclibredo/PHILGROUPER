@@ -30,6 +30,7 @@ public class ApplicationConfig extends Application {
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(grouper.Grouper.class);
+        resources.add(grouper.Seeker.class);
     }
     
 }

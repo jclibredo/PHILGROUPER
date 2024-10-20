@@ -34,98 +34,98 @@ public class GetMDC04 {
 
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC04(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) throws IOException {
+    public DRGWSResult GetMDC04(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
         List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        GrouperMethod gm = new GrouperMethod();
-        //THIS AREA IS FOR CHECKING OF OR PROCEDURE
-        int ORProcedureCounter = 0;
-        ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-        //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
-        int mdcprocedureCounter = 0;
-        int PDXCounter99 = 0;
-        int PCXCounter99 = 0;
-        int CartSDx = 0;
-        int CaCRxSDx = 0;
-        int CartProc = 0;
-        int CaCRxProc = 0;
-        int PCX4Proc = 0;
-        int PBX99Proc = 0;
-        int Counter4BX = 0;
-        ArrayList<Integer> hierarvalue = new ArrayList<>();
-        ArrayList<String> pdclist = new ArrayList<>();
-        for (int y = 0; y < ProcedureList.size(); y++) {
-            String proc = ProcedureList.get(y);
-            DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
-            if (JoinResult.isSuccess()) {
-                mdcprocedureCounter++;
-                MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
-                    PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
-                    hierarvalue.add(hiarresult.getHIERAR());
-                    pdclist.add(hiarresult.getPDC());
+        try {
+            GrouperMethod gm = new GrouperMethod();
+            //THIS AREA IS FOR CHECKING OF OR PROCEDURE
+            int ORProcedureCounter = 0;
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
+            int mdcprocedureCounter = 0;
+            int PDXCounter99 = 0;
+            int PCXCounter99 = 0;
+            int CartSDx = 0;
+            int CaCRxSDx = 0;
+            int CartProc = 0;
+            int CaCRxProc = 0;
+            int PCX4Proc = 0;
+            int PBX99Proc = 0;
+            int Counter4BX = 0;
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            for (int y = 0; y < ProcedureList.size(); y++) {
+                String proc = ProcedureList.get(y);
+                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc, drgResult.getMDC());
+                if (JoinResult.isSuccess()) {
+                    mdcprocedureCounter++;
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
+                    DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
+                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
+                        hierarvalue.add(hiarresult.getHIERAR());
+                        pdclist.add(hiarresult.getPDC());
+                    }
+                }
+                //AX 99PDX Checking
+                DRGWSResult Result99PDX = gm.AX(datasource, "99PDX", proc.trim());
+                if (Result99PDX.isSuccess()) {
+                    PDXCounter99++;
+                }
+                //AX 99PCX Checking
+                DRGWSResult Result99PCX = gm.AX(datasource, "99PCX", proc.trim());
+                if (Result99PCX.isSuccess()) {
+                    PCXCounter99++;
+                }
+                DRGWSResult Result99PEX = gm.AX(datasource, "99PEX", proc.trim());
+                if (Result99PEX.isSuccess()) {
+                    CartProc++;
+                }
+                DRGWSResult Result99PFX = gm.AX(datasource, "99PFX", proc.trim());
+                if (Result99PFX.isSuccess()) {
+                    CaCRxProc++;
+                }
+
+                //AX 4PCX
+                DRGWSResult Result4PCX = gm.AX(datasource, "4PCX", proc.trim());
+                if (Result4PCX.isSuccess()) {
+                    PCX4Proc++;
+                }
+                DRGWSResult Result99PBX = gm.AX(datasource, "99PBX", proc.trim());
+                if (Result99PBX.isSuccess()) {
+                    PBX99Proc++;
+                }
+
+                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
+                if (ORProcedureResult.isSuccess()) {
+                    ORProcedureCounter++;
+                    ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
             }
-            //AX 99PDX Checking
-            DRGWSResult Result99PDX = gm.AX(datasource, "99PDX", proc.trim());
-            if (Result99PDX.isSuccess()) {
-                PDXCounter99++;
+
+            //Checking SDx RadioTherapy and Chemotherapy
+            for (int a = 0; a < SecondaryList.size(); a++) {
+                String Secon = SecondaryList.get(a);
+                DRGWSResult Result99BX = gm.AX(datasource, "99BX", Secon.trim());
+                if (Result99BX.isSuccess()) {
+                    CartSDx++;
+                }
+                DRGWSResult Result99CX = gm.AX(datasource, "99CX", Secon.trim());
+                if (Result99CX.isSuccess()) {
+                    CaCRxSDx++;
+                }
             }
-            //AX 99PCX Checking
-            DRGWSResult Result99PCX = gm.AX(datasource, "99PCX", proc.trim());
-            if (Result99PCX.isSuccess()) {
-                PCXCounter99++;
-            }
-            DRGWSResult Result99PEX = gm.AX(datasource, "99PEX", proc.trim());
-            if (Result99PEX.isSuccess()) {
-                CartProc++;
-            }
-            DRGWSResult Result99PFX = gm.AX(datasource, "99PFX", proc.trim());
-            if (Result99PFX.isSuccess()) {
-                CaCRxProc++;
+            DRGWSResult Result4BX = gm.AX(datasource, "4PBX", grouperparameter.getPdx().trim());
+            if (Result4BX.isSuccess()) {
+                Counter4BX++;
             }
 
-            //AX 4PCX
-            DRGWSResult Result4PCX = gm.AX(datasource, "4PCX", proc.trim());
-            if (Result4PCX.isSuccess()) {
-                PCX4Proc++;
-            }
-            DRGWSResult Result99PBX = gm.AX(datasource, "99PBX", proc.trim());
-            if (Result99PBX.isSuccess()) {
-                PBX99Proc++;
-            }
-
-            DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
-            if (ORProcedureResult.isSuccess()) {
-                ORProcedureCounter++;
-                ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
-            }
-        }
-
-        //Checking SDx RadioTherapy and Chemotherapy
-        for (int a = 0; a < SecondaryList.size(); a++) {
-            String Secon = SecondaryList.get(a);
-            DRGWSResult Result99BX = gm.AX(datasource, "99BX", Secon.trim());
-            if (Result99BX.isSuccess()) {
-                CartSDx++;
-            }
-            DRGWSResult Result99CX = gm.AX(datasource, "99CX", Secon.trim());
-            if (Result99CX.isSuccess()) {
-                CaCRxSDx++;
-            }
-        }
-        DRGWSResult Result4BX = gm.AX(datasource, "4PBX", grouperparameter.getPdx().trim());
-        if (Result4BX.isSuccess()) {
-            Counter4BX++;
-        }
-
-        //THIS AREA START FOR CONDITIONAL STATEMENT TO FIND DC
-        try {
+            //THIS AREA START FOR CONDITIONAL STATEMENT TO FIND DC
             if (PDXCounter99 > 0 || Counter4BX > 0) {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),

@@ -11,7 +11,6 @@ import grouper.structures.GrouperParameter;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +41,6 @@ public class GetMDC18 {
         result.setSuccess(false);
         GrouperMethod gm = new GrouperMethod();
         try {
-
             //CHECKING FOR TRAUMA CODES
             ArrayList<String> sdxfinder = new ArrayList<>();
             int PDXCounter99 = 0;

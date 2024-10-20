@@ -15,10 +15,13 @@ import grouper.structures.DRGRESULT;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.ICD10PreMDCResult;
+import grouper.structures.ICD9PreMDCResult;
 import grouper.structures.MDC;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PCOM;
 import grouper.structures.PDC;
+import grouper.structures.PreMDC;
+import grouper.structures.RVS;
 import grouper.structures.WarningError;
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -244,11 +247,10 @@ public class GrouperMethod {
         try (Connection connection = datasource.getConnection()) {
             CallableStatement getDRGParam = connection.prepareCall("begin :drgresult := MINOSUN.DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
             getDRGParam.registerOutParameter("drgresult", OracleTypes.CURSOR);
-            getDRGParam.setString("tagss", tagss);
+            getDRGParam.setString("tagss", tagss.trim());
             getDRGParam.execute();
             ResultSet getDRGParamResult = (ResultSet) getDRGParam.getObject("drgresult");
             while (getDRGParamResult.next()) {
-
                 GrouperParameter ggrouperparameter = new GrouperParameter();
                 DRGRESULT drgresultparam = new DRGRESULT();
                 //======================================================GET GROUPER RESULT
@@ -373,8 +375,6 @@ public class GrouperMethod {
                             ggrouperparameter.setDischargeType("");
                             break;
                     }
-
-                    System.out.println(ggrouperparameter);
                     grouperparameterlsit.add(ggrouperparameter);
 
                 } else {
@@ -830,7 +830,7 @@ public class GrouperMethod {
     }
 
     //public MethodResult PROCESS PROCEDURE BEFORE SAVING SA DATA TO DATABASE
-    public String FrontProcedureExecute(final CombinationCode combinationcode) throws IOException {
+    public String FrontProcedureExecute(final CombinationCode combinationcode) {
         String result = "";
         List<String> indexlist = Arrays.asList(combinationcode.getIndexlist().split(","));
         List<String> comcode = Arrays.asList(combinationcode.getComcode().split(","));
@@ -1850,6 +1850,133 @@ public class GrouperMethod {
                 result.setSuccess(false);
             }
         } catch (SQLException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public DRGWSResult SeekerICD10(final DataSource datasource) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setSuccess(false);
+        result.setMessage("");
+        result.setResult("");
+        ArrayList<PreMDC> icd10List = new ArrayList<>();
+        try (Connection connection = datasource.getConnection()) {
+            CallableStatement statement = connection.prepareCall("begin :v_results := MINOSUN.DRGPKGFUNCTION.SeekerICD10(); end;");
+            statement.registerOutParameter("v_results", OracleTypes.CURSOR);
+            statement.execute();
+            ResultSet resultset = (ResultSet) statement.getObject("v_results");
+            while (resultset.next()) {
+                PreMDC icd10 = new PreMDC();
+                icd10.setCode(resultset.getString("CODE"));
+                icd10.setDesc(resultset.getString("DESCRIPTION"));
+                icd10List.add(icd10);
+            }
+            if (icd10List.size() > 0) {
+                result.setMessage("OK");
+                result.setResult(utility.objectMapper().writeValueAsString(icd10List));
+                result.setSuccess(true);
+            } else {
+                result.setMessage("N/A");
+            }
+        } catch (SQLException | IOException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public DRGWSResult SeekerDRG(final DataSource datasource) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setSuccess(false);
+        result.setMessage("");
+        result.setResult("");
+        ArrayList<DRGOutput> drgList = new ArrayList<>();
+        try (Connection connection = datasource.getConnection()) {
+            CallableStatement statement = connection.prepareCall("begin :v_results := MINOSUN.DRGPKGFUNCTION.SeekerDRG(); end;");
+            statement.registerOutParameter("v_results", OracleTypes.CURSOR);
+            statement.execute();
+            ResultSet resultset = (ResultSet) statement.getObject("v_results");
+            while(resultset.next()) {
+                DRGOutput drg = new DRGOutput();
+                drg.setDC(resultset.getString("DC"));
+                drg.setDRG(resultset.getString("DRG"));
+                drg.setDRGName(resultset.getString("DRGNAME"));
+                drg.setMDC(resultset.getString("MDC"));
+                drg.setRW(resultset.getString("RW"));
+                drgList.add(drg);
+            }
+            if (drgList.size() > 0) {
+                result.setMessage("OK");
+                result.setResult(utility.objectMapper().writeValueAsString(drgList));
+                result.setSuccess(true);
+            } else {
+                result.setMessage("N/A");
+            }
+        } catch (SQLException | IOException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public DRGWSResult SeekerICD9cm(final DataSource datasource) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setSuccess(false);
+        result.setMessage("");
+        result.setResult("");
+        try (Connection connection = datasource.getConnection()) {
+            CallableStatement statement = connection.prepareCall("begin :v_results := MINOSUN.DRGPKGFUNCTION.SeekerICD9cm(); end;");
+            statement.registerOutParameter("v_results", OracleTypes.CURSOR);
+            statement.execute();
+            ArrayList<ICD9PreMDCResult> icd9List = new ArrayList<>();
+            ResultSet resultset = (ResultSet) statement.getObject("v_results");
+            while (resultset.next()) {
+                ICD9PreMDCResult icd9 = new ICD9PreMDCResult();
+                icd9.setCode(resultset.getString("CODE"));
+                icd9.setDescription(resultset.getString("DESCS"));
+                icd9List.add(icd9);
+            }
+            if (icd9List.size() > 0) {
+                result.setMessage("OK");
+                result.setResult(utility.objectMapper().writeValueAsString(icd9List));
+                result.setSuccess(true);
+            } else {
+                result.setMessage("N/A");
+            }
+        } catch (SQLException | IOException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public DRGWSResult SeekerRVS(final DataSource datasource) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setSuccess(false);
+        result.setMessage("");
+        result.setResult("");
+        try (Connection connection = datasource.getConnection()) {
+            CallableStatement statement = connection.prepareCall("begin :v_results := MINOSUN.DRGPKGFUNCTION.SeekerRVS(); end;");
+            statement.registerOutParameter("v_results", OracleTypes.CURSOR);
+            statement.execute();
+            ArrayList<RVS> rvsList = new ArrayList<>();
+            ResultSet resultset = (ResultSet) statement.getObject("v_results");
+            while (resultset.next()) {
+                RVS rvs = new RVS();
+                rvs.setRvscode(resultset.getString("RVSCODE"));
+                rvs.setDescription(resultset.getString("DESCRIPTION"));
+                rvsList.add(rvs);
+            }
+            if (rvsList.size() > 0) {
+                result.setMessage("OK");
+                result.setResult(utility.objectMapper().writeValueAsString(rvsList));
+                result.setSuccess(true);
+            } else {
+                result.setMessage("N/A");
+            }
+        } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -41,7 +41,6 @@ public class GetMDC25 {
         result.setSuccess(false);
         GrouperMethod gm = new GrouperMethod();
         try {
-
             //CHECKING FOR TRAUMA CODES
             ArrayList<String> sdxfinder = new ArrayList<>();
             int PDXCounter99 = 0;
