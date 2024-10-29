@@ -184,7 +184,7 @@ public class Grouper {
         ArrayList<String> errorList = new ArrayList<>();
         ProcessGrouperParameter processparameter = new ProcessGrouperParameter();
         try {
-            DRGWSResult GetPayLoad = utility.GetPayload(token);
+            DRGWSResult GetPayLoad = utility.GetPayload(datasource,token);
             if (!GetPayLoad.isSuccess()) {
                 result.setMessage(GetPayLoad.getMessage());
             } else {

@@ -82,7 +82,7 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(token);
+        DRGWSResult GetPayLoad = utility.GetPayload(dataSource,token);
         if (!GetPayLoad.isSuccess()) {
             result.setMessage(GetPayLoad.getMessage());
         } else {
@@ -104,7 +104,7 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(token);
+        DRGWSResult GetPayLoad = utility.GetPayload(dataSource,token);
         if (!GetPayLoad.isSuccess()) {
             result.setMessage(GetPayLoad.getMessage());
         } else {
@@ -127,7 +127,7 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(token);
+        DRGWSResult GetPayLoad = utility.GetPayload(dataSource,token);
         if (!GetPayLoad.isSuccess()) {
             result.setMessage(GetPayLoad.getMessage());
         } else {
@@ -150,7 +150,7 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(token);
+        DRGWSResult GetPayLoad = utility.GetPayload(dataSource,token);
         if (!GetPayLoad.isSuccess()) {
             result.setMessage(GetPayLoad.getMessage());
         } else {
@@ -194,7 +194,7 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(token);
+        DRGWSResult GetPayLoad = utility.GetPayload(dataSource,token);
         if (!GetPayLoad.isSuccess()) {
             result.setMessage(GetPayLoad.getMessage());
         } else {
@@ -212,7 +212,7 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(token);
+        DRGWSResult GetPayLoad = utility.GetPayload(dataSource,token);
         if (!GetPayLoad.isSuccess()) {
             result.setMessage(GetPayLoad.getMessage());
         } else {
@@ -230,7 +230,7 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(token);
+        DRGWSResult GetPayLoad = utility.GetPayload(dataSource,token);
         if (!GetPayLoad.isSuccess()) {
             result.setMessage(GetPayLoad.getMessage());
         } else {
@@ -248,7 +248,7 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(token);
+        DRGWSResult GetPayLoad = utility.GetPayload(dataSource,token);
         if (!GetPayLoad.isSuccess()) {
             result.setMessage(GetPayLoad.getMessage());
         } else {

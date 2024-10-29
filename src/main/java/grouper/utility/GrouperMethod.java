@@ -73,7 +73,7 @@ public class GrouperMethod {
             result.setSuccess(false);
             result.setMessage("");
             result.setResult("");
-            CallableStatement statement = connection.prepareCall("begin :p_validcode := MINOSUN.DRGPKGFUNCTION.get_valid_icd10(:p_icd10_code); end;");
+            CallableStatement statement = connection.prepareCall("begin :p_validcode := DRG_SHADOWBILLING.DRGPKGFUNCTION.get_valid_icd10(:p_icd10_code); end;");
             statement.registerOutParameter("p_validcode", OracleTypes.CURSOR);
             statement.setString("p_icd10_code", p_icd10_code);
             statement.execute();
@@ -99,7 +99,7 @@ public class GrouperMethod {
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getduplication = connection.prepareCall("begin :dupnclaims := MINOSUN.DRGPKGFUNCTION.GET_CHECK_DUPLICATE(:claimnum,:accre); end;");
+            CallableStatement getduplication = connection.prepareCall("begin :dupnclaims := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_CHECK_DUPLICATE(:claimnum,:accre); end;");
             getduplication.registerOutParameter("dupnclaims", OracleTypes.CURSOR);
             getduplication.setString("claimnum", claimnum);
             getduplication.setString("accre", accre);
@@ -124,7 +124,7 @@ public class GrouperMethod {
             result.setSuccess(false);
             result.setMessage("");
             result.setResult("");
-            CallableStatement statement = connection.prepareCall("begin :pdxmdc := MINOSUN.DRGPKGFUNCTION.GET_PDX_MDC(:pdx,:mdc); end;");
+            CallableStatement statement = connection.prepareCall("begin :pdxmdc := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDX_MDC(:pdx,:mdc); end;");
             statement.registerOutParameter("pdxmdc", OracleTypes.CURSOR);
             statement.setString("pdx", pdx);
             statement.setString("mdc", mdc);
@@ -166,7 +166,7 @@ public class GrouperMethod {
             result.setSuccess(false);
             result.setMessage("");
             result.setResult("");
-            CallableStatement statement = connection.prepareCall("begin :accpdxs := MINOSUN.DRGPKGFUNCTION.GET_ICD10PREMDC(:pdx); end;");
+            CallableStatement statement = connection.prepareCall("begin :accpdxs := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD10PREMDC(:pdx); end;");
             statement.registerOutParameter("accpdxs", OracleTypes.CURSOR);
             statement.setString("pdx", pdx.toUpperCase().trim());
             statement.execute();
@@ -209,7 +209,7 @@ public class GrouperMethod {
             result.setResult("");
             String ProcListNew = "";
             List<String> FinalNewProcList = new ArrayList<>();
-            CallableStatement statement = connection.prepareCall("begin :converter := MINOSUN.DRGPKGFUNCTION.GET_CONVERTER(:rvs_code); end;");
+            CallableStatement statement = connection.prepareCall("begin :converter := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_CONVERTER(:rvs_code); end;");
             statement.registerOutParameter("converter", OracleTypes.CURSOR);
             statement.setString("rvs_code", rvs_code);
             statement.execute();
@@ -245,7 +245,7 @@ public class GrouperMethod {
         SimpleDateFormat dateformat = utility.SimpleDateFormat("MM-dd-yyyy");
         ArrayList<GrouperParameter> grouperparameterlsit = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getDRGParam = connection.prepareCall("begin :drgresult := MINOSUN.DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
+            CallableStatement getDRGParam = connection.prepareCall("begin :drgresult := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
             getDRGParam.registerOutParameter("drgresult", OracleTypes.CURSOR);
             getDRGParam.setString("tagss", tagss.trim());
             getDRGParam.execute();
@@ -285,7 +285,7 @@ public class GrouperMethod {
                 //======================================================================
                 drgresultparam.setTags(getDRGParamResult.getString("TAGS"));
                 //========================================== DRG XML GET PATIENT INFO
-                CallableStatement getdrg_info = connection.prepareCall("begin :getdrginfo := MINOSUN.DRGPKGFUNCTION.GET_DRG_INFO(:seriesnums); end;");
+                CallableStatement getdrg_info = connection.prepareCall("begin :getdrginfo := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG_INFO(:seriesnums); end;");
                 getdrg_info.registerOutParameter("getdrginfo", OracleTypes.CURSOR);
                 getdrg_info.setString("seriesnums", getDRGParamResult.getString("CLAIMS_SERRIES").trim());
                 getdrg_info.execute();
@@ -294,7 +294,7 @@ public class GrouperMethod {
                     ggrouperparameter.setAdmissionWeight(getdrg_infoResult.getString("NB_ADMWEIGHT"));
                 }
                 //==============================================ECLAIMS XML GET NCLAIMS DATA============================================================
-                CallableStatement getdrg_nclaims = connection.prepareCall("begin :nclaims := MINOSUN.UHCDRGPKG.GET_NCLAIMS(:seriesnumss); end;");
+                CallableStatement getdrg_nclaims = connection.prepareCall("begin :nclaims := DRG_SHADOWBILLING.UHCDRGPKG.GET_NCLAIMS(:seriesnumss); end;");
                 getdrg_nclaims.registerOutParameter("nclaims", OracleTypes.CURSOR);
                 getdrg_nclaims.setString("seriesnumss", getDRGParamResult.getString("CLAIMS_SERRIES"));
                 getdrg_nclaims.execute();
@@ -413,7 +413,7 @@ public class GrouperMethod {
         result.setSuccess(false);
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement conn = connection.prepareCall("begin :DaggerAs := MINOSUN.DRGPKGFUNCTION.get_da(:dagger,:asterisk); end;");
+            CallableStatement conn = connection.prepareCall("begin :DaggerAs := DRG_SHADOWBILLING.DRGPKGFUNCTION.get_da(:dagger,:asterisk); end;");
             conn.registerOutParameter("DaggerAs", OracleTypes.CURSOR);
             conn.setString("dagger", dagger.toUpperCase().trim());
             conn.setString("asterisk", asterisk.toUpperCase().trim());
@@ -474,7 +474,7 @@ public class GrouperMethod {
 //        result.setSuccess(false);
 //        result.setResult("");
 //        try (Connection connection = datasource.getConnection()) {
-//            CallableStatement getResult = connection.prepareCall("begin :count_output := MINOSUN..DRGPKGFUNCTION.GET_COUNT(:codes); end;");
+//            CallableStatement getResult = connection.prepareCall("begin :count_output := DRG_SHADOWBILLING..DRGPKGFUNCTION.GET_COUNT(:codes); end;");
 //            getResult.registerOutParameter("count_output", OracleTypes.CURSOR);
 //            getResult.setString("codes", codes.trim());
 //            getResult.execute();
@@ -495,7 +495,7 @@ public class GrouperMethod {
     public DRGWSResult GetWarningError(final DataSource datasource, final String claimsid) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement geterror = connection.prepareCall("begin :warningerror := MINOSUN.DRGPKGFUNCTION.GET_WARNING_ERROR(:claimsid); end;");
+            CallableStatement geterror = connection.prepareCall("begin :warningerror := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_WARNING_ERROR(:claimsid); end;");
             geterror.registerOutParameter("warningerror", OracleTypes.CURSOR);
             geterror.setString("claimsid", claimsid);
             geterror.execute();
@@ -525,7 +525,7 @@ public class GrouperMethod {
     public DRGWSResult GetValidICD10Accpdx(final DataSource datasource, final String p_pdx_code) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getAccpdx = connection.prepareCall("begin :accpdxs := MINOSUN.DRGPKGFUNCTION.GET_ACCPDX_VALUE(:p_pdx_code); end;");
+            CallableStatement getAccpdx = connection.prepareCall("begin :accpdxs := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ACCPDX_VALUE(:p_pdx_code); end;");
             getAccpdx.registerOutParameter("accpdxs", OracleTypes.CURSOR);
             getAccpdx.setString("p_pdx_code", p_pdx_code);
             getAccpdx.execute();
@@ -552,7 +552,7 @@ public class GrouperMethod {
 
             SimpleDateFormat sdf = utility.SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             Date date = new Date();
-            CallableStatement auditrail = connection.prepareCall("call MINOSUN.DRGPKGPROCEDURE.INSERT_AUDITRAIL(:Message,:Code,:datetime,:details,:type,:request)");
+            CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.INSERT_AUDITRAIL(:Message,:Code,:datetime,:details,:type,:request)");
             auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
             auditrail.registerOutParameter("Code", OracleTypes.INTEGER);
             //=====================================================================End Process SDx duplication================================ 
@@ -588,7 +588,7 @@ public class GrouperMethod {
 
             SimpleDateFormat sdf = utility.SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             Date date = new Date();
-            CallableStatement auditrail = connection.prepareCall("call MINOSUN.DRGPKGPROCEDURE.INSERT_GROUPER_AUDITRAIL(:Message,:Code,"
+            CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.INSERT_GROUPER_AUDITRAIL(:Message,:Code,"
                     + ":p_datein,:p_series,:p_claimnumber,:p_details,:p_status)");
             auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
             auditrail.registerOutParameter("Code", OracleTypes.INTEGER);
@@ -626,7 +626,7 @@ public class GrouperMethod {
         try (Connection connection = datasource.getConnection()) {
             String tagss = "FG";
 
-            CallableStatement grouperdata = connection.prepareCall("call MINOSUN.DRGPKGPROCEDURE.INSERT_DRG_RESULT(:Message,:Code,:rest_id,:series,:tags,:lhio,:pdx,:sdx,:proc)");
+            CallableStatement grouperdata = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.INSERT_DRG_RESULT(:Message,:Code,:rest_id,:series,:tags,:lhio,:pdx,:sdx,:proc)");
             grouperdata.registerOutParameter("Message", OracleTypes.VARCHAR);
             grouperdata.registerOutParameter("Code", OracleTypes.INTEGER);
             //=====================================================================Process SDx duplication================================
@@ -695,7 +695,7 @@ public class GrouperMethod {
     public DRGWSResult GetICD9cm(final DataSource datasource, final String procS) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement_icd9_findDC = connection.prepareCall("begin : get_icd9_DC := MINOSUN.DRGPKGFUNCTION.GET_ICD9CM_FINDDC(:procS); end;");
+            CallableStatement statement_icd9_findDC = connection.prepareCall("begin : get_icd9_DC := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD9CM_FINDDC(:procS); end;");
             statement_icd9_findDC.registerOutParameter("get_icd9_DC", OracleTypes.CURSOR);
             statement_icd9_findDC.setString("procS", procS);
             statement_icd9_findDC.execute();
@@ -718,7 +718,7 @@ public class GrouperMethod {
         ICD10PreMDCResult icd10Result = new ICD10PreMDCResult();
         try (Connection connection = datasource.getConnection()) {
             //  String strrr = Long.toString(AgeYears);
-            CallableStatement GetPDx = connection.prepareCall("begin :pdx_validation := MINOSUN.DRGPKGFUNCTION.GET_ICD10_PREMDC(:p_pdx_code,:AgeDay,:AgeYear,:p_patient_sex); end;");
+            CallableStatement GetPDx = connection.prepareCall("begin :pdx_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD10_PREMDC(:p_pdx_code,:AgeDay,:AgeYear,:p_patient_sex); end;");
             GetPDx.registerOutParameter("pdx_validation", OracleTypes.CURSOR);
             GetPDx.setString("p_pdx_code", p_pdx_code.trim());
             GetPDx.setString("AgeDay", Days);
@@ -760,7 +760,7 @@ public class GrouperMethod {
         DRGWSResult result = utility.DRGWSResult();
         BMDCPreMDCResult bmdcResult = new BMDCPreMDCResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetBMDC = connection.prepareCall("begin :bmdc_validation := MINOSUN.DRGPKGFUNCTION.GET_BMDC_VALIDATION_PREMDC(:p_pdx_code); end;");
+            CallableStatement GetBMDC = connection.prepareCall("begin :bmdc_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_BMDC_VALIDATION_PREMDC(:p_pdx_code); end;");
             GetBMDC.registerOutParameter("bmdc_validation", OracleTypes.CURSOR);
             GetBMDC.setString("p_pdx_code", p_pdx_code);
             GetBMDC.execute();
@@ -789,7 +789,7 @@ public class GrouperMethod {
 
         try (Connection connection = datasource.getConnection()) {
             //Get BMDC Validation Result
-            CallableStatement getPDC = connection.prepareCall("begin :pdc_output := MINOSUN.DRGPKGFUNCTION.GET_PDC(:pdcs,:mdc); end;");
+            CallableStatement getPDC = connection.prepareCall("begin :pdc_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDC(:pdcs,:mdc); end;");
             getPDC.registerOutParameter("pdc_output", OracleTypes.CURSOR);
             getPDC.setString("pdcs", pdcs);
             getPDC.setString("mdc", mdc);
@@ -851,7 +851,7 @@ public class GrouperMethod {
     public String GetPDCUsePDx(final DataSource datasource, final String pdx) {
         String result = "";
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getPDCUsePDx = connection.prepareCall("begin :pdc_pdx := MINOSUN.DRGPKGFUNCTION.GET_PDC_USE_PDX(:pdx); end;");
+            CallableStatement getPDCUsePDx = connection.prepareCall("begin :pdc_pdx := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDC_USE_PDX(:pdx); end;");
             getPDCUsePDx.registerOutParameter("pdc_pdx", OracleTypes.CURSOR);
             getPDCUsePDx.setString("pdx", pdx);
             getPDCUsePDx.execute();
@@ -871,7 +871,7 @@ public class GrouperMethod {
         DRGWSResult result = utility.DRGWSResult();
         MDC mdcData = new MDC();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMDC = connection.prepareCall("begin :mdc_output := MINOSUN.DRGPKGFUNCTION.GET_MDC(:mdcs); end;");
+            CallableStatement GetMDC = connection.prepareCall("begin :mdc_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_MDC(:mdcs); end;");
             GetMDC.registerOutParameter("mdc_output", OracleTypes.CURSOR);
             GetMDC.setString("mdc", mdc);
             GetMDC.execute();
@@ -897,7 +897,7 @@ public class GrouperMethod {
         DRGWSResult result = utility.DRGWSResult();
         DRGOutput drgOutput = new DRGOutput();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement Getdrg = connection.prepareCall("begin :drg_output := MINOSUN.DRGPKGFUNCTION.GET_DRG(:dcs,:drgs); end;");
+            CallableStatement Getdrg = connection.prepareCall("begin :drg_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG(:dcs,:drgs); end;");
             Getdrg.registerOutParameter("drg_output", OracleTypes.CURSOR);
             Getdrg.setString("dcs", dcs);
             Getdrg.setString("drgs", drgs);
@@ -929,7 +929,7 @@ public class GrouperMethod {
     public DRGWSResult MDCProcedure(final DataSource datasource, String icd9code, final String mdcs) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMDCProcedure = connection.prepareCall("begin :join_icd9_output := MINOSUN.DRGPKGFUNCTION.GET_ICD9_JOIN_TABLE(:icd9code,:mdcs); end;");
+            CallableStatement GetMDCProcedure = connection.prepareCall("begin :join_icd9_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD9_JOIN_TABLE(:icd9code,:mdcs); end;");
             GetMDCProcedure.registerOutParameter("join_icd9_output", OracleTypes.CURSOR);
             GetMDCProcedure.setString("icd9code", icd9code.trim());
             GetMDCProcedure.setString("mdcs", mdcs.trim());
@@ -969,7 +969,7 @@ public class GrouperMethod {
     public DRGWSResult PDCUseProcedureChecking(final DataSource datasource, String icd9code, final String pdcs) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetPDCProcedure = connection.prepareCall("begin :join_icd9_output := MINOSUN.DRGPKGFUNCTION.GET_PROC_PDC(:icd9code,:pdcs); end;");
+            CallableStatement GetPDCProcedure = connection.prepareCall("begin :join_icd9_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PROC_PDC(:icd9code,:pdcs); end;");
             GetPDCProcedure.registerOutParameter("join_icd9_output", OracleTypes.CURSOR);
             GetPDCProcedure.setString("icd9code", icd9code);
             GetPDCProcedure.setString("pdcs", pdcs);
@@ -1011,7 +1011,7 @@ public class GrouperMethod {
     public DRGWSResult PDxMalignancy(final DataSource datasource, final String primaryPDx, final String pdcs) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMalignantPDx = connection.prepareCall("begin :pdx_malignant := MINOSUN.DRGPKGFUNCTION.GET_PDX_MALIGNANCY(:primaryPDx,:pdcs); end;");
+            CallableStatement GetMalignantPDx = connection.prepareCall("begin :pdx_malignant := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDX_MALIGNANCY(:primaryPDx,:pdcs); end;");
             GetMalignantPDx.registerOutParameter("pdx_malignant", OracleTypes.CURSOR);
             GetMalignantPDx.setString("primaryPDx", primaryPDx);
             GetMalignantPDx.setString("pdcs", pdcs);
@@ -1033,7 +1033,7 @@ public class GrouperMethod {
     public DRGWSResult ORProcedure(final DataSource datasource, final String orpCode) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetORproce = connection.prepareCall("begin :get_orp := MINOSUN.DRGPKGFUNCTION.GET_PROC_ORP(:orpCode); end;");
+            CallableStatement GetORproce = connection.prepareCall("begin :get_orp := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PROC_ORP(:orpCode); end;");
             GetORproce.registerOutParameter("get_orp", OracleTypes.CURSOR);
             GetORproce.setString("orpCode", orpCode);
             GetORproce.execute();
@@ -1056,7 +1056,7 @@ public class GrouperMethod {
     public DRGWSResult GetDC(final DataSource datasource, final String dcs) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetDC = connection.prepareCall("begin :dcs_output := MINOSUN.DRGPKGFUNCTION.GET_DC(:dcs); end;");
+            CallableStatement GetDC = connection.prepareCall("begin :dcs_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DC(:dcs); end;");
             GetDC.registerOutParameter("dcs_output", OracleTypes.CURSOR);
             GetDC.setString("dcs", dcs);
             GetDC.execute();
@@ -1085,7 +1085,7 @@ public class GrouperMethod {
     public DRGWSResult GetPCOM(final DataSource datasource, final String code1, final String code2) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetPCOM = connection.prepareCall("begin :pcom := MINOSUN.DRGPKGFUNCTION.GET_PCOM(:code1,:code2); end;");
+            CallableStatement GetPCOM = connection.prepareCall("begin :pcom := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PCOM(:code1,:code2); end;");
             GetPCOM.registerOutParameter("pcom", OracleTypes.CURSOR);
             GetPCOM.setString("code1", code1);
             GetPCOM.setString("code2", code2);
@@ -1117,7 +1117,7 @@ public class GrouperMethod {
     public DRGWSResult GetCCL(final DataSource datasource, final String ccrows) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetCCL = connection.prepareCall("begin :cclm_output := MINOSUN.DRGPKGFUNCTION.GET_CCL(:ccrows); end;");
+            CallableStatement GetCCL = connection.prepareCall("begin :cclm_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_CCL(:ccrows); end;");
             GetCCL.registerOutParameter("cclm_output", OracleTypes.CURSOR);
             GetCCL.setString("ccrows", ccrows);
             GetCCL.execute();
@@ -1142,7 +1142,7 @@ public class GrouperMethod {
     public DRGWSResult UnralatedANDORProc(final DataSource datasource, final String icd9codes, final String mdccode) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetUnralatedORproce = connection.prepareCall("begin :unralated_or_proc := MINOSUN.DRGPKGFUNCTION.GET_UNRALATED_PROC_ORPROC(:icd9codes,:mdccode); end;");
+            CallableStatement GetUnralatedORproce = connection.prepareCall("begin :unralated_or_proc := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_UNRALATED_PROC_ORPROC(:icd9codes,:mdccode); end;");
             GetUnralatedORproce.registerOutParameter("unralated_or_proc", OracleTypes.CURSOR);
             GetUnralatedORproce.setString("icd9codes", icd9codes);
             GetUnralatedORproce.setString("mdccode", mdccode);
@@ -1165,7 +1165,7 @@ public class GrouperMethod {
     public DRGWSResult TRAUMAICD10(final DataSource datasource, final String sdx) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement conn = connection.prepareCall("begin :trauma_output := MINOSUN.DRGPKGFUNCTION.TRAUMAICD10(:sdx); end;");
+            CallableStatement conn = connection.prepareCall("begin :trauma_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.TRAUMAICD10(:sdx); end;");
             conn.registerOutParameter("trauma_output", OracleTypes.CURSOR);
             conn.setString("sdx", sdx);
             conn.execute();
@@ -1188,7 +1188,7 @@ public class GrouperMethod {
     public DRGWSResult TRAUMAICD9CM(final DataSource datasource, final String icdproc) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement conn = connection.prepareCall("begin :trauma_output := MINOSUN.DRGPKGFUNCTION.TRAUMAICD9CM(:icdproc); end;");
+            CallableStatement conn = connection.prepareCall("begin :trauma_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.TRAUMAICD9CM(:icdproc); end;");
             conn.registerOutParameter("trauma_output", OracleTypes.CURSOR);
             conn.setString("icdproc", icdproc);
             conn.execute();
@@ -1211,7 +1211,7 @@ public class GrouperMethod {
     public DRGWSResult GetValidCodeICD10(final DataSource datasource, final String p_icd10_code) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getValidCode = connection.prepareCall("begin :p_validcode := MINOSUN.DRGPKGFUNCTION.get_valid_icd10(:p_icd10_code); end;");
+            CallableStatement getValidCode = connection.prepareCall("begin :p_validcode := DRG_SHADOWBILLING.DRGPKGFUNCTION.get_valid_icd10(:p_icd10_code); end;");
             getValidCode.registerOutParameter("p_validcode", OracleTypes.CURSOR);
             getValidCode.setString("p_icd10_code", p_icd10_code.trim());
             getValidCode.execute();
@@ -1235,7 +1235,7 @@ public class GrouperMethod {
             final String age_min_year) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getAgeValidation = connection.prepareCall("begin :age_validation := MINOSUN.DRGPKGFUNCTION.VALIDATE_AGE(:p_pdx_code,:age_day,:age_min_year); end;");
+            CallableStatement getAgeValidation = connection.prepareCall("begin :age_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.VALIDATE_AGE(:p_pdx_code,:age_day,:age_min_year); end;");
             getAgeValidation.registerOutParameter("age_validation", OracleTypes.CURSOR);
             getAgeValidation.setString("p_pdx_code", p_pdx_code.trim());
             getAgeValidation.setString("age_day", age_day);
@@ -1260,7 +1260,7 @@ public class GrouperMethod {
             final String gender) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getSexValidation = connection.prepareCall("begin :gender_validation := MINOSUN.DRGPKGFUNCTION.VALIDATE_GENDER(:p_pdx_code,:gender); end;");
+            CallableStatement getSexValidation = connection.prepareCall("begin :gender_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.VALIDATE_GENDER(:p_pdx_code,:gender); end;");
             getSexValidation.registerOutParameter("gender_validation", OracleTypes.CURSOR);
             getSexValidation.setString("p_pdx_code", p_pdx_code.trim());
             getSexValidation.setString("gender", gender);
@@ -1284,7 +1284,7 @@ public class GrouperMethod {
             final String gender) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getSexProcValidation = connection.prepareCall("begin :age_proc_validation := MINOSUN.DRGPKGFUNCTION.PROC_AGE_VALIDATION(:procode,:gender); end;");
+            CallableStatement getSexProcValidation = connection.prepareCall("begin :age_proc_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.PROC_AGE_VALIDATION(:procode,:gender); end;");
             getSexProcValidation.registerOutParameter("age_proc_validation", OracleTypes.CURSOR);
             getSexProcValidation.setString("procode", procode.trim());
             getSexProcValidation.setString("gender", gender);
@@ -1310,7 +1310,7 @@ public class GrouperMethod {
             if (requestcode.trim().isEmpty()) {
                 result.setSuccess(false);
             } else {
-                CallableStatement GetAX = connection.prepareCall("begin :get_ax := MINOSUN.DRGPKGFUNCTION.GET_AX_PARAM(:axcodes); end;");
+                CallableStatement GetAX = connection.prepareCall("begin :get_ax := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_AX_PARAM(:axcodes); end;");
                 GetAX.registerOutParameter("get_ax", OracleTypes.CURSOR);
                 GetAX.setString("axcodes", axcodes.trim());
                 GetAX.execute();
@@ -1343,7 +1343,7 @@ public class GrouperMethod {
     public DRGWSResult MainCCChecking(final DataSource datasource, final String ccCode, final String mdcCode) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMainCC = connection.prepareCall("begin :maincc := MINOSUN.DRGPKGFUNCTION.GET_MAINCC_USED_ICD10(:ccCode,:mdcCode); end;");
+            CallableStatement GetMainCC = connection.prepareCall("begin :maincc := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_MAINCC_USED_ICD10(:ccCode,:mdcCode); end;");
             GetMainCC.registerOutParameter("maincc", OracleTypes.CURSOR);
             GetMainCC.setString("ccCode", ccCode);
             GetMainCC.setString("mdcCode", mdcCode);
@@ -1367,7 +1367,7 @@ public class GrouperMethod {
     public DRGWSResult MajorORPRrocedure(final DataSource datasource, final String icd9codes, final String mdcs, final String pdcs) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMajorORProc = connection.prepareCall("begin :major_or_proc := MINOSUN.DRGPKGFUNCTION.GET_MAINCC_USED_ICD10(:icd9codes,:mdcs,:pdcs); end;");
+            CallableStatement GetMajorORProc = connection.prepareCall("begin :major_or_proc := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_MAINCC_USED_ICD10(:icd9codes,:mdcs,:pdcs); end;");
             GetMajorORProc.registerOutParameter("major_or_proc", OracleTypes.CURSOR);
             GetMajorORProc.setString("icd9codes", icd9codes);
             GetMajorORProc.setString("mdcs", mdcs);
@@ -1391,7 +1391,7 @@ public class GrouperMethod {
     public DRGWSResult Endovasc(final DataSource datasource, final String proce, final String pdcs, final String mdcs) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement Endovasc = connection.prepareCall("begin :get_icd9_cm := MINOSUN.DRGPKGFUNCTION.GET_ICD9_MDC(:proce,:pdcs,:mdcs); end;");
+            CallableStatement Endovasc = connection.prepareCall("begin :get_icd9_cm := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD9_MDC(:proce,:pdcs,:mdcs); end;");
             Endovasc.registerOutParameter("get_icd9_cm", OracleTypes.CURSOR);
             Endovasc.setString("proce", proce);
             Endovasc.setString("pdcs", pdcs);
@@ -1418,7 +1418,7 @@ public class GrouperMethod {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement ps = connection.prepareCall("call MINOSUN.DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:pdx,:sdx,:p_dc)");
+            CallableStatement ps = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:pdx,:sdx,:p_dc)");
             ps.registerOutParameter("p_pccl", OracleTypes.NUMBER);
             ps.setString("pdx", grouperparameter.getPdx());
             ps.setString("sdx", sdxfinalList);
@@ -1514,7 +1514,7 @@ public class GrouperMethod {
     public int GetCCLValue(final DataSource datasource, final String dccol, final String ccrows) {
         int result = 0;
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getccrowval = connection.prepareCall("begin :cclvalue := MINOSUN.DRGPKGFUNCTION.GET_CCLVALUE(:ccrows); end;");
+            CallableStatement getccrowval = connection.prepareCall("begin :cclvalue := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_CCLVALUE(:ccrows); end;");
             getccrowval.registerOutParameter("cclvalue", OracleTypes.CURSOR);
             getccrowval.setString("ccrows", ccrows);
             getccrowval.execute();
@@ -1540,7 +1540,7 @@ public class GrouperMethod {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement exclusionlist = connection.prepareCall("begin :getexclusion := MINOSUN.DRGPKGFUNCTION.GET_EXCLUSION(:sdx,:pdx); end;");
+            CallableStatement exclusionlist = connection.prepareCall("begin :getexclusion := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_EXCLUSION(:sdx,:pdx); end;");
             exclusionlist.registerOutParameter("getexclusion", OracleTypes.CURSOR);
             exclusionlist.setString("sdx", sdx);
             exclusionlist.setString("pdx", pdx);
@@ -1835,7 +1835,7 @@ public class GrouperMethod {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := MINOSUN.DRGPKGFUNCTION.COUNTBMDCICD10CODE(:icd10code); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.COUNTBMDCICD10CODE(:icd10code); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.setString("icd10code", icd10code.trim());
             statement.execute();
@@ -1863,7 +1863,7 @@ public class GrouperMethod {
         result.setResult("");
         ArrayList<PreMDC> icd10List = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := MINOSUN.DRGPKGFUNCTION.SeekerICD10(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.SeekerICD10(); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_results");
@@ -1894,7 +1894,7 @@ public class GrouperMethod {
         result.setResult("");
         ArrayList<DRGOutput> drgList = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := MINOSUN.DRGPKGFUNCTION.SeekerDRG(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.SeekerDRG(); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_results");
@@ -1927,7 +1927,7 @@ public class GrouperMethod {
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := MINOSUN.DRGPKGFUNCTION.SeekerICD9cm(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.SeekerICD9cm(); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ArrayList<ICD9PreMDCResult> icd9List = new ArrayList<>();
@@ -1958,7 +1958,7 @@ public class GrouperMethod {
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := MINOSUN.DRGPKGFUNCTION.SeekerRVS(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.SeekerRVS(); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ArrayList<RVS> rvsList = new ArrayList<>();

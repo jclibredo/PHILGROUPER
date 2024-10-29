@@ -5,6 +5,7 @@
  */
 package grouper.utility;
 
+import drgseeker.utilities.SeekerMethods;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
@@ -207,7 +208,7 @@ public class Utility {
         return result;
     }
 
-    public DRGWSResult GetPayload(String token) {
+    public DRGWSResult GetPayload(final DataSource dataSource, final String token) {
         DRGWSResult result = this.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -218,12 +219,17 @@ public class Utility {
             } else {
                 if (this.ValidateToken(token) == true) {
                     Claims claims = Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(CIPHERKEY)).parseClaimsJws(token).getBody();
-                    DRGPayload payload = this.DRGPayload();
-                    payload.setCode1(this.DecryptString((String) claims.get("Code1")));
-                    payload.setCode2(this.DecryptString((String) claims.get("Code2")));
                     if (!this.isJWTExpired(claims)) {
-                        result.setSuccess(true);
-                        result.setResult(this.objectMapper().writeValueAsString(payload));
+                        DRGPayload payload = this.DRGPayload();
+                        payload.setCode1(this.DecryptString((String) claims.get("Code1")));
+                        payload.setCode2(this.DecryptString((String) claims.get("Code2")));
+                        payload.setExp(claims.getExpiration());
+                        if (new SeekerMethods().UserLogin(dataSource, this.DecryptString((String) claims.get("Code1")), this.DecryptString((String) claims.get("Code2")), "10000").isSuccess()) {
+                            result.setSuccess(true);
+                            result.setResult(this.objectMapper().writeValueAsString(payload));
+                        } else {
+                            result.setMessage("Unrecognized User");
+                        }
                     } else {
                         result.setMessage("Token is expired");
                     }

@@ -217,6 +217,7 @@ public class SeekerMethods {
                     } else {
                         user.setCreatedby("NO DATA FOUND");
                     }
+                
                     user.setToken(utility.GenerateToken(uemail, resultset.getString("PASSWORD"), expire));
                     //-----------------------------------------------------------
                     result.setMessage("OK");
