@@ -22,14 +22,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-
 /**
  *
  * @author MinoSun
  */
 @RequestScoped
 public class ValidateFindMDC {
-
     public ValidateFindMDC() {
     }
     private final Utility utility = new Utility();
@@ -40,20 +38,19 @@ public class ValidateFindMDC {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        GrouperMethod gm = new GrouperMethod();
-        GetValidatedPreMDC getvalidatedpremdc = new GetValidatedPreMDC();
+//        GrouperMethod gm = new GrouperMethod();
+//        GetValidatedPreMDC getvalidatedpremdc = new GetValidatedPreMDC();
         DRGOutput drgResult = new DRGOutput();
         try {
             List<String> ProcList = Arrays.asList(grouperparameter.getProc().split(","));
             ArrayList<String> asterisk = new ArrayList<>();
             ArrayList<String> combiCode = new ArrayList<>();
             ArrayList<Integer> NegativeIndex = new ArrayList<>();
-
             for (int y = 0; y < ProcList.size(); y++) {  //TEST DATA HERE  Procwithgreathervalue
                 String dataA = ProcList.get(y).replace(">1", "");  //TEST DATA HERE  Procwithgreathervalue
                 for (int w = 0; w < ProcList.size(); w++) {  //TEST DATA HERE  Procwithgreathervalue
                     String dataB = ProcList.get(w).replace(">1", "");  //TEST DATA HERE  Procwithgreathervalue
-                    DRGWSResult pcomResult = gm.GetPCOM(datasource, dataA.trim(), dataB.trim());
+                    DRGWSResult pcomResult = new GrouperMethod().GetPCOM(datasource, dataA.trim(), dataB.trim());
                     if (String.valueOf(pcomResult.isSuccess()).equals("true")) {
                         combiCode.add(pcomResult.getResult());
                         for (int i = 0; i < ProcList.size(); i++) {  //TEST DATA HERE  Procwithgreathervalue
@@ -77,11 +74,10 @@ public class ValidateFindMDC {
                     }
                 }
             }
-
             //==================================
             List<String> SDxList = Arrays.asList(grouperparameter.getSdx().split(","));
             for (int b = 0; b < SDxList.size(); b++) {
-                DRGWSResult gDAResult = gm.GetDA(datasource, grouperparameter.getPdx(), SDxList.get(b).trim());
+                DRGWSResult gDAResult = new GrouperMethod().GetDA(datasource, grouperparameter.getPdx(), SDxList.get(b).trim());
                 if (gDAResult.isSuccess()) {
                     asterisk.add("true");
                 } else {
@@ -89,7 +85,7 @@ public class ValidateFindMDC {
                 }
             }
             //GETTING THE INDEX AREA 
-            String FinalPrimary = "";
+            //String FinalPrimary = "";
             String FinalSDxList = "";
             SDxPDx swapping = new SDxPDx();
             int indexNumber = asterisk.indexOf("true");
@@ -103,7 +99,7 @@ public class ValidateFindMDC {
                 FinalSDxList = FinalSDxList.substring(0, FinalSDxList.length());
                 swapping.setNewsdx(newListSDx.toString());
                 List<String> NewPrimary = Arrays.asList(grouperparameter.getSdx().split(","));
-                FinalPrimary = NewPrimary.get(indexNumber);
+//                FinalPrimary = NewPrimary.get(indexNumber);
                 swapping.setNewpdx(NewPrimary.get(indexNumber));
             } else {
                 if (!grouperparameter.getSdx().isEmpty()) {
@@ -113,11 +109,9 @@ public class ValidateFindMDC {
                     swapping.setNewpdx(grouperparameter.getPdx());
                 }
             }
-
             //==========================================================================================================
-            DRGWSResult geticd10Result = gm.GetICD10PreMDC(datasource, swapping.getNewpdx());
-            DRGWSResult getSexConfictResult = gm.GenderConfictValidation(datasource, swapping.getNewpdx(), grouperparameter.getGender());
-
+            DRGWSResult geticd10Result = new GrouperMethod().GetICD10PreMDC(datasource, swapping.getNewpdx());
+            DRGWSResult getSexConfictResult = new GrouperMethod().GenderConfictValidation(datasource, swapping.getNewpdx(), grouperparameter.getGender());
             //==========================================================================================================
             if (!geticd10Result.isSuccess()) {
                 drgResult.setDRG("26509");
@@ -146,7 +140,6 @@ public class ValidateFindMDC {
                     result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                     result.setSuccess(true);
                 } else {
-
                     GrouperParameter Newgrouperparam = new GrouperParameter();
                     Newgrouperparam.setAdmissionDate(grouperparameter.getAdmissionDate());
                     Newgrouperparam.setAdmissionWeight(grouperparameter.getAdmissionWeight());
@@ -167,14 +160,14 @@ public class ValidateFindMDC {
                         combinationcode.setComcode(Combinecode);
                         combinationcode.setIndexlist(indextoremove);
                         combinationcode.setProclist(OrigList);
-                        String comResult = gm.ProcedureExecute(combinationcode);
+                        String comResult = new GrouperMethod().ProcedureExecute(combinationcode);
                         Newgrouperparam.setProc(comResult);
                     }
                     Newgrouperparam.setSdx(grouperparameter.getSdx());
                     Newgrouperparam.setTimeAdmission(grouperparameter.getTimeAdmission());
                     Newgrouperparam.setTimeDischarge(grouperparameter.getTimeDischarge());
                     Newgrouperparam.setTimeOfBirth(grouperparameter.getTimeOfBirth());
-                    DRGWSResult getvalidatedpremdcResult = getvalidatedpremdc.GetValidatedPreMDC(datasource, Newgrouperparam);
+                    DRGWSResult getvalidatedpremdcResult =  new GetValidatedPreMDC().GetValidatedPreMDC(datasource, Newgrouperparam);
                     result.setSuccess(getvalidatedpremdcResult.isSuccess());
                     result.setMessage(getvalidatedpremdcResult.getMessage());
                     result.setResult(getvalidatedpremdcResult.getResult());
@@ -200,15 +193,14 @@ public class ValidateFindMDC {
                     combinationcode.setComcode(Combinecode);
                     combinationcode.setIndexlist(indextoremove);
                     combinationcode.setProclist(OrigList);
-                    String comResult = gm.ProcedureExecute(combinationcode);
+                    String comResult = new GrouperMethod().ProcedureExecute(combinationcode);
                     Newgrouperparam.setProc(comResult);
                 }
                 Newgrouperparam.setSdx(swapping.getNewsdx());
                 Newgrouperparam.setTimeAdmission(grouperparameter.getTimeAdmission());
                 Newgrouperparam.setTimeDischarge(grouperparameter.getTimeDischarge());
                 Newgrouperparam.setTimeOfBirth(grouperparameter.getTimeOfBirth());
-
-                DRGWSResult getvalidatedpremdcResult = getvalidatedpremdc.GetValidatedPreMDC(datasource, Newgrouperparam);
+                DRGWSResult getvalidatedpremdcResult =  new GetValidatedPreMDC().GetValidatedPreMDC(datasource, Newgrouperparam);
                 result.setSuccess(getvalidatedpremdcResult.isSuccess());
                 result.setResult(getvalidatedpremdcResult.getResult());
                 result.setMessage(getvalidatedpremdcResult.getMessage());
@@ -223,22 +215,18 @@ public class ValidateFindMDC {
     }
 
     public class SDxPDx {
-
         private String newpdx; // private = restricted access
         private String newsdx;
 
         public String getNewpdx() {
             return newpdx;
         }
-
         public void setNewpdx(String newpdx) {
             this.newpdx = newpdx;
         }
-
         public String getNewsdx() {
             return newsdx;
         }
-
         public void setNewsdx(String newsdx) {
             this.newsdx = newsdx;
         }

@@ -45,7 +45,7 @@ public class ProcessGrouperParameter {
         result.setSuccess(false);
         GrouperMethod gm = new GrouperMethod();
         try {
-            File path = new File("D:\\DRG Result Log Files\\LogFileForgrouperResult.txt");
+//            File path = new File("D:\\DRG Result Log Files\\LogFileForgrouperResult.txt");
             //  for (int g = 0; g < grouperparameter.size(); g++) {
             DRGOutput drgresult = utility.DRGOutput();
             GrouperParameter newGrouperParam = utility.GrouperParameter();
@@ -182,11 +182,11 @@ public class ProcessGrouperParameter {
                             utility.Convert24to12(newGrouperParam.getTimeDischarge()));
                     int araw = utility.ComputeDay(newGrouperParam.getAdmissionDate(),
                             newGrouperParam.getDischargeDate());
-                    int minuto = utility.MinutesCompute(
-                            newGrouperParam.getAdmissionDate(),
-                            utility.Convert24to12(newGrouperParam.getTimeAdmission()),
-                            newGrouperParam.getDischargeDate(),
-                            utility.Convert24to12(newGrouperParam.getTimeDischarge()));
+//                    int minuto = utility.MinutesCompute(
+//                            newGrouperParam.getAdmissionDate(),
+//                            utility.Convert24to12(newGrouperParam.getTimeAdmission()),
+//                            newGrouperParam.getDischargeDate(),
+//                            utility.Convert24to12(newGrouperParam.getTimeDischarge()));
                     int taon = utility.ComputeYear(newGrouperParam.getAdmissionDate(),
                             newGrouperParam.getDischargeDate());
                     if (utility.ComputeLOS(newGrouperParam.getAdmissionDate(),

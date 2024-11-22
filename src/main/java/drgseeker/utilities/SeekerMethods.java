@@ -15,11 +15,18 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.Message;
 
 /**
  *
@@ -31,13 +38,13 @@ public class SeekerMethods {
     private final Utility utility = new Utility();
     private final SimpleDateFormat datetimeformat = utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
 
-    public DRGWSResult UserInsert(final DataSource dataSource, final SeekerUser seekerUser) {
+    public DRGWSResult UserInsert(final DataSource dataSource, final SeekerUser seekerUser, final Session mailsession) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
+            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("pemail", seekerUser.getEmail().trim());
@@ -51,9 +58,12 @@ public class SeekerMethods {
             if (statement.getString("Message").equals("SUCC")) {
                 result.setSuccess(true);
                 result.setMessage(statement.getString("Message"));
+
             } else {
                 result.setMessage(statement.getString("Message"));
             }
+            new SeekerMethods().EmailSender(dataSource, seekerUser.getEmail().trim(), seekerUser.getPassword(), mailsession);
+
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
@@ -67,7 +77,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETUSERBYID(:puserid); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETUSERBYID(:puserid); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("puserid", puserid.trim());
             statement.execute();
@@ -110,7 +120,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETALLUSER(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETALLUSER(); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.execute();
             ArrayList<SeekerUser> userList = new ArrayList<>();
@@ -175,7 +185,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.USERLOGIN(:uemail,:upassword); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.USERLOGIN(:uemail,:upassword); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("uemail", uemail.trim());
             statement.setString("upassword", upassword.trim());
@@ -217,7 +227,7 @@ public class SeekerMethods {
                     } else {
                         user.setCreatedby("NO DATA FOUND");
                     }
-                
+
                     user.setToken(utility.GenerateToken(uemail, resultset.getString("PASSWORD"), expire));
                     //-----------------------------------------------------------
                     result.setMessage("OK");
@@ -242,7 +252,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.edituser(:message,:code,:pemail,:ppassword,:prole,:puserid,:ustatus,:uname,:udateupdated,:uupdatedby)");
+            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.edituser(:message,:code,:pemail,:ppassword,:prole,:puserid,:ustatus,:uname,:udateupdated,:uupdatedby)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("pemail", seekerUser.getEmail().trim());
@@ -267,5 +277,55 @@ public class SeekerMethods {
         return result;
     }
 
-}
+    public DRGWSResult EmailSender(
+            final DataSource dataSource,
+            final String uemail,
+            final String randpass,
+            final Session mailSession) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setSuccess(false);
+        result.setResult("");
+        try {
+            Message message = new MimeMessage(mailSession);
+            message.setFrom(new InternetAddress("noreply@philhealth.gov.ph", false));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(uemail.trim(), false));
+            message.setSubject("GROUPER SEEKER");
+            message.setSentDate(new Date());
+            message.setText("ACCOUNT CREDENTIAL FOR PHL-DRGSEEKER USERNAME : " + uemail + " PASSWORD : " + randpass);
+            Transport.send(message);
+            result.setSuccess(true);
+        } catch (MessagingException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;//  PHL-DRGSEEKER
+    }
 
+    public DRGWSResult ForgatPassword(
+            final DataSource dataSource,
+            final String uemail,
+            final String randpass,
+            final Session mailSession) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setSuccess(false);
+        result.setResult("");
+        try {
+            Message message = new MimeMessage(mailSession);
+            message.setFrom(new InternetAddress("noreply@philhealth.gov.ph", false));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(uemail.trim(), false));
+            message.setSubject("GROUPER SEEKER");
+            message.setSentDate(new Date());
+            message.setText("PHL-DRGSEEKER NEW PASSWORD : " + randpass);
+            Transport.send(message);
+            result.setSuccess(true);
+            result.setMessage("Account password successfully reseted and sent it to your email please check the new passcode ");
+        } catch (MessagingException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;//  PHL-DRGSEEKER
+    }
+
+}
