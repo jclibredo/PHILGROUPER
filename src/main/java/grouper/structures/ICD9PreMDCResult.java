@@ -7,7 +7,7 @@ package grouper.structures;
 
 /**
  *
- * @author MinoSun
+ * @author DRG_SHADOWBILLING
  */
 public class ICD9PreMDCResult {
     public ICD9PreMDCResult(){

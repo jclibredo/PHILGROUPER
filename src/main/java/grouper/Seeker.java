@@ -15,7 +15,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -29,14 +28,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 
 /**
  * REST Web Service
  *
- * @author MinoSun
+ * @author DRG_SHADOWBILLING
  */
 @Path("Seeker")
 public class Seeker {
@@ -44,7 +41,7 @@ public class Seeker {
     public Seeker() {
     }
 
-    @Resource(lookup = "jdbc/drgsbuser")
+    @Resource(lookup = "jdbc/grouperuser")
     private DataSource dataSource;
     //-------------------------------------
     @Resource(lookup = "mail/acrgbmail")
@@ -52,21 +49,10 @@ public class Seeker {
 
     private final Utility utility = new Utility();
 
-    private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
-
     @GET
-    @Path(value = "GetServerDateTime")
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void GetServerDateTime(@Suspended final AsyncResponse asyncResponse) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doGetServerDateTime());
-            }
-        });
-    }
-
-    public String doGetServerDateTime() {
+    @Path("GetServerDateTime")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String GetServerDateTime() {
         String result = "";
         SimpleDateFormat sdf = utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
         try (Connection connection = dataSource.getConnection()) {
@@ -87,24 +73,13 @@ public class Seeker {
     /**
      * Retrieves representation of an instance of Seeker.Seeker
      *
-     * @param asyncResponse
      * @param token
+     * @return 
      */
     @GET
-    @Path(value = "GetAllUser")
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void GetAllUser(
-            @Suspended final AsyncResponse asyncResponse,
-            @HeaderParam(value = "token") final String token) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doGetAllUser(token));
-            }
-        });
-    }
-
-    public DRGWSResult doGetAllUser(
+    @Path("GetAllUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GetAllUser(
             @HeaderParam("token") String token) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -125,19 +100,7 @@ public class Seeker {
     @GET
     @Path("GetUserByID/{puserid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public void GetUserByID(
-            @Suspended final AsyncResponse asyncResponse,
-            @PathParam(value = "puserid") final String puserid,
-            @HeaderParam(value = "token") final String token) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doGetUserByID(puserid, token));
-            }
-        });
-    }
-
-    private DRGWSResult doGetUserByID(@PathParam("puserid") String puserid, @HeaderParam("token") String token) {
+    public DRGWSResult GetUserByID(@PathParam("puserid") String puserid, @HeaderParam("token") String token) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -155,22 +118,10 @@ public class Seeker {
     }
 
     @POST
-    @Path(value = "InsertUser")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void InsertUser(
-            @Suspended final AsyncResponse asyncResponse,
-            @HeaderParam(value = "token") final String token,
-            final SeekerUser user) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doInsertUser(token, user));
-            }
-        });
-    }
-
-    public DRGWSResult doInsertUser(
+    @Path("InsertUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult InsertUser(
             @HeaderParam("token") String token,
             final SeekerUser user) {
         DRGWSResult result = utility.DRGWSResult();
@@ -190,22 +141,10 @@ public class Seeker {
     }
 
     @PUT
-    @Path(value = "UpdateUser")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void UpdateUser(
-            @Suspended final AsyncResponse asyncResponse,
-            @HeaderParam(value = "token") final String token,
-            final SeekerUser user) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doUpdateUser(token, user));
-            }
-        });
-    }
-
-    public DRGWSResult doUpdateUser(
+    @Path("UpdateUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult UpdateUser(
             @HeaderParam("token") String token,
             final SeekerUser user) {
         DRGWSResult result = utility.DRGWSResult();
@@ -225,23 +164,10 @@ public class Seeker {
     }
 
     @POST
-    @Path(value = "UserLogin")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void UserLogin(
-            @Suspended final AsyncResponse asyncResponse,
-            @HeaderParam(value = "email") final String email,
-            @HeaderParam(value = "password") final String password,
-            @HeaderParam(value = "expire") final String expire) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doUserLogin(email, password, expire));
-            }
-        });
-    }
-
-    public DRGWSResult doUserLogin(
+    @Path("UserLogin")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult UserLogin(
             @HeaderParam("email") String email,
             @HeaderParam("password") String password,
             @HeaderParam("expire") String expire) {
@@ -250,21 +176,10 @@ public class Seeker {
     }
 
     @POST
-    @Path(value = "ForgetPassword")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void ForgetPassword(
-            @Suspended final AsyncResponse asyncResponse,
-            @HeaderParam(value = "mail") final String mail) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doForgetPassword(mail));
-            }
-        });
-    }
-
-    public DRGWSResult doForgetPassword(
+    @Path("ForgetPassword")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult ForgetPassword(
             @HeaderParam("mail") String mail) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -275,18 +190,9 @@ public class Seeker {
     }
 
     @GET
-    @Path(value = "GetCaptchaCode")
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void GetCaptchaCode(@Suspended final AsyncResponse asyncResponse) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doGetCaptchaCode());
-            }
-        });
-    }
-
-    private DRGWSResult doGetCaptchaCode() {
+    @Path("GetCaptchaCode")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GetCaptchaCode() {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("OK");
         result.setSuccess(true);
@@ -295,19 +201,9 @@ public class Seeker {
     }
 
     @GET
-    @Path(value = "GetRVS")
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void GetRVS(@Suspended final AsyncResponse asyncResponse,
-            @HeaderParam(value = "token") final String token) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doGetRVS(token));
-            }
-        });
-    }
-
-    private DRGWSResult doGetRVS(@HeaderParam("token") String token) {
+    @Path("GetRVS")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GetRVS(@HeaderParam("token") String token) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -322,20 +218,9 @@ public class Seeker {
     }
 
     @GET
-    @Path(value = "GetICD9CM")
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void GetICD9CM(
-            @Suspended final AsyncResponse asyncResponse, 
-            @HeaderParam(value = "token") final String token) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doGetICD9CM(token));
-            }
-        });
-    }
-
-    private DRGWSResult doGetICD9CM(@HeaderParam("token") String token) {
+    @Path("GetICD9CM")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GetICD9CM(@HeaderParam("token") String token) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -350,20 +235,9 @@ public class Seeker {
     }
 
     @GET
-    @Path(value = "GetDRG")
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void GetDRG(
-            @Suspended final AsyncResponse asyncResponse, 
-            @HeaderParam(value = "token") final String token) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doGetDRG(token));
-            }
-        });
-    }
-
-    private DRGWSResult doGetDRG(@HeaderParam("token") String token) {
+    @Path("GetDRG")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GetDRG(@HeaderParam("token") String token) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -378,20 +252,9 @@ public class Seeker {
     }
 
     @GET
-    @Path(value = "GetICD10")
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void GetICD10(
-            @Suspended final AsyncResponse asyncResponse, 
-            @HeaderParam(value = "token") final String token) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doGetICD10(token));
-            }
-        });
-    }
-
-    private DRGWSResult doGetICD10(@HeaderParam("token") String token) {
+    @Path("GetICD10")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GetICD10(@HeaderParam("token") String token) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");

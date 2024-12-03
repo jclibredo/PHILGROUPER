@@ -32,14 +32,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 
 /**
  * REST Web Service
  *
- * @author MinoSun
+ * @author DRG_SHADOWBILLING
  */
 @Path("Grouper")
 @RequestScoped
@@ -48,7 +46,7 @@ public class Grouper {
     public Grouper() {
     }
 
-    @Resource(lookup = "jdbc/drgsbuser")
+    @Resource(lookup = "jdbc/grouperuser")
     private DataSource datasource;
     private final Utility utility = new Utility();
 //    private final DRGUtility drgutility = new DRGUtility();
@@ -76,8 +74,6 @@ public class Grouper {
         }
         return result;
     }
-
-
 
     //THIS METHOD IS FOR SEEKER 
     //START OF FINAL METHOD FOR GROUPER
@@ -272,18 +268,9 @@ public class Grouper {
     private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
 
     @GET
-    @Path(value = "GetServerDateTime")
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void GetServerDateTime(@Suspended final AsyncResponse asyncResponse) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doGetServerDateTime());
-            }
-        });
-    }
-
-    private String doGetServerDateTime() {
+    @Path("GetServerDateTime")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String GetServerDateTime() {
         String result = "";
         SimpleDateFormat sdf = utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
         try (Connection connection = datasource.getConnection()) {
@@ -302,19 +289,10 @@ public class Grouper {
     }
 
     @POST
-    @Path(value = "ProcessGrouperParameter")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void ProcessGrouperParameter(@Suspended final AsyncResponse asyncResponse, final List<GrouperParameter> grouperparameter) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doProcessGrouperParameter(grouperparameter));
-            }
-        });
-    }
-
-    private DRGWSResult doProcessGrouperParameter(final List<GrouperParameter> grouperparameter) {
+    @Path("ProcessGrouperParameter")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult ProcessGrouperParameter(final List<GrouperParameter> grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -347,19 +325,10 @@ public class Grouper {
     }
 
     @POST
-    @Path(value = "PhilSeeker")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void PhilSeeker(@Suspended final AsyncResponse asyncResponse, @HeaderParam(value = "token") final String token, final List<GrouperParameter> grouperparameter) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doPhilSeeker(token, grouperparameter));
-            }
-        });
-    }
-
-    private DRGWSResult doPhilSeeker(@HeaderParam("token") String token, final List<GrouperParameter> grouperparameter) {
+    @Path("PhilSeeker")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult doPhilSeeker(@HeaderParam("token") String token, final List<GrouperParameter> grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -397,19 +366,10 @@ public class Grouper {
     }
 
     @POST
-    @Path(value = "GenerateToken")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void GenerateToken(@Suspended final AsyncResponse asyncResponse, final DRGPayload payload) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                asyncResponse.resume(doGenerateToken(payload));
-            }
-        });
-    }
-
-    private DRGWSResult doGenerateToken(final DRGPayload payload) {
+    @Path("GenerateToken")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GenerateToken(final DRGPayload payload) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
