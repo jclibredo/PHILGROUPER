@@ -76,9 +76,9 @@ public class GetValidatedPreMDC {
                         TraumaCounterPDXO++;
                     }
                 }
-                int ProccCount = 0;
-                int SDXcountO = 0;
-                int SDXcountI = 0;
+//                int ProccCount = 0;
+//                int SDXcountO = 0;
+//                int SDXcountI = 0;
                 LinkedList<String> procSite = new LinkedList<>();
                 LinkedList<String> sdxSite = new LinkedList<>();
                 LinkedList<String> sdxnewlist = new LinkedList<>();
@@ -94,7 +94,7 @@ public class GetValidatedPreMDC {
                         DRGWSResult SDxVal = gm.TRAUMAICD10(datasource, secon);
                         if (String.valueOf(SDxVal.isSuccess()).equals("true")) {
                             if (!SDxVal.getResult().equals("0")) {
-                                SDXcountI++;
+//                                SDXcountI++;
                                 sdxSite.add(SDxVal.getResult());
                                 sdxnewlist.add(SDxVal.getResult());
                             }
@@ -130,7 +130,7 @@ public class GetValidatedPreMDC {
                         String proc = ProcedureList.get(x);
                         DRGWSResult PROC = gm.TRAUMAICD9CM(datasource, proc);
                         if (PROC.isSuccess()) {
-                            ProccCount++;
+//                            ProccCount++;
                             procSite.add(PROC.getResult());
                             procnewlist.add(PROC.getResult());
                         }

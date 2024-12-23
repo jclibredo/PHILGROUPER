@@ -249,6 +249,7 @@ public class GrouperMethod {
             getDRGParam.registerOutParameter("drgresult", OracleTypes.CURSOR);
             getDRGParam.setString("tagss", tagss.trim());
             getDRGParam.execute();
+            int stopper = 0;
             ResultSet getDRGParamResult = (ResultSet) getDRGParam.getObject("drgresult");
             while (getDRGParamResult.next()) {
                 GrouperParameter ggrouperparameter = new GrouperParameter();
@@ -350,7 +351,6 @@ public class GrouperMethod {
                     } else {
                         ggrouperparameter.setGender(getdrg_nclaims_result.getString("GENDER"));
                     }
-
                     switch (getdrg_nclaims_result.getString("DISCHARGETYPE")) {
                         case "E":
                             ggrouperparameter.setDischargeType("8");
@@ -381,11 +381,15 @@ public class GrouperMethod {
                     errorList.add(getDRGParamResult.getString("CLAIMS_SERRIES") + " NOT FOUND");
                     //AUDIT TRAIL FOR NOT FOUND SERRIES
                 }
+                stopper++;
+                if (stopper == 500) {
+                    break;
+                }
+
             }
             ArrayList<DRGOutput> drgresultList = new ArrayList<>();
-            ProcessGrouperParameter param = new ProcessGrouperParameter();
             for (int y = 0; y < grouperparameterlsit.size(); y++) {
-                DRGWSResult processResult = param.ProcessGrouperParameter(datasource, grouperparameterlsit.get(y));
+                DRGWSResult processResult = new ProcessGrouperParameter().ProcessGrouperParameter(datasource, grouperparameterlsit.get(y));
                 if (processResult.isSuccess()) {
                     DRGOutput drgout = utility.objectMapper().readValue(processResult.getResult(), DRGOutput.class);
                     drgresultList.add(drgout);
@@ -397,7 +401,7 @@ public class GrouperMethod {
                 result.setMessage("OK");
                 result.setResult(utility.objectMapper().writeValueAsString(drgresultList));
             } else {
-                result.setMessage("N/A");
+                result.setMessage("NO DATA FOUND");
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
@@ -459,7 +463,6 @@ public class GrouperMethod {
             }
             result.setMessage(updatedrgresult.getString("Code"));
             result.setResult(updatedrgresult.getString("Message"));
-
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
@@ -1898,7 +1901,7 @@ public class GrouperMethod {
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_results");
-            while(resultset.next()) {
+            while (resultset.next()) {
                 DRGOutput drg = new DRGOutput();
                 drg.setDC(resultset.getString("DC"));
                 drg.setDRG(resultset.getString("DRG"));
