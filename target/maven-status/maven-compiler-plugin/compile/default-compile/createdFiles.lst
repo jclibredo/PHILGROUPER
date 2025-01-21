@@ -56,6 +56,7 @@ grouper\methods\mdc\GetMDC01.class
 grouper\structures\DRGWSResult.class
 grouper\methods\premdc\ProcessGrouperParameter.class
 grouper\Seeker.class
+grouper\utility\Cryptor.class
 grouper\methods\premdc\GetValidatedPreMDC.class
 grouper\utility\NamedParameterStatement.class
 grouper\methods\mdc\GetMDC04.class

@@ -8,6 +8,7 @@ package grouper;
 import drgseeker.utilities.SeekerMethods;
 import drgseeker.utilities.SeekerUser;
 import grouper.structures.DRGWSResult;
+import grouper.utility.Cryptor;
 import grouper.utility.GrouperMethod;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
@@ -74,7 +75,7 @@ public class Seeker {
      * Retrieves representation of an instance of Seeker.Seeker
      *
      * @param token
-     * @return 
+     * @return
      */
     @GET
     @Path("GetAllUser")
@@ -155,10 +156,15 @@ public class Seeker {
         if (!GetPayLoad.isSuccess()) {
             result.setMessage(GetPayLoad.getMessage());
         } else {
-            DRGWSResult updateresult = new SeekerMethods().UserUpdate(dataSource, user);
-            result.setMessage(updateresult.getMessage());
-            result.setSuccess(updateresult.isSuccess());
-            result.setResult(updateresult.getResult());
+            DRGWSResult validate = new SeekerMethods().ValidateUserUpdate(dataSource, user);
+            if (!validate.isSuccess()) {
+                result.setMessage(validate.getMessage());
+            } else {
+                DRGWSResult updateresult = new SeekerMethods().UserUpdate(dataSource, user);
+                result.setMessage(updateresult.getMessage());
+                result.setSuccess(updateresult.isSuccess());
+                result.setResult(updateresult.getResult());
+            }
         }
         return result;
     }
@@ -182,10 +188,10 @@ public class Seeker {
     public DRGWSResult ForgetPassword(
             @HeaderParam("mail") String mail) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
-        new SeekerMethods().ForgatPassword(dataSource, mail, utility.GenerateRandomPassword(10), session);
+        DRGWSResult Updatepass = new SeekerMethods().ForgatPassword(dataSource, mail, utility.GenerateRandomPassword(10), session);
+        result.setMessage(Updatepass.getMessage());
+        result.setResult(Updatepass.getResult());
+        result.setSuccess(Updatepass.isSuccess());
         return result;
     }
 
@@ -265,6 +271,32 @@ public class Seeker {
         } else {
             result = new GrouperMethod().SeekerICD10(dataSource);
         }
+        return result;
+    }
+
+    @POST
+    @Path("TestInsertUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult TestInsertUser(
+            final SeekerUser user) {
+        DRGWSResult result = utility.DRGWSResult();
+        DRGWSResult insertresult = new SeekerMethods().UserInsert(dataSource, user, session);
+        result.setMessage(insertresult.getMessage());
+        result.setSuccess(insertresult.isSuccess());
+        result.setResult(insertresult.getResult());
+        return result;
+    }
+
+    //EncryptPasscode
+    @GET
+    @Path("EncryptPasscode/{password}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult ENCRYPT(@PathParam("password") String password) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("Passcode Enrypted");
+        result.setResult(new Cryptor().encrypt(password, password, "SEEKER"));
+        result.setSuccess(true);
         return result;
     }
 
