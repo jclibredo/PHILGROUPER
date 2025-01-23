@@ -443,23 +443,24 @@ public class GrouperMethod {
             final String series,
             final String drg) {
         DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
             String tagss = "DG";
-            CallableStatement updatedrgresult = connection.prepareCall("call DRGPKGPROCEDURE.UPDATE_DRG_RESULT(:Message,:Code,:mdcs,:pdcs,:dcs,:rest_id,:series,:tags,:drgs)");
+            CallableStatement updatedrgresult = connection.prepareCall("call DRGPKGPROCEDURE.UPDATE_DRG_RESULT(:Message,:Code,:umdc,:updc,:udc,:uresultid,:useries,:utags,:udrg)");
             updatedrgresult.registerOutParameter("Message", OracleTypes.VARCHAR);
             updatedrgresult.registerOutParameter("Code", OracleTypes.INTEGER);
-            updatedrgresult.setString("mdcs", mdcs);
-            updatedrgresult.setString("pdcs", pdcs);
-            updatedrgresult.setString("dcs", dcs);
-            updatedrgresult.setString("rest_id", result_id);
-            updatedrgresult.setString("series", series);
-            updatedrgresult.setString("tags", tagss.trim());
-            updatedrgresult.setString("drgs", drg);
+            updatedrgresult.setString("umdc", mdcs);
+            updatedrgresult.setString("updc", pdcs);
+            updatedrgresult.setString("udc", dcs);
+            updatedrgresult.setString("uresultid", result_id);
+            updatedrgresult.setString("useries", series);
+            updatedrgresult.setString("utags", tagss.trim());
+            updatedrgresult.setString("udrg", drg);
             updatedrgresult.executeUpdate();
             if (updatedrgresult.getString("Message").equals("SUCC")) {
                 result.setSuccess(true);
-            } else {
-                result.setSuccess(false);
             }
             result.setMessage(updatedrgresult.getString("Code"));
             result.setResult(updatedrgresult.getString("Message"));
@@ -587,29 +588,29 @@ public class GrouperMethod {
             final String p_details,
             final String p_status) {
         DRGWSResult result = utility.DRGWSResult();
+        result.setResult("");
+        result.setMessage("");
+        result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-
             SimpleDateFormat sdf = utility.SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             Date date = new Date();
             CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.INSERT_GROUPER_AUDITRAIL(:Message,:Code,"
-                    + ":p_datein,:p_series,:p_claimnumber,:p_details,:p_status)");
+                    + ":udatein,:useries,:uclaimnumber,:udesc,:ustats)");
             auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
             auditrail.registerOutParameter("Code", OracleTypes.INTEGER);
             //=====================================================================End Process SDx duplication================================ 
-            auditrail.setString("p_datein", sdf.format(date));
-            auditrail.setString("p_series", p_series);
-            auditrail.setString("p_claimnumber", p_claimnumber);
-            auditrail.setString("p_details", p_details);
-            auditrail.setString("p_status", p_status);
+            auditrail.setString("udatein", sdf.format(date));
+            auditrail.setString("useries", p_series);
+            auditrail.setString("uclaimnumber", p_claimnumber);
+            auditrail.setString("udesc", p_details);
+            auditrail.setString("ustats", p_status);
             auditrail.execute();
-            //======================================================================
-
             if (auditrail.getString("Message").equals("SUCC")) {
                 result.setSuccess(true);
+                result.setMessage(auditrail.getString("Message"));
             } else {
-                result.setSuccess(false);
+                result.setMessage(auditrail.getString("Message"));
             }
-            result.setMessage(auditrail.getString("Message"));
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
@@ -618,81 +619,83 @@ public class GrouperMethod {
     }
 
     //public MethodResult GET PDC MAIN TABLE
-    public DRGWSResult InsertDRGResult(final DataSource datasource,
-            final String series,
-            final String lhio,
-            final String pdx,
-            final String sdx,
-            final String proc,
-            final String result_id) {
-        DRGWSResult result = utility.DRGWSResult();
-        try (Connection connection = datasource.getConnection()) {
-            String tagss = "FG";
-
-            CallableStatement grouperdata = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.INSERT_DRG_RESULT(:Message,:Code,:rest_id,:series,:tags,:lhio,:pdx,:sdx,:proc)");
-            grouperdata.registerOutParameter("Message", OracleTypes.VARCHAR);
-            grouperdata.registerOutParameter("Code", OracleTypes.INTEGER);
-            //=====================================================================Process SDx duplication================================
-
-            List<String> SDXList = Arrays.asList(sdx.split(","));
-            LinkedList<String> duplicate = new LinkedList<>();
-            LinkedList<String> newlist = new LinkedList<>();
-            for (int y = 0; y < SDXList.size(); y++) {
-                newlist.add(SDXList.get(y));
-            }
-            for (int i = 0; i < SDXList.size() - 1; i++) {
-                for (int j = i + 1; j < SDXList.size(); j++) {
-                    if (SDXList.get(i).equals(SDXList.get(j)) && (i != j)) {
-                        duplicate.add(SDXList.get(j));
-                        newlist.remove(SDXList.get(j));
-                    }
-                }
-            }
-            //==================================================================
-            //START HERE
-            List<String> ProcList = Arrays.asList(proc.split(","));
-            LinkedList<String> procduplicate = new LinkedList<>();
-            LinkedList<String> procnewlist = new LinkedList<>();
-
-            for (int y = 0; y < ProcList.size(); y++) {
-                procnewlist.add(ProcList.get(y));
-            }
-            for (int i = 0; i < ProcList.size() - 1; i++) {
-                for (int j = i + 1; j < ProcList.size(); j++) {
-                    if (ProcList.get(i).equals(ProcList.get(j)) && (i != j)) {
-                        procduplicate.add(ProcList.get(j));
-                        procnewlist.remove(ProcList.get(j));
-                    }
-                }
-            }
-
-            //=====================================================================End Process SDx duplication================================ 
-            grouperdata.setString("rest_id", result_id);
-            grouperdata.setString("series", series);
-            grouperdata.setString("tags", tagss.trim());
-            grouperdata.setString("lhio", lhio);
-            grouperdata.setString("pdx", pdx);
-            if (duplicate.isEmpty()) {
-                grouperdata.setString("sdx", sdx);
-            } else {
-                grouperdata.setString("sdx", String.join(",", newlist));
-            }
-            grouperdata.setString("proc", proc);
-            grouperdata.executeUpdate();
-            result.setMessage(grouperdata.getString("Code"));
-            result.setResult(grouperdata.getString("Message"));
-            if (grouperdata.getString("Message").equals("SUCC")) {
-                result.setSuccess(true);
-            } else {
-                result.setSuccess(false);
-            }
-
-        } catch (SQLException ex) {
-            result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return result;
-    }
+//    public DRGWSResult InsertDRGResult(final DataSource datasource,
+//            final String series,
+//            final String lhio,
+//            final String pdx,
+//            final String sdx,
+//            final String proc,
+//            final String result_id,
+//            final String claimid) {
+//        DRGWSResult result = utility.DRGWSResult();
+//        result.setResult("");
+//        result.setMessage("");
+//        result.setSuccess(false);
+//        try (Connection connection = datasource.getConnection()) {
+//            String tagss = "FG";
+//            CallableStatement grouperdata = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.INSERT_DRG_RESULT(:Message,:Code,:uclaimid,:uresultid,:useries,:utags,:ulhio,:updxcode,:usdxcode,:uproc)");
+//            grouperdata.registerOutParameter("Message", OracleTypes.VARCHAR);
+//            grouperdata.registerOutParameter("Code", OracleTypes.INTEGER);
+//            //=====================================================================Process SDx duplication================================
+//            List<String> SDXList = Arrays.asList(sdx.split(","));
+//            LinkedList<String> duplicate = new LinkedList<>();
+//            LinkedList<String> newlist = new LinkedList<>();
+//            for (int y = 0; y < SDXList.size(); y++) {
+//                newlist.add(SDXList.get(y));
+//            }
+//            for (int i = 0; i < SDXList.size() - 1; i++) {
+//                for (int j = i + 1; j < SDXList.size(); j++) {
+//                    if (SDXList.get(i).equals(SDXList.get(j)) && (i != j)) {
+//                        duplicate.add(SDXList.get(j));
+//                        newlist.remove(SDXList.get(j));
+//                    }
+//                }
+//            }
+//            //==================================================================
+//            //START HERE
+//            List<String> ProcList = Arrays.asList(proc.split(","));
+//            LinkedList<String> procduplicate = new LinkedList<>();
+//            LinkedList<String> procnewlist = new LinkedList<>();
+//
+//            for (int y = 0; y < ProcList.size(); y++) {
+//                procnewlist.add(ProcList.get(y));
+//            }
+//            for (int i = 0; i < ProcList.size() - 1; i++) {
+//                for (int j = i + 1; j < ProcList.size(); j++) {
+//                    if (ProcList.get(i).equals(ProcList.get(j)) && (i != j)) {
+//                        procduplicate.add(ProcList.get(j));
+//                        procnewlist.remove(ProcList.get(j));
+//                    }
+//                }
+//            }
+//
+//            //=====================================================================End Process SDx duplication================================ 
+//            grouperdata.setString("rest_id", result_id);
+//            grouperdata.setString("series", series);
+//            grouperdata.setString("tags", tagss.trim());
+//            grouperdata.setString("lhio", lhio);
+//            grouperdata.setString("pdx", pdx);
+//            if (duplicate.isEmpty()) {
+//                grouperdata.setString("sdx", sdx);
+//            } else {
+//                grouperdata.setString("sdx", String.join(",", newlist));
+//            }
+//            grouperdata.setString("proc", proc);
+//            grouperdata.executeUpdate();
+//            result.setMessage(grouperdata.getString("Code"));
+//            result.setResult(grouperdata.getString("Message"));
+//            if (grouperdata.getString("Message").equals("SUCC")) {
+//                result.setSuccess(true);
+//            } else {
+//                result.setSuccess(false);
+//            }
+//
+//        } catch (SQLException ex) {
+//            result.setMessage(ex.toString());
+//            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return result;
+//    }
 
     //public MethodResult POST(final String token, final String stringurl, final String stringrequest) {
     public DRGWSResult GetICD9cm(final DataSource datasource, final String procS) {
