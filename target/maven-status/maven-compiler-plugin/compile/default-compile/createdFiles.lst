@@ -9,6 +9,7 @@ grouper\structures\PreMDC.class
 grouper\structures\CombinationCode.class
 grouper\methods\mdc\GetMDC10.class
 grouper\methods\mdc\GetMDC20.class
+drgseeker\utilities\SeekerMethods$1.class
 drgseeker\utilities\SeekerUser.class
 grouper\structures\PCOM.class
 grouper\structures\DRGPayload.class

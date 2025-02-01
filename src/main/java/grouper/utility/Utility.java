@@ -25,6 +25,7 @@ import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -744,6 +745,18 @@ public class Utility {
             password.append(ALL_CHARS.charAt(RANDOM.nextInt(ALL_CHARS.length())));
         }
         return password.toString();
-    }            
+    }
+
+    public boolean isParsableDate(String dateString, String dateFormat) {
+        boolean result = false;
+        DateFormat sdf = this.SimpleDateFormat(dateFormat);
+        sdf.setLenient(false);
+        try {
+            sdf.parse(dateString);
+            result = true;
+        } catch (ParseException e) {
+        }
+        return result;
+    }
 
 }

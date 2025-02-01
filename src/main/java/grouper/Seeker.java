@@ -101,7 +101,9 @@ public class Seeker {
     @GET
     @Path("GetUserByID/{puserid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult GetUserByID(@PathParam("puserid") String puserid, @HeaderParam("token") String token) {
+    public DRGWSResult GetUserByID(
+            @PathParam("puserid") String puserid, 
+            @HeaderParam("token") String token) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -188,7 +190,7 @@ public class Seeker {
     public DRGWSResult ForgetPassword(
             @HeaderParam("mail") String mail) {
         DRGWSResult result = utility.DRGWSResult();
-        DRGWSResult Updatepass = new SeekerMethods().ForgatPassword(dataSource, mail, utility.GenerateRandomPassword(10), session);
+        DRGWSResult Updatepass = new SeekerMethods().TestEmailSender(dataSource, mail, utility.GenerateRandomPassword(10));
         result.setMessage(Updatepass.getMessage());
         result.setResult(Updatepass.getResult());
         result.setSuccess(Updatepass.isSuccess());
@@ -281,7 +283,7 @@ public class Seeker {
     public DRGWSResult TestInsertUser(
             final SeekerUser user) {
         DRGWSResult result = utility.DRGWSResult();
-        DRGWSResult insertresult = new SeekerMethods().UserInsert(dataSource, user, session);
+        DRGWSResult insertresult = new SeekerMethods().TestUserInsert(dataSource, user);
         result.setMessage(insertresult.getMessage());
         result.setSuccess(insertresult.isSuccess());
         result.setResult(insertresult.getResult());

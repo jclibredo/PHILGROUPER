@@ -55,19 +55,10 @@ public class Grouper {
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GetGrouper() {
         DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
-        String tags = "FG";
-        try {
-            DRGWSResult getgrouperresult = new GrouperMethod().GetGrouper(datasource, tags.trim());
-            result.setMessage(getgrouperresult.getMessage());
-            result.setSuccess(getgrouperresult.isSuccess());
-            result.setResult(getgrouperresult.getResult());
-        } catch (Exception ex) {
-            result.setMessage(ex.toString());
-            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        DRGWSResult getgrouperresult = new GrouperMethod().GetGrouper(datasource, "FG".trim());
+        result.setMessage(getgrouperresult.getMessage());
+        result.setSuccess(getgrouperresult.isSuccess());
+        result.setResult(getgrouperresult.getResult());
         return result;
     }
 
@@ -120,7 +111,6 @@ public class Grouper {
             } else {
                 result.setMessage("NO DATA AVAILABLE TO PROCESS");
             }
-
         } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
@@ -128,11 +118,25 @@ public class Grouper {
         return result;
     }
 
+    //THIS METHOD IS FOR DRG CLAIMS SUBMISSION FULL IMPLEMENTATION
+    @POST
+    @Path("DRGClaimsData")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult DRGClaimsData(final GrouperParameter grouperparameter) {
+        DRGWSResult result = utility.DRGWSResult();
+        DRGWSResult grouperResult = new ProcessGrouperParameter().ProcessGrouperParameter(datasource, grouperparameter);
+        result.setMessage(grouperResult.getMessage());
+        result.setResult(grouperResult.getResult());
+        result.setSuccess(grouperResult.isSuccess());
+        return result;
+    }
+
     @POST
     @Path("PhilSeeker")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult doPhilSeeker(@HeaderParam("token") String token, final List<GrouperParameter> grouperparameter) {
+    public DRGWSResult PhilSeeker(@HeaderParam("token") String token, final List<GrouperParameter> grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -175,17 +179,9 @@ public class Grouper {
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GenerateToken(final DRGPayload payload) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
-        try {
-            result.setMessage("OK");
-            result.setResult(utility.GenerateToken(payload.getCode1(), payload.getCode2(), payload.getCode3()));
-            result.setSuccess(true);
-        } catch (Exception ex) {
-            result.setMessage(ex.toString());
-            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        result.setMessage("OK");
+        result.setResult(utility.GenerateToken(payload.getCode1(), payload.getCode2(), payload.getCode3()));
+        result.setSuccess(true);
         return result;
     }
 }

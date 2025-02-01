@@ -16,7 +16,7 @@ public class DRGOutput {
 
     public DRGOutput() {
     }
-
+    private String resultid;
     private String RW;
     private String WTLOS;
     private String OT;

@@ -45,8 +45,6 @@ public class ProcessGrouperParameter {
         result.setSuccess(false);
         GrouperMethod gm = new GrouperMethod();
         try {
-//            File path = new File("D:\\DRG Result Log Files\\LogFileForgrouperResult.txt");
-            //  for (int g = 0; g < grouperparameter.size(); g++) {
             DRGOutput drgresult = utility.DRGOutput();
             GrouperParameter newGrouperParam = utility.GrouperParameter();
             //======================== TIME FORMAT CONVERTER ==============================
@@ -78,7 +76,6 @@ public class ProcessGrouperParameter {
             } else {
                 newGrouperParam.setProc(grouperparameter.getProc());
             }
-
             newGrouperParam.setResult_id(grouperparameter.getResult_id());
             //CLEANING SDX
             if (!grouperparameter.getSdx().isEmpty()) {
@@ -274,6 +271,7 @@ public class ProcessGrouperParameter {
                             newGrouperParam.getResult_id(),
                             newGrouperParam.getClaimseries(),
                             drgResults.getDRG());
+                    drgResults.setResultid(newGrouperParam.getResult_id());
                     result.setSuccess(true);
                     result.setResult(utility.objectMapper().writeValueAsString(drgResults));
                     result.setMessage(validateresult.getMessage());

@@ -28,6 +28,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -234,6 +235,33 @@ public class GrouperMethod {
         return result;
     }
 
+    public DRGWSResult GETPATIENTBDAY(
+            final DataSource datasource,
+            final String seriesnum) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        try (Connection connection = datasource.getConnection()) {
+            CallableStatement statement = connection.prepareCall("begin :nclaims := DRG_SHADOWBILLING.UHCDRGPKG.GET_NCLAIMS(:seriesnum); end;");
+            statement.registerOutParameter("nclaims", OracleTypes.CURSOR);
+            statement.setString("seriesnum", seriesnum.trim());
+            statement.execute();
+            ResultSet resultSet = (ResultSet) statement.getObject("nclaims");
+            if (resultSet.next()) {
+                if (resultSet.getString("DATEOFBIRTH") != null && !resultSet.getString("DATEOFBIRTH").isEmpty() && !resultSet.getString("DATEOFBIRTH").equals("")) {
+                    result.setResult(resultSet.getString("DATEOFBIRTH"));
+                    result.setSuccess(true);
+                    result.setMessage("OK");
+                }
+            }
+        } catch (Exception ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
     // Get Data from NCLaims and Process for grouper
     public DRGWSResult GetGrouper(final DataSource datasource, final String tagss) {
         DRGWSResult result = utility.DRGWSResult();
@@ -241,8 +269,6 @@ public class GrouperMethod {
         result.setResult("");
         result.setSuccess(false);
         ArrayList<String> errorList = new ArrayList<>();
-        SimpleDateFormat timeformat = utility.SimpleDateFormat("HH:mm");
-        SimpleDateFormat dateformat = utility.SimpleDateFormat("MM-dd-yyyy");
         ArrayList<GrouperParameter> grouperparameterlsit = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
             CallableStatement getDRGParam = connection.prepareCall("begin :drgresult := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
@@ -257,7 +283,7 @@ public class GrouperMethod {
                 //======================================================GET GROUPER RESULT
                 drgresultparam.setResult_id(getDRGParamResult.getString("RESULT_ID"));
                 ggrouperparameter.setResult_id(getDRGParamResult.getString("RESULT_ID"));
-                drgresultparam.setSeriesnum(getDRGParamResult.getString("CLAIMS_SERRIES"));
+                drgresultparam.setSeriesnum(getDRGParamResult.getString("CLAIMS_SERIES"));
                 if (getDRGParamResult.getString("PDX") == null) {
                     drgresultparam.setPdx("");
                     ggrouperparameter.setPdx("");
@@ -288,70 +314,49 @@ public class GrouperMethod {
                 //========================================== DRG XML GET PATIENT INFO
                 CallableStatement getdrg_info = connection.prepareCall("begin :getdrginfo := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG_INFO(:seriesnums); end;");
                 getdrg_info.registerOutParameter("getdrginfo", OracleTypes.CURSOR);
-                getdrg_info.setString("seriesnums", getDRGParamResult.getString("CLAIMS_SERRIES").trim());
+                getdrg_info.setString("seriesnums", getDRGParamResult.getString("CLAIMS_SERIES").trim());
                 getdrg_info.execute();
-                ResultSet getdrg_infoResult = (ResultSet) getdrg_info.getObject("getdrginfo");
-                if (getdrg_infoResult.next()) {
-                    ggrouperparameter.setAdmissionWeight(getdrg_infoResult.getString("NB_ADMWEIGHT"));
+                ResultSet infoResult = (ResultSet) getdrg_info.getObject("getdrginfo");
+                if (infoResult.next()) {
+                    ggrouperparameter.setAdmissionWeight(infoResult.getString("NB_ADMWEIGHT"));
                 }
                 //==============================================ECLAIMS XML GET NCLAIMS DATA============================================================
-                CallableStatement getdrg_nclaims = connection.prepareCall("begin :nclaims := DRG_SHADOWBILLING.UHCDRGPKG.GET_NCLAIMS(:seriesnumss); end;");
-                getdrg_nclaims.registerOutParameter("nclaims", OracleTypes.CURSOR);
-                getdrg_nclaims.setString("seriesnumss", getDRGParamResult.getString("CLAIMS_SERRIES"));
-                getdrg_nclaims.execute();
-                ResultSet getdrg_nclaims_result = (ResultSet) getdrg_nclaims.getObject("nclaims");
-                if (getdrg_nclaims_result.next()) {
-                    ggrouperparameter.setClaimseries(getDRGParamResult.getString("CLAIMS_SERRIES"));
-                    //EXPIREDTIME
-                    if (getdrg_nclaims_result.getTimestamp("EXPIREDTIME") == null) {
-                        ggrouperparameter.setExpireTime("");
-                    } else {
-                        ggrouperparameter.setExpireTime(timeformat.format(getdrg_nclaims_result.getTimestamp("EXPIREDTIME")));
-                    }
-                    //TIMEADMISSION
-                    if (getdrg_nclaims_result.getTimestamp("TIMEADMISSION") == null) {
-                        ggrouperparameter.setTimeAdmission("");
-                    } else {
-                        ggrouperparameter.setTimeAdmission(timeformat.format(getdrg_nclaims_result.getTimestamp("TIMEADMISSION")));
-                    }
-                    //TIMEDISCHARGE
-                    if (getdrg_nclaims_result.getTimestamp("TIMEDISCHARGE") == null) {
-                        ggrouperparameter.setTimeDischarge("");
-                    } else {
-                        ggrouperparameter.setTimeDischarge(timeformat.format(getdrg_nclaims_result.getTimestamp("TIMEDISCHARGE")));
-                    }
-                    //===============================FECTHING DATE AREA ========================================================
-                    //DISCHARGEDATE
-                    if (getdrg_nclaims_result.getTimestamp("DISCHARGEDATE") == null) {
-                        ggrouperparameter.setDischargeDate("");
-                    } else {
-                        ggrouperparameter.setDischargeDate(dateformat.format(getdrg_nclaims_result.getTimestamp("DISCHARGEDATE")));
-                    }
-                    //ADMISSIONDATE
-                    if (getdrg_nclaims_result.getTimestamp("ADMISSIONDATE") == null) {
-                        ggrouperparameter.setAdmissionDate("");
-                    } else {
-                        ggrouperparameter.setAdmissionDate(dateformat.format(getdrg_nclaims_result.getTimestamp("ADMISSIONDATE")));
-                    }
+                CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.UHCDRGPKG.GETPATIENTDATA(:seriesnum); end;");
+                statement.registerOutParameter("v_result", OracleTypes.CURSOR);
+                statement.setString("seriesnum", getDRGParamResult.getString("CLAIMS_SERIES"));
+                statement.execute();
+                ResultSet resultSet = (ResultSet) statement.getObject("v_result");
+                if (resultSet.next()) {
                     //EXPIREDDATE
-                    if (getdrg_nclaims_result.getTimestamp("EXPIREDDATE") == null) {
-                        ggrouperparameter.setExpiredDate("");
-                    } else {
-                        ggrouperparameter.setExpiredDate(dateformat.format(getdrg_nclaims_result.getTimestamp("EXPIREDDATE")));
-                    }
+                    ggrouperparameter.setExpiredDate(resultSet.getString("EXPIREDDATE") == null ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("EXPIREDDATE")));
+                    //EXPIREDTIME
+                    ggrouperparameter.setExpireTime(resultSet.getString("EXPIREDTIME") == null ? "" : utility.SimpleDateFormat("HH:mm").format(resultSet.getTimestamp("EXPIREDTIME")));
+                    //ADMISSIONDATE
+                    ggrouperparameter.setAdmissionDate(resultSet.getString("ADMISSIONDATE") == null ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("ADMISSIONDATE")));
+                    //TIMEADMISSION
+                    ggrouperparameter.setTimeAdmission(resultSet.getString("TIMEADMISSION") == null ? "" : utility.SimpleDateFormat("HH:mm").format(resultSet.getTimestamp("TIMEADMISSION")));
+                    //DISCHARGETIME
+                    ggrouperparameter.setTimeDischarge(resultSet.getString("TIMEDISCHARGE") == null ? "" : utility.SimpleDateFormat("HH:mm").format(resultSet.getTimestamp("TIMEDISCHARGE")));
+                    //DISCHARGEDATE
+                    ggrouperparameter.setDischargeDate(resultSet.getString("DISCHARGEDATE") == null ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DISCHARGEDATE")));
                     //DATEOFBIRTH
-                    if (getdrg_nclaims_result.getTimestamp("DATEOFBIRTH") == null) {
+                    if (this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess()) {
+                        if (utility.isParsableDate(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult(), "MM/dd/yyyy")) {
+                            ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess() ? ""
+                                    : utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult())));
+                        } else {
+                            ggrouperparameter.setBirthDate("");
+                        }
+                    } else {
                         ggrouperparameter.setBirthDate("");
-                    } else {
-                        ggrouperparameter.setBirthDate(dateformat.format(getdrg_nclaims_result.getTimestamp("DATEOFBIRTH")));
                     }
-
-                    if (getdrg_nclaims_result.getString("GENDER") == null) {
-                        ggrouperparameter.setGender("");
-                    } else {
-                        ggrouperparameter.setGender(getdrg_nclaims_result.getString("GENDER"));
-                    }
-                    switch (getdrg_nclaims_result.getString("DISCHARGETYPE")) {
+                    //ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess() ? ""
+                    //       : utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult())));
+                    //GENDER
+                    ggrouperparameter.setGender(resultSet.getString("GENDER") == null ? "" : resultSet.getString("GENDER"));
+                    //SERIES
+                    ggrouperparameter.setClaimseries(getDRGParamResult.getString("CLAIMS_SERIES"));
+                    switch (resultSet.getString("DISCHARGETYPE")) {
                         case "E":
                             ggrouperparameter.setDischargeType("8");
                             break;
@@ -376,16 +381,13 @@ public class GrouperMethod {
                             break;
                     }
                     grouperparameterlsit.add(ggrouperparameter);
-
                 } else {
-                    errorList.add(getDRGParamResult.getString("CLAIMS_SERRIES") + " NOT FOUND");
-                    //AUDIT TRAIL FOR NOT FOUND SERRIES
+                    errorList.add(getDRGParamResult.getString("CLAIMS_SERIES") + " NOT FOUND");
                 }
                 stopper++;
                 if (stopper == 500) {
                     break;
                 }
-
             }
             ArrayList<DRGOutput> drgresultList = new ArrayList<>();
             for (int y = 0; y < grouperparameterlsit.size(); y++) {
@@ -395,7 +397,6 @@ public class GrouperMethod {
                     drgresultList.add(drgout);
                 }
             }
-
             if (!drgresultList.isEmpty()) {
                 result.setSuccess(true);
                 result.setMessage("OK");
@@ -405,6 +406,8 @@ public class GrouperMethod {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
+            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -696,7 +699,6 @@ public class GrouperMethod {
 //        }
 //        return result;
 //    }
-
     //public MethodResult POST(final String token, final String stringurl, final String stringrequest) {
     public DRGWSResult GetICD9cm(final DataSource datasource, final String procS) {
         DRGWSResult result = utility.DRGWSResult();
