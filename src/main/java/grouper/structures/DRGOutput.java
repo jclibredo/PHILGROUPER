@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  *
- * @author DRG_SHADOWBILLING
+ * @author MINOSUN
  */
 @Data
 public class DRGOutput {
@@ -28,4 +28,5 @@ public class DRGOutput {
     private String PDC;
     private String CC;
     private String SDXFINDER;
+    private String claimseries;
 }

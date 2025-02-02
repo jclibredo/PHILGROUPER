@@ -24,7 +24,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 /**
  *
- * @author DRG_SHADOWBILLING
+ * @author MINOSUN
  */
 @RequestScoped
 public class ValidateFindMDC {
