@@ -380,6 +380,9 @@ public class GrouperMethod {
                             ggrouperparameter.setDischargeType("");
                             break;
                     }
+                    
+                    
+                    
                     grouperparameterlsit.add(ggrouperparameter);
                 } else {
                     errorList.add(getDRGParamResult.getString("CLAIMS_SERIES") + " NOT FOUND");
