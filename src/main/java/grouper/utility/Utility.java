@@ -52,7 +52,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
- * @author MINOSUN
+ * @author DRG_SHADOWBILLING
  */
 @ApplicationScoped
 @Singleton
@@ -209,7 +209,9 @@ public class Utility {
         return result;
     }
 
-    public DRGWSResult GetPayload(final DataSource dataSource, final String token) {
+    public DRGWSResult GetPayload(
+            final DataSource dataSource,
+            final String token) {
         DRGWSResult result = this.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -225,12 +227,12 @@ public class Utility {
                         payload.setCode1(this.DecryptString((String) claims.get("Code1")));
                         payload.setCode2(this.DecryptString((String) claims.get("Code2")));
                         payload.setExp(claims.getExpiration());
-                        if (new SeekerMethods().UserLogin(dataSource, this.DecryptString((String) claims.get("Code1")), this.DecryptString((String) claims.get("Code2")), "10000").isSuccess()) {
-                            result.setSuccess(true);
-                            result.setResult(this.objectMapper().writeValueAsString(payload));
-                        } else {
-                            result.setMessage("Unrecognized User");
-                        }
+//                        if (new SeekerMethods().ValidatePayloadValue(dataSource, this.DecryptString((String) claims.get("Code1")), this.DecryptString((String) claims.get("Code2")), "10000").isSuccess()) {
+                        result.setSuccess(true);
+                        result.setResult(this.objectMapper().writeValueAsString(payload));
+//                        } else {
+//                            result.setMessage("Unrecognized User");
+//                        }
                     } else {
                         result.setMessage("Token is expired");
                     }

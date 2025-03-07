@@ -34,7 +34,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * REST Web Service
  *
- * @author MINOSUN
+ * @author DRG_SHADOWBILLING
  */
 @Path("Seeker")
 public class Seeker {
@@ -102,7 +102,7 @@ public class Seeker {
     @Path("GetUserByID/{puserid}")
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GetUserByID(
-            @PathParam("puserid") String puserid, 
+            @PathParam("puserid") String puserid,
             @HeaderParam("token") String token) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -116,6 +116,29 @@ public class Seeker {
             result.setMessage(getResult.getMessage());
             result.setResult(getResult.getResult());
             result.setSuccess(getResult.isSuccess());
+        }
+        return result;
+    }
+
+    @POST
+    @Path("ValidateCode")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult ValidateCode(
+            @HeaderParam("token") String token,
+            final SeekerUser user) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
+        if (!GetPayLoad.isSuccess()) {
+            result.setMessage(GetPayLoad.getMessage());
+        } else {
+            DRGWSResult resultOtp = new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp());
+            result.setMessage(resultOtp.getMessage());
+            result.setSuccess(resultOtp.isSuccess());
+            result.setResult(resultOtp.getResult());
         }
         return result;
     }
@@ -179,7 +202,7 @@ public class Seeker {
             @HeaderParam("email") String email,
             @HeaderParam("password") String password,
             @HeaderParam("expire") String expire) {
-        DRGWSResult insertresult = new SeekerMethods().UserLogin(dataSource, email.trim(), password, expire.trim());
+        DRGWSResult insertresult = new SeekerMethods().UserLogin(dataSource, email.trim(), password, expire.trim(), session);
         return insertresult;
     }
 
@@ -190,12 +213,13 @@ public class Seeker {
     public DRGWSResult ForgetPassword(
             @HeaderParam("mail") String mail) {
         DRGWSResult result = utility.DRGWSResult();
-        DRGWSResult Updatepass = new SeekerMethods().TestEmailSender(dataSource, mail, utility.GenerateRandomPassword(10));
+        DRGWSResult Updatepass = new SeekerMethods().TestEmailSender(dataSource, mail, utility.GenerateRandomPassword(10), "FORGET", "OTP");
         result.setMessage(Updatepass.getMessage());
         result.setResult(Updatepass.getResult());
         result.setSuccess(Updatepass.isSuccess());
         return result;
     }
+
 
     @GET
     @Path("GetCaptchaCode")
@@ -207,7 +231,7 @@ public class Seeker {
         result.setResult(utility.Create2FACode());
         return result;
     }
-
+    
     @GET
     @Path("GetRVS")
     @Produces(MediaType.APPLICATION_JSON)
@@ -299,6 +323,19 @@ public class Seeker {
         result.setMessage("Passcode Enrypted");
         result.setResult(new Cryptor().encrypt(password, password, "SEEKER"));
         result.setSuccess(true);
+        return result;
+    }
+
+    @GET
+    @Path("GenerateToken/{username}/{password}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GenerateToken(
+            @PathParam("username") String username,
+            @PathParam("password") String password) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("OK");
+        result.setSuccess(true);
+        result.setResult(utility.GenerateToken(username, password, "480000"));
         return result;
     }
 

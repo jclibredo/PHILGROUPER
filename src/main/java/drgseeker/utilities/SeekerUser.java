@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  *
- * @author MINOSUN
+ * @author DRG_SHADOWBILLING
  */
 @Data
 public class SeekerUser {
@@ -27,5 +27,6 @@ public class SeekerUser {
     private String dateupdated;
     private String updatedby;
     private String token;
+    private String otp;
 
 }

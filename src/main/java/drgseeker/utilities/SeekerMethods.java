@@ -34,7 +34,7 @@ import javax.mail.PasswordAuthentication;
 
 /**
  *
- * @author MINOSUN
+ * @author DRG_SHADOWBILLING
  */
 @RequestScoped
 public class SeekerMethods {
@@ -52,7 +52,7 @@ public class SeekerMethods {
                 result.setMessage("Email is already exist");
             } else {
                 String encryptpword = new Cryptor().encrypt(seekerUser.getPassword(), seekerUser.getPassword(), "SEEKER");
-                CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
+                CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
                 statement.registerOutParameter("Message", OracleTypes.VARCHAR);
                 statement.registerOutParameter("Code", OracleTypes.INTEGER);
                 statement.setString("pemail", seekerUser.getEmail().trim());
@@ -66,7 +66,7 @@ public class SeekerMethods {
                 if (statement.getString("Message").equals("SUCC")) {
                     result.setSuccess(true);
                     result.setMessage(statement.getString("Message"));
-                    this.EmailSender(dataSource, seekerUser.getEmail().trim(), seekerUser.getPassword(), mailsession);
+                    this.EmailSender(dataSource, seekerUser.getEmail().trim(), seekerUser.getPassword(), mailsession, "ACCOUNT");
                 } else {
                     result.setMessage(statement.getString("Message"));
                 }
@@ -90,7 +90,7 @@ public class SeekerMethods {
                 result.setMessage("Email is already exist");
             } else {
                 String encryptpword = new Cryptor().encrypt(seekerUser.getPassword(), seekerUser.getPassword(), "SEEKER");
-                CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
+                CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
                 statement.registerOutParameter("Message", OracleTypes.VARCHAR);
                 statement.registerOutParameter("Code", OracleTypes.INTEGER);
                 statement.setString("pemail", seekerUser.getEmail().trim());
@@ -104,7 +104,7 @@ public class SeekerMethods {
                 if (statement.getString("Message").equals("SUCC")) {
                     result.setSuccess(true);
                     result.setMessage(statement.getString("Message"));
-                    this.TestEmailSender(dataSource, seekerUser.getEmail().trim(), seekerUser.getPassword().trim());
+                    this.TestEmailSender(dataSource, seekerUser.getEmail().trim(), seekerUser.getPassword().trim(), "ACCOUNT", "OTP");
                 } else {
                     result.setMessage(statement.getString("Message"));
                 }
@@ -122,7 +122,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETUSERBYID(:puserid); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETUSERBYID(:puserid); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("puserid", puserid.trim());
             statement.execute();
@@ -165,7 +165,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETUSERBYUSERNAME(:pusername); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETUSERBYUSERNAME(:pusername); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("pusername", pusername.trim());
             statement.execute();
@@ -178,6 +178,7 @@ public class SeekerMethods {
                 user.setPassword(resultset.getString("PASSWORD"));
                 user.setRole(resultset.getString("ROLE"));
                 user.setStatus(resultset.getString("STATUS"));
+                user.setOtp(resultset.getString("OTP"));
                 if (resultset.getString("DATECREATED") != null) {
                     user.setDatecreated(datetimeformat.format(resultset.getTimestamp("DATECREATED")));
                 } else {
@@ -227,7 +228,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETALLUSER(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETALLUSER(); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.execute();
             ArrayList<SeekerUser> userList = new ArrayList<>();
@@ -290,7 +291,8 @@ public class SeekerMethods {
             final DataSource dataSource,
             final String uemail,
             final String upassword,
-            final String expire) {
+            final String expire,
+            final Session mailsession) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -302,21 +304,32 @@ public class SeekerMethods {
                 String decryptString = new Cryptor().decrypt(userA.getPassword(), upassword, "SEEKER");
                 if (decryptString.trim().equals(upassword)) {
                     if (userA.getStatus().trim().equals("A")) {
-                        SeekerUser user = new SeekerUser();
-                        user.setUserid(userA.getUserid());
-                        user.setCreatedby(userA.getCreatedby());
-                        user.setDatecreated(userA.getDatecreated());
-                        user.setDateupdated(userA.getDateupdated());
-                        user.setEmail(userA.getEmail());
-                        user.setName(userA.getName());
-                        user.setPassword(userA.getPassword());
-                        user.setRole(userA.getRole());
-                        user.setStatus(userA.getStatus());
-                        user.setToken(utility.GenerateToken(uemail, upassword, expire));
-                        user.setUpdatedby(userA.getUpdatedby());
-                        result.setMessage("OK");
-                        result.setSuccess(true);
-                        result.setResult(utility.objectMapper().writeValueAsString(user));
+                        String otpcode = utility.Create2FACode().toUpperCase().trim();
+                        if (this.POSTOTP(dataSource, userA.getUserid(), otpcode).isSuccess()) {
+                            //SEND OTP CODE TO GMAIL
+                            if (this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).isSuccess()) {
+//                            if (this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).isSuccess()) {
+                                SeekerUser user = new SeekerUser();
+                                user.setUserid(userA.getUserid());
+                                user.setCreatedby(userA.getCreatedby());
+                                user.setDatecreated(userA.getDatecreated());
+                                user.setDateupdated(userA.getDateupdated());
+                                user.setEmail(userA.getEmail());
+                                user.setName(userA.getName());
+                                user.setPassword(userA.getPassword());
+                                user.setRole(userA.getRole());
+                                user.setStatus(userA.getStatus());
+                                user.setToken(utility.GenerateToken(uemail, upassword, expire));
+                                user.setUpdatedby(userA.getUpdatedby());
+                                result.setMessage("OK");
+                                result.setSuccess(true);
+                                result.setResult(utility.objectMapper().writeValueAsString(user));
+                            } else {
+                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
+                            }
+                        } else {
+                            result.setMessage(this.POSTOTP(dataSource, userA.getUserid(), otpcode).getMessage());
+                        }
                     } else {
                         result.setMessage("LOGIN CREDENTIAL IS CURRENTLY DISABLED BY THE SYSTEM ADMIN");
                     }
@@ -325,6 +338,35 @@ public class SeekerMethods {
                 }
             } else {
                 result.setMessage("INVALID USERNAME OR PASSWORD");
+            }
+        } catch (IOException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public DRGWSResult VALIDATEOTP(
+            final DataSource dataSource,
+            final String uemail,
+            final String upassword,
+            final String uotp) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        try {
+            DRGWSResult getUserDetails = this.GetUserByUsername(dataSource, uemail.trim());
+            if (getUserDetails.isSuccess()) {
+                SeekerUser userA = utility.objectMapper().readValue(getUserDetails.getResult(), SeekerUser.class);
+                String decryptString = new Cryptor().decrypt(userA.getPassword(), upassword, "SEEKER");
+                if (decryptString.trim().equals(upassword)) {
+                    if (userA.getOtp().trim().equals(uotp.trim())) {
+                        result.setSuccess(true);
+                    } else {
+                        result.setMessage("OTP CODE NOT RECOGNIZED");
+                    }
+                }
             }
         } catch (IOException ex) {
             result.setMessage(ex.toString());
@@ -380,7 +422,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.edituser(:message,:code,:pemail,:ppassword,:prole,:puserid,:ustatus,:uname,:udateupdated,:uupdatedby)");
+            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.edituser(:message,:code,:pemail,:ppassword,:prole,:puserid,:ustatus,:uname,:udateupdated,:uupdatedby)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("pemail", seekerUser.getEmail().trim());
@@ -411,7 +453,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.COUNTEMAIL(:pusername); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.COUNTEMAIL(:pusername); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("pusername", pusername.trim());
             statement.execute();
@@ -431,7 +473,8 @@ public class SeekerMethods {
             final DataSource dataSource,
             final String uemail,
             final String randpass,
-            final Session mailSession) {
+            final Session mailSession,
+            final String type) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setSuccess(false);
@@ -440,9 +483,14 @@ public class SeekerMethods {
             Message message = new MimeMessage(mailSession);
             message.setFrom(new InternetAddress("noreply@philhealth.gov.ph", false));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(uemail.trim(), false));
-            message.setSubject("GROUPER SEEKER");
             message.setSentDate(new Date());
-            message.setText("ACCOUNT CREDENTIAL FOR PHL-DRGSEEKER USERNAME : " + uemail + " PASSWORD : " + randpass);
+            if (type.trim().equals("ACCOUNT")) {
+                message.setSubject("GROUPER SEEKER");
+                message.setText("ACCOUNT CREDENTIAL FOR PHL-DRGSEEKER USERNAME : " + uemail + " PASSWORD : " + randpass);
+            } else {
+                message.setSubject("GROUPER SEEKER OTP");
+                message.setText("LOGIN ACCOUNT PHL-DRGSEEKER OTP CODE : " + type.trim());
+            }
             Transport.send(message);
             result.setSuccess(true);
         } catch (MessagingException ex) {
@@ -499,7 +547,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.UPDATEPASSWORD(:message,:code,:puserid,:pemail,:ppasswordd)");
+            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.UPDATEPASSWORD(:message,:code,:puserid,:pemail,:ppasswordd)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("puserid", puserid.trim());
@@ -523,7 +571,9 @@ public class SeekerMethods {
     public DRGWSResult TestEmailSender(
             final DataSource dataSource,
             final String emailreciever,
-            final String randpass) {
+            final String randpass,
+            final String type,
+            final String otp) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setSuccess(false);
@@ -551,7 +601,11 @@ public class SeekerMethods {
             // Set To: header field of the header.
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(emailreciever.trim()));
             // Set Subject: header field
-            message.setSubject("DRG Claims");
+            if (type.trim().toUpperCase().equals("OTP")) {
+                message.setSubject("PHIL SEEKER OTP");
+            } else {
+                message.setSubject("PHIL SEEKER");
+            }
             //DRGWSResult validateUsername = new UserServicesGET().GETUSERBYPARAM(dataSource, "0", emailreciever, "OTHERS");
             DRGWSResult validateUsername = this.GetUserByUsername(dataSource, emailreciever);
             if (!validateUsername.isSuccess()) {
@@ -561,27 +615,38 @@ public class SeekerMethods {
                 if (randpass.length() > 0) {
                     // Now set the actual message
                     //message.setContent(utility.EmailSenderContent(email.getEmailto().trim(), randpass), "text/html");
-                    message.setText("Username : " + emailreciever + " Passcode " + randpass);
-                    DRGWSResult updatepassword = this.UPDATEPASSWORD(dataSource, user.getUserid(), emailreciever, randpass);
-                    if (updatepassword.isSuccess()) {
-                        result.setSuccess(true);
-                        result.setMessage("Account credentials successfully sent to " + emailreciever.trim());
+                    if (type.trim().toUpperCase().equals("OTP")) {
+                        message.setText("USER LOGIN OTP CODE " + otp);
                         Transport.send(message);
                     } else {
-                        result.setMessage(updatepassword.getMessage());
+                        message.setText("Username : " + emailreciever + " Passcode " + randpass);
+                        DRGWSResult updatepassword = this.UPDATEPASSWORD(dataSource, user.getUserid(), emailreciever, randpass);
+                        if (updatepassword.isSuccess()) {
+                            result.setSuccess(true);
+                            result.setMessage("Account credentials successfully sent to " + emailreciever.trim());
+                            Transport.send(message);
+                        } else {
+                            result.setMessage(updatepassword.getMessage());
+                        }
                     }
                 } else {
                     // Now set the actual message
                     String newPass = utility.GenerateRandomPassword(10);
                     //message.setContent(utility.EmailSenderContent(email.getEmailto(), newPass), "text/html");
-                    message.setText("Username : " + emailreciever + " Passcode " + newPass);
-                    DRGWSResult updatepassword = this.UPDATEPASSWORD(dataSource, user.getUserid(), emailreciever, newPass);
-                    if (updatepassword.isSuccess()) {
-                        result.setSuccess(true);
-                        result.setMessage("Account credentials successfully updated and sent to " + emailreciever.trim());
+                    if (type.trim().toUpperCase().equals("OTP")) {
+                        message.setText("USER LOGIN OTP CODE " + otp);
                         Transport.send(message);
                     } else {
-                        result.setMessage(updatepassword.getMessage());
+                        message.setText("Username : " + emailreciever + " Passcode " + newPass);
+                        DRGWSResult updatepassword = this.UPDATEPASSWORD(dataSource, user.getUserid(), emailreciever, newPass);
+                        if (updatepassword.isSuccess()) {
+                            result.setSuccess(true);
+                            result.setMessage("Account credentials successfully updated and sent to " + emailreciever.trim());
+                            Transport.send(message);
+                        } else {
+                            result.setMessage(updatepassword.getMessage());
+                        }
+
                     }
                 }
             }
@@ -591,6 +656,63 @@ public class SeekerMethods {
         } catch (UnsupportedEncodingException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public DRGWSResult POSTOTP(
+            final DataSource dataSource,
+            final String puserid,
+            final String potp) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        try (Connection connection = dataSource.getConnection()) {
+            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.POSTOTP(:message,:code,:puserid,:potp)");
+            statement.registerOutParameter("Message", OracleTypes.VARCHAR);
+            statement.registerOutParameter("Code", OracleTypes.INTEGER);
+            statement.setString("puserid", puserid.trim());
+            statement.setString("potp", potp.trim());
+            statement.execute();
+            if (statement.getString("Message").equals("SUCC")) {
+                result.setSuccess(true);
+            } else {
+                result.setMessage(statement.getString("Message"));
+            }
+        } catch (SQLException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public DRGWSResult ValidatePayloadValue(
+            final DataSource dataSource,
+            final String uemail,
+            final String upassword,
+            final String expire) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        try {
+            DRGWSResult getUserDetails = this.GetUserByUsername(dataSource, uemail.trim());
+            if (getUserDetails.isSuccess()) {
+                SeekerUser userA = utility.objectMapper().readValue(getUserDetails.getResult(), SeekerUser.class);
+                String decryptString = new Cryptor().decrypt(userA.getPassword(), upassword, "SEEKER");
+                if (decryptString.trim().equals(upassword)) {
+                    result.setMessage("OK");
+                    result.setSuccess(true);
+                } else {
+                    result.setMessage("INVALID USERNAME OR PASSWORD");
+                }
+            } else {
+                result.setMessage("INVALID USERNAME OR PASSWORD");
+            }
         } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
