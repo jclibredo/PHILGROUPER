@@ -42,6 +42,59 @@ public class SeekerMethods {
     private final Utility utility = new Utility();
     private final SimpleDateFormat datetimeformat = utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
 
+    public DRGWSResult GETTOKEN(final DataSource dataSource) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        try (Connection connection = dataSource.getConnection()) {
+            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETTOKEN(); end;");
+            statement.registerOutParameter("v_result", OracleTypes.CURSOR);
+            statement.execute();
+            ResultSet resultset = (ResultSet) statement.getObject("v_result");
+            if (resultset.next()) {
+                if (resultset.getString("TOKEN").isEmpty() || resultset.getString("TOKEN") == null || resultset.getString("TOKEN").equals("")) {
+                } else {
+                    result.setMessage("OK");
+                    result.setSuccess(true);
+                    result.setResult(resultset.getString("TOKEN"));
+                }
+            }
+        } catch (SQLException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public DRGWSResult InsertToken(
+            final DataSource dataSource,
+            final String ptoken) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        try (Connection connection = dataSource.getConnection()) {
+            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.TOKEN_S(:message,:code,:ptoken,:pdatecreated)");
+            statement.registerOutParameter("Message", OracleTypes.VARCHAR);
+            statement.registerOutParameter("Code", OracleTypes.INTEGER);
+            statement.setString("ptoken", ptoken.trim());
+            statement.setTimestamp("pdatecreated", new java.sql.Timestamp(utility.GetCurrentDate().getTime()));
+            statement.execute();
+            if (statement.getString("Message").equals("SUCC")) {
+                result.setSuccess(true);
+                result.setMessage(statement.getString("Message"));
+            } else {
+                result.setMessage(statement.getString("Message"));
+            }
+
+        } catch (SQLException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
     public DRGWSResult UserInsert(final DataSource dataSource, final SeekerUser seekerUser, final Session mailsession) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -135,17 +188,14 @@ public class SeekerMethods {
                 user.setPassword(resultset.getString("PASSWORD"));
                 user.setRole(resultset.getString("ROLE"));
                 user.setStatus(resultset.getString("STATUS"));
-                if (resultset.getString("DATECREATED") != null) {
-                    user.setDatecreated(datetimeformat.format(resultset.getTimestamp("DATECREATED")));
-                } else {
-                    user.setDatecreated("");
-                }
-                if (resultset.getString("DATEUPDATED") != null) {
-                    user.setDateupdated(datetimeformat.format(resultset.getTimestamp("DATEUPDATED")));
-                } else {
-                    user.setDateupdated("");
-                }
+                user.setDatecreated(resultset.getString("DATECREATED") == null
+                        || resultset.getString("DATECREATED").isEmpty()
+                        || resultset.getString("DATECREATED").equals("") ? "N/A" : datetimeformat.format(resultset.getTimestamp("DATECREATED")));
+                user.setDateupdated(resultset.getString("DATEUPDATED") == null
+                        || resultset.getString("DATEUPDATED").isEmpty()
+                        || resultset.getString("DATEUPDATED").equals("") ? "N/A" : datetimeformat.format(resultset.getTimestamp("DATEUPDATED")));
                 user.setUpdatedby(resultset.getString("UPDATEDBY"));
+                user.setOtp(resultset.getString("STATUS"));
                 result.setMessage("OK");
                 result.setSuccess(true);
                 result.setResult(utility.objectMapper().writeValueAsString(user));
@@ -179,35 +229,31 @@ public class SeekerMethods {
                 user.setRole(resultset.getString("ROLE"));
                 user.setStatus(resultset.getString("STATUS"));
                 user.setOtp(resultset.getString("OTP"));
-                if (resultset.getString("DATECREATED") != null) {
-                    user.setDatecreated(datetimeformat.format(resultset.getTimestamp("DATECREATED")));
+                user.setDatecreated(resultset.getString("DATECREATED") == null
+                        || resultset.getString("DATECREATED").isEmpty()
+                        || resultset.getString("DATECREATED").equals("") ? "N/A" : datetimeformat.format(resultset.getTimestamp("DATECREATED")));
+                user.setDateupdated(resultset.getString("DATEUPDATED") == null
+                        || resultset.getString("DATEUPDATED").isEmpty()
+                        || resultset.getString("DATEUPDATED").equals("") ? "N/A" : datetimeformat.format(resultset.getTimestamp("DATEUPDATED")));
+                if (resultset.getString("UPDATEDBY") == null || resultset.getString("UPDATEDBY").isEmpty() || resultset.getString("UPDATEDBY").equals("")) {
+                    user.setUpdatedby("N/A");
                 } else {
-                    user.setDatecreated("");
-                }
-                if (resultset.getString("DATEUPDATED") != null) {
-                    user.setDateupdated(datetimeformat.format(resultset.getTimestamp("DATEUPDATED")));
-                } else {
-                    user.setDateupdated("");
-                }
-                if (resultset.getString("UPDATEDBY") != null) {
                     if (this.GetUserByID(dataSource, resultset.getString("UPDATEDBY").trim()).isSuccess()) {
                         SeekerUser getuser = utility.objectMapper().readValue(this.GetUserByID(dataSource, resultset.getString("UPDATEDBY")).getResult(), SeekerUser.class);
                         user.setUpdatedby(getuser.getName());
                     } else {
                         user.setUpdatedby("NO DATA FOUND");
                     }
-                } else {
-                    user.setUpdatedby("N/A");
                 }
-                if (resultset.getString("CREATEDBY") != null) {
+                if (resultset.getString("CREATEDBY") == null || resultset.getString("CREATEDBY").isEmpty() || resultset.getString("CREATEDBY").equals("")) {
+                    user.setCreatedby("N/A");
+                } else {
                     if (this.GetUserByID(dataSource, resultset.getString("CREATEDBY").trim()).isSuccess()) {
                         SeekerUser getuser = utility.objectMapper().readValue(this.GetUserByID(dataSource, resultset.getString("CREATEDBY")).getResult(), SeekerUser.class);
                         user.setCreatedby(getuser.getName());
                     } else {
                         user.setCreatedby("NO DATA FOUND");
                     }
-                } else {
-                    user.setCreatedby("N/A");
                 }
                 result.setMessage("OK");
                 result.setSuccess(true);
@@ -241,35 +287,31 @@ public class SeekerMethods {
                 user.setPassword(resultset.getString("PASSWORD"));
                 user.setRole(resultset.getString("ROLE"));
                 user.setStatus(resultset.getString("STATUS"));
-                if (resultset.getString("DATECREATED") != null) {
-                    user.setDatecreated(datetimeformat.format(resultset.getTimestamp("DATECREATED")));
+                user.setDatecreated(resultset.getString("DATECREATED") == null
+                        || resultset.getString("DATECREATED").isEmpty()
+                        || resultset.getString("DATECREATED").equals("") ? "N/A" : datetimeformat.format(resultset.getTimestamp("DATECREATED")));
+                user.setDateupdated(resultset.getString("DATEUPDATED") == null
+                        || resultset.getString("DATEUPDATED").isEmpty()
+                        || resultset.getString("DATEUPDATED").equals("") ? "N/A" : datetimeformat.format(resultset.getTimestamp("DATEUPDATED")));
+                if (resultset.getString("UPDATEDBY") == null || resultset.getString("UPDATEDBY").isEmpty() || resultset.getString("UPDATEDBY").equals("")) {
+                    user.setUpdatedby("N/A");
                 } else {
-                    user.setDatecreated("N/A");
-                }
-                if (resultset.getString("DATEUPDATED") != null) {
-                    user.setDateupdated(datetimeformat.format(resultset.getTimestamp("DATEUPDATED")));
-                } else {
-                    user.setDateupdated("N/A");
-                }
-                if (resultset.getString("UPDATEDBY") != null) {
                     if (this.GetUserByID(dataSource, resultset.getString("UPDATEDBY").trim()).isSuccess()) {
                         SeekerUser getuser = utility.objectMapper().readValue(this.GetUserByID(dataSource, resultset.getString("UPDATEDBY")).getResult(), SeekerUser.class);
                         user.setUpdatedby(getuser.getName());
                     } else {
                         user.setUpdatedby("NO DATA FOUND");
                     }
-                } else {
-                    user.setUpdatedby("N/A");
                 }
-                if (resultset.getString("CREATEDBY") != null) {
+                if (resultset.getString("CREATEDBY") == null || resultset.getString("CREATEDBY").isEmpty() || resultset.getString("CREATEDBY").equals("")) {
+                    user.setCreatedby("N/A");
+                } else {
                     if (this.GetUserByID(dataSource, resultset.getString("CREATEDBY").trim()).isSuccess()) {
                         SeekerUser getuser = utility.objectMapper().readValue(this.GetUserByID(dataSource, resultset.getString("CREATEDBY")).getResult(), SeekerUser.class);
                         user.setCreatedby(getuser.getName());
                     } else {
                         user.setCreatedby("NO DATA FOUND");
                     }
-                } else {
-                    user.setCreatedby("N/A");
                 }
                 userList.add(user);
             }

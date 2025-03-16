@@ -284,7 +284,7 @@ public class GrouperMethod {
                 drgresultparam.setResult_id(getDRGParamResult.getString("RESULT_ID"));
                 ggrouperparameter.setResult_id(getDRGParamResult.getString("RESULT_ID"));
                 drgresultparam.setSeriesnum(getDRGParamResult.getString("CLAIMS_SERIES"));
-                if (getDRGParamResult.getString("PDX") == null) {
+                if (getDRGParamResult.getString("PDX") == null || getDRGParamResult.getString("PDX").isEmpty() || getDRGParamResult.getString("PDX").equals("")) {
                     drgresultparam.setPdx("");
                     ggrouperparameter.setPdx("");
                 } else {
@@ -294,7 +294,7 @@ public class GrouperMethod {
                 drgresultparam.setLhio(getDRGParamResult.getString("LHIO"));
                 ggrouperparameter.setIdseries(getDRGParamResult.getString("CLAIM_ID"));
                 //=====================================================================
-                if (getDRGParamResult.getString("PROC") == null) {
+                if (getDRGParamResult.getString("PROC") == null || getDRGParamResult.getString("PROC").isEmpty() || getDRGParamResult.getString("PROC").equals("")) {
                     drgresultparam.setProc("");
                     ggrouperparameter.setProc("");
                 } else {
@@ -302,7 +302,7 @@ public class GrouperMethod {
                     ggrouperparameter.setProc(getDRGParamResult.getString("PROC"));
                 }
                 //======================================================================
-                if (getDRGParamResult.getString("SDX") == null) {
+                if (getDRGParamResult.getString("SDX") == null || getDRGParamResult.getString("SDX").isEmpty() || getDRGParamResult.getString("SDX").equals("")) {
                     drgresultparam.setSdx("");
                     ggrouperparameter.setSdx("");
                 } else {
@@ -328,17 +328,29 @@ public class GrouperMethod {
                 ResultSet resultSet = (ResultSet) statement.getObject("v_result");
                 if (resultSet.next()) {
                     //EXPIREDDATE
-                    ggrouperparameter.setExpiredDate(resultSet.getString("EXPIREDDATE") == null ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("EXPIREDDATE")));
+                    ggrouperparameter.setExpiredDate(resultSet.getString("EXPIREDDATE") == null
+                            || resultSet.getString("EXPIREDDATE").equals("")
+                            || resultSet.getString("EXPIREDDATE").isEmpty() ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("EXPIREDDATE")));
                     //EXPIREDTIME
-                    ggrouperparameter.setExpireTime(resultSet.getString("EXPIREDTIME") == null ? "" : utility.SimpleDateFormat("HH:mm").format(resultSet.getTimestamp("EXPIREDTIME")));
+                    ggrouperparameter.setExpireTime(resultSet.getString("EXPIREDTIME") == null
+                            || resultSet.getString("EXPIREDTIME").equals("")
+                            || resultSet.getString("EXPIREDTIME").isEmpty() ? "" : utility.SimpleDateFormat("HH:mm").format(resultSet.getTimestamp("EXPIREDTIME")));
                     //ADMISSIONDATE
-                    ggrouperparameter.setAdmissionDate(resultSet.getString("ADMISSIONDATE") == null ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("ADMISSIONDATE")));
+                    ggrouperparameter.setAdmissionDate(resultSet.getString("ADMISSIONDATE") == null
+                            || resultSet.getString("ADMISSIONDATE").equals("")
+                            || resultSet.getString("ADMISSIONDATE").isEmpty() ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("ADMISSIONDATE")));
                     //TIMEADMISSION
-                    ggrouperparameter.setTimeAdmission(resultSet.getString("TIMEADMISSION") == null ? "" : utility.SimpleDateFormat("HH:mm").format(resultSet.getTimestamp("TIMEADMISSION")));
+                    ggrouperparameter.setTimeAdmission(resultSet.getString("TIMEADMISSION") == null
+                            || resultSet.getString("TIMEADMISSION").equals("")
+                            || resultSet.getString("TIMEADMISSION").isEmpty() ? "" : utility.SimpleDateFormat("HH:mm").format(resultSet.getTimestamp("TIMEADMISSION")));
                     //DISCHARGETIME
-                    ggrouperparameter.setTimeDischarge(resultSet.getString("TIMEDISCHARGE") == null ? "" : utility.SimpleDateFormat("HH:mm").format(resultSet.getTimestamp("TIMEDISCHARGE")));
+                    ggrouperparameter.setTimeDischarge(resultSet.getString("TIMEDISCHARGE") == null
+                            || resultSet.getString("TIMEDISCHARGE").equals("")
+                            || resultSet.getString("TIMEDISCHARGE").isEmpty() ? "" : utility.SimpleDateFormat("HH:mm").format(resultSet.getTimestamp("TIMEDISCHARGE")));
                     //DISCHARGEDATE
-                    ggrouperparameter.setDischargeDate(resultSet.getString("DISCHARGEDATE") == null ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DISCHARGEDATE")));
+                    ggrouperparameter.setDischargeDate(resultSet.getString("DISCHARGEDATE") == null
+                            || resultSet.getString("DISCHARGEDATE").equals("")
+                            || resultSet.getString("DISCHARGEDATE").isEmpty() ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DISCHARGEDATE")));
                     //DATEOFBIRTH
                     if (this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess()) {
                         if (utility.isParsableDate(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult(), "MM/dd/yyyy")) {
@@ -353,7 +365,9 @@ public class GrouperMethod {
                     //ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess() ? ""
                     //       : utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult())));
                     //GENDER
-                    ggrouperparameter.setGender(resultSet.getString("GENDER") == null ? "" : resultSet.getString("GENDER"));
+                    ggrouperparameter.setGender(resultSet.getString("GENDER") == null
+                            || resultSet.getString("GENDER").equals("")
+                            || resultSet.getString("GENDER").isEmpty() ? "" : resultSet.getString("GENDER"));
                     //SERIES
                     ggrouperparameter.setClaimseries(getDRGParamResult.getString("CLAIMS_SERIES"));
                     switch (resultSet.getString("DISCHARGETYPE")) {
@@ -380,9 +394,7 @@ public class GrouperMethod {
                             ggrouperparameter.setDischargeType("");
                             break;
                     }
-                    
-                    
-                    
+
                     grouperparameterlsit.add(ggrouperparameter);
                 } else {
                     errorList.add(getDRGParamResult.getString("CLAIMS_SERIES") + " NOT FOUND");
@@ -407,10 +419,8 @@ public class GrouperMethod {
             } else {
                 result.setMessage("NO DATA FOUND");
             }
-        } catch (SQLException | IOException ex) {
+        } catch (SQLException | IOException | ParseException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ParseException ex) {
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -964,7 +974,6 @@ public class GrouperMethod {
                 result.setSuccess(true);
                 result.setResult(utility.objectMapper().writeValueAsString(mdcProcedure));
                 result.setMessage(MDCProcResultset.getString("PROC_SITE"));
-
             } else {
                 result.setSuccess(false);
             }
@@ -1306,7 +1315,6 @@ public class GrouperMethod {
             } else {
                 result.setSuccess(false);
             }
-
         } catch (SQLException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
@@ -1340,7 +1348,6 @@ public class GrouperMethod {
                 } else {
                     result.setSuccess(false);
                 }
-
             }
 
         } catch (SQLException ex) {

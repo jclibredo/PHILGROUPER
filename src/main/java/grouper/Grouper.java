@@ -62,6 +62,7 @@ public class Grouper {
         return result;
     }
 
+    //SET DEADLINE  FOR ITMD   
     @GET
     @Path("GetServerDateTime")
     @Produces(MediaType.APPLICATION_JSON)
@@ -95,6 +96,9 @@ public class Grouper {
         ArrayList<DRGOutput> drgresultList = new ArrayList<>();
         ArrayList<String> errorList = new ArrayList<>();
         try {
+            //------------------------------------------------------------------
+            
+            //------------------------------------------------------------------
             for (int g = 0; g < grouperparameter.size(); g++) {
                 DRGWSResult grouperResult = new ProcessGrouperParameter().ProcessGrouperParameter(datasource, grouperparameter.get(g));
                 if (grouperResult.isSuccess()) {
@@ -104,6 +108,7 @@ public class Grouper {
                     errorList.add(grouperResult.getMessage());
                 }
             }
+            //------------------------------------------------------------------
             if (grouperparameter.size() > 0) {
                 result.setMessage("Data Process : " + grouperparameter.size() + " DRG Claims , Error Ecounter : " + errorList.toString());
                 result.setSuccess(true);
@@ -111,6 +116,7 @@ public class Grouper {
             } else {
                 result.setMessage("NO DATA AVAILABLE TO PROCESS");
             }
+            //------------------------------------------------------------------
         } catch (IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);

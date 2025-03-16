@@ -12,6 +12,10 @@ import grouper.utility.Cryptor;
 import grouper.utility.GrouperMethod;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -220,7 +224,6 @@ public class Seeker {
         return result;
     }
 
-
     @GET
     @Path("GetCaptchaCode")
     @Produces(MediaType.APPLICATION_JSON)
@@ -231,7 +234,7 @@ public class Seeker {
         result.setResult(utility.Create2FACode());
         return result;
     }
-    
+
     @GET
     @Path("GetRVS")
     @Produces(MediaType.APPLICATION_JSON)
@@ -336,6 +339,60 @@ public class Seeker {
         result.setMessage("OK");
         result.setSuccess(true);
         result.setResult(utility.GenerateToken(username, password, "480000"));
+        return result;
+    }
+
+    //FOR HCF FRONT GUI
+    @GET
+    @Path("GetHcfToken")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GetHcfToken() {
+        return new SeekerMethods().GETTOKEN(dataSource);
+    }
+
+    @GET
+    @Path("GETHCFSEEKERMODULE")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GETHCFSEEKERMODULE(@HeaderParam("token") String token) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        try {
+            DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
+            if (!GetPayLoad.isSuccess()) {
+                result.setMessage(GetPayLoad.getMessage());
+            } else {
+                Desktop desktop = Desktop.getDesktop();
+                desktop.browse(java.net.URI.create(utility.GetString("SeekerModule")));
+                result = new SeekerMethods().InsertToken(dataSource, token);
+            }
+        } catch (IOException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(Seeker.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    //https://www.172.21.53.144:8501/
+    @GET
+    @Path("TESTGETHCFSEEKERMODULE")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult TESTGETHCFSEEKERMODULE() {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        try {
+//            Desktop desktop = Desktop.getDesktop();
+//            desktop.browse(new URI(utility.GetString("SeekerModule")));
+            URL myURL = new URL(utility.GetString("SeekerModule"));
+            URLConnection myURLConnection = myURL.openConnection();
+            myURLConnection.connect();
+        } catch (IOException ex) {
+            result.setMessage(ex.toString());
+            Logger.getLogger(Seeker.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return result;
     }
 

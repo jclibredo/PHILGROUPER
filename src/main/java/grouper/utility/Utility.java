@@ -131,6 +131,10 @@ public class Utility {
         return result;
     }
 
+    public Date GetCurrentDate() {
+        return new java.util.Date();
+    }
+
     public DRGPayload DRGPayload() {
         return new DRGPayload();
     }
