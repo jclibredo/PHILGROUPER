@@ -38,7 +38,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * REST Web Service
  *
- * @author DRG_SHADOWBILLING
+ * @author MINOSUN
  */
 @Path("Seeker")
 public class Seeker {
@@ -395,5 +395,4 @@ public class Seeker {
         }
         return result;
     }
-
 }

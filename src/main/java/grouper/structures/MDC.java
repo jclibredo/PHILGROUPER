@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 /**
  *
- * @author DRG_SHADOWBILLING
+ * @author MINOSUN
  */
 public class MDC implements Serializable {
     public MDC(){

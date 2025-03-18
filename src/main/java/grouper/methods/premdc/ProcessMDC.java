@@ -40,7 +40,7 @@ import javax.sql.DataSource;
 
 /**
  *
- * @author DRG_SHADOWBILLING
+ * @author MINOSUN
  */
 @RequestScoped
 public class ProcessMDC {

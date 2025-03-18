@@ -34,7 +34,7 @@ import javax.mail.PasswordAuthentication;
 
 /**
  *
- * @author DRG_SHADOWBILLING
+ * @author MINOSUN
  */
 @RequestScoped
 public class SeekerMethods {
@@ -48,7 +48,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETTOKEN(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETTOKEN(); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_result");
@@ -75,7 +75,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.TOKEN_S(:message,:code,:ptoken,:pdatecreated)");
+            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.TOKEN_S(:message,:code,:ptoken,:pdatecreated)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("ptoken", ptoken.trim());
@@ -105,7 +105,7 @@ public class SeekerMethods {
                 result.setMessage("Email is already exist");
             } else {
                 String encryptpword = new Cryptor().encrypt(seekerUser.getPassword(), seekerUser.getPassword(), "SEEKER");
-                CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
+                CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
                 statement.registerOutParameter("Message", OracleTypes.VARCHAR);
                 statement.registerOutParameter("Code", OracleTypes.INTEGER);
                 statement.setString("pemail", seekerUser.getEmail().trim());
@@ -143,7 +143,7 @@ public class SeekerMethods {
                 result.setMessage("Email is already exist");
             } else {
                 String encryptpword = new Cryptor().encrypt(seekerUser.getPassword(), seekerUser.getPassword(), "SEEKER");
-                CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
+                CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
                 statement.registerOutParameter("Message", OracleTypes.VARCHAR);
                 statement.registerOutParameter("Code", OracleTypes.INTEGER);
                 statement.setString("pemail", seekerUser.getEmail().trim());
@@ -175,7 +175,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETUSERBYID(:puserid); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETUSERBYID(:puserid); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("puserid", puserid.trim());
             statement.execute();
@@ -215,7 +215,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETUSERBYUSERNAME(:pusername); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETUSERBYUSERNAME(:pusername); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("pusername", pusername.trim());
             statement.execute();
@@ -274,7 +274,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETALLUSER(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETALLUSER(); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.execute();
             ArrayList<SeekerUser> userList = new ArrayList<>();
@@ -367,7 +367,8 @@ public class SeekerMethods {
                                 result.setSuccess(true);
                                 result.setResult(utility.objectMapper().writeValueAsString(user));
                             } else {
-                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
+                                result.setMessage(this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).getMessage());
+//                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
                             }
                         } else {
                             result.setMessage(this.POSTOTP(dataSource, userA.getUserid(), otpcode).getMessage());
@@ -464,7 +465,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.edituser(:message,:code,:pemail,:ppassword,:prole,:puserid,:ustatus,:uname,:udateupdated,:uupdatedby)");
+            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.edituser(:message,:code,:pemail,:ppassword,:prole,:puserid,:ustatus,:uname,:udateupdated,:uupdatedby)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("pemail", seekerUser.getEmail().trim());
@@ -495,7 +496,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.COUNTEMAIL(:pusername); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.COUNTEMAIL(:pusername); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("pusername", pusername.trim());
             statement.execute();
@@ -529,11 +530,12 @@ public class SeekerMethods {
             if (type.trim().equals("ACCOUNT")) {
                 message.setSubject("GROUPER SEEKER");
                 message.setText("ACCOUNT CREDENTIAL FOR PHL-DRGSEEKER USERNAME : " + uemail + " PASSWORD : " + randpass);
+                Transport.send(message);
             } else {
                 message.setSubject("GROUPER SEEKER OTP");
                 message.setText("LOGIN ACCOUNT PHL-DRGSEEKER OTP CODE : " + type.trim());
+                Transport.send(message);
             }
-            Transport.send(message);
             result.setSuccess(true);
         } catch (MessagingException ex) {
             result.setMessage(ex.toString());
@@ -589,7 +591,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.UPDATEPASSWORD(:message,:code,:puserid,:pemail,:ppasswordd)");
+            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.UPDATEPASSWORD(:message,:code,:puserid,:pemail,:ppasswordd)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("puserid", puserid.trim());
@@ -659,6 +661,8 @@ public class SeekerMethods {
                     //message.setContent(utility.EmailSenderContent(email.getEmailto().trim(), randpass), "text/html");
                     if (type.trim().toUpperCase().equals("OTP")) {
                         message.setText("USER LOGIN OTP CODE " + otp);
+                        result.setSuccess(true);
+                        result.setMessage("Otp code successfully sent to " + emailreciever.trim());
                         Transport.send(message);
                     } else {
                         message.setText("Username : " + emailreciever + " Passcode " + randpass);
@@ -677,7 +681,9 @@ public class SeekerMethods {
                     //message.setContent(utility.EmailSenderContent(email.getEmailto(), newPass), "text/html");
                     if (type.trim().toUpperCase().equals("OTP")) {
                         message.setText("USER LOGIN OTP CODE " + otp);
+                        result.setSuccess(true);
                         Transport.send(message);
+                        result.setMessage("Otp code successfully sent to " + emailreciever.trim());
                     } else {
                         message.setText("Username : " + emailreciever + " Passcode " + newPass);
                         DRGWSResult updatepassword = this.UPDATEPASSWORD(dataSource, user.getUserid(), emailreciever, newPass);
@@ -714,7 +720,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.POSTOTP(:message,:code,:puserid,:potp)");
+            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.POSTOTP(:message,:code,:puserid,:potp)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("puserid", puserid.trim());
