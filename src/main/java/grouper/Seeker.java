@@ -14,6 +14,8 @@ import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
 import java.awt.Desktop;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Connection;
@@ -38,35 +40,34 @@ import javax.ws.rs.core.MediaType;
 /**
  * REST Web Service
  *
- * @author MINOSUN
+ * @author DRG_SHADOWBILLING
  */
 @Path("Seeker")
 public class Seeker {
-
+    
     public Seeker() {
     }
-
+    
     @Resource(lookup = "jdbc/grouperuser")
     private DataSource dataSource;
     //-------------------------------------
     @Resource(lookup = "mail/acrgbmail")
     private Session session;
-
+    
     private final Utility utility = new Utility();
-
+    
     @GET
     @Path("GetServerDateTime")
     @Produces(MediaType.APPLICATION_JSON)
     public String GetServerDateTime() {
         String result = "";
-        SimpleDateFormat sdf = utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
         try (Connection connection = dataSource.getConnection()) {
             String query = "SELECT SYSDATE FROM DUAL";
             NamedParameterStatement SDxVal = new NamedParameterStatement(connection, query);
             SDxVal.execute();
             ResultSet rest = SDxVal.executeQuery();
             if (rest.next()) {
-                result = "SERVER DATE AND TIME : " + String.valueOf(sdf.format(rest.getDate("SYSDATE")));
+                result = "SERVER DATE AND TIME : " + String.valueOf(utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a").format(rest.getDate("SYSDATE")));
             }
         } catch (SQLException ex) {
             result = ex.toString();
@@ -90,9 +91,8 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
-        if (!GetPayLoad.isSuccess()) {
-            result.setMessage(GetPayLoad.getMessage());
+        if (!utility.GetPayload(dataSource, token).isSuccess()) {
+            result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
             DRGWSResult getResult = new SeekerMethods().GetAllUser(dataSource);
             result.setMessage(getResult.getMessage());
@@ -101,7 +101,7 @@ public class Seeker {
         }
         return result;
     }
-
+    
     @GET
     @Path("GetUserByID/{puserid}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -112,18 +112,16 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
-        if (!GetPayLoad.isSuccess()) {
-            result.setMessage(GetPayLoad.getMessage());
+        if (!utility.GetPayload(dataSource, token).isSuccess()) {
+            result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            DRGWSResult getResult = new SeekerMethods().GetUserByID(dataSource, puserid);
-            result.setMessage(getResult.getMessage());
-            result.setResult(getResult.getResult());
-            result.setSuccess(getResult.isSuccess());
+            result.setMessage(new SeekerMethods().GetUserByID(dataSource, puserid).getMessage());
+            result.setResult(new SeekerMethods().GetUserByID(dataSource, puserid).getResult());
+            result.setSuccess(new SeekerMethods().GetUserByID(dataSource, puserid).isSuccess());
         }
         return result;
     }
-
+    
     @POST
     @Path("ValidateCode")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -135,18 +133,18 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
-        if (!GetPayLoad.isSuccess()) {
-            result.setMessage(GetPayLoad.getMessage());
+//        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
+        if (!utility.GetPayload(dataSource, token).isSuccess()) {
+            result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            DRGWSResult resultOtp = new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp());
-            result.setMessage(resultOtp.getMessage());
-            result.setSuccess(resultOtp.isSuccess());
-            result.setResult(resultOtp.getResult());
+//            DRGWSResult resultOtp = new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp());
+            result.setMessage(new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp()).getMessage());
+            result.setSuccess(new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp()).isSuccess());
+            result.setResult(new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp()).getResult());
         }
         return result;
     }
-
+    
     @POST
     @Path("InsertUser")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -158,18 +156,18 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
-        if (!GetPayLoad.isSuccess()) {
-            result.setMessage(GetPayLoad.getMessage());
+//        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
+        if (!utility.GetPayload(dataSource, token).isSuccess()) {
+            result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            DRGWSResult insertresult = new SeekerMethods().UserInsert(dataSource, user, session);
-            result.setMessage(insertresult.getMessage());
-            result.setSuccess(insertresult.isSuccess());
-            result.setResult(insertresult.getResult());
+//            DRGWSResult insertresult = new SeekerMethods().UserInsert(dataSource, user, session);
+            result.setMessage(new SeekerMethods().UserInsert(dataSource, user, session).getMessage());
+            result.setSuccess(new SeekerMethods().UserInsert(dataSource, user, session).isSuccess());
+            result.setResult(new SeekerMethods().UserInsert(dataSource, user, session).getResult());
         }
         return result;
     }
-
+    
     @PUT
     @Path("UpdateUser")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -181,23 +179,23 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
-        if (!GetPayLoad.isSuccess()) {
-            result.setMessage(GetPayLoad.getMessage());
+//        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
+        if (!utility.GetPayload(dataSource, token).isSuccess()) {
+            result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            DRGWSResult validate = new SeekerMethods().ValidateUserUpdate(dataSource, user);
-            if (!validate.isSuccess()) {
-                result.setMessage(validate.getMessage());
+//            DRGWSResult validate = new SeekerMethods().ValidateUserUpdate(dataSource, user);
+            if (!new SeekerMethods().ValidateUserUpdate(dataSource, user).isSuccess()) {
+                result.setMessage(new SeekerMethods().ValidateUserUpdate(dataSource, user).getMessage());
             } else {
-                DRGWSResult updateresult = new SeekerMethods().UserUpdate(dataSource, user);
-                result.setMessage(updateresult.getMessage());
-                result.setSuccess(updateresult.isSuccess());
-                result.setResult(updateresult.getResult());
+//                DRGWSResult updateresult = new SeekerMethods().UserUpdate(dataSource, user);
+                result.setMessage(new SeekerMethods().UserUpdate(dataSource, user).getMessage());
+                result.setSuccess(new SeekerMethods().UserUpdate(dataSource, user).isSuccess());
+                result.setResult(new SeekerMethods().UserUpdate(dataSource, user).getResult());
             }
         }
         return result;
     }
-
+    
     @POST
     @Path("UserLogin")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -206,24 +204,25 @@ public class Seeker {
             @HeaderParam("email") String email,
             @HeaderParam("password") String password,
             @HeaderParam("expire") String expire) {
-        DRGWSResult insertresult = new SeekerMethods().UserLogin(dataSource, email.trim(), password, expire.trim(), session);
-        return insertresult;
+//        DRGWSResult insertresult = new SeekerMethods().UserLogin(dataSource, email.trim(), password, expire.trim(), session);
+        return new SeekerMethods().UserLogin(dataSource, email.trim(), password, expire.trim(), session);
     }
-
+    
     @POST
     @Path("ForgetPassword")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult ForgetPassword(
             @HeaderParam("mail") String mail) {
-        DRGWSResult result = utility.DRGWSResult();
-        DRGWSResult Updatepass = new SeekerMethods().TestEmailSender(dataSource, mail, utility.GenerateRandomPassword(10), "FORGET", "OTP");
-        result.setMessage(Updatepass.getMessage());
-        result.setResult(Updatepass.getResult());
-        result.setSuccess(Updatepass.isSuccess());
-        return result;
+//        DRGWSResult result = utility.DRGWSResult();
+//        DRGWSResult Updatepass = new SeekerMethods().TestEmailSender(dataSource, mail, utility.GenerateRandomPassword(10), "FORGET", "OTP");
+//        result.setMessage(Updatepass.getMessage());
+//        result.setResult(Updatepass.getResult());
+//        result.setSuccess(Updatepass.isSuccess());
+//        return new SeekerMethods().TestEmailSender(dataSource, mail, utility.GenerateRandomPassword(10), "FORGET", "OTP");
+        return new SeekerMethods().ForgatPassword(dataSource, mail, utility.GenerateRandomPassword(10), session);
     }
-
+    
     @GET
     @Path("GetCaptchaCode")
     @Produces(MediaType.APPLICATION_JSON)
@@ -234,7 +233,7 @@ public class Seeker {
         result.setResult(utility.Create2FACode());
         return result;
     }
-
+    
     @GET
     @Path("GetRVS")
     @Produces(MediaType.APPLICATION_JSON)
@@ -243,15 +242,15 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
-        if (!GetPayLoad.isSuccess()) {
-            result.setMessage(GetPayLoad.getMessage());
+//        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
+        if (!utility.GetPayload(dataSource, token).isSuccess()) {
+            result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
             result = new GrouperMethod().SeekerRVS(dataSource);
         }
         return result;
     }
-
+    
     @GET
     @Path("GetICD9CM")
     @Produces(MediaType.APPLICATION_JSON)
@@ -260,15 +259,14 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
-        if (!GetPayLoad.isSuccess()) {
-            result.setMessage(GetPayLoad.getMessage());
+        if (!utility.GetPayload(dataSource, token).isSuccess()) {
+            result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
             result = new GrouperMethod().SeekerICD9cm(dataSource);
         }
         return result;
     }
-
+    
     @GET
     @Path("GetDRG")
     @Produces(MediaType.APPLICATION_JSON)
@@ -277,15 +275,14 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
-        if (!GetPayLoad.isSuccess()) {
-            result.setMessage(GetPayLoad.getMessage());
+        if (!utility.GetPayload(dataSource, token).isSuccess()) {
+            result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
             result = new GrouperMethod().SeekerDRG(dataSource);
         }
         return result;
     }
-
+    
     @GET
     @Path("GetICD10")
     @Produces(MediaType.APPLICATION_JSON)
@@ -294,29 +291,26 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
-        if (!GetPayLoad.isSuccess()) {
-            result.setMessage(GetPayLoad.getMessage());
+        if (!utility.GetPayload(dataSource, token).isSuccess()) {
+            result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
             result = new GrouperMethod().SeekerICD10(dataSource);
         }
         return result;
     }
 
-    @POST
-    @Path("TestInsertUser")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult TestInsertUser(
-            final SeekerUser user) {
-        DRGWSResult result = utility.DRGWSResult();
-        DRGWSResult insertresult = new SeekerMethods().TestUserInsert(dataSource, user);
-        result.setMessage(insertresult.getMessage());
-        result.setSuccess(insertresult.isSuccess());
-        result.setResult(insertresult.getResult());
-        return result;
-    }
-
+//    @POST
+//    @Path("TestInsertUser")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public DRGWSResult TestInsertUser(
+//            final SeekerUser user) {
+//        DRGWSResult result = utility.DRGWSResult();
+//        result.setMessage(new SeekerMethods().TestUserInsert(dataSource, user).getMessage());
+//        result.setSuccess(new SeekerMethods().TestUserInsert(dataSource, user).isSuccess());
+//        result.setResult(new SeekerMethods().TestUserInsert(dataSource, user).getResult());
+//        return result;
+//    }
     //EncryptPasscode
     @GET
     @Path("EncryptPasscode/{password}")
@@ -328,7 +322,7 @@ public class Seeker {
         result.setSuccess(true);
         return result;
     }
-
+    
     @GET
     @Path("GenerateToken/{username}/{password}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -349,7 +343,7 @@ public class Seeker {
     public DRGWSResult GetHcfToken() {
         return new SeekerMethods().GETTOKEN(dataSource);
     }
-
+    
     @GET
     @Path("GETHCFSEEKERMODULE")
     @Produces(MediaType.APPLICATION_JSON)
@@ -359,15 +353,23 @@ public class Seeker {
         result.setResult("");
         result.setSuccess(false);
         try {
-            DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
-            if (!GetPayLoad.isSuccess()) {
-                result.setMessage(GetPayLoad.getMessage());
+            if (!utility.GetPayload(dataSource, token).isSuccess()) {
+                result.setMessage(utility.GetPayload(dataSource, token).getMessage());
             } else {
-                Desktop desktop = Desktop.getDesktop();
-                desktop.browse(java.net.URI.create(utility.GetString("SeekerModule")));
-                result = new SeekerMethods().InsertToken(dataSource, token);
+                DRGWSResult insertResult = new SeekerMethods().InsertToken(dataSource, token);
+                if (insertResult.isSuccess()) {
+                    URI uri = new URI(utility.GetString("SeekerModule"));
+                    Desktop.getDesktop().browse(uri);
+                } else {
+                    
+                    result.setMessage(insertResult.getMessage());
+                }
+//                Desktop desktop = Desktop.getDesktop();
+//                desktop.browse(java.net.URI.create(utility.GetString("SeekerModule")));
+//                Desktop desktop = Desktop.getDesktop();
+
             }
-        } catch (IOException ex) {
+        } catch (IOException | URISyntaxException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(Seeker.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -375,24 +377,25 @@ public class Seeker {
     }
 
     //https://www.172.21.53.144:8501/
-    @GET
-    @Path("TESTGETHCFSEEKERMODULE")
-    @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult TESTGETHCFSEEKERMODULE() {
-        DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
-        try {
+//    @GET
+//    @Path("TESTGETHCFSEEKERMODULE")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public DRGWSResult TESTGETHCFSEEKERMODULE() {
+//        DRGWSResult result = utility.DRGWSResult();
+//        result.setMessage("");
+//        result.setResult("");
+//        result.setSuccess(false);
+//        try {
 //            Desktop desktop = Desktop.getDesktop();
-//            desktop.browse(new URI(utility.GetString("SeekerModule")));
-            URL myURL = new URL(utility.GetString("SeekerModule"));
-            URLConnection myURLConnection = myURL.openConnection();
-            myURLConnection.connect();
-        } catch (IOException ex) {
-            result.setMessage(ex.toString());
-            Logger.getLogger(Seeker.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return result;
-    }
+//            URI uri = new URI(utility.GetString("SeekerModule"));
+//            desktop.browse(uri);
+//            URL myURL = new URL(utility.GetString("SeekerModule"));
+//            URLConnection myURLConnection = myURL.openConnection();
+//            myURLConnection.connect();
+//        } catch (IOException | URISyntaxException ex) {
+//            result.setMessage(ex.toString());
+//            Logger.getLogger(Seeker.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return result;
+//    }
 }

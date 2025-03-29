@@ -11,7 +11,7 @@
     <env-entry>
         <env-entry-name>SeekerModule</env-entry-name>
         <env-entry-type>java.lang.String</env-entry-type>
-        <env-entry-value>http://172.21.53.144:8501/</env-entry-value>  
+        <env-entry-value>http://172.21.15.63:8501/?=drgSeeker</env-entry-value>  
     </env-entry>
 </web-app>
   

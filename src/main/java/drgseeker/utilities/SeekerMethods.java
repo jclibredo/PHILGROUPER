@@ -34,7 +34,7 @@ import javax.mail.PasswordAuthentication;
 
 /**
  *
- * @author MINOSUN
+ * @author DRG_SHADOWBILLING
  */
 @RequestScoped
 public class SeekerMethods {
@@ -120,6 +120,7 @@ public class SeekerMethods {
                     result.setSuccess(true);
                     result.setMessage(statement.getString("Message"));
                     this.EmailSender(dataSource, seekerUser.getEmail().trim(), seekerUser.getPassword(), mailsession, "ACCOUNT");
+//                    this.TestEmailSender(dataSource, seekerUser.getEmail().trim(), seekerUser.getPassword(), "ACCOUNT", "00");//test
                 } else {
                     result.setMessage(statement.getString("Message"));
                 }
@@ -346,11 +347,11 @@ public class SeekerMethods {
                 String decryptString = new Cryptor().decrypt(userA.getPassword(), upassword, "SEEKER");
                 if (decryptString.trim().equals(upassword)) {
                     if (userA.getStatus().trim().equals("A")) {
-                        String otpcode = utility.Create2FACode().toUpperCase().trim();
+                        final String otpcode = utility.Create2FACode().toUpperCase().trim();
                         if (this.POSTOTP(dataSource, userA.getUserid(), otpcode).isSuccess()) {
                             //SEND OTP CODE TO GMAIL
-                            if (this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).isSuccess()) {
-//                            if (this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).isSuccess()) {
+//                            if (this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).isSuccess()) {
+                            if (this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).isSuccess()) {
                                 SeekerUser user = new SeekerUser();
                                 user.setUserid(userA.getUserid());
                                 user.setCreatedby(userA.getCreatedby());
@@ -367,8 +368,8 @@ public class SeekerMethods {
                                 result.setSuccess(true);
                                 result.setResult(utility.objectMapper().writeValueAsString(user));
                             } else {
-                                result.setMessage(this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).getMessage());
-//                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
+//                                result.setMessage(this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).getMessage());
+                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
                             }
                         } else {
                             result.setMessage(this.POSTOTP(dataSource, userA.getUserid(), otpcode).getMessage());
@@ -560,7 +561,7 @@ public class SeekerMethods {
                 DRGWSResult updatepassword = this.UPDATEPASSWORD(dataSource, user.getUserid(), uemail, new Cryptor().encrypt(randpass, randpass, "SEEKER"));
                 if (updatepassword.isSuccess()) {
                     result.setSuccess(true);
-                    result.setMessage("Account password successfully resetted and sent it to your email please check the new passcode ");
+                    result.setMessage("Account password successfully resetted and sended to your email please check the new passcode ");
                     Message message = new MimeMessage(mailSession);
                     message.setFrom(new InternetAddress("noreply@philhealth.gov.ph", false));
                     message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(uemail.trim(), false));

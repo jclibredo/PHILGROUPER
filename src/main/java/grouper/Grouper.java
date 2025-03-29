@@ -36,7 +36,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * REST Web Service
  *
- * @author MINOSUN
+ * @author DRG_SHADOWBILLING
  */
 @Path("Grouper")
 @RequestScoped

@@ -7,7 +7,7 @@
     <variable-definition>      
         <variable>
             <name>SeekerModule</name>
-            <value>http://172.21.53.144:8501/</value>
+            <value>http://172.21.15.63:8501/?=drgSeeker</value>
         </variable>
     </variable-definition>
     <module-override>

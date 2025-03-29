@@ -8,7 +8,7 @@ package grouper.structures;
 
 /**
  *
- * @author MINOSUN
+ * @author DRG_SHADOWBILLING
  */
 
 public class CombinationCode {
