@@ -248,10 +248,11 @@ public class GrouperMethod {
             statement.execute();
             ResultSet resultSet = (ResultSet) statement.getObject("nclaims");
             if (resultSet.next()) {
-                if (resultSet.getString("DATEOFBIRTH") != null && !resultSet.getString("DATEOFBIRTH").isEmpty() && !resultSet.getString("DATEOFBIRTH").equals("")) {
-                    result.setResult(resultSet.getString("DATEOFBIRTH"));
+                if (resultSet.getString("DATEOFBIRTH") == null || resultSet.getString("DATEOFBIRTH").isEmpty() || resultSet.getString("DATEOFBIRTH").equals("")) {
+                } else {
                     result.setSuccess(true);
                     result.setMessage("OK");
+                    result.setResult(utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DATEOFBIRTH")));
                 }
             }
         } catch (Exception ex) {
@@ -317,12 +318,14 @@ public class GrouperMethod {
                 getdrg_info.execute();
                 ResultSet infoResult = (ResultSet) getdrg_info.getObject("getdrginfo");
                 if (infoResult.next()) {
-                    ggrouperparameter.setAdmissionWeight(infoResult.getString("NB_ADMWEIGHT"));
+                    ggrouperparameter.setAdmissionWeight(infoResult.getString("NB_ADMWEIGHT") == null
+                            || infoResult.getString("NB_ADMWEIGHT").isEmpty()
+                            || infoResult.getString("NB_ADMWEIGHT").equals("") ? "" : infoResult.getString("NB_ADMWEIGHT"));
                 }
                 //==============================================ECLAIMS XML GET NCLAIMS DATA============================================================
-                CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.UHCDRGPKG.GETPATIENTDATA(:seriesnum); end;");
+                CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.UHCDRGPKG.GETPATIENTDATA(:seriesnums); end;");
                 statement.registerOutParameter("v_result", OracleTypes.CURSOR);
-                statement.setString("seriesnum", getDRGParamResult.getString("CLAIMS_SERIES"));
+                statement.setString("seriesnums", getDRGParamResult.getString("CLAIMS_SERIES"));
                 statement.execute();
                 ResultSet resultSet = (ResultSet) statement.getObject("v_result");
                 if (resultSet.next()) {
@@ -351,16 +354,18 @@ public class GrouperMethod {
                             || resultSet.getString("DISCHARGEDATE").equals("")
                             || resultSet.getString("DISCHARGEDATE").isEmpty() ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DISCHARGEDATE")));
                     //DATEOFBIRTH
-                    if (this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess()) {
-                        if (utility.isParsableDate(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult(), "MM/dd/yyyy")) {
-                            ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess() ? ""
-                                    : utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult())));
-                        } else {
-                            ggrouperparameter.setBirthDate("");
-                        }
-                    } else {
-                        ggrouperparameter.setBirthDate("");
-                    }
+//                    if (this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess()) {
+//                        if (utility.isParsableDate(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult(), "MM/dd/yyyy")) {
+//                            ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess() ? ""
+//                                    : utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult())));
+//                        } else {
+//                            ggrouperparameter.setBirthDate("");
+//                        }
+                    ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess()
+                            ? "" : this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult());
+//                    } else {
+//                        ggrouperparameter.setBirthDate("");
+//                    }
                     //ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess() ? ""
                     //       : utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult())));
                     //GENDER
@@ -370,28 +375,35 @@ public class GrouperMethod {
                     //SERIES
                     ggrouperparameter.setClaimseries(getDRGParamResult.getString("CLAIMS_SERIES"));
                     switch (resultSet.getString("DISCHARGETYPE")) {
-                        case "E":
+                        case "E": {
                             ggrouperparameter.setDischargeType("8");
                             break;
-                        case "O":
+                        }
+                        case "O": {
                             ggrouperparameter.setDischargeType("5");
                             break;
+                        }
                         case "I":
-                        case "R":
+                        case "R": {
                             ggrouperparameter.setDischargeType("1");
                             break;
-                        case "A":
+                        }
+                        case "A": {
                             ggrouperparameter.setDischargeType("3");
                             break;
-                        case "T":
+                        }
+                        case "T": {
                             ggrouperparameter.setDischargeType("4");
                             break;
-                        case "H":
+                        }
+                        case "H": {
                             ggrouperparameter.setDischargeType("2");
                             break;
-                        default:
+                        }
+                        default: {
                             ggrouperparameter.setDischargeType("");
                             break;
+                        }
                     }
 
                     grouperparameterlsit.add(ggrouperparameter);
@@ -418,7 +430,8 @@ public class GrouperMethod {
             } else {
                 result.setMessage("NO DATA FOUND");
             }
-        } catch (SQLException | IOException | ParseException ex) {
+//        } catch (SQLException | IOException | ParseException ex) {
+        } catch (SQLException | IOException ex) {
             result.setMessage(ex.toString());
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -446,9 +459,7 @@ public class GrouperMethod {
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
-
     }
-
     //UPDATE DRG RESULT AND CHANGE TAGS VALUE
     public DRGWSResult UpdateDRGResult(final DataSource datasource,
             final String mdcs,
@@ -456,13 +467,14 @@ public class GrouperMethod {
             final String dcs,
             final String result_id,
             final String series,
-            final String drg) {
+            final String drg,
+            final String drgdetails) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement updatedrgresult = connection.prepareCall("call DRGPKGPROCEDURE.UPDATE_DRG_RESULT(:Message,:Code,:umdc,:updc,:udc,:uresultid,:useries,:utags,:udrg)");
+            CallableStatement updatedrgresult = connection.prepareCall("call DRGPKGPROCEDURE.UPDATE_DRG_RESULT(:Message,:Code,:umdc,:updc,:udc,:uresultid,:useries,:utags,:udrg,:drgdetails)");
             updatedrgresult.registerOutParameter("Message", OracleTypes.VARCHAR);
             updatedrgresult.registerOutParameter("Code", OracleTypes.INTEGER);
             updatedrgresult.setString("umdc", mdcs);
@@ -472,6 +484,7 @@ public class GrouperMethod {
             updatedrgresult.setString("useries", series);
             updatedrgresult.setString("utags", "DG".trim());
             updatedrgresult.setString("udrg", drg);
+            updatedrgresult.setString("drgdetails", drgdetails);
             updatedrgresult.executeUpdate();
             if (updatedrgresult.getString("Message").equals("SUCC")) {
                 result.setSuccess(true);

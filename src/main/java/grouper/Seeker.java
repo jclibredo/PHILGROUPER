@@ -16,12 +16,9 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -44,18 +41,18 @@ import javax.ws.rs.core.MediaType;
  */
 @Path("Seeker")
 public class Seeker {
-    
+
     public Seeker() {
     }
-    
+
     @Resource(lookup = "jdbc/grouperuser")
     private DataSource dataSource;
     //-------------------------------------
     @Resource(lookup = "mail/acrgbmail")
     private Session session;
-    
+
     private final Utility utility = new Utility();
-    
+
     @GET
     @Path("GetServerDateTime")
     @Produces(MediaType.APPLICATION_JSON)
@@ -101,7 +98,7 @@ public class Seeker {
         }
         return result;
     }
-    
+
     @GET
     @Path("GetUserByID/{puserid}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -121,7 +118,7 @@ public class Seeker {
         }
         return result;
     }
-    
+
     @POST
     @Path("ValidateCode")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -144,7 +141,7 @@ public class Seeker {
         }
         return result;
     }
-    
+
     @POST
     @Path("InsertUser")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -167,7 +164,7 @@ public class Seeker {
         }
         return result;
     }
-    
+
     @PUT
     @Path("UpdateUser")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -195,7 +192,7 @@ public class Seeker {
         }
         return result;
     }
-    
+
     @POST
     @Path("UserLogin")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -207,7 +204,7 @@ public class Seeker {
 //        DRGWSResult insertresult = new SeekerMethods().UserLogin(dataSource, email.trim(), password, expire.trim(), session);
         return new SeekerMethods().UserLogin(dataSource, email.trim(), password, expire.trim(), session);
     }
-    
+
     @POST
     @Path("ForgetPassword")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -222,7 +219,7 @@ public class Seeker {
 //        return new SeekerMethods().TestEmailSender(dataSource, mail, utility.GenerateRandomPassword(10), "FORGET", "OTP");
         return new SeekerMethods().ForgatPassword(dataSource, mail, utility.GenerateRandomPassword(10), session);
     }
-    
+
     @GET
     @Path("GetCaptchaCode")
     @Produces(MediaType.APPLICATION_JSON)
@@ -233,7 +230,7 @@ public class Seeker {
         result.setResult(utility.Create2FACode());
         return result;
     }
-    
+
     @GET
     @Path("GetRVS")
     @Produces(MediaType.APPLICATION_JSON)
@@ -250,7 +247,7 @@ public class Seeker {
         }
         return result;
     }
-    
+
     @GET
     @Path("GetICD9CM")
     @Produces(MediaType.APPLICATION_JSON)
@@ -266,7 +263,7 @@ public class Seeker {
         }
         return result;
     }
-    
+
     @GET
     @Path("GetDRG")
     @Produces(MediaType.APPLICATION_JSON)
@@ -282,7 +279,7 @@ public class Seeker {
         }
         return result;
     }
-    
+
     @GET
     @Path("GetICD10")
     @Produces(MediaType.APPLICATION_JSON)
@@ -322,7 +319,7 @@ public class Seeker {
         result.setSuccess(true);
         return result;
     }
-    
+
     @GET
     @Path("GenerateToken/{username}/{password}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -343,7 +340,7 @@ public class Seeker {
     public DRGWSResult GetHcfToken() {
         return new SeekerMethods().GETTOKEN(dataSource);
     }
-    
+
     @GET
     @Path("GETHCFSEEKERMODULE")
     @Produces(MediaType.APPLICATION_JSON)
@@ -361,13 +358,8 @@ public class Seeker {
                     URI uri = new URI(utility.GetString("SeekerModule"));
                     Desktop.getDesktop().browse(uri);
                 } else {
-                    
-                    result.setMessage(insertResult.getMessage());
+                    result = insertResult;
                 }
-//                Desktop desktop = Desktop.getDesktop();
-//                desktop.browse(java.net.URI.create(utility.GetString("SeekerModule")));
-//                Desktop desktop = Desktop.getDesktop();
-
             }
         } catch (IOException | URISyntaxException ex) {
             result.setMessage(ex.toString());

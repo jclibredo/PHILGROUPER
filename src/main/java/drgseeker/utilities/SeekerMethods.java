@@ -633,7 +633,6 @@ public class SeekerMethods {
             Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    // return new PasswordAuthentication(properties.getProperty("mail.smtp.user"), properties.getProperty("mail.smtp.pass"));
                     return new PasswordAuthentication("roland.aboga@gmail.com", "bvyf bnrj nire gbvb");
                 }
             });

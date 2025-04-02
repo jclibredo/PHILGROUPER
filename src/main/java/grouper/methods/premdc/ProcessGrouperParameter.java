@@ -133,6 +133,8 @@ public class ProcessGrouperParameter {
                 grouper.setSdx(grouperparameter.getSdx());
             }
             //END CLEANING SDX
+//            System.out.println("BDAY " + grouper.getBirthDate());
+
             grouper.setDischargeType(grouperparameter.getDischargeType());
             grouper.setAdmissionWeight(grouperparameter.getAdmissionWeight());
             //===================VALIDATION AREA ==================================
@@ -174,10 +176,12 @@ public class ProcessGrouperParameter {
                     drgresult.setDRG("26509");
                     drgresult.setDC("2650");
                     drgresult.setDRGName("Invalid Age");
+//                    System.out.println("INVALID 1");
                 } else if (!utility.IsValidDate(grouper.getBirthDate())) {
                     drgresult.setDRG("26509");
                     drgresult.setDC("2650");
                     drgresult.setDRGName("Invalid Age");
+//                    System.out.println("INVALID 2");
                 } else if (grouper.getTimeAdmission().isEmpty()) {
                     drgresult.setDRG("26509");
                     drgresult.setDC("2650");
@@ -204,7 +208,7 @@ public class ProcessGrouperParameter {
                     drgresult.setDRGName("Disposition is not valid");
                 } else if (utility.ComputeYear(grouper.getBirthDate(), grouper.getAdmissionDate()) == 0
                         && utility.ComputeDay(grouper.getBirthDate(), grouper.getAdmissionDate()) < 28) {
-                    if (grouper.getAdmissionWeight() != null) {
+                    if (!grouper.getAdmissionWeight().isEmpty()) {
                         if (!utility.isValidNumeric(grouper.getAdmissionWeight())) {
                             drgresult.setDRG("26509");
                             drgresult.setDC("2650");
@@ -252,13 +256,12 @@ public class ProcessGrouperParameter {
                         drgresult.getDC(),
                         grouper.getResult_id(),
                         grouper.getClaimseries(),
-                        drgresult.getDRG());
+                        drgresult.getDRG(),
+                        drgresult.getDRGName());
                 if (updatedrgresult.isSuccess()) {
-                    result.setMessage(updatedrgresult.getMessage());
                     result.setSuccess(true);
-                } else {
-                    result.setMessage(updatedrgresult.getMessage());
                 }
+                result.setMessage(updatedrgresult.getMessage());
                 drgresult.setClaimseries(grouperparameter.getClaimseries());
                 result.setResult(utility.objectMapper().writeValueAsString(drgresult));
             } else {
@@ -271,7 +274,7 @@ public class ProcessGrouperParameter {
                             drgResults.getDC(),
                             grouper.getResult_id(),
                             grouper.getClaimseries(),
-                            drgResults.getDRG());
+                            drgResults.getDRG(), "");
                     drgResults.setResultid(grouper.getResult_id());
                     drgResults.setClaimseries(grouperparameter.getClaimseries());
                     result.setSuccess(true);
