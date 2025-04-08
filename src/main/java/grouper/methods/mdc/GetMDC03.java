@@ -34,15 +34,14 @@ public class GetMDC03 {
 
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC03(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter)   {
+    public DRGWSResult GetMDC03(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
-        List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
-        List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        GrouperMethod gm = new GrouperMethod();
         try {
+            List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
+            List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             //CHECKING FOR 3PDX USING PROC
             int Counter3PDX = 0;
             int Counter3PBX = 0;
@@ -56,13 +55,10 @@ public class GetMDC03 {
             int Counter3BX = 0;
             //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
-                String Secon = SecondaryList.get(a);
-                DRGWSResult Result99BX = gm.AX(datasource, "99BX", Secon.toUpperCase().trim());
-                if (Result99BX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
                 }
-                DRGWSResult Result99CX = gm.AX(datasource, "99CX", Secon.toUpperCase().trim());
-                if (Result99CX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
 
@@ -76,75 +72,63 @@ public class GetMDC03 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
-                String proc = ProcedureList.get(y);
-                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
+                DRGWSResult JoinResult = new GrouperMethod().MDCProcedure(datasource, ProcedureList.get(y).trim(), drgResult.getMDC());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                    if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
+                    DRGWSResult pdcresult = new GrouperMethod().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
                 //AX 3PBX Checking
-                DRGWSResult Result3PBX = gm.AX(datasource, "3PBX", proc.trim());
-                if (Result3PBX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "3PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter3PBX++;
                 }
                 //AX 3PEX Checking
-                DRGWSResult Result3PEX = gm.AX(datasource, "3PEX", proc.trim());
-                if (Result3PEX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "3PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter3PEX++;
                 }
                 //AX 99PEX Checking
-                DRGWSResult Result99PEX = gm.AX(datasource, "99PEX", proc.trim());
-                if (Result99PEX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
                 //AX 99PFX Checking
-                DRGWSResult Result99PFX = gm.AX(datasource, "99PFX", proc.trim());
-                if (Result99PFX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
 
                 //AX 3PCX Checking
-                DRGWSResult Result3PCX = gm.AX(datasource, "3PCX", proc.trim());
-                if (Result3PCX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "3PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCX3Proc++;
                 }
                 //AX 99PBX Checking
-                DRGWSResult Result99PBX = gm.AX(datasource, "99PBX", proc.trim());
-                if (Result99PBX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
 
                 //AX 3PDX Checking
-                DRGWSResult Result3PDX = gm.AX(datasource, "3PDX", proc.trim());
-                if (Result3PDX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "3PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter3PDX++;
                 }
 
-                DRGWSResult ORProcedureResult = gm.ORProcedure(datasource, proc.trim());
+                DRGWSResult ORProcedureResult = new GrouperMethod().ORProcedure(datasource, ProcedureList.get(y).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                DRGWSResult Result99PDX = gm.AX(datasource, "99PDX", proc.trim());
-                if (Result99PDX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
 
                 //AX 99PCX Checking
-                DRGWSResult Result99PCX = gm.AX(datasource, "99PCX", proc.trim());
-                if (Result99PCX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
             }
-
-            DRGWSResult Result3BX = gm.AX(datasource, "3BX", grouperparameter.getPdx().toUpperCase().trim());
-            if (Result3BX.isSuccess()) {
+            if (new GrouperMethod().AX(datasource, "3BX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
                 Counter3BX++;
             }
 
@@ -450,56 +434,50 @@ public class GetMDC03 {
 
             // PROCESS PCCL
             if (drgResult.getDRG() == null) {
-
                 //-------------------------------------------------------------------------------------
                 if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     //----------------------------------------------------------------------
-                    //  String sdxfinalList = gm.CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                    String sdxfinalList = gm.CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                    DRGWSResult getpcclvalue = gm.GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
+                    //  String sdxfinalList =  new GrouperMethod().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
+                    String sdxfinalList = new GrouperMethod().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
+                    DRGWSResult getpcclvalue = new GrouperMethod().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
                     if (getpcclvalue.isSuccess()) {
                         DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
-                        String drgValue = finaldrgresult.getDRG();
-                        DRGWSResult drgname = gm.DRG(datasource, drgResult.getDC(), drgValue);
                         //-----------------------------------------------------------------------
-                        if (drgname.isSuccess()) {
-                            drgResult.setDRG(drgValue);
-                            drgResult.setDRGName(drgname.getMessage());
+                        if (new GrouperMethod().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
+                            drgResult.setDRG(finaldrgresult.getDRG());
+                            drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
                         } else {
-                            DRGWSResult drgvalues = gm.ValidatePCCL(datasource, drgResult.getDC(), drgValue);
+                            DRGWSResult drgvalues = new GrouperMethod().ValidatePCCL(datasource, drgResult.getDC(), finaldrgresult.getDRG());
                             if (drgvalues.isSuccess()) {
                                 drgResult.setDRG(drgResult.getDC() + drgvalues.getResult());
-                                DRGWSResult drgnames = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
+                                DRGWSResult drgnames = new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG());
                                 drgResult.setDRGName(drgnames.getMessage());
                             } else {
-                                drgResult.setDRG(drgValue);
+                                drgResult.setDRG(finaldrgresult.getDRG());
                                 drgResult.setDRGName("Grouper Error");
                             }
                         }
                     } else {
-                        drgResult.setDRG("00000");
+                        drgResult.setDRG(drgResult.getDC() + "X");
                         drgResult.setDRGName("Grouper Error");
                     }
                 }
-                result.setSuccess(true);
                 //----------------------------------------------------------------------
             } else {
-                result.setSuccess(true);
-                DRGWSResult drgname = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
-                if (drgname.isSuccess()) {
-                    drgResult.setDRGName(drgname.getMessage());
+                if (new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
+                    drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
                 } else {
                     drgResult.setDRGName("No DRG Name Found");
                 }
             }
-
+            result.setSuccess(true);
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setMessage("MDC 03 Done Checking");
 
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GetMDC03.class.getName()).log(Level.SEVERE, null, ex);
         }
 

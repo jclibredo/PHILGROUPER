@@ -34,51 +34,41 @@ public class GetValidatedPreMDC {
 
     public DRGWSResult GetValidatedPreMDC(final DataSource datasource, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
-        DRGOutput drgResult = new DRGOutput();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
-        ProcessMDC getdc = new ProcessMDC();
-        GrouperMethod gm = new GrouperMethod();
-        List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().trim().split(","));
-        List<String> SDxList = Arrays.asList(grouperparameter.getSdx().trim().split(","));
         String pdx = "";
-
         try {
-            String Days = String.valueOf(utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
-            String Years = String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+            List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().trim().split(","));
+            List<String> SDxList = Arrays.asList(grouperparameter.getSdx().trim().split(","));
+            DRGOutput drgResult = new DRGOutput();
             int finaldays = 0;
-            if (Integer.parseInt(Years) > 0) {
-                finaldays = Integer.parseInt(Years) * 365;
+            if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
+                finaldays = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) * 365;
             } else {
-                finaldays = Integer.parseInt(Days);
+                finaldays = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             }
-            DRGWSResult getAgeConfictResult = gm.AgeConfictValidation(datasource,
-                    grouperparameter.getPdx(), String.valueOf(finaldays), Years);
+            DRGWSResult getAgeConfictResult = new GrouperMethod().AgeConfictValidation(datasource,
+                    grouperparameter.getPdx(), String.valueOf(finaldays), String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())));
             if (!getAgeConfictResult.isSuccess()) {
                 drgResult.setDRG("26539");
                 drgResult.setDC("2653");
                 drgResult.setDRGName("PDx : " + grouperparameter.getPdx() + " Having conflict with age");
             } else {
-                DRGWSResult icd10SortResult = gm.GetICD10(datasource, grouperparameter.getPdx(), String.valueOf(finaldays), Years, grouperparameter.getGender());
-
+                DRGWSResult icd10SortResult = new GrouperMethod().GetICD10(datasource, grouperparameter.getPdx(), String.valueOf(finaldays), String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())), grouperparameter.getGender());
                 ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(icd10SortResult.getResult(), ICD10PreMDCResult.class);
-                DRGWSResult GetBMDC = gm.GetBMDC(datasource, grouperparameter.getPdx());
+//                DRGWSResult GetBMDC = new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx());
                 int TraumaCounterPDXO = 0;
                 int TraumaCounterPDX1 = 0;
-                DRGWSResult TraumaPrimary = gm.TRAUMAICD10(datasource, grouperparameter.getPdx());
-
-                if (TraumaPrimary.isSuccess()) {
-                    if (!TraumaPrimary.getResult().equals("0")) {
+//                DRGWSResult TraumaPrimary = new GrouperMethod().TRAUMAICD10(datasource, grouperparameter.getPdx());
+                if (new GrouperMethod().TRAUMAICD10(datasource, grouperparameter.getPdx()).isSuccess()) {
+                    if (!new GrouperMethod().TRAUMAICD10(datasource, grouperparameter.getPdx()).getResult().equals("0")) {
                         TraumaCounterPDX1++;
-                        pdx = TraumaPrimary.getResult();
+                        pdx = new GrouperMethod().TRAUMAICD10(datasource, grouperparameter.getPdx()).getResult();
                     } else {
                         TraumaCounterPDXO++;
                     }
                 }
-//                int ProccCount = 0;
-//                int SDXcountO = 0;
-//                int SDXcountI = 0;
                 LinkedList<String> procSite = new LinkedList<>();
                 LinkedList<String> sdxSite = new LinkedList<>();
                 LinkedList<String> sdxnewlist = new LinkedList<>();
@@ -90,60 +80,45 @@ public class GetValidatedPreMDC {
                 LinkedList<String> sdxpdxnewlist = new LinkedList<>();
                 if (SDxList.size() > 0) {
                     for (int x = 0; x < SDxList.size(); x++) {
-                        String secon = SDxList.get(x);
-                        DRGWSResult SDxVal = gm.TRAUMAICD10(datasource, secon);
-                        if (String.valueOf(SDxVal.isSuccess()).equals("true")) {
-                            if (!SDxVal.getResult().equals("0")) {
+//                        DRGWSResult SDxVal = new GrouperMethod().TRAUMAICD10(datasource, SDxList.get(x).trim());
+                        if (new GrouperMethod().TRAUMAICD10(datasource, SDxList.get(x).trim()).isSuccess()) {
+                            if (!new GrouperMethod().TRAUMAICD10(datasource, SDxList.get(x).trim()).getResult().equals("0")) {
 //                                SDXcountI++;
-                                sdxSite.add(SDxVal.getResult());
-                                sdxnewlist.add(SDxVal.getResult());
+                                sdxSite.add(new GrouperMethod().TRAUMAICD10(datasource, SDxList.get(x).trim()).getResult());
+                                sdxnewlist.add(new GrouperMethod().TRAUMAICD10(datasource, SDxList.get(x).trim()).getResult());
                             }
                         }
                     }
                 }
-
-                String OCX = "0CX";
-                String ODX = "0DX";
-                String OEX = "0EX";
-
                 int Counter0CX = 0;
                 int Counter0DX = 0;
                 int Counter0EX = 0;
                 int PDC0PB = 0;
                 int PDC0PD = 0;
                 int PDC0PA = 0;
-                DRGWSResult ResultOCX = gm.AX(datasource, OCX, grouperparameter.getPdx());
-                if (ResultOCX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "0CX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0CX++;
                 }
-                DRGWSResult ResultODX = gm.AX(datasource, ODX, grouperparameter.getPdx());
-                if (ResultODX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "0DX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0DX++;
                 }
-                DRGWSResult ResultOEX = gm.AX(datasource, OEX, grouperparameter.getPdx());
-                if (ResultOEX.isSuccess()) {
+                if (new GrouperMethod().AX(datasource, "0EX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0EX++;
                 }
-
                 if (ProcedureList.size() > 0) {
                     for (int x = 0; x < ProcedureList.size(); x++) {
-                        String proc = ProcedureList.get(x);
-                        DRGWSResult PROC = gm.TRAUMAICD9CM(datasource, proc);
-                        if (PROC.isSuccess()) {
+                        if (new GrouperMethod().TRAUMAICD9CM(datasource, ProcedureList.get(x).trim()).isSuccess()) {
 //                            ProccCount++;
-                            procSite.add(PROC.getResult());
-                            procnewlist.add(PROC.getResult());
+                            procSite.add(new GrouperMethod().TRAUMAICD9CM(datasource, ProcedureList.get(x).trim()).getResult());
+                            procnewlist.add(new GrouperMethod().TRAUMAICD9CM(datasource, ProcedureList.get(x).trim()).getResult());
                         }
-                        DRGWSResult PDC0pb = gm.Endovasc(datasource, proc, "0PB", "0");
-                        if (PDC0pb.isSuccess()) {
+                        if (new GrouperMethod().Endovasc(datasource, ProcedureList.get(x).trim(), "0PB", "0").isSuccess()) {
                             PDC0PB++;
                         }
-                        DRGWSResult PDC0pd = gm.Endovasc(datasource, proc, "0PD", "0");
-                        if (PDC0pd.isSuccess()) {
+                        if (new GrouperMethod().Endovasc(datasource, ProcedureList.get(x).trim(), "0PD", "0").isSuccess()) {
                             PDC0PD++;
                         }
-                        DRGWSResult PDC0pa = gm.Endovasc(datasource, proc, "0PA", "0");
-                        if (PDC0pa.isSuccess()) {
+                        if (new GrouperMethod().Endovasc(datasource, ProcedureList.get(x).trim(), "0PA", "0").isSuccess()) {
                             PDC0PA++;
                         }
 
@@ -166,7 +141,6 @@ public class GetValidatedPreMDC {
                     }
                 }
                 //-------------------------------------------------------------
-
                 for (int i = 0; i < sdxnewlist.size(); i++) {
                     int indexvalue = dupsdxnewlist.indexOf(String.valueOf(i));
                     if (indexvalue >= 0) {
@@ -175,7 +149,6 @@ public class GetValidatedPreMDC {
                         sdxpdxnewlist.add(sdxnewlist.get(i));
                     }
                 }
-
                 for (int i = 0; i < procnewlist.size(); i++) {
                     int indexvalue = dupprocnewlist.indexOf(String.valueOf(i));
                     if (indexvalue >= 0) {
@@ -183,16 +156,14 @@ public class GetValidatedPreMDC {
                         finalprocnewlist.add(procnewlist.get(i));
                     }
                 }
-
                 //-------------------------------------------------
                 if (!pdx.isEmpty()) {
                     sdxpdxnewlist.remove(pdx);
                 }
-
                 // START OF PARSING PART
-                if (GetBMDC.isSuccess()) {
-                    DRGWSResult restA = gm.COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx());
-                    BMDCPreMDCResult bmdcResult = utility.objectMapper().readValue(GetBMDC.getResult(), BMDCPreMDCResult.class);
+                if (new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).isSuccess()) {
+//                    DRGWSResult restA = new GrouperMethod().COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx());
+//                    BMDCPreMDCResult bmdcResult = utility.objectMapper().readValue(GetBMDC.getResult(), BMDCPreMDCResult.class);
                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
                         drgResult.setDRG("26539");
                         drgResult.setDRGName("Invalid Age");
@@ -237,13 +208,13 @@ public class GetValidatedPreMDC {
                         drgResult.setMDC("25");
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) == 0 && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 28) {
                         drgResult.setMDC("15");
-                    } else if (restA.isSuccess()) {
-                        if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("M")) {
-                            drgResult.setMDC(bmdcResult.getMDC_M());
-                            drgResult.setPDC(bmdcResult.getPDC_M());
-                        } else if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("F")) {
-                            drgResult.setMDC(bmdcResult.getMDC_F());
-                            drgResult.setPDC(bmdcResult.getPDC_F());
+                    } else if (new GrouperMethod().COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx()).isSuccess()) {
+                        if (utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("M")) {
+                            drgResult.setMDC(utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getMDC_M());
+                            drgResult.setPDC(utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getPDC_M());
+                        } else if (utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("F")) {
+                            drgResult.setMDC(utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getMDC_F());
+                            drgResult.setPDC(utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getPDC_F());
                         }
                     } else {
                         drgResult.setMDC(icd10Result.getMDC());
@@ -340,25 +311,18 @@ public class GetValidatedPreMDC {
                         drgResults.setPDC(drgResult.getPDC());
                         drgResults.setRW(drgResult.getRW());
 //                        //-----------------------------------------------
-                        DRGWSResult getdcResult = getdc.ProcessMDC(datasource, drgResults, grouperparameter);
-                        result.setMessage(getdcResult.getMessage());
-                        result.setSuccess(getdcResult.isSuccess());
-                        result.setResult(getdcResult.getResult());
+                        result = new ProcessMDC().ProcessMDC(datasource, drgResults, grouperparameter);
                     }
                 } else {
-                    DRGWSResult getdcResult = getdc.ProcessMDC(datasource, drgResult, grouperparameter);
-                    result.setMessage(getdcResult.getMessage());
-                    result.setSuccess(getdcResult.isSuccess());
-                    result.setResult(getdcResult.getResult());
+                    result = new ProcessMDC().ProcessMDC(datasource, drgResult, grouperparameter);
                 }
-
             } else {
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
                 result.setMessage("Grouper Done in Pre-MDC level only");
             }
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GetValidatedPreMDC.class.getName()).log(Level.SEVERE, null, ex);
         }
 

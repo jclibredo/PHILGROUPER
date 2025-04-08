@@ -67,7 +67,7 @@ public class Seeker {
                 result = "SERVER DATE AND TIME : " + String.valueOf(utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a").format(rest.getDate("SYSDATE")));
             }
         } catch (SQLException ex) {
-            result = ex.toString();
+            result = "Something went wrong";
             Logger.getLogger(Seeker.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -91,10 +91,7 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            DRGWSResult getResult = new SeekerMethods().GetAllUser(dataSource);
-            result.setMessage(getResult.getMessage());
-            result.setResult(getResult.getResult());
-            result.setSuccess(getResult.isSuccess());
+            result = new SeekerMethods().GetAllUser(dataSource);
         }
         return result;
     }
@@ -112,9 +109,7 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result.setMessage(new SeekerMethods().GetUserByID(dataSource, puserid).getMessage());
-            result.setResult(new SeekerMethods().GetUserByID(dataSource, puserid).getResult());
-            result.setSuccess(new SeekerMethods().GetUserByID(dataSource, puserid).isSuccess());
+            result = new SeekerMethods().GetUserByID(dataSource, puserid);
         }
         return result;
     }
@@ -130,14 +125,10 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-//        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-//            DRGWSResult resultOtp = new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp());
-            result.setMessage(new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp()).getMessage());
-            result.setSuccess(new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp()).isSuccess());
-            result.setResult(new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp()).getResult());
+            result = new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp());
         }
         return result;
     }
@@ -153,14 +144,10 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-//        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-//            DRGWSResult insertresult = new SeekerMethods().UserInsert(dataSource, user, session);
-            result.setMessage(new SeekerMethods().UserInsert(dataSource, user, session).getMessage());
-            result.setSuccess(new SeekerMethods().UserInsert(dataSource, user, session).isSuccess());
-            result.setResult(new SeekerMethods().UserInsert(dataSource, user, session).getResult());
+            result = new SeekerMethods().UserInsert(dataSource, user, session);
         }
         return result;
     }
@@ -176,18 +163,13 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-//        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-//            DRGWSResult validate = new SeekerMethods().ValidateUserUpdate(dataSource, user);
             if (!new SeekerMethods().ValidateUserUpdate(dataSource, user).isSuccess()) {
                 result.setMessage(new SeekerMethods().ValidateUserUpdate(dataSource, user).getMessage());
             } else {
-//                DRGWSResult updateresult = new SeekerMethods().UserUpdate(dataSource, user);
-                result.setMessage(new SeekerMethods().UserUpdate(dataSource, user).getMessage());
-                result.setSuccess(new SeekerMethods().UserUpdate(dataSource, user).isSuccess());
-                result.setResult(new SeekerMethods().UserUpdate(dataSource, user).getResult());
+                result = new SeekerMethods().UserUpdate(dataSource, user);
             }
         }
         return result;
@@ -201,7 +183,6 @@ public class Seeker {
             @HeaderParam("email") String email,
             @HeaderParam("password") String password,
             @HeaderParam("expire") String expire) {
-//        DRGWSResult insertresult = new SeekerMethods().UserLogin(dataSource, email.trim(), password, expire.trim(), session);
         return new SeekerMethods().UserLogin(dataSource, email.trim(), password, expire.trim(), session);
     }
 
@@ -211,12 +192,6 @@ public class Seeker {
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult ForgetPassword(
             @HeaderParam("mail") String mail) {
-//        DRGWSResult result = utility.DRGWSResult();
-//        DRGWSResult Updatepass = new SeekerMethods().TestEmailSender(dataSource, mail, utility.GenerateRandomPassword(10), "FORGET", "OTP");
-//        result.setMessage(Updatepass.getMessage());
-//        result.setResult(Updatepass.getResult());
-//        result.setSuccess(Updatepass.isSuccess());
-//        return new SeekerMethods().TestEmailSender(dataSource, mail, utility.GenerateRandomPassword(10), "FORGET", "OTP");
         return new SeekerMethods().ForgatPassword(dataSource, mail, utility.GenerateRandomPassword(10), session);
     }
 
@@ -239,7 +214,6 @@ public class Seeker {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-//        DRGWSResult GetPayLoad = utility.GetPayload(dataSource, token);
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
@@ -362,7 +336,7 @@ public class Seeker {
                 }
             }
         } catch (IOException | URISyntaxException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(Seeker.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;

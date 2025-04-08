@@ -28,7 +28,6 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -69,10 +68,10 @@ public class GrouperMethod {
     //GET ICD10 FOR KEY VALUE PAIR VALIDATION
     public DRGWSResult GetICD10(final DataSource datasource, final String p_icd10_code) {
         DRGWSResult result = utility.DRGWSResult();
+        result.setSuccess(false);
+        result.setMessage("");
+        result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            result.setSuccess(false);
-            result.setMessage("");
-            result.setResult("");
             CallableStatement statement = connection.prepareCall("begin :p_validcode := MINOSUN.DRGPKGFUNCTION.get_valid_icd10(:p_icd10_code); end;");
             statement.registerOutParameter("p_validcode", OracleTypes.CURSOR);
             statement.setString("p_icd10_code", p_icd10_code);
@@ -86,7 +85,7 @@ public class GrouperMethod {
                 result.setMessage("No ICD10 Record Found");
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -111,7 +110,7 @@ public class GrouperMethod {
                 result.setMessage("N/A");
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -120,10 +119,10 @@ public class GrouperMethod {
     //PDX used to find MDC
     public DRGWSResult PDXandMDC(final DataSource datasource, final String pdx, final String mdc) {
         DRGWSResult result = utility.DRGWSResult();
+        result.setSuccess(false);
+        result.setMessage("");
+        result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            result.setSuccess(false);
-            result.setMessage("");
-            result.setResult("");
             CallableStatement statement = connection.prepareCall("begin :pdxmdc := MINOSUN.DRGPKGFUNCTION.GET_PDX_MDC(:pdx,:mdc); end;");
             statement.registerOutParameter("pdxmdc", OracleTypes.CURSOR);
             statement.setString("pdx", pdx);
@@ -153,7 +152,7 @@ public class GrouperMethod {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -162,10 +161,10 @@ public class GrouperMethod {
     // GET ICD10 FOR PRE MDC VALIDATION PROCESS
     public DRGWSResult GetICD10PreMDC(final DataSource datasource, final String pdx) {
         DRGWSResult result = utility.DRGWSResult();
+        result.setSuccess(false);
+        result.setMessage("");
+        result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            result.setSuccess(false);
-            result.setMessage("");
-            result.setResult("");
             CallableStatement statement = connection.prepareCall("begin :accpdxs := MINOSUN.DRGPKGFUNCTION.GET_ICD10PREMDC(:pdx); end;");
             statement.registerOutParameter("accpdxs", OracleTypes.CURSOR);
             statement.setString("pdx", pdx.toUpperCase().trim());
@@ -194,7 +193,7 @@ public class GrouperMethod {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -228,7 +227,7 @@ public class GrouperMethod {
             }
 
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -256,7 +255,7 @@ public class GrouperMethod {
                 }
             }
         } catch (Exception ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -271,61 +270,71 @@ public class GrouperMethod {
         ArrayList<String> errorList = new ArrayList<>();
         ArrayList<GrouperParameter> grouperparameterlsit = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getDRGParam = connection.prepareCall("begin :drgresult := MINOSUN.DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
-            getDRGParam.registerOutParameter("drgresult", OracleTypes.CURSOR);
-            getDRGParam.setString("tagss", tagss.trim());
-            getDRGParam.execute();
+            CallableStatement state = connection.prepareCall("begin :drgresult := MINOSUN.DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
+            state.registerOutParameter("drgresult", OracleTypes.CURSOR);
+            state.setString("tagss", tagss.trim());
+            state.execute();
             int stopper = 0;
-            ResultSet getDRGParamResult = (ResultSet) getDRGParam.getObject("drgresult");
-            while (getDRGParamResult.next()) {
+            ResultSet resultset = (ResultSet) state.getObject("drgresult");
+            while (resultset.next()) {
                 GrouperParameter ggrouperparameter = new GrouperParameter();
                 DRGRESULT drgresultparam = new DRGRESULT();
                 //======================================================GET GROUPER RESULT
-                drgresultparam.setResult_id(getDRGParamResult.getString("RESULT_ID"));
-                ggrouperparameter.setResult_id(getDRGParamResult.getString("RESULT_ID"));
-                drgresultparam.setSeriesnum(getDRGParamResult.getString("CLAIMS_SERIES"));
-                if (getDRGParamResult.getString("PDX") == null || getDRGParamResult.getString("PDX").isEmpty() || getDRGParamResult.getString("PDX").equals("")) {
+                drgresultparam.setResult_id(resultset.getString("RESULT_ID"));
+                ggrouperparameter.setResult_id(resultset.getString("RESULT_ID"));
+                drgresultparam.setSeriesnum(resultset.getString("CLAIMS_SERIES"));
+                if (resultset.getString("PDX") == null || resultset.getString("PDX").isEmpty() || resultset.getString("PDX").equals("")) {
                     drgresultparam.setPdx("");
                     ggrouperparameter.setPdx("");
                 } else {
-                    drgresultparam.setPdx(getDRGParamResult.getString("PDX"));
-                    ggrouperparameter.setPdx(getDRGParamResult.getString("PDX"));
+                    if (this.GetICD10PreMDC(datasource, resultset.getString("PDX").replaceAll("\\.", "").toUpperCase()).isSuccess()) {
+                        drgresultparam.setPdx(resultset.getString("PDX").replaceAll("\\.", "").toUpperCase());
+                        ggrouperparameter.setPdx(resultset.getString("PDX").replaceAll("\\.", "").toUpperCase());
+                    } else if (this.GetICD10PreMDC(datasource, (resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase()).isSuccess()) {
+                        drgresultparam.setPdx((resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase());
+                        ggrouperparameter.setPdx((resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase());
+                    } else {
+                        drgresultparam.setPdx("");
+                        ggrouperparameter.setPdx("");
+                    }
                 }
-                drgresultparam.setLhio(getDRGParamResult.getString("LHIO"));
-                ggrouperparameter.setIdseries(getDRGParamResult.getString("CLAIM_ID"));
+                drgresultparam.setLhio(resultset.getString("LHIO"));
+                ggrouperparameter.setIdseries(resultset.getString("CLAIM_ID"));
                 //=====================================================================
-                if (getDRGParamResult.getString("PROC") == null || getDRGParamResult.getString("PROC").isEmpty() || getDRGParamResult.getString("PROC").equals("")) {
+                if (resultset.getString("PROC") == null || resultset.getString("PROC").isEmpty() || resultset.getString("PROC").equals("")) {
                     drgresultparam.setProc("");
                     ggrouperparameter.setProc("");
                 } else {
-                    drgresultparam.setProc(getDRGParamResult.getString("PROC"));
-                    ggrouperparameter.setProc(getDRGParamResult.getString("PROC"));
+                    drgresultparam.setProc(resultset.getString("PROC"));
+                    ggrouperparameter.setProc(resultset.getString("PROC"));
                 }
                 //======================================================================
-                if (getDRGParamResult.getString("SDX") == null || getDRGParamResult.getString("SDX").isEmpty() || getDRGParamResult.getString("SDX").equals("")) {
+                if (resultset.getString("SDX") == null || resultset.getString("SDX").isEmpty() || resultset.getString("SDX").equals("")) {
                     drgresultparam.setSdx("");
                     ggrouperparameter.setSdx("");
                 } else {
-                    drgresultparam.setSdx(getDRGParamResult.getString("SDX"));
-                    ggrouperparameter.setSdx(getDRGParamResult.getString("SDX"));
+                    drgresultparam.setSdx(resultset.getString("SDX"));
+                    ggrouperparameter.setSdx(resultset.getString("SDX"));
                 }
                 //======================================================================
-                drgresultparam.setTags(getDRGParamResult.getString("TAGS"));
+                drgresultparam.setTags(resultset.getString("TAGS"));
                 //========================================== DRG XML GET PATIENT INFO
                 CallableStatement getdrg_info = connection.prepareCall("begin :getdrginfo := MINOSUN.DRGPKGFUNCTION.GET_DRG_INFO(:seriesnums); end;");
                 getdrg_info.registerOutParameter("getdrginfo", OracleTypes.CURSOR);
-                getdrg_info.setString("seriesnums", getDRGParamResult.getString("CLAIMS_SERIES").trim());
+                getdrg_info.setString("seriesnums", resultset.getString("CLAIMS_SERIES").trim());
                 getdrg_info.execute();
                 ResultSet infoResult = (ResultSet) getdrg_info.getObject("getdrginfo");
                 if (infoResult.next()) {
                     ggrouperparameter.setAdmissionWeight(infoResult.getString("NB_ADMWEIGHT") == null
                             || infoResult.getString("NB_ADMWEIGHT").isEmpty()
                             || infoResult.getString("NB_ADMWEIGHT").equals("") ? "" : infoResult.getString("NB_ADMWEIGHT"));
+                } else {
+                    ggrouperparameter.setAdmissionWeight("");
                 }
                 //==============================================ECLAIMS XML GET NCLAIMS DATA============================================================
                 CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.UHCDRGPKG.GETPATIENTDATA(:seriesnums); end;");
                 statement.registerOutParameter("v_result", OracleTypes.CURSOR);
-                statement.setString("seriesnums", getDRGParamResult.getString("CLAIMS_SERIES"));
+                statement.setString("seriesnums", resultset.getString("CLAIMS_SERIES"));
                 statement.execute();
                 ResultSet resultSet = (ResultSet) statement.getObject("v_result");
                 if (resultSet.next()) {
@@ -361,8 +370,8 @@ public class GrouperMethod {
 //                        } else {
 //                            ggrouperparameter.setBirthDate("");
 //                        }
-                    ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess()
-                            ? "" : this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult());
+                    ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, resultset.getString("CLAIMS_SERIES").trim()).isSuccess()
+                            ? "" : this.GETPATIENTBDAY(datasource, resultset.getString("CLAIMS_SERIES").trim()).getResult());
 //                    } else {
 //                        ggrouperparameter.setBirthDate("");
 //                    }
@@ -373,7 +382,7 @@ public class GrouperMethod {
                             || resultSet.getString("GENDER").equals("")
                             || resultSet.getString("GENDER").isEmpty() ? "" : resultSet.getString("GENDER"));
                     //SERIES
-                    ggrouperparameter.setClaimseries(getDRGParamResult.getString("CLAIMS_SERIES"));
+                    ggrouperparameter.setClaimseries(resultset.getString("CLAIMS_SERIES"));
                     switch (resultSet.getString("DISCHARGETYPE")) {
                         case "E": {
                             ggrouperparameter.setDischargeType("8");
@@ -408,7 +417,7 @@ public class GrouperMethod {
 
                     grouperparameterlsit.add(ggrouperparameter);
                 } else {
-                    errorList.add(getDRGParamResult.getString("CLAIMS_SERIES") + " NOT FOUND");
+                    errorList.add(resultset.getString("CLAIMS_SERIES") + " NOT FOUND");
                 }
                 stopper++;
                 if (stopper == 500) {
@@ -416,6 +425,7 @@ public class GrouperMethod {
                 }
             }
             ArrayList<DRGOutput> drgresultList = new ArrayList<>();
+            System.out.println(grouperparameterlsit);
             for (int y = 0; y < grouperparameterlsit.size(); y++) {
                 DRGWSResult processResult = new ProcessGrouperParameter().ProcessGrouperParameter(datasource, grouperparameterlsit.get(y));
                 if (processResult.isSuccess()) {
@@ -423,16 +433,15 @@ public class GrouperMethod {
                     drgresultList.add(drgout);
                 }
             }
-            if (!drgresultList.isEmpty()) {
+            if (drgresultList.size() > 0) {
                 result.setSuccess(true);
                 result.setMessage("OK");
                 result.setResult(utility.objectMapper().writeValueAsString(drgresultList));
             } else {
-                result.setMessage("NO DATA FOUND");
+                result.setMessage("NO DATA FOUND here");
             }
-//        } catch (SQLException | IOException | ParseException ex) {
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -455,11 +464,12 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
+
     //UPDATE DRG RESULT AND CHANGE TAGS VALUE
     public DRGWSResult UpdateDRGResult(final DataSource datasource,
             final String mdcs,
@@ -474,7 +484,7 @@ public class GrouperMethod {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement updatedrgresult = connection.prepareCall("call DRGPKGPROCEDURE.UPDATE_DRG_RESULT(:Message,:Code,:umdc,:updc,:udc,:uresultid,:useries,:utags,:udrg,:drgdetails)");
+            CallableStatement updatedrgresult = connection.prepareCall("call MINOSUN.DRGPKGPROCEDURE.UPDATE_DRG_RESULT(:Message,:Code,:umdc,:updc,:udc,:uresultid,:useries,:utags,:udrg,:drgdetails)");
             updatedrgresult.registerOutParameter("Message", OracleTypes.VARCHAR);
             updatedrgresult.registerOutParameter("Code", OracleTypes.INTEGER);
             updatedrgresult.setString("umdc", mdcs);
@@ -492,7 +502,7 @@ public class GrouperMethod {
             result.setMessage(updatedrgresult.getString("Code"));
             result.setResult(updatedrgresult.getString("Message"));
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -550,7 +560,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -572,7 +582,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -602,7 +612,7 @@ public class GrouperMethod {
             result.setMessage(auditrail.getString("Code"));
             result.setResult(auditrail.getString("Message"));
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -636,7 +646,7 @@ public class GrouperMethod {
                 result.setMessage(auditrail.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -736,7 +746,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -779,7 +789,7 @@ public class GrouperMethod {
                 }
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -809,7 +819,7 @@ public class GrouperMethod {
                 result.setResult(utility.objectMapper().writeValueAsString(bmdcResult));
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -840,7 +850,7 @@ public class GrouperMethod {
                 result.setResult(utility.objectMapper().writeValueAsString(pdcReult));
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -892,7 +902,7 @@ public class GrouperMethod {
                 result = PDCPDxResultset.getString("PDC");
             }
         } catch (SQLException ex) {
-            result = ex.toString();
+            result = "Something went wrong";
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -919,7 +929,7 @@ public class GrouperMethod {
                 result.setResult(utility.objectMapper().writeValueAsString(mdcData));
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -953,7 +963,7 @@ public class GrouperMethod {
                 result.setMessage(drgOutput.getDRGName());
             }
         } catch (IOException | SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -992,7 +1002,7 @@ public class GrouperMethod {
                 result.setMessage(MDCProcResultset.getString("PROC_SITE"));
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1029,7 +1039,7 @@ public class GrouperMethod {
                 result.setResult(utility.objectMapper().writeValueAsString(mdcProcedure));
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1052,7 +1062,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1076,7 +1086,7 @@ public class GrouperMethod {
                 result.setResult(ORProceResultset.getString("PROCGR"));
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1106,7 +1116,7 @@ public class GrouperMethod {
                 result.setMessage(DCResultset.getString("DCCOL"));
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1139,7 +1149,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1165,7 +1175,7 @@ public class GrouperMethod {
                 result.setResult(utility.objectMapper().writeValueAsString(cclresults));
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1178,18 +1188,18 @@ public class GrouperMethod {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetUnralatedORproce = connection.prepareCall("begin :unralated_or_proc := MINOSUN.DRGPKGFUNCTION.GET_UNRALATED_PROC_ORPROC(:icd9codes,:mdccode); end;");
-            GetUnralatedORproce.registerOutParameter("unralated_or_proc", OracleTypes.CURSOR);
-            GetUnralatedORproce.setString("icd9codes", icd9codes);
-            GetUnralatedORproce.setString("mdccode", mdccode);
-            GetUnralatedORproce.execute();
-            ResultSet UnralatedORProceResultset = (ResultSet) GetUnralatedORproce.getObject("unralated_or_proc");
-            if (UnralatedORProceResultset.next()) {
+            CallableStatement statement = connection.prepareCall("begin :unralated_or_proc := MINOSUN.DRGPKGFUNCTION.GET_UNRALATED_PROC_ORPROC(:icd9codes,:mdccode); end;");
+            statement.registerOutParameter("unralated_or_proc", OracleTypes.CURSOR);
+            statement.setString("icd9codes", icd9codes);
+            statement.setString("mdccode", mdccode);
+            statement.execute();
+            ResultSet resultSet = (ResultSet) statement.getObject("unralated_or_proc");
+            if (resultSet.next()) {
                 result.setSuccess(true);
-                result.setResult(UnralatedORProceResultset.getString("PROCGR"));
+                result.setResult(resultSet.getString("PROCGR"));
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1202,17 +1212,17 @@ public class GrouperMethod {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement conn = connection.prepareCall("begin :trauma_output := MINOSUN.DRGPKGFUNCTION.TRAUMAICD10(:sdx); end;");
-            conn.registerOutParameter("trauma_output", OracleTypes.CURSOR);
-            conn.setString("sdx", sdx);
-            conn.execute();
-            ResultSet connResult = (ResultSet) conn.getObject("trauma_output");
-            if (connResult.next()) {
-                result.setResult(connResult.getString("TRAUMA"));
+            CallableStatement statement = connection.prepareCall("begin :trauma_output := MINOSUN.DRGPKGFUNCTION.TRAUMAICD10(:sdx); end;");
+            statement.registerOutParameter("trauma_output", OracleTypes.CURSOR);
+            statement.setString("sdx", sdx);
+            statement.execute();
+            ResultSet resultSet = (ResultSet) statement.getObject("trauma_output");
+            if (resultSet.next()) {
+                result.setResult(resultSet.getString("TRAUMA"));
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1236,7 +1246,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1259,7 +1269,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1275,20 +1285,20 @@ public class GrouperMethod {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getAgeValidation = connection.prepareCall("begin :age_validation := MINOSUN.DRGPKGFUNCTION.VALIDATE_AGE(:p_pdx_code,:age_day,:age_min_year); end;");
-            getAgeValidation.registerOutParameter("age_validation", OracleTypes.CURSOR);
-            getAgeValidation.setString("p_pdx_code", p_pdx_code.trim());
-            getAgeValidation.setString("age_day", age_day);
-            getAgeValidation.setString("age_min_year", age_min_year);
-            getAgeValidation.execute();
-            ResultSet getAgeValidationResult = (ResultSet) getAgeValidation.getObject("age_validation");
-            if (getAgeValidationResult != null) {
-                if (getAgeValidationResult.next()) {
+            CallableStatement state = connection.prepareCall("begin :age_validation := MINOSUN.DRGPKGFUNCTION.VALIDATE_AGE(:p_pdx_code,:age_day,:age_min_year); end;");
+            state.registerOutParameter("age_validation", OracleTypes.CURSOR);
+            state.setString("p_pdx_code", p_pdx_code.trim());
+            state.setString("age_day", age_day);
+            state.setString("age_min_year", age_min_year);
+            state.execute();
+            ResultSet resultSet = (ResultSet) state.getObject("age_validation");
+            if (resultSet != null) {
+                if (resultSet.next()) {
                     result.setSuccess(true);
                 }
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1313,7 +1323,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1338,7 +1348,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1367,7 +1377,7 @@ public class GrouperMethod {
                 }
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1391,7 +1401,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1415,7 +1425,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1439,7 +1449,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1467,7 +1477,7 @@ public class GrouperMethod {
 //                result.setMessage(ps.getString("Message"));
 //            }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1482,7 +1492,7 @@ public class GrouperMethod {
         try {
             String cclval = drgs.substring(5 - 1, 5);
             switch (Integer.parseInt(cclval)) {
-                case 4:
+                case 4: {
                     DRGWSResult drgname3 = this.DRG(datasource, dcs, dcs + "3");
                     DRGWSResult drgname222 = this.DRG(datasource, dcs, dcs + "2");
                     DRGWSResult drgname111 = this.DRG(datasource, dcs, dcs + "1");
@@ -1495,7 +1505,8 @@ public class GrouperMethod {
                     }
                     result.setSuccess(true);
                     break;
-                case 3:
+                }
+                case 3: {
                     DRGWSResult drgname4 = this.DRG(datasource, dcs, dcs + "4");
                     DRGWSResult drgname2 = this.DRG(datasource, dcs, dcs + "2");
                     DRGWSResult drgname11 = this.DRG(datasource, dcs, dcs + "1");
@@ -1508,7 +1519,8 @@ public class GrouperMethod {
                     }
                     result.setSuccess(true);
                     break;
-                case 2:
+                }
+                case 2: {
                     DRGWSResult drgname333 = this.DRG(datasource, dcs, dcs + "3");
                     DRGWSResult drgname444 = this.DRG(datasource, dcs, dcs + "4");
                     DRGWSResult drgname1 = this.DRG(datasource, dcs, dcs + "1");
@@ -1521,7 +1533,8 @@ public class GrouperMethod {
                     }
                     result.setSuccess(true);
                     break;
-                case 1:
+                }
+                case 1: {
                     DRGWSResult drgname22 = this.DRG(datasource, dcs, dcs + "2");
                     DRGWSResult drgname33 = this.DRG(datasource, dcs, dcs + "3");
                     DRGWSResult drgname44 = this.DRG(datasource, dcs, dcs + "4");
@@ -1534,9 +1547,10 @@ public class GrouperMethod {
                     }
                     result.setSuccess(true);
                     break;
+                }
             }
         } catch (NumberFormatException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1581,7 +1595,7 @@ public class GrouperMethod {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1797,7 +1811,7 @@ public class GrouperMethod {
             }
 
         } catch (NumberFormatException ex) {
-            result = ex.toString();
+            result = "Something went wrong";
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1851,7 +1865,7 @@ public class GrouperMethod {
             }
 
         } catch (NumberFormatException ex) {
-            result = ex.toString();
+            result = "Something went wrong";
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1875,7 +1889,7 @@ public class GrouperMethod {
                 }
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1906,7 +1920,7 @@ public class GrouperMethod {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1940,7 +1954,7 @@ public class GrouperMethod {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -1971,7 +1985,7 @@ public class GrouperMethod {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -2002,7 +2016,7 @@ public class GrouperMethod {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;

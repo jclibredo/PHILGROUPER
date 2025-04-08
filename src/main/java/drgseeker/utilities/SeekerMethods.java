@@ -61,7 +61,7 @@ public class SeekerMethods {
                 }
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -89,7 +89,7 @@ public class SeekerMethods {
             }
 
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -126,7 +126,7 @@ public class SeekerMethods {
                 }
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -164,7 +164,7 @@ public class SeekerMethods {
                 }
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -204,7 +204,7 @@ public class SeekerMethods {
                 result.setMessage("NO DATA FOUND");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -263,7 +263,7 @@ public class SeekerMethods {
                 result.setMessage("NO DATA FOUND");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -324,7 +324,7 @@ public class SeekerMethods {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -384,7 +384,7 @@ public class SeekerMethods {
                 result.setMessage("INVALID USERNAME OR PASSWORD");
             }
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -413,7 +413,7 @@ public class SeekerMethods {
                 }
             }
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -454,7 +454,7 @@ public class SeekerMethods {
                 result.setMessage("Account can't be empty");
             }
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -485,7 +485,7 @@ public class SeekerMethods {
                 result.setMessage(statement.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -507,7 +507,7 @@ public class SeekerMethods {
                 result.setMessage(statement.getString("TOTALEMAIL"));
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -539,7 +539,7 @@ public class SeekerMethods {
             }
             result.setSuccess(true);
         } catch (MessagingException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;//  PHL-DRGSEEKER
@@ -576,7 +576,7 @@ public class SeekerMethods {
                 result.setMessage("Email not found");
             }
         } catch (IOException | MessagingException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;//  PHL-DRGSEEKER
@@ -607,7 +607,7 @@ public class SeekerMethods {
             }
 
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -698,14 +698,8 @@ public class SeekerMethods {
                     }
                 }
             }
-        } catch (MessagingException ex) {
-            result.setMessage(ex.toString());
-            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedEncodingException ex) {
-            result.setMessage(ex.toString());
-            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            result.setMessage(ex.toString());
+        } catch (MessagingException | IOException ex) {
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -732,7 +726,7 @@ public class SeekerMethods {
                 result.setMessage(statement.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -762,7 +756,7 @@ public class SeekerMethods {
                 result.setMessage("INVALID USERNAME OR PASSWORD");
             }
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;

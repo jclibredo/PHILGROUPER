@@ -47,17 +47,6 @@ public class GetMDC01 {
             int PDXCounter99 = 0;
 //            int procCounter = 0;
             int PCXCounter99 = 0;
-            for (int x = 0; x < ProcedureList.size(); x++) {
-                //AX 99PDX Checking
-                if (new GrouperMethod().AX(datasource, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (new GrouperMethod().AX(datasource, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
-            }
-
             //THIS AREA IS FOR CHECKING FOR TRAUMA AND CART AND CARCX
             int CartSDx = 0;
             int CaCRxSDx = 0;
@@ -66,11 +55,9 @@ public class GetMDC01 {
             int PBX99Proc = 0;
             //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
-//                DRGWSResult Result99BX = new GrouperMethod().AX(datasource, "99BX", SecondaryList.get(a).trim());
                 if (new GrouperMethod().AX(datasource, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
                 }
-//                DRGWSResult Result99CX = new GrouperMethod().AX(datasource, "99CX", SecondaryList.get(a).trim());
                 if (new GrouperMethod().AX(datasource, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
@@ -86,24 +73,27 @@ public class GetMDC01 {
             //Checking Procedure RadioTherapy and Chemotherapy
             int Counter1PBX = 0;
             for (int a = 0; a < ProcedureList.size(); a++) {
-//                String Proce = ProcedureList.get(a);
-//                DRGWSResult EndoRes = new GrouperMethod().Endovasc(datasource, ProcedureList.get(a).trim(), Pdcs, drgResult.getMDC());
+                //AX 99PDX Checking
+                if (new GrouperMethod().AX(datasource, "99PDX", ProcedureList.get(a).trim()).isSuccess()) {
+                    PDXCounter99++;
+                }
+                //AX 99PCX Checking
+                if (new GrouperMethod().AX(datasource, "99PCX", ProcedureList.get(a).trim()).isSuccess()) {
+                    PCXCounter99++;
+                }
+
                 if (new GrouperMethod().Endovasc(datasource, ProcedureList.get(a).trim(), "1PJ", drgResult.getMDC()).isSuccess()) {
                     EndoCounter++;
                 }
-//                DRGWSResult Result99PEX = new GrouperMethod().AX(datasource, "99PEX", ProcedureList.get(a).trim());
                 if (new GrouperMethod().AX(datasource, "99PEX", ProcedureList.get(a).trim()).isSuccess()) {
                     CartProc++;
                 }
-//                DRGWSResult Result99PFX = new GrouperMethod().AX(datasource, "99PFX", ProcedureList.get(a).trim());
                 if (new GrouperMethod().AX(datasource, "99PFX", ProcedureList.get(a).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-//                DRGWSResult Result99PBX = new GrouperMethod().AX(datasource, "99PBX", ProcedureList.get(a).trim());
                 if (new GrouperMethod().AX(datasource, "99PBX", ProcedureList.get(a).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
-
 //                DRGWSResult JoinResult = new GrouperMethod().MDCProcedure(datasource, ProcedureList.get(a).trim(), drgResult.getMDC());
                 if (new GrouperMethod().MDCProcedure(datasource, ProcedureList.get(a).trim(), drgResult.getMDC()).isSuccess()) {
                     mdcprocedureCounter++;
@@ -115,14 +105,10 @@ public class GetMDC01 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-//                DRGWSResult ORProcedureResult = new GrouperMethod().ORProcedure(datasource, ProcedureList.get(a).trim());
                 if (new GrouperMethod().ORProcedure(datasource, ProcedureList.get(a).trim()).isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(new GrouperMethod().ORProcedure(datasource, ProcedureList.get(a).trim()).getResult()));
                 }
-
-//                String Codes1PBX = "1PBX";
-//                DRGWSResult Codes1PBXResult = new GrouperMethod().AX(datasource, "1PBX", ProcedureList.get(a).trim());
                 if (new GrouperMethod().AX(datasource, "1PBX", ProcedureList.get(a).trim()).isSuccess()) {
                     Counter1PBX++;
                 }
@@ -519,7 +505,7 @@ public class GetMDC01 {
                             }
                         }
                     } else {
-                        drgResult.setDRG("00000");
+                        drgResult.setDRG(drgResult.getDC() + "X");
                         drgResult.setDRGName("Grouper Error");
                     }
                 }
@@ -536,12 +522,10 @@ public class GetMDC01 {
             result.setSuccess(true);
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setMessage("MDC 1 DC Result Has Found");
-
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GetMDC01.class.getName()).log(Level.SEVERE, null, ex);
         }
-
         return result;
 
     }

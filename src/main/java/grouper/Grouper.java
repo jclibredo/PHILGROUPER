@@ -54,12 +54,7 @@ public class Grouper {
     @Path("GetGrouper")
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GetGrouper() {
-        DRGWSResult result = utility.DRGWSResult();
-        DRGWSResult getgrouperresult = new GrouperMethod().GetGrouper(datasource, "FG".trim());
-        result.setMessage(getgrouperresult.getMessage());
-        result.setSuccess(getgrouperresult.isSuccess());
-        result.setResult(getgrouperresult.getResult());
-        return result;
+        return new GrouperMethod().GetGrouper(datasource, "FG".trim());
     }
 
     //SET DEADLINE  FOR ITMD   
@@ -78,7 +73,7 @@ public class Grouper {
                 result = "SERVER DATE AND TIME : " + String.valueOf(sdf.format(rest.getDate("SYSDATE")));
             }
         } catch (SQLException ex) {
-            result = ex.toString();
+            result = "Something went wrong";
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -97,7 +92,7 @@ public class Grouper {
         ArrayList<String> errorList = new ArrayList<>();
         try {
             //------------------------------------------------------------------
-            
+
             //------------------------------------------------------------------
             for (int g = 0; g < grouperparameter.size(); g++) {
                 DRGWSResult grouperResult = new ProcessGrouperParameter().ProcessGrouperParameter(datasource, grouperparameter.get(g));
@@ -118,7 +113,7 @@ public class Grouper {
             }
             //------------------------------------------------------------------
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -130,12 +125,7 @@ public class Grouper {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult DRGClaimsData(final GrouperParameter grouperparameter) {
-        DRGWSResult result = utility.DRGWSResult();
-        DRGWSResult grouperResult = new ProcessGrouperParameter().ProcessGrouperParameter(datasource, grouperparameter);
-        result.setMessage(grouperResult.getMessage());
-        result.setResult(grouperResult.getResult());
-        result.setSuccess(grouperResult.isSuccess());
-        return result;
+        return new ProcessGrouperParameter().ProcessGrouperParameter(datasource, grouperparameter);
     }
 
     @POST
@@ -173,7 +163,7 @@ public class Grouper {
                 }
             }
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;

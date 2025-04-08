@@ -22,12 +22,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+
 /**
  *
  * @author DRG_SHADOWBILLING
  */
 @RequestScoped
 public class ValidateFindMDC {
+
     public ValidateFindMDC() {
     }
     private final Utility utility = new Utility();
@@ -38,8 +40,6 @@ public class ValidateFindMDC {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-//        GrouperMethod gm = new GrouperMethod();
-//        GetValidatedPreMDC getvalidatedpremdc = new GetValidatedPreMDC();
         DRGOutput drgResult = new DRGOutput();
         try {
             List<String> ProcList = Arrays.asList(grouperparameter.getProc().split(","));
@@ -167,7 +167,7 @@ public class ValidateFindMDC {
                     Newgrouperparam.setTimeAdmission(grouperparameter.getTimeAdmission());
                     Newgrouperparam.setTimeDischarge(grouperparameter.getTimeDischarge());
                     Newgrouperparam.setTimeOfBirth(grouperparameter.getTimeOfBirth());
-                    DRGWSResult getvalidatedpremdcResult =  new GetValidatedPreMDC().GetValidatedPreMDC(datasource, Newgrouperparam);
+                    DRGWSResult getvalidatedpremdcResult = new GetValidatedPreMDC().GetValidatedPreMDC(datasource, Newgrouperparam);
                     result.setSuccess(getvalidatedpremdcResult.isSuccess());
                     result.setMessage(getvalidatedpremdcResult.getMessage());
                     result.setResult(getvalidatedpremdcResult.getResult());
@@ -200,7 +200,7 @@ public class ValidateFindMDC {
                 Newgrouperparam.setTimeAdmission(grouperparameter.getTimeAdmission());
                 Newgrouperparam.setTimeDischarge(grouperparameter.getTimeDischarge());
                 Newgrouperparam.setTimeOfBirth(grouperparameter.getTimeOfBirth());
-                DRGWSResult getvalidatedpremdcResult =  new GetValidatedPreMDC().GetValidatedPreMDC(datasource, Newgrouperparam);
+                DRGWSResult getvalidatedpremdcResult = new GetValidatedPreMDC().GetValidatedPreMDC(datasource, Newgrouperparam);
                 result.setSuccess(getvalidatedpremdcResult.isSuccess());
                 result.setResult(getvalidatedpremdcResult.getResult());
                 result.setMessage(getvalidatedpremdcResult.getMessage());
@@ -208,25 +208,29 @@ public class ValidateFindMDC {
             }
             //====================================================================== 
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(ValidateFindMDC.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
 
     public class SDxPDx {
+
         private String newpdx; // private = restricted access
         private String newsdx;
 
         public String getNewpdx() {
             return newpdx;
         }
+
         public void setNewpdx(String newpdx) {
             this.newpdx = newpdx;
         }
+
         public String getNewsdx() {
             return newsdx;
         }
+
         public void setNewsdx(String newsdx) {
             this.newsdx = newsdx;
         }

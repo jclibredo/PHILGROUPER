@@ -13,7 +13,6 @@ import grouper.structures.PDC;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,23 +35,20 @@ public class GetMDC28 {
 
     public DRGWSResult GetMDC28(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
-        List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
-        List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
-        ArrayList<Integer> hierarvalue = new ArrayList<>();
-        ArrayList<String> pdclist = new ArrayList<>();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        GrouperMethod gm = new GrouperMethod();
         try {
-
+            List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
+            List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
             int finalage = 0;
             if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                 finalage = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) * 365;
             } else {
                 finalage = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             }
-
             int mdcprocedureCounter = 0;
             int CaCRxSDx = 0;
             int CaCRxProc = 0;
@@ -61,47 +57,41 @@ public class GetMDC28 {
             int Counter28BX = 0;
             int Counter28CX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
-                String proc = ProcedureList.get(x);
-                DRGWSResult JoinResult = gm.MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
+                DRGWSResult JoinResult = new GrouperMethod().MDCProcedure(datasource, ProcedureList.get(x).trim(), drgResult.getMDC());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = gm.GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = new GrouperMethod().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                if (utility.isValid99PFX(proc.trim())) {
+                if (utility.isValid99PFX(ProcedureList.get(x).trim())) {
                     CaCRxProc++;
                 }
             }
-
             for (int a = 0; a < SecondaryList.size(); a++) {
-                String Secon = SecondaryList.get(a);
-                if (utility.isValid99CX(Secon.toUpperCase().trim())) {
+                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
                     CaCRxSDx++;
                 }
             }
             if (CaCRxSDx > 0 && CaCRxProc > 0) {
                 CaCRx++;
             }
-            DRGWSResult Result28EX = gm.AX(datasource, "28EX", grouperparameter.getPdx().toUpperCase().trim());
-            if (Result28EX.isSuccess()) {
+            if (new GrouperMethod().AX(datasource, "28EX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
                 Counter28EX++;
             }
-            DRGWSResult Result28BX = gm.AX(datasource, "28BX", grouperparameter.getPdx().toUpperCase().trim());
-            if (Result28BX.isSuccess()) {
+            if (new GrouperMethod().AX(datasource, "28BX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
                 Counter28BX++;
             }
-            DRGWSResult Result28CX = gm.AX(datasource, "28CX", grouperparameter.getPdx().toUpperCase().trim());
-            if (Result28CX.isSuccess()) {
+            if (new GrouperMethod().AX(datasource, "28CX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
                 Counter28CX++;
             }
             // PROCESS BEGINS HERE
             switch (grouperparameter.getDischargeType()) {
-                case "1"://Approve
+                case "1": {//Approve
                     if (finalage < 28) {
                         drgResult.setDRG("28509");
                         drgResult.setDC("2850");
@@ -120,142 +110,175 @@ public class GetMDC28 {
                             }
                             drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                             switch (pdclist.get(hierarvalue.indexOf(min))) {
-                                case "28PB"://KUB ESWL
+                                case "28PB": {//KUB ESWL
                                     drgResult.setDRG("28049");
                                     drgResult.setDC("2804");
                                     break;
-                                case "28PC"://Cadiac Cath & CAG
+                                }
+                                case "28PC": {//Cadiac Cath & CAG
                                     drgResult.setDRG("28059");
                                     drgResult.setDC("2805");
                                     break;
-                                case "28PD"://Cataract Proc
+                                }
+                                case "28PD": {//Cataract Proc
                                     drgResult.setDRG("28069");
                                     drgResult.setDC("2806");
                                     break;
-                                case "28PE"://Radio-Implant
+                                }
+                                case "28PE": {//Radio-Implant
                                     drgResult.setDRG("28079");
                                     drgResult.setDC("2807");
                                     break;
-                                case "28PF"://Dialysis AV Shunt
+                                }
+                                case "28PF": {//Dialysis AV Shunt
                                     drgResult.setDRG("28089");
                                     drgResult.setDC("2808");
                                     break;
-                                case "28PG"://Closed reduction int fix
+                                }
+                                case "28PG": {//Closed reduction int fix
                                     drgResult.setDRG("28099");
                                     drgResult.setDC("2809");
                                     break;
-                                case "28PH"://Hernia Repair
+                                }
+                                case "28PH": {//Hernia Repair
                                     drgResult.setDRG("28109");
                                     drgResult.setDC("2810");
                                     break;
-                                case "28PJ"://Hydrocelectomy
+                                }
+                                case "28PJ": {//Hydrocelectomy
                                     drgResult.setDRG("28119");
                                     drgResult.setDC("2811");
                                     break;
-                                case "28PK"://Cystoscopy
+                                }
+                                case "28PK": {//Cystoscopy
                                     drgResult.setDRG("28129");
                                     drgResult.setDC("2812");
                                     break;
-                                case "28PL"://Mouth & Tongue Proc
+                                }
+                                case "28PL": {//Mouth & Tongue Proc
                                     drgResult.setDRG("28139");
                                     drgResult.setDC("2813");
                                     break;
-                                case "28PM"://Tendon Proc
+                                }
+                                case "28PM": {//Tendon Proc
                                     drgResult.setDRG("28149");
                                     drgResult.setDC("2814");
                                     break;
-                                case "28PN"://Esophageal Proc
+                                }
+                                case "28PN": {//Esophageal Proc
                                     drgResult.setDRG("28159");
                                     drgResult.setDC("2815");
                                     break;
-                                case "28PP"://Circumcision & oth Penile Proc
+                                }
+                                case "28PP": {//Circumcision & oth Penile Proc
                                     drgResult.setDRG("28169");
                                     drgResult.setDC("2816");
                                     break;
-                                case "28PQ"://Plastic Skin Proc
+                                }
+                                case "28PQ": {//Plastic Skin Proc
                                     drgResult.setDRG("28179");
                                     drgResult.setDC("2817");
                                     break;
-                                case "28PR"://Remove Implant
+                                }
+                                case "28PR": {//Remove Implant
                                     drgResult.setDRG("28189");
                                     drgResult.setDC("2818");
                                     break;
-                                case "28PS"://D & C
+                                }
+                                case "28PS": {//D & C
                                     drgResult.setDRG("28199");
                                     drgResult.setDC("2819");
                                     break;
-                                case "28PT"://Breast Proc
+                                }
+                                case "28PT": {//Breast Proc
                                     drgResult.setDRG("28209");
                                     drgResult.setDC("2820");
                                     break;
-                                case "28PU"://Female sterilization
+                                }
+                                case "28PU": {//Female sterilization
                                     drgResult.setDRG("28219");
                                     drgResult.setDC("2821");
                                     break;
-                                case "28PV"://Colonoscopy
+                                }
+                                case "28PV": {//Colonoscopy
                                     drgResult.setDRG("28229");
                                     drgResult.setDC("2822");
                                     break;
+                                }
                                 case "28PW"://Amputation
                                     drgResult.setDRG("28239");
                                     drgResult.setDC("2823");
                                     break;
-                                case "28PX"://Ear, Nose, Pharynx Proc
+                                case "28PX": {//Ear, Nose, Pharynx Proc
                                     drgResult.setDRG("28249");
                                     drgResult.setDC("2824");
                                     break;
-                                case "28PY"://Debride Open Fracture
+                                }
+                                case "28PY": {//Debride Open Fracture
                                     drgResult.setDRG("28259");
                                     drgResult.setDC("2825");
                                     break;
-                                case "28PZ"://Gastroscopy
+                                }
+                                case "28PZ": {//Gastroscopy
                                     drgResult.setDRG("28269");
                                     drgResult.setDC("2826");
                                     break;
-                                case "28QA"://Skin & Nail Proc
+                                }
+                                case "28QA": {//Skin & Nail Proc
                                     drgResult.setDRG("28279");
                                     drgResult.setDC("2827");
                                     break;
-                                case "28QB"://Cervical Proc
+                                }
+                                case "28QB": {//Cervical Proc
                                     drgResult.setDRG("28289");
                                     drgResult.setDC("2828");
                                     break;
-                                case "28QC"://Hemodialysis
+                                }
+                                case "28QC": {//Hemodialysis
                                     drgResult.setDRG("28299");
                                     drgResult.setDC("2829");
                                     break;
-                                case "28QD"://Other Eye Proc
+                                }
+                                case "28QD": {//Other Eye Proc
                                     drgResult.setDRG("28309");
                                     drgResult.setDC("2830");
                                     break;
-                                case "28QE"://Carpal Tunnel Releas
+                                }
+                                case "28QE": {//Carpal Tunnel Releas
                                     drgResult.setDRG("28319");
                                     drgResult.setDC("2831");
                                     break;
-                                case "28QF"://Closed Reduction of Dislocation
+                                }
+                                case "28QF": {//Closed Reduction of Dislocation
                                     drgResult.setDRG("28329");
                                     drgResult.setDC("2832");
                                     break;
-                                case "28QG"://Closed Reduction of Fracture
+                                }
+                                case "28QG": {//Closed Reduction of Fracture
                                     drgResult.setDRG("28339");
                                     drgResult.setDC("2833");
                                     break;
-                                case "28QH"://Vulvar & Vagina Proc
+                                }
+                                case "28QH": {//Vulvar & Vagina Proc
                                     drgResult.setDRG("28349");
                                     drgResult.setDC("2834");
                                     break;
-                                case "28QJ"://Bartholin Gland Proc
+                                }
+                                case "28QJ": {//Bartholin Gland Proc
                                     drgResult.setDRG("28359");
                                     drgResult.setDC("2835");
                                     break;
-                                case "28QK"://Urethral Proc
+                                }
+                                case "28QK": {//Urethral Proc
                                     drgResult.setDRG("28369");
                                     drgResult.setDC("2836");
                                     break;
-                                default://Other OR Proc
+                                }
+                                default: {//Other OR Proc
                                     drgResult.setDRG("28379");
                                     drgResult.setDC("2837");
                                     break;
+                                }
                             }
                         } else {
                             drgResult.setDRG("28699");
@@ -264,9 +287,10 @@ public class GetMDC28 {
                         //GO TO METHOD 1
                     }
                     break;
+                }
                 case "2"://Against Advice Escape,Other
                 case "3":
-                case "5":
+                case "5": {
                     if (finalage < 28) {
                         drgResult.setDRG("28519");
                         drgResult.setDC("2851");
@@ -282,7 +306,8 @@ public class GetMDC28 {
                         drgResult.setDC("2854");
                     }
                     break;
-                case "4":
+                }
+                case "4": {
                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 28) {
                         drgResult.setDRG("28559");
                         drgResult.setDC("2855");
@@ -307,8 +332,9 @@ public class GetMDC28 {
                         drgResult.setDC("2860");
                     }
                     break;
+                }
                 case "8":
-                case "9":
+                case "9": {
                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 28) {
                         drgResult.setDRG("28619");
                         drgResult.setDC("2861");
@@ -350,23 +376,21 @@ public class GetMDC28 {
                         }
                     }
                     break;
+                }
             }
-
             //=================================================
             if (drgResult.getDRG() != null) {
-                result.setSuccess(true);
-                DRGWSResult drgname = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
-                if (drgname.isSuccess()) {
-                    drgResult.setDRGName(drgname.getMessage());
+                if (new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
+                    drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
                 } else {
                     drgResult.setDRGName("Grouper Error");
                 }
             }
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setMessage("MDC 28 Done Checking");
-
+            result.setSuccess(true);
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("Something went wrong");
             Logger.getLogger(GetMDC28.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;

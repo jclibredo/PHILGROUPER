@@ -5,7 +5,6 @@
  */
 package grouper.utility;
 
-import drgseeker.utilities.SeekerMethods;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
@@ -211,6 +210,10 @@ public class Utility {
             Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
+    }
+
+    public String CleanCode(String data) {
+        return data.trim().replaceAll("\\.", "").toUpperCase();
     }
 
     public DRGWSResult GetPayload(
