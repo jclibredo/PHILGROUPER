@@ -227,7 +227,7 @@ public class Utility {
             if (token.equals("")) {
                 result.setMessage("Token is required");
             } else {
-                if (this.ValidateToken(token) == true) {
+                if (this.ValidateToken(token)) {
                     Claims claims = Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(CIPHERKEY)).parseClaimsJws(token).getBody();
                     if (!this.isJWTExpired(claims)) {
                         DRGPayload payload = this.DRGPayload();
@@ -244,7 +244,7 @@ public class Utility {
                         result.setMessage("Token is expired");
                     }
                 } else {
-                    result.setMessage("Invalid Token");
+                    result.setMessage("Could not verify JWT token integrity!");
                 }
             }
         } catch (ExpiredJwtException | MalformedJwtException | SignatureException | UnsupportedJwtException | IllegalArgumentException | IOException ex) {
