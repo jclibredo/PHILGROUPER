@@ -9,6 +9,10 @@
             <name>SeekerModule</name>
             <value>http://172.21.15.63:8501/?=drgSeeker</value>
         </variable>
+        <variable>
+            <name>OtpExpiration</name>
+            <value>5</value>
+        </variable>
     </variable-definition>
     <module-override>
         <module-name>PHILGROUPER-0.1.war</module-name>
@@ -23,6 +27,11 @@
             <variable-assignment>
                 <name>SeekerModule</name>
                 <xpath>/web-app/env-entry/[env-entry-name="SeekerModule"]/env-entry-value</xpath>
+                <operation>replace</operation>
+            </variable-assignment>   
+            <variable-assignment>
+                <name>OtpExpiration</name>
+                <xpath>/web-app/env-entry/[env-entry-name="OtpExpiration"]/env-entry-value</xpath>
                 <operation>replace</operation>
             </variable-assignment>   
         </module-descriptor>

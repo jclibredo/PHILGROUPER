@@ -28,5 +28,7 @@ public class SeekerUser {
     private String updatedby;
     private String token;
     private String otp;
+    private String otpexpiration;
+    private String otpdatecreated;
 
 }

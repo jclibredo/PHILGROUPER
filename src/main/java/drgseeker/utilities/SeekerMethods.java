@@ -9,12 +9,12 @@ import grouper.structures.DRGWSResult;
 import grouper.utility.Cryptor;
 import grouper.utility.Utility;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,7 +48,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETTOKEN(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETTOKEN(); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_result");
@@ -75,7 +75,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.TOKEN_S(:message,:code,:ptoken,:pdatecreated)");
+            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.TOKEN_S(:message,:code,:ptoken,:pdatecreated)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("ptoken", ptoken.trim());
@@ -105,7 +105,7 @@ public class SeekerMethods {
                 result.setMessage("Email is already exist");
             } else {
                 String encryptpword = new Cryptor().encrypt(seekerUser.getPassword(), seekerUser.getPassword(), "SEEKER");
-                CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
+                CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
                 statement.registerOutParameter("Message", OracleTypes.VARCHAR);
                 statement.registerOutParameter("Code", OracleTypes.INTEGER);
                 statement.setString("pemail", seekerUser.getEmail().trim());
@@ -144,7 +144,7 @@ public class SeekerMethods {
                 result.setMessage("Email is already exist");
             } else {
                 String encryptpword = new Cryptor().encrypt(seekerUser.getPassword(), seekerUser.getPassword(), "SEEKER");
-                CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
+                CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
                 statement.registerOutParameter("Message", OracleTypes.VARCHAR);
                 statement.registerOutParameter("Code", OracleTypes.INTEGER);
                 statement.setString("pemail", seekerUser.getEmail().trim());
@@ -176,7 +176,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETUSERBYID(:puserid); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETUSERBYID(:puserid); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("puserid", puserid.trim());
             statement.execute();
@@ -216,7 +216,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETUSERBYUSERNAME(:pusername); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETUSERBYUSERNAME(:pusername); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("pusername", pusername.trim());
             statement.execute();
@@ -256,6 +256,9 @@ public class SeekerMethods {
                         user.setCreatedby("NO DATA FOUND");
                     }
                 }
+                user.setOtpdatecreated(resultset.getString("OTPDATECREATED") == null
+                        || resultset.getString("OTPDATECREATED").isEmpty()
+                        || resultset.getString("OTPDATECREATED").equals("") ? "N/A" : datetimeformat.format(resultset.getTimestamp("OTPDATECREATED")));
                 result.setMessage("OK");
                 result.setSuccess(true);
                 result.setResult(utility.objectMapper().writeValueAsString(user));
@@ -275,7 +278,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.GETALLUSER(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.GETALLUSER(); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.execute();
             ArrayList<SeekerUser> userList = new ArrayList<>();
@@ -350,8 +353,8 @@ public class SeekerMethods {
                         final String otpcode = utility.Create2FACode().toUpperCase().trim();
                         if (this.POSTOTP(dataSource, userA.getUserid(), otpcode).isSuccess()) {
                             //SEND OTP CODE TO GMAIL
-//                            if (this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).isSuccess()) {
-                            if (this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).isSuccess()) {
+                            if (this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).isSuccess()) {
+//                            if (this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).isSuccess()) {
                                 SeekerUser user = new SeekerUser();
                                 user.setUserid(userA.getUserid());
                                 user.setCreatedby(userA.getCreatedby());
@@ -368,8 +371,8 @@ public class SeekerMethods {
                                 result.setSuccess(true);
                                 result.setResult(utility.objectMapper().writeValueAsString(user));
                             } else {
-//                                result.setMessage(this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).getMessage());
-                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
+                                result.setMessage(this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).getMessage());
+//                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
                             }
                         } else {
                             result.setMessage(this.POSTOTP(dataSource, userA.getUserid(), otpcode).getMessage());
@@ -390,6 +393,64 @@ public class SeekerMethods {
         return result;
     }
 
+//    public DRGWSResult VALIDATEOTP(
+//            final DataSource dataSource,
+//            final String uemail,
+//            final String upassword,
+//            final String uotp) {
+//        DRGWSResult result = utility.DRGWSResult();
+//        result.setMessage("");
+//        result.setResult("");
+//        result.setSuccess(false);
+//        try {
+//            if (utility.IsValidNumber(utility.GetString("OtpExpiration"))) {
+//                DRGWSResult getUserDetails = this.GetUserByUsername(dataSource, uemail.trim());
+//                if (getUserDetails.isSuccess()) {
+//                    SeekerUser userA = utility.objectMapper().readValue(getUserDetails.getResult(), SeekerUser.class);
+//                    if (new Cryptor().decrypt(userA.getPassword(), upassword, "SEEKER").trim().equals(upassword)) {
+//                        if (userA.getOtp().trim().equals(uotp.trim())) {
+//                            if (!userA.getOtpdatecreated().equals("N/A")) {
+//                                //DAYS COMPUTATION
+////                                long days_def = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss a").parse(userA.getOtpdatecreated()).getTime() - utility.GetCurrentDate().getTime();
+////                                if ((days_def / (1000 * 60 * 60 * 24)) % 365 >= 0) {
+//                                if (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "DAYS")) >= 0) {
+//                                    //TIME COMPUTATION
+////                                    long Time_difference = utility.GetCurrentDate().getTime() - new SimpleDateFormat("MM-dd-yyyy hh:mm:ss a")
+////                                            .parse(userA.getOtpdatecreated()).getTime();
+//                                    if (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME")) >= 0) {
+////                                    if ((Time_difference / (1000 * 60 * 60)) % 24 >= 0) {
+//                                        //MINUTES COMPUTATION
+////                                        if ((Time_difference / (1000 * 60)) % 60 >= Long.parseLong(utility.GetString("OtpExpiration"))) {
+//                                        if (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES")) >= Long.parseLong(utility.GetString("OtpExpiration"))) {
+//                                            result.setSuccess(true);
+//                                        } else {
+//                                            result.setMessage("MINUTES THIRD OTP CODE IS EXPIRED " + Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES")));
+//                                        }
+//                                    } else {
+//                                        result.setMessage("TIME SECOND OTP CODE IS EXPIRED " + Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME")));
+//                                    }
+//                                } else {
+//                                    result.setMessage("DAYS FIRST OTP CODE IS EXPIRED " + Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "DAYS")));
+//                                }
+//                            } else {
+//                                result.setMessage("NO TIME EXPIRATION FOUND");
+//                            }
+//                        } else {
+//                            result.setMessage("OTP CODE NOT RECOGNIZED");
+//                        }
+//                    }
+//                } else {
+//                    result.setMessage("UNAUTHORIZED ACCESS");
+//                }
+//            } else {
+//                result.setMessage("EXPIRATION VALUE IS NOT VALID");
+//            }
+//        } catch (IOException ex) {
+//            result.setMessage("Something went wrong");
+//            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return result;
+//    }
     public DRGWSResult VALIDATEOTP(
             final DataSource dataSource,
             final String uemail,
@@ -400,20 +461,83 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try {
-            DRGWSResult getUserDetails = this.GetUserByUsername(dataSource, uemail.trim());
-            if (getUserDetails.isSuccess()) {
-                SeekerUser userA = utility.objectMapper().readValue(getUserDetails.getResult(), SeekerUser.class);
-                String decryptString = new Cryptor().decrypt(userA.getPassword(), upassword, "SEEKER");
-                if (decryptString.trim().equals(upassword)) {
-                    if (userA.getOtp().trim().equals(uotp.trim())) {
-                        result.setSuccess(true);
-                    } else {
-                        result.setMessage("OTP CODE NOT RECOGNIZED");
+            if (utility.IsValidNumber(utility.GetString("OtpExpiration"))) {
+                DRGWSResult getUserDetails = this.GetUserByUsername(dataSource, uemail.trim());
+                if (getUserDetails.isSuccess()) {
+                    SeekerUser userA = utility.objectMapper().readValue(getUserDetails.getResult(), SeekerUser.class);
+                    if (new Cryptor().decrypt(userA.getPassword(), upassword, "SEEKER").trim().equals(upassword)) {
+                        if (userA.getOtp().trim().equals(uotp.trim())) {
+                            if (!userA.getOtpdatecreated().equals("N/A")) {
+                                if (this.GetDatesDifferential(userA.getOtpdatecreated(), "DAYS") != null && this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME") != null && this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES") != null) {
+                                    if (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "DAYS")) >= 0
+                                            && Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME")) >= 0
+                                            && (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES")) + Long.parseLong(utility.GetString("OtpExpiration"))) >= Long.parseLong(utility.GetString("OtpExpiration"))) {
+//                                        if (this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME") != null) {
+//                                            if (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME")) >= 0) {
+//                                                if (this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES") != null) {
+//                                                    if (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES")) <= Long.parseLong(utility.GetString("OtpExpiration"))) {
+                                        result.setSuccess(true);
+//                                                    } else {
+//                                                        result.setMessage("MINUTES THIRD OTP CODE IS EXPIRED " + Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES")));
+//                                                    }
+//                                                } else {
+//                                                    result.setMessage("SOMETHING WRONG WITH TIME AND DATE CONVERSION");
+//                                                }
+//                                            } else {
+//                                                result.setMessage("TIME SECOND OTP CODE IS EXPIRED " + Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME")));
+//                                            }
+//                                        } else {
+//                                            result.setMessage("SOMETHING WRONG WITH TIME AND DATE CONVERSION");
+//                                        }
+                                    } else {
+//                                        result.setMessage("DAYS FIRST OTP CODE IS EXPIRED " + Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "DAYS")));
+                                        result.setMessage("OTP CODE IS EXPIRED ");
+                                    }
+                                } else {
+                                    result.setMessage("SOMETHING WRONG WITH TIME AND DATE CONVERSION");
+                                }
+                            } else {
+                                result.setMessage("NO TIME EXPIRATION FOUND");
+                            }
+                        } else {
+                            result.setMessage("OTP CODE NOT RECOGNIZED");
+                        }
                     }
+                } else {
+                    result.setMessage("UNAUTHORIZED ACCESS");
                 }
+            } else {
+                result.setMessage("EXPIRATION VALUE IS NOT VALID");
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String GetDatesDifferential(String timein, String targets) {
+        String result = null;
+        try {
+            long days_def = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss a").parse(timein).getTime() - utility.GetCurrentDate().getTime();
+            switch (targets.trim().toUpperCase()) {
+                case "DAYS": {
+                    result = String.valueOf((days_def / (1000 * 60 * 60 * 24)) % 365);
+                    break;
+                }
+                case "TIME": {
+                    result = String.valueOf((days_def / (1000 * 60 * 60)) % 24);
+                    break;
+                }
+                case "MINUTES": {
+                    result = String.valueOf((days_def / (1000 * 60)) % 60);
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        } catch (ParseException ex) {
             Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -466,7 +590,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.edituser(:message,:code,:pemail,:ppassword,:prole,:puserid,:ustatus,:uname,:udateupdated,:uupdatedby)");
+            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.edituser(:message,:code,:pemail,:ppassword,:prole,:puserid,:ustatus,:uname,:udateupdated,:uupdatedby)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("pemail", seekerUser.getEmail().trim());
@@ -497,7 +621,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.drgseeker.COUNTEMAIL(:pusername); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.drgseeker.COUNTEMAIL(:pusername); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.setString("pusername", pusername.trim());
             statement.execute();
@@ -592,7 +716,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.UPDATEPASSWORD(:message,:code,:puserid,:pemail,:ppasswordd)");
+            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.UPDATEPASSWORD(:message,:code,:puserid,:pemail,:ppasswordd)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("puserid", puserid.trim());
@@ -714,11 +838,12 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call MINOSUN.drgseeker.POSTOTP(:message,:code,:puserid,:potp)");
+            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.POSTOTP(:message,:code,:puserid,:potp,:udatecreated)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.setString("puserid", puserid.trim());
             statement.setString("potp", potp.trim());
+            statement.setTimestamp("udatecreated", new java.sql.Timestamp(utility.GetCurrentDate().getTime()));
             statement.execute();
             if (statement.getString("Message").equals("SUCC")) {
                 result.setSuccess(true);
