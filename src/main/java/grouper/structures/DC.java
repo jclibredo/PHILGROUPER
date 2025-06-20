@@ -6,7 +6,7 @@
 package grouper.structures;
 /**
  *
- * @author DRG_SHADOWBILLING
+ * @author MINOSUN
  */
 public class DC {
     
