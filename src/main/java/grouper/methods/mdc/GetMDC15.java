@@ -5,10 +5,11 @@
  */
 package grouper.methods.mdc;
 
+import grouper.methods.validation.AX;
+import grouper.methods.validation.DRG;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,14 +39,13 @@ public class GetMDC15 {
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            AX checkAX = new AX();
             float AdmWTValues = 0;
             if (!grouperparameter.getAdmissionWeight().isEmpty()) {
                 Float totaladmision = Float.parseFloat(grouperparameter.getAdmissionWeight());
                 AdmWTValues = totaladmision * 1000;
             }
             int finalage = 0;
-//            int days = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
-//            int year = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                 finalage = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) * 365;
             } else {
@@ -62,40 +62,40 @@ public class GetMDC15 {
 //            int AXMainCC = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
-                if (new GrouperMethod().AX(datasource, "15PBX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "15PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter15PBX++;
                 }
                 //AX 99PDX Checking
-                if (new GrouperMethod().AX(datasource, "15PCX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "15PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter15PCX++;
                 }
                 //AX 15PEX
-                if (new GrouperMethod().AX(datasource, "15PEX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "15PEX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter15PEX++;
                 }
                 //AX 15PDX
-                if (new GrouperMethod().AX(datasource, "15PDX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "15PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter15PDX++;
                 }
             }
             for (int y = 0; y < SecondaryList.size(); y++) {
                 //AX SDx Main CC
-                if (new GrouperMethod().AX(datasource, "15BX", SecondaryList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "15BX", SecondaryList.get(y).trim()).isSuccess()) {
                     MainCCSDx++;
                 }
                 // THIS AREA IS FOR SDx15BX
-                if (new GrouperMethod().AX(datasource, "15BX", SecondaryList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "15BX", SecondaryList.get(y).trim()).isSuccess()) {
                     Counter15BX++;
                 }
-                if (new GrouperMethod().AX(datasource, "15CX", SecondaryList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "15CX", SecondaryList.get(y).trim()).isSuccess()) {
                     Counter15CX++;
                 }
             }
             int PDxCounter15CX = 0;
-            if (new GrouperMethod().AX(datasource, "15CX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, "15CX", grouperparameter.getPdx()).isSuccess()) {
                 PDxCounter15CX++;
             }
-            if (new GrouperMethod().AX(datasource, "15BX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, "15BX", grouperparameter.getPdx()).isSuccess()) {
                 MainCCPDx++;
             }
 
@@ -254,8 +254,8 @@ public class GetMDC15 {
                 }
             }
             // FINAL RESULT IS HERE
-            if (new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
+            if (new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
+                drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
             } else {
                 drgResult.setDRGName("Grouper Error");
             }

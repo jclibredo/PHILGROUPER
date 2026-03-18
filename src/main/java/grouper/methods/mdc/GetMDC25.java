@@ -5,10 +5,15 @@
  */
 package grouper.methods.mdc;
 
+import grouper.methods.validation.AX;
+import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
+import grouper.methods.validation.DRG;
+import grouper.methods.validation.GetPCCL;
+import grouper.methods.validation.ORProcedure;
+import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,14 +45,12 @@ public class GetMDC25 {
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+             AX checkAX = new AX();
             //CHECKING FOR TRAUMA CODES
             ArrayList<String> sdxfinder = new ArrayList<>();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
-//            int mdcprocedureCounter = 0;
             int ORProcedureCounter = 0;
-//            ArrayList<Integer> hierarvalue = new ArrayList<>();
-//            ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
@@ -58,28 +61,13 @@ public class GetMDC25 {
                 if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
                     PCXCounter99++;
                 }
-                DRGWSResult ORProcedureResult = new GrouperMethod().ORProcedure(datasource, ProcedureList.get(x).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, ProcedureList.get(x).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-
-//                DRGWSResult JoinResult =  new GrouperMethod().MDCProcedure(datasource, proc, drgResult.getMDC());
-//                if (JoinResult.isSuccess()) {
-//                    mdcprocedureCounter++;
-//                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-//                    DRGWSResult pdcresult =  new GrouperMethod().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-//                    if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
-//                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
-//                        hierarvalue.add(hiarresult.getHIERAR());
-//                        pdclist.add(hiarresult.getPDC());
-//                    }
-//                }
             }
 
-//            String BX25 = "25BX";
-//            String CX25 = "25CX";
-//            String DX25 = "25DX";
             int Counter25BXSDx = 0;
             int Counter25CXSDx = 0;
             int Counter25DXSDx = 0;
@@ -87,23 +75,23 @@ public class GetMDC25 {
             int Counter25DXPDx = 0;
             int Counter25CXPDx = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (new GrouperMethod().AX(datasource, "25BX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "25BX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter25BXSDx++;
                 }
-                if (new GrouperMethod().AX(datasource, "25CX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "25CX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter25CXSDx++;
                 }
-                if (new GrouperMethod().AX(datasource, "25DX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "25DX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter25DXSDx++;
                 }
             }
-            if (new GrouperMethod().AX(datasource, "25BX", grouperparameter.getPdx().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, "25BX", grouperparameter.getPdx().trim()).isSuccess()) {
                 Counter25BXPDx++;
             }
-            if (new GrouperMethod().AX(datasource, "25CX", grouperparameter.getPdx().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, "25CX", grouperparameter.getPdx().trim()).isSuccess()) {
                 Counter25CXPDx++;
             }
-            if (new GrouperMethod().AX(datasource, "25DX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, "25DX", grouperparameter.getPdx()).isSuccess()) {
                 Counter25DXPDx++;
             }
             if (PDXCounter99 > 0) {//Trache-ostomy
@@ -132,7 +120,7 @@ public class GetMDC25 {
                         }
                     } else if (Counter25BXSDx > 0 || Counter25BXPDx > 0) {//HIV-related CNS Diseases
                         for (int x = 0; x < SecondaryList.size(); x++) {
-                            if (new GrouperMethod().AX(datasource, "25BX", SecondaryList.get(x).trim()).isSuccess()) {
+                            if (checkAX.AX(datasource, "25BX", SecondaryList.get(x).trim()).isSuccess()) {
                                 sdxfinder.add(SecondaryList.get(x));
                             }
                         }
@@ -142,7 +130,7 @@ public class GetMDC25 {
                         drgResult.setDC("2550");
                     } else if (Counter25CXSDx > 0 || Counter25CXPDx > 0) {//HIV-related Malignancy
                         for (int x = 0; x < SecondaryList.size(); x++) {
-                            if (new GrouperMethod().AX(datasource, "25CX", SecondaryList.get(x).trim()).isSuccess()) {
+                            if (checkAX.AX(datasource, "25CX", SecondaryList.get(x).trim()).isSuccess()) {
                                 sdxfinder.add(SecondaryList.get(x));
                             }
                         }
@@ -162,7 +150,7 @@ public class GetMDC25 {
                             drgResult.setDC("2553");
                         }
                         for (int x = 0; x < SecondaryList.size(); x++) {
-                            if (new GrouperMethod().AX(datasource, "25DX", SecondaryList.get(x).trim()).isSuccess()) {
+                            if (checkAX.AX(datasource, "25DX", SecondaryList.get(x).trim()).isSuccess()) {
                                 sdxfinder.add(SecondaryList.get(x).trim());
                             }
                         }
@@ -200,7 +188,7 @@ public class GetMDC25 {
                 }
             } else if (Counter25BXSDx > 0 || Counter25BXPDx > 0) {//HIV-related CNS Diseases
                 for (int x = 0; x < SecondaryList.size(); x++) {
-                    if (new GrouperMethod().AX(datasource, "25BX", SecondaryList.get(x).trim()).isSuccess()) {
+                    if (checkAX.AX(datasource, "25BX", SecondaryList.get(x).trim()).isSuccess()) {
                         sdxfinder.add(SecondaryList.get(x).trim());
                     }
                 }
@@ -210,7 +198,7 @@ public class GetMDC25 {
                 drgResult.setDC("2550");
             } else if (Counter25CXSDx > 0 || Counter25CXPDx > 0) {//HIV-related Malignancy
                 for (int x = 0; x < SecondaryList.size(); x++) {
-                    if (new GrouperMethod().AX(datasource, "25CX", SecondaryList.get(x).trim()).isSuccess()) {
+                    if (checkAX.AX(datasource, "25CX", SecondaryList.get(x).trim()).isSuccess()) {
                         sdxfinder.add(SecondaryList.get(x).trim());
                     }
                 }
@@ -230,7 +218,7 @@ public class GetMDC25 {
                 }
 
                 for (int x = 0; x < SecondaryList.size(); x++) {
-                    if (new GrouperMethod().AX(datasource, "25DX", SecondaryList.get(x).trim()).isSuccess()) {
+                    if (checkAX.AX(datasource, "25DX", SecondaryList.get(x).trim()).isSuccess()) {
                         sdxfinder.add(SecondaryList.get(x).trim());
                     }
                 }
@@ -246,19 +234,19 @@ public class GetMDC25 {
                 } else {
                     //----------------------------------------------------------------------
                     //  String sdxfinalList =  new GrouperMethod().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                    String sdxfinalList = new GrouperMethod().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                    DRGWSResult getpcclvalue = new GrouperMethod().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
+                    String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
+                    DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
                     if (getpcclvalue.isSuccess()) {
                         DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
                         //-----------------------------------------------------------------------
-                        if (new GrouperMethod().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
+                        if (new DRG().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
                             drgResult.setDRG(finaldrgresult.getDRG());
-                            drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
+                            drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
                         } else {
-                            DRGWSResult drgvalues = new GrouperMethod().ValidatePCCL(datasource, drgResult.getDC(), finaldrgresult.getDRG());
+                            DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, drgResult.getDC(), finaldrgresult.getDRG());
                             if (drgvalues.isSuccess()) {
                                 drgResult.setDRG(drgResult.getDC() + drgvalues.getResult());
-                                DRGWSResult drgnames = new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG());
+                                DRGWSResult drgnames = new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG());
                                 drgResult.setDRGName(drgnames.getMessage());
                             } else {
                                 drgResult.setDRG(finaldrgresult.getDRG());
@@ -272,8 +260,8 @@ public class GetMDC25 {
                 }
                 //----------------------------------------------------------------------
             } else {
-                if (new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                    drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
+                if (new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
+                    drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
                 } else {
                     drgResult.setDRGName("Grouper Error");
                 }

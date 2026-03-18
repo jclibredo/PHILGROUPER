@@ -5,12 +5,19 @@
  */
 package grouper.methods.premdc;
 
+import grouper.methods.validation.AX;
+import grouper.methods.validation.AgeConfictValidation;
+import grouper.methods.validation.COUNTBMDCICD10CODE;
+import grouper.methods.validation.Endovasc;
+import grouper.methods.validation.GetBMDC;
+import grouper.methods.validation.GetICD10PreMDC;
+import grouper.methods.validation.TRAUMAICD10;
+import grouper.methods.validation.TRAUMAICD9CM;
 import grouper.structures.BMDCPreMDCResult;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.ICD10PreMDCResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.Arrays;
@@ -48,23 +55,21 @@ public class GetValidatedPreMDC {
             } else {
                 finaldays = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             }
-            DRGWSResult getAgeConfictResult = new GrouperMethod().AgeConfictValidation(datasource,
+            DRGWSResult getAgeConfictResult = new AgeConfictValidation().AgeConfictValidation(datasource,
                     grouperparameter.getPdx(), String.valueOf(finaldays), String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())));
             if (!getAgeConfictResult.isSuccess()) {
                 drgResult.setDRG("26539");
                 drgResult.setDC("2653");
                 drgResult.setDRGName("PDx : " + grouperparameter.getPdx() + " Having conflict with age");
             } else {
-                DRGWSResult icd10SortResult = new GrouperMethod().GetICD10(datasource, grouperparameter.getPdx(), String.valueOf(finaldays), String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())), grouperparameter.getGender());
+                DRGWSResult icd10SortResult = new GetICD10PreMDC().GetICD10(datasource, grouperparameter.getPdx(), String.valueOf(finaldays), String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())), grouperparameter.getGender());
                 ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(icd10SortResult.getResult(), ICD10PreMDCResult.class);
-//                DRGWSResult GetBMDC = new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx());
                 int TraumaCounterPDXO = 0;
                 int TraumaCounterPDX1 = 0;
-//                DRGWSResult TraumaPrimary = new GrouperMethod().TRAUMAICD10(datasource, grouperparameter.getPdx());
-                if (new GrouperMethod().TRAUMAICD10(datasource, grouperparameter.getPdx()).isSuccess()) {
-                    if (!new GrouperMethod().TRAUMAICD10(datasource, grouperparameter.getPdx()).getResult().equals("0")) {
+                if (new TRAUMAICD10().TRAUMAICD10(datasource, grouperparameter.getPdx()).isSuccess()) {
+                    if (!new TRAUMAICD10().TRAUMAICD10(datasource, grouperparameter.getPdx()).getResult().equals("0")) {
                         TraumaCounterPDX1++;
-                        pdx = new GrouperMethod().TRAUMAICD10(datasource, grouperparameter.getPdx()).getResult();
+                        pdx = new TRAUMAICD10().TRAUMAICD10(datasource, grouperparameter.getPdx()).getResult();
                     } else {
                         TraumaCounterPDXO++;
                     }
@@ -81,11 +86,11 @@ public class GetValidatedPreMDC {
                 if (SDxList.size() > 0) {
                     for (int x = 0; x < SDxList.size(); x++) {
 //                        DRGWSResult SDxVal = new GrouperMethod().TRAUMAICD10(datasource, SDxList.get(x).trim());
-                        if (new GrouperMethod().TRAUMAICD10(datasource, SDxList.get(x).trim()).isSuccess()) {
-                            if (!new GrouperMethod().TRAUMAICD10(datasource, SDxList.get(x).trim()).getResult().equals("0")) {
+                        if (new TRAUMAICD10().TRAUMAICD10(datasource, SDxList.get(x).trim()).isSuccess()) {
+                            if (!new TRAUMAICD10().TRAUMAICD10(datasource, SDxList.get(x).trim()).getResult().equals("0")) {
 //                                SDXcountI++;
-                                sdxSite.add(new GrouperMethod().TRAUMAICD10(datasource, SDxList.get(x).trim()).getResult());
-                                sdxnewlist.add(new GrouperMethod().TRAUMAICD10(datasource, SDxList.get(x).trim()).getResult());
+                                sdxSite.add(new TRAUMAICD10().TRAUMAICD10(datasource, SDxList.get(x).trim()).getResult());
+                                sdxnewlist.add(new TRAUMAICD10().TRAUMAICD10(datasource, SDxList.get(x).trim()).getResult());
                             }
                         }
                     }
@@ -96,29 +101,29 @@ public class GetValidatedPreMDC {
                 int PDC0PB = 0;
                 int PDC0PD = 0;
                 int PDC0PA = 0;
-                if (new GrouperMethod().AX(datasource, "0CX", grouperparameter.getPdx()).isSuccess()) {
+                if (new AX().AX(datasource, "0CX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0CX++;
                 }
-                if (new GrouperMethod().AX(datasource, "0DX", grouperparameter.getPdx()).isSuccess()) {
+                if (new AX().AX(datasource, "0DX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0DX++;
                 }
-                if (new GrouperMethod().AX(datasource, "0EX", grouperparameter.getPdx()).isSuccess()) {
+                if (new AX().AX(datasource, "0EX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0EX++;
                 }
                 if (ProcedureList.size() > 0) {
                     for (int x = 0; x < ProcedureList.size(); x++) {
-                        if (new GrouperMethod().TRAUMAICD9CM(datasource, ProcedureList.get(x).trim()).isSuccess()) {
+                        if (new TRAUMAICD9CM().TRAUMAICD9CM(datasource, ProcedureList.get(x).trim()).isSuccess()) {
 //                            ProccCount++;
-                            procSite.add(new GrouperMethod().TRAUMAICD9CM(datasource, ProcedureList.get(x).trim()).getResult());
-                            procnewlist.add(new GrouperMethod().TRAUMAICD9CM(datasource, ProcedureList.get(x).trim()).getResult());
+                            procSite.add(new TRAUMAICD9CM().TRAUMAICD9CM(datasource, ProcedureList.get(x).trim()).getResult());
+                            procnewlist.add(new TRAUMAICD9CM().TRAUMAICD9CM(datasource, ProcedureList.get(x).trim()).getResult());
                         }
-                        if (new GrouperMethod().Endovasc(datasource, ProcedureList.get(x).trim(), "0PB", "0").isSuccess()) {
+                        if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "0PB", "0").isSuccess()) {
                             PDC0PB++;
                         }
-                        if (new GrouperMethod().Endovasc(datasource, ProcedureList.get(x).trim(), "0PD", "0").isSuccess()) {
+                        if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "0PD", "0").isSuccess()) {
                             PDC0PD++;
                         }
-                        if (new GrouperMethod().Endovasc(datasource, ProcedureList.get(x).trim(), "0PA", "0").isSuccess()) {
+                        if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "0PA", "0").isSuccess()) {
                             PDC0PA++;
                         }
 
@@ -161,7 +166,7 @@ public class GetValidatedPreMDC {
                     sdxpdxnewlist.remove(pdx);
                 }
                 // START OF PARSING PART
-                if (new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).isSuccess()) {
+                if (new GetBMDC().GetBMDC(datasource, grouperparameter.getPdx()).isSuccess()) {
 //                    DRGWSResult restA = new GrouperMethod().COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx());
 //                    BMDCPreMDCResult bmdcResult = utility.objectMapper().readValue(GetBMDC.getResult(), BMDCPreMDCResult.class);
                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
@@ -208,13 +213,13 @@ public class GetValidatedPreMDC {
                         drgResult.setMDC("25");
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) == 0 && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 28) {
                         drgResult.setMDC("15");
-                    } else if (new GrouperMethod().COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx()).isSuccess()) {
-                        if (utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("M")) {
-                            drgResult.setMDC(utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getMDC_M());
-                            drgResult.setPDC(utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getPDC_M());
-                        } else if (utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("F")) {
-                            drgResult.setMDC(utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getMDC_F());
-                            drgResult.setPDC(utility.objectMapper().readValue(new GrouperMethod().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getPDC_F());
+                    } else if (new COUNTBMDCICD10CODE().COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx()).isSuccess()) {
+                        if (utility.objectMapper().readValue(new GetBMDC().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("M")) {
+                            drgResult.setMDC(utility.objectMapper().readValue(new GetBMDC().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getMDC_M());
+                            drgResult.setPDC(utility.objectMapper().readValue(new GetBMDC().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getPDC_M());
+                        } else if (utility.objectMapper().readValue(new GetBMDC().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("F")) {
+                            drgResult.setMDC(utility.objectMapper().readValue(new GetBMDC().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getMDC_F());
+                            drgResult.setPDC(utility.objectMapper().readValue(new GetBMDC().GetBMDC(datasource, grouperparameter.getPdx()).getResult(), BMDCPreMDCResult.class).getPDC_F());
                         }
                     } else {
                         drgResult.setMDC(icd10Result.getMDC());
@@ -287,7 +292,9 @@ public class GetValidatedPreMDC {
 
             //END OF PARSING PART
             if (drgResult.getDRG() == null) {
+
                 if (drgResult.getMDC().equals("30")) {
+
                     if (drgResult.getPDC().isEmpty()) {
                         drgResult.setDRG("26519");
                         drgResult.setDC("2651");
@@ -316,6 +323,7 @@ public class GetValidatedPreMDC {
                 } else {
                     result = new ProcessMDC().ProcessMDC(datasource, drgResult, grouperparameter);
                 }
+
             } else {
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);

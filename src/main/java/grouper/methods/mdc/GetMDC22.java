@@ -5,10 +5,16 @@
  */
 package grouper.methods.mdc;
 
+import grouper.methods.validation.AX;
+import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
+import grouper.methods.validation.DRG;
+import grouper.methods.validation.Endovasc;
+import grouper.methods.validation.GetPCCL;
+import grouper.methods.validation.PDxMalignancy;
+import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,6 +45,7 @@ public class GetMDC22 {
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+             AX checkAX = new AX();
             ArrayList<String> sdxfinder = new ArrayList<>();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
@@ -58,29 +65,29 @@ public class GetMDC22 {
                 if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
                     PCXCounter99++;
                 }
-                if (new GrouperMethod().Endovasc(datasource, ProcedureList.get(x).trim(), "22PA", drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "22PA", drgResult.getMDC()).isSuccess()) {
                     Counter22PA++;
                 }
             }
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (new GrouperMethod().AX(datasource, "22BX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, "22BX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter22BXSDx++;
                 }
-                if (new GrouperMethod().PDxMalignancy(datasource, SecondaryList.get(a).trim(), "22A").isSuccess()) {
+                if (new PDxMalignancy().PDxMalignancy(datasource, SecondaryList.get(a).trim(), "22A").isSuccess()) {
                     Counter22ASDx++;
                 }
-                if (new GrouperMethod().PDxMalignancy(datasource, SecondaryList.get(a).trim(), "22B").isSuccess()) {
+                if (new PDxMalignancy().PDxMalignancy(datasource, SecondaryList.get(a).trim(), "22B").isSuccess()) {
                     Counter22BSDx++;
                 }
             }
 
-            if (new GrouperMethod().AX(datasource, "22BX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, "22BX", grouperparameter.getPdx()).isSuccess()) {
                 Counter22BXPDx++;
             }
-            if (new GrouperMethod().PDxMalignancy(datasource, grouperparameter.getPdx(), "22A").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "22A").isSuccess()) {
                 Counter22APDx++;
             }
-            if (new GrouperMethod().PDxMalignancy(datasource, grouperparameter.getPdx(), "22B").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "22B").isSuccess()) {
                 Counter22BPDx++;
             }
             if (PDXCounter99 > 0) {
@@ -97,7 +104,7 @@ public class GetMDC22 {
                         if (Counter22BSDx > 0 || Counter22BPDx > 0) {
                             if (Counter22PA > 0 || Counter22BXPDx > 0 || Counter22BXSDx > 0) {
                                 for (int x = 0; x < SecondaryList.size(); x++) {
-                                    if (new GrouperMethod().AX(datasource, "22BX", SecondaryList.get(x).trim()).isSuccess()) {
+                                    if (checkAX.AX(datasource, "22BX", SecondaryList.get(x).trim()).isSuccess()) {
                                         sdxfinder.add(SecondaryList.get(x).trim());
                                     }
                                 }
@@ -130,7 +137,7 @@ public class GetMDC22 {
                     if (Counter22BSDx > 0 || Counter22BPDx > 0) {
                         if (Counter22PA > 0 || Counter22BXPDx > 0 || Counter22BXSDx > 0) {
                             for (int x = 0; x < SecondaryList.size(); x++) {
-                                if (new GrouperMethod().AX(datasource, "22BX", SecondaryList.get(x).trim()).isSuccess()) {
+                                if (checkAX.AX(datasource, "22BX", SecondaryList.get(x).trim()).isSuccess()) {
                                     sdxfinder.add(SecondaryList.get(x));
                                 }
                             }
@@ -154,19 +161,19 @@ public class GetMDC22 {
                 } else {
                     //----------------------------------------------------------------------
                     //  String sdxfinalList =  new GrouperMethod().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                    String sdxfinalList = new GrouperMethod().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                    DRGWSResult getpcclvalue = new GrouperMethod().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
+                    String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
+                    DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
                     if (getpcclvalue.isSuccess()) {
                         DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
                         //-----------------------------------------------------------------------
-                        if (new GrouperMethod().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
+                        if (new DRG().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
                             drgResult.setDRG(finaldrgresult.getDRG());
-                            drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
+                            drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
                         } else {
-                            DRGWSResult drgvalues = new GrouperMethod().ValidatePCCL(datasource, drgResult.getDC(), finaldrgresult.getDRG());
+                            DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, drgResult.getDC(), finaldrgresult.getDRG());
                             if (drgvalues.isSuccess()) {
                                 drgResult.setDRG(drgResult.getDC() + drgvalues.getResult());
-                                DRGWSResult drgnames = new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG());
+                                DRGWSResult drgnames = new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG());
                                 drgResult.setDRGName(drgnames.getMessage());
                             } else {
                                 drgResult.setDRG(finaldrgresult.getDRG());
@@ -180,8 +187,8 @@ public class GetMDC22 {
                 }
                 //----------------------------------------------------------------------
             } else {
-                if (new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                    drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
+                if (new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
+                    drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
                 } else {
                     drgResult.setDRGName("Grouper Error");
                 }

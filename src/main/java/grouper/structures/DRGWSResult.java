@@ -4,8 +4,8 @@
  * and open the template in the editor.
  */
 package grouper.structures;
-import lombok.Data;
 
+import lombok.Data;
 
 /**
  *
@@ -13,7 +13,8 @@ import lombok.Data;
  */
 @Data
 public class DRGWSResult {
-    private boolean success;
-    private String message;
-    private String result;
+
+    private boolean success = false;
+    private String message = "";
+    private String result = "";
 }

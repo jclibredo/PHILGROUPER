@@ -7,9 +7,12 @@ package grouper;
 
 import drgseeker.utilities.SeekerMethods;
 import drgseeker.utilities.SeekerUser;
+import grouper.methods.seeker.SeekerDRG;
+import grouper.methods.seeker.SeekerICD10;
+import grouper.methods.seeker.SeekerICD9cm;
+import grouper.methods.seeker.SeekerRVS;
 import grouper.structures.DRGWSResult;
 import grouper.utility.Cryptor;
-import grouper.utility.GrouperMethod;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
 import java.awt.Desktop;
@@ -217,7 +220,7 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new GrouperMethod().SeekerRVS(dataSource);
+            result = new SeekerRVS().SeekerRVS(dataSource);
         }
         return result;
     }
@@ -233,7 +236,7 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new GrouperMethod().SeekerICD9cm(dataSource);
+            result = new SeekerICD9cm().SeekerICD9cm(dataSource);
         }
         return result;
     }
@@ -249,7 +252,7 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new GrouperMethod().SeekerDRG(dataSource);
+            result = new SeekerDRG().SeekerDRG(dataSource);
         }
         return result;
     }
@@ -265,7 +268,7 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new GrouperMethod().SeekerICD10(dataSource);
+            result = new SeekerICD10().SeekerICD10(dataSource);
         }
         return result;
     }
@@ -329,7 +332,9 @@ public class Seeker {
             } else {
                 DRGWSResult insertResult = new SeekerMethods().InsertToken(dataSource, token);
                 if (insertResult.isSuccess()) {
-                    URI uri = new URI(utility.GetString("SeekerModule"));
+                    
+                    URI uri = new URI(utility.GetString("SeekerModule").getResult());
+                    
                     Desktop.getDesktop().browse(uri);
                 } else {
                     result = insertResult;

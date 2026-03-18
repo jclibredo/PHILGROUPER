@@ -6,11 +6,11 @@
 package grouper;
 
 import grouper.methods.premdc.ProcessGrouperParameter;
+import grouper.methods.validation.GetGrouper;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.utility.GrouperMethod;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class Grouper {
     @Path("GetGrouper")
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GetGrouper() {
-        return new GrouperMethod().GetGrouper(datasource, "FG".trim());
+        return new GetGrouper().GetGrouper(datasource, "FG".trim());
     }
 
     //SET DEADLINE  FOR ITMD   
@@ -91,9 +91,6 @@ public class Grouper {
         ArrayList<DRGOutput> drgresultList = new ArrayList<>();
         ArrayList<String> errorList = new ArrayList<>();
         try {
-            //------------------------------------------------------------------
-
-            //------------------------------------------------------------------
             for (int g = 0; g < grouperparameter.size(); g++) {
                 DRGWSResult grouperResult = new ProcessGrouperParameter().ProcessGrouperParameter(datasource, grouperparameter.get(g));
                 if (grouperResult.isSuccess()) {
@@ -103,7 +100,6 @@ public class Grouper {
                     errorList.add(grouperResult.getMessage());
                 }
             }
-            //------------------------------------------------------------------
             if (grouperparameter.size() > 0) {
                 result.setMessage("Data Process : " + grouperparameter.size() + " DRG Claims , Error Ecounter : " + errorList.toString());
                 result.setSuccess(true);
@@ -111,7 +107,6 @@ public class Grouper {
             } else {
                 result.setMessage("NO DATA AVAILABLE TO PROCESS");
             }
-            //------------------------------------------------------------------
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
@@ -119,7 +114,6 @@ public class Grouper {
         return result;
     }
 
-    //THIS METHOD IS FOR DRG CLAIMS SUBMISSION FULL IMPLEMENTATION
     @POST
     @Path("DRGClaimsData")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -175,8 +169,7 @@ public class Grouper {
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GenerateToken(final DRGPayload payload) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("OK");
-        result.setResult(utility.GenerateToken(payload.getCode1(), payload.getCode2(), payload.getCode3()));
+        result.setResult(utility.GenerateToken(payload.getCode1(), payload.getCode2(), utility.GetString("OtpExpiration").getResult()));
         result.setSuccess(true);
         return result;
     }

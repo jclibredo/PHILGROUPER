@@ -13,6 +13,7 @@ drgseeker\utilities\SeekerMethods$1.class
 drgseeker\utilities\SeekerUser.class
 grouper\structures\PCOM.class
 grouper\structures\DRGPayload.class
+drgseeker\utilities\DataWarehouse.class
 grouper\structures\PDCHierar.class
 grouper\utility\TestParamObject.class
 grouper\methods\mdc\GetMDC02.class
@@ -42,6 +43,7 @@ grouper\methods\mdc\GetMDC05.class
 grouper\methods\mdc\GetMDC08.class
 grouper\methods\mdc\GetMDC18.class
 grouper\methods\mdc\GetMDC28.class
+grouper\GrouperTesting.class
 grouper\structures\MDC.class
 grouper\methods\mdc\GetMDC19.class
 grouper\utility\GrouperMethod.class

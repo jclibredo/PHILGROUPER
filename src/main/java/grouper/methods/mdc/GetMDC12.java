@@ -5,16 +5,23 @@
  */
 package grouper.methods.mdc;
 
+import grouper.methods.validation.AX;
+import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
+import grouper.methods.validation.DRG;
+import grouper.methods.validation.GetPCCL;
+import grouper.methods.validation.GetPDC;
+import grouper.methods.validation.MDCProcedureMethod;
+import grouper.methods.validation.ORProcedure;
+import grouper.methods.validation.PDxMalignancy;
+import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -33,325 +40,105 @@ public class GetMDC12 {
 
     public DRGWSResult GetMDC12(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
         result.setSuccess(false);
-        try {
-            List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
-            List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
-            // CHECKING ICD9 TO MDC START
-            int ORProcedureCounter = 0;
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            int mdcprocedureCounter = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
-            //Malignant Counter for Primay Code (PDx)
-            int MalignantCount = 0;
-            if (new GrouperMethod().PDxMalignancy(datasource, grouperparameter.getPdx(), "12A").isSuccess()) {
-                MalignantCount++;
-            }
-            // CHECKING ICD9 TO MDC START
-            //int ICD9CMFindDC = 0;
-            int PDXCounter99 = 0;
-            int PCXCounter99 = 0;
-            int CartSDx = 0;
-            int CaCRxSDx = 0;
-            int CartProc = 0;
-            int CaCRxProc = 0;
-            int PBX12Proc = 0;
-            int PBX99Proc = 0;
 
-            for (int y = 0; y < ProcedureList.size(); y++) {
-                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
+        try {
+            // 1. Pre-instantiate services (Crucial for performance)
+            AX axService = new AX();
+            ORProcedure orService = new ORProcedure();
+            MDCProcedureMethod mdcService = new MDCProcedureMethod();
+            GetPDC pdcService = new GetPDC();
+            DRG drgService = new DRG();
+            String mdc = drgResult.getMDC();
+
+            // 2. Prepare Data & Counters
+            String[] procArray = grouperparameter.getProc() != null ? grouperparameter.getProc().split(",") : new String[0];
+            String[] sdxArray = grouperparameter.getSdx() != null ? grouperparameter.getSdx().split(",") : new String[0];
+
+            int PDXCounter99 = 0, PCXCounter99 = 0, PBX12Proc = 0, PBX99Proc = 0;
+            int CartProc = 0, CaCRxProc = 0, ORProcedureCounter = 0, mdcprocedureCounter = 0;
+            List<Integer> ORProcedureCounterList = new ArrayList<>();
+            List<Integer> hierarvalue = new ArrayList<>();
+            List<String> pdclist = new ArrayList<>();
+
+            // 3. Process Procedures
+            for (String rawCode : procArray) {
+                String code = rawCode.trim();
+                if (code.isEmpty()) {
+                    continue;
+                }
+
+                if (utility.isValid99PDX(code)) {
                     PDXCounter99++;
                 }
-                //AX 99PCX Checking
-                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
+                if (utility.isValid99PCX(code)) {
                     PCXCounter99++;
                 }
-                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
+                if (utility.isValid99PEX(code)) {
                     CartProc++;
                 }
-                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
+                if (utility.isValid99PFX(code)) {
                     CaCRxProc++;
                 }
-                if (new GrouperMethod().AX(datasource, "12PBX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PBX12Proc++;
-                }
-                if (utility.isValid99PBX(ProcedureList.get(y).trim())) {
+                if (utility.isValid99PBX(code)) {
                     PBX99Proc++;
                 }
-                DRGWSResult JoinResult = new GrouperMethod().MDCProcedure(datasource, ProcedureList.get(y).trim(), drgResult.getMDC());
-                if (JoinResult.isSuccess()) {
+
+                if (axService.AX(datasource, "12PBX", code).isSuccess()) {
+                    PBX12Proc++;
+                }
+
+                // MDC Procedure Logic
+                DRGWSResult joinRes = mdcService.MDCProcedure(datasource, code, mdc);
+                if (joinRes.isSuccess()) {
                     mdcprocedureCounter++;
-                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GrouperMethod().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                    if (pdcresult.isSuccess()) {
-                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
-                        hierarvalue.add(hiarresult.getHIERAR());
-                        pdclist.add(hiarresult.getPDC());
+                    MDCProcedure mProc = utility.objectMapper().readValue(joinRes.getResult(), MDCProcedure.class);
+                    DRGWSResult pRes = pdcService.GetPDC(datasource, mProc.getA_PDC(), mdc);
+                    if (pRes.isSuccess()) {
+                        PDC hiar = utility.objectMapper().readValue(pRes.getResult(), PDC.class);
+                        hierarvalue.add(hiar.getHIERAR());
+                        pdclist.add(hiar.getPDC());
                     }
                 }
-                DRGWSResult ORProcedureResult = new GrouperMethod().ORProcedure(datasource, ProcedureList.get(y).trim());
-                if (ORProcedureResult.isSuccess()) {
+
+                // OR Procedure Logic
+                DRGWSResult orRes = orService.ORProcedure(datasource, code);
+                if (orRes.isSuccess()) {
                     ORProcedureCounter++;
-                    ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
+                    ORProcedureCounterList.add(Integer.valueOf(orRes.getResult()));
                 }
             }
 
-            //Checking SDx RadioTherapy and Chemotherapy
-            for (int a = 0; a < SecondaryList.size(); a++) {
-                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
+            // 4. Process Secondaries & Malignancy
+            int CartSDx = 0, CaCRxSDx = 0;
+            for (String rawSdx : sdxArray) {
+                String sdx = rawSdx.trim();
+                if (utility.isValid99BX(sdx)) {
                     CartSDx++;
                 }
-                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
+                if (utility.isValid99CX(sdx)) {
                     CaCRxSDx++;
                 }
             }
+            boolean isMalignant = new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "12A").isSuccess();
 
-            if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) >= 21) {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("1209");
-                    } else {
-                        drgResult.setDC("1210");
-                    }
+            // 5. Main DC Determination Logic
+            long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                    grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
 
-                } else if (mdcprocedureCounter > 0) { //MDC Procedure
-                    int min = hierarvalue.get(0);
-                    //Loop through the array  
-                    for (int i = 0; i < hierarvalue.size(); i++) {
-                        //Compare elements of array with min  
-                        if (hierarvalue.get(i) < min) {
-                            min = hierarvalue.get(i);
-                        }
-                    }
-
-                    drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    switch (pdclist.get(hierarvalue.indexOf(min))) {
-                        case "12PA":   //1Major Male Pelvic Procedures
-                            drgResult.setDC("1201");
-                            break;
-                        case "12PB"://Transurethral Prostatectomy
-                            drgResult.setDC("1202");
-                            break;
-                        case "12PD"://Penis Procedures
-                            drgResult.setDC("1204");
-                            break;
-                        case "12PF"://Other Male Reproductive System OR Procedures
-                            if (MalignantCount > 0) {
-                                drgResult.setDC("1206");
-                            } else {
-                                drgResult.setDC("1207");
-                            }
-                            break;
-                        case "12PC":  //Testis Procedures
-                            drgResult.setDC("1203");
-                            break;
-                        case "12PG": //1Cystourethroscopy
-                            drgResult.setDC("1208");
-                            break;
-                        case "12PE"://Circumcision 12PE
-                            drgResult.setDC("1205");
-                            break;
-                    }
-
-                } else if (ORProcedureCounter > 0) {
-                    switch (Collections.max(ORProcedureCounterList)) {
-                        case 1:
-                            drgResult.setDC("2601");
-                            break;
-                        case 2:
-                            drgResult.setDC("2602");
-                            break;
-                        case 3:
-                            drgResult.setDC("2603");
-                            break;
-                        case 4:
-                            drgResult.setDC("2604");
-                            break;
-                        case 5:
-                            drgResult.setDC("2605");
-                            break;
-                        case 6:
-                            drgResult.setDC("2606");
-                            break;
-                    }
-
-                } else {
-                    switch (drgResult.getPDC()) {
-                        case "12A":
-                            //Radio+Chemotherapy
-                            if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1255");
-                                //Chemotherapy
-                            } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1256");
-                                //Radiotherapy
-                            } else if (CartSDx > 0 && CartProc > 0) {
-                                drgResult.setDC("1257");
-                            } else if (PBX12Proc > 0) { //##Dx Procedure
-                                drgResult.setDC("1258");
-                                //Radiotherapy
-                            } else if (PBX99Proc > 0) {//Blood Transfusion
-                                drgResult.setDC("1259");
-                            } else {
-                                drgResult.setDC("1250");
-                            }
-                            break;
-                        case "12B": //#Benign prostatic hypertrophy
-                            drgResult.setDC("1251");
-                            break;
-                        case "12C": //#Inflammation of male reproductive system
-                            drgResult.setDC("1252");
-                            break;
-                        case "12D": //#Inflammation of male reproductive system
-                            drgResult.setDC("1253");
-                            break;
-                        case "12E"://##Other male reproductive system diagnoses 12E
-                            drgResult.setDC("1254");
-                            break;
-                    }
-
-                }
-
-            } else if (mdcprocedureCounter > 0) { //MDC Procedure
-                int min = hierarvalue.get(0);
-                //Loop through the array  
-                for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
-                    if (hierarvalue.get(i) < min) {
-                        min = hierarvalue.get(i);
-                    }
-                }
-                drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "12PA":   //1Major Male Pelvic Procedures
-                        drgResult.setDC("1201");
-                        break;
-                    case "12PB"://Transurethral Prostatectomy
-                        drgResult.setDC("1202");
-                        break;
-                    case "12PD"://Penis Procedures
-                        drgResult.setDC("1204");
-                        break;
-                    case "12PF"://Other Male Reproductive System OR Procedures
-                        if (MalignantCount > 0) {
-                            drgResult.setDC("1206");
-                        } else {
-                            drgResult.setDC("1207");
-                        }
-                        break;
-                    case "12PC":  //Testis Procedures
-                        drgResult.setDC("1203");
-                        break;
-                    case "12PG": //1Cystourethroscopy
-                        drgResult.setDC("1208");
-                        break;
-                    case "12PE"://Circumcision 12PE
-                        drgResult.setDC("1205");
-                        break;
-                }
-
+            if (PDXCounter99 > 0 && los >= 21) {
+                drgResult.setDC(PCXCounter99 > 0 ? "1209" : "1210");
+            } else if (mdcprocedureCounter > 0) {
+                applyMDC12ProcedureLogic(drgResult, hierarvalue, pdclist, isMalignant);
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
-
+                drgResult.setDC("260" + Collections.max(ORProcedureCounterList));
             } else {
-                switch (drgResult.getPDC()) {
-                    case "12A":
-                        //Radio+Chemotherapy
-                        if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("1255");
-                            //Chemotherapy
-                        } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("1256");
-                            //Radiotherapy
-                        } else if (CartSDx > 0 && CartProc > 0) {
-                            drgResult.setDC("1257");
-                        } else if (PBX12Proc > 0) { //##Dx Procedure
-                            drgResult.setDC("1258");
-                            //Radiotherapy
-                        } else if (PBX99Proc > 0) {//Blood Transfusion
-                            drgResult.setDC("1259");
-                        } else {
-                            drgResult.setDC("1250");
-                        }
-                        break;
-                    case "12B": //#Benign prostatic hypertrophy
-                        drgResult.setDC("1251");
-                        break;
-                    case "12C": //#Inflammation of male reproductive system
-                        drgResult.setDC("1252");
-                        break;
-                    case "12D": //#Inflammation of male reproductive system
-                        drgResult.setDC("1253");
-                        break;
-                    case "12E"://##Other male reproductive system diagnoses 12E
-                        drgResult.setDC("1254");
-                        break;
-                }
+                applyMDC12DefaultLogic(drgResult, CartSDx, CaCRxSDx, CartProc, CaCRxProc, PBX12Proc, PBX99Proc);
             }
 
-            if (drgResult.getDRG() == null) {
-                //-------------------------------------------------------------------------------------
-                if (utility.isValidDCList(drgResult.getDC())) {
-                    drgResult.setDRG(drgResult.getDC() + "9");
-                } else {
-                    //----------------------------------------------------------------------
-                    //  String sdxfinalList =  new GrouperMethod().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                    String sdxfinalList = new GrouperMethod().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                    DRGWSResult getpcclvalue = new GrouperMethod().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
-                    if (getpcclvalue.isSuccess()) {
-                        DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
-                        //-----------------------------------------------------------------------
-                        if (new GrouperMethod().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
-                            drgResult.setDRG(finaldrgresult.getDRG());
-                            drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
-                        } else {
-                            DRGWSResult drgvalues = new GrouperMethod().ValidatePCCL(datasource, drgResult.getDC(), finaldrgresult.getDRG());
-                            if (drgvalues.isSuccess()) {
-                                drgResult.setDRG(drgResult.getDC() + drgvalues.getResult());
-                                DRGWSResult drgnames = new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG());
-                                drgResult.setDRGName(drgnames.getMessage());
-                            } else {
-                                drgResult.setDRG(finaldrgresult.getDRG());
-                                drgResult.setDRGName("Grouper Error");
-                            }
-                        }
-                    } else {
-                        drgResult.setDRG(drgResult.getDC() + "X");
-                        drgResult.setDRGName("Grouper Error");
-                    }
-                }
-                //----------------------------------------------------------------------
-            } else {
-                if (new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                    drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
-                } else {
-                    drgResult.setDRGName("Grouper Error");
-                }
-            }
+            // 6. DRG Finalization Logic (The "PCCL" section)
+            finalizeDRG(drgResult, grouperparameter, datasource, utility, drgService);
+
             result.setSuccess(true);
             result.setMessage("MDC 12 Done Checking");
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
@@ -362,6 +149,94 @@ public class GetMDC12 {
         }
         return result;
 
+    }
+
+    private void applyMDC12ProcedureLogic(DRGOutput drgResult, List<Integer> hierarvalue, List<String> pdclist, boolean isMalignant) {
+        int min = Collections.min(hierarvalue);
+        String selectedPdc = pdclist.get(hierarvalue.indexOf(min));
+        drgResult.setPDC(selectedPdc);
+
+        switch (selectedPdc) {
+            case "12PA":
+                drgResult.setDC("1201");
+                break;
+            case "12PB":
+                drgResult.setDC("1202");
+                break;
+            case "12PC":
+                drgResult.setDC("1203");
+                break;
+            case "12PD":
+                drgResult.setDC("1204");
+                break;
+            case "12PE":
+                drgResult.setDC("1205");
+                break;
+            case "12PG":
+                drgResult.setDC("1208");
+                break;
+            case "12PF":
+                drgResult.setDC(isMalignant ? "1206" : "1207");
+                break;
+        }
+    }
+
+    private void applyMDC12DefaultLogic(DRGOutput drgResult, int cartS, int cacS, int cartP, int cacP, int pbx12, int pbx99) {
+        switch (drgResult.getPDC()) {
+            case "12A":
+                if (cartS > 0 && cacS > 0 && cartP > 0 && cacP > 0) {
+                    drgResult.setDC("1255");
+                } else if (cacS > 0 && cacP > 0) {
+                    drgResult.setDC("1256");
+                } else if (cartS > 0 && cartP > 0) {
+                    drgResult.setDC("1257");
+                } else if (pbx12 > 0) {
+                    drgResult.setDC("1258");
+                } else if (pbx99 > 0) {
+                    drgResult.setDC("1259");
+                } else {
+                    drgResult.setDC("1250");
+                }
+                break;
+            case "12B":
+                drgResult.setDC("1251");
+                break;
+            case "12C":
+                drgResult.setDC("1252");
+                break;
+            case "12D":
+                drgResult.setDC("1253");
+                break;
+            case "12E":
+                drgResult.setDC("1254");
+                break;
+        }
+    }
+
+    private void finalizeDRG(DRGOutput drgResult, GrouperParameter gp, DataSource ds, Utility utility, DRG drgService) throws IOException {
+        if (drgResult.getDRG() == null) {
+            if (utility.isValidDCList(drgResult.getDC())) {
+                drgResult.setDRG(drgResult.getDC() + "9");
+            } else {
+                String sdxClean = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(ds, gp.getSdx(), drgResult.getSDXFINDER(), gp.getPdx(), drgResult.getDC());
+                DRGWSResult pcclVal = new GetPCCL().GetPCCL(ds, drgResult, gp, sdxClean);
+                if (pcclVal.isSuccess()) {
+                    DRGOutput output = utility.objectMapper().readValue(pcclVal.getResult(), DRGOutput.class);
+                    DRGWSResult drgCheck = drgService.DRG(ds, drgResult.getDC(), output.getDRG());
+                    if (drgCheck.isSuccess()) {
+                        drgResult.setDRG(output.getDRG());
+                        drgResult.setDRGName(drgCheck.getMessage());
+                    } else {
+                        DRGWSResult vPccl = new ValidatePCCL().ValidatePCCL(ds, drgResult.getDC(), output.getDRG());
+                        drgResult.setDRG(drgResult.getDC() + (vPccl.isSuccess() ? vPccl.getResult() : "X"));
+                        drgResult.setDRGName(vPccl.isSuccess() ? drgService.DRG(ds, drgResult.getDC(), drgResult.getDRG()).getMessage() : "Grouper Error");
+                    }
+                }
+            }
+        } else {
+            DRGWSResult res = drgService.DRG(ds, drgResult.getDC(), drgResult.getDRG());
+            drgResult.setDRGName(res.isSuccess() ? res.getMessage() : "Grouper Error");
+        }
     }
 
 }

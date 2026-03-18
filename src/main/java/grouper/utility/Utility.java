@@ -5,6 +5,8 @@
  */
 package grouper.utility;
 
+import grouper.methods.validation.GetICD9cms;
+import grouper.structures.CombinationCode;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
@@ -27,10 +29,13 @@ import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -160,6 +165,10 @@ public class Utility {
 
     }
 
+    public String icd10Cleaner(String code) {
+        return code.substring(0, code.length() - (code.length() > 0 ? 1 : 0));
+    }
+
     public String EncryptString(String string) {
         String result = null;
         try {
@@ -262,6 +271,14 @@ public class Utility {
             Date expiresAt = claims.getExpiration();
             return expiresAt.before(new Date());
         }
+    }
+
+    public static <T> ArrayList<T> RemovedDuplicates(ArrayList<T> list) {
+        ArrayList<T> newList = new ArrayList<>();
+        list.stream().filter((element) -> (!newList.contains(element))).forEachOrdered((element) -> {
+            newList.add(element);
+        });
+        return newList;
     }
 
     public int ComputeTime(String DateIn, String TimeIn, String DateOut, String TimeOut) {
@@ -379,12 +396,11 @@ public class Utility {
     }
 
     public String CodeConverter(DataSource datasouce, String rvs) {
-        GrouperMethod gm = new GrouperMethod();
         String result = "";
         List<String> ProcList = Arrays.asList(rvs.split(","));
         for (int m = 0; m < ProcList.size(); m++) {
             String rvs_code = ProcList.get(m);
-            DRGWSResult finalResult = gm.GetICD9cms(datasouce, rvs_code);
+            DRGWSResult finalResult = new GetICD9cms().GetICD9cms(datasouce, rvs_code);
             if (String.valueOf(finalResult.isSuccess()).equals(true)) {
                 result = finalResult.getResult();
             }
@@ -392,13 +408,29 @@ public class Utility {
         return result;
     }
 
+    public String FrontProcedureExecute(final CombinationCode combinationcode) {
+        String result = "";
+        List<String> indexlist = Arrays.asList(combinationcode.getIndexlist().split(","));
+        List<String> comcode = Arrays.asList(combinationcode.getComcode().split(","));
+        List<String> proclist = Arrays.asList(combinationcode.getProclist().split(","));
+        Set<String> set1 = new HashSet<>(proclist);
+        set1.removeAll(indexlist);
+        for (int y = 0; y < comcode.size(); y++) {
+            if (comcode.get(y).equals("")) {
+            } else {
+                set1.add(comcode.get(y));
+            }
+        }
+        result = set1.toString();
+        return result;
+    }
+
     public String SDxSecondary(DataSource datasouce, String icd10) {
-        GrouperMethod gm = new GrouperMethod();
         String result = "";
         List<String> ProcList = Arrays.asList(icd10.split(","));
         for (int m = 0; m < ProcList.size(); m++) {
             String rvs_code = ProcList.get(m);
-            DRGWSResult finalResult = gm.GetICD9cms(datasouce, rvs_code);
+            DRGWSResult finalResult = new GetICD9cms().GetICD9cms(datasouce, rvs_code);
             if (String.valueOf(finalResult.isSuccess()).equals(true)) {
                 result = finalResult.getResult();
             }
@@ -554,17 +586,33 @@ public class Utility {
         return new SimpleDateFormat(pattern);
     }
 
-    public String GetString(String name) {
-        String result = "";
+//    public String GetString(String name) {
+//        String result = "";
+//        try {
+//            Context context = new InitialContext();
+//            Context environment = (Context) context.lookup("java:comp/env");
+//            result = (String) environment.lookup(name);
+//
+//        } catch (NamingException ex) {
+//            Logger.getLogger(Utility.class
+//                    .getName()).log(Level.SEVERE, null, ex);
+//            result = ex.getMessage();
+//        }
+//        return result;
+//    }
+    public DRGWSResult GetString(String name) {
+        DRGWSResult result = new DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
         try {
             Context context = new InitialContext();
             Context environment = (Context) context.lookup("java:comp/env");
-            result = (String) environment.lookup(name);
-
+            result.setResult((String) environment.lookup(name)); //= (String) environment.lookup(name);
+            result.setSuccess(true);
         } catch (NamingException ex) {
-            Logger.getLogger(Utility.class
-                    .getName()).log(Level.SEVERE, null, ex);
-            result = ex.getMessage();
+            result.setMessage(ex.toString());
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -765,6 +813,20 @@ public class Utility {
             result = true;
         } catch (ParseException e) {
         }
+        return result;
+    }
+
+    public String ProcedureExecute(final CombinationCode combinationcode) {
+        String result = "";
+        List<String> indexlist = Arrays.asList(combinationcode.getIndexlist().split(","));
+        List<String> comcode = Arrays.asList(combinationcode.getComcode().split(","));
+        List<String> proclist = Arrays.asList(combinationcode.getProclist().split(","));
+        Set<String> set1 = new HashSet<>(proclist);
+        set1.removeAll(indexlist);
+        for (int y = 0; y < comcode.size(); y++) {
+            set1.add(comcode.get(y));
+        }
+        result = String.join(", ", set1);
         return result;
     }
 

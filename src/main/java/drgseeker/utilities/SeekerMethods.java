@@ -461,7 +461,7 @@ public class SeekerMethods {
         result.setResult("");
         result.setSuccess(false);
         try {
-            if (utility.IsValidNumber(utility.GetString("OtpExpiration"))) {
+            if (utility.IsValidNumber(utility.GetString("OtpExpiration").getResult())) {
                 DRGWSResult getUserDetails = this.GetUserByUsername(dataSource, uemail.trim());
                 if (getUserDetails.isSuccess()) {
                     SeekerUser userA = utility.objectMapper().readValue(getUserDetails.getResult(), SeekerUser.class);
@@ -471,7 +471,7 @@ public class SeekerMethods {
                                 if (this.GetDatesDifferential(userA.getOtpdatecreated(), "DAYS") != null && this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME") != null && this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES") != null) {
                                     if (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "DAYS")) >= 0
                                             && Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME")) >= 0
-                                            && (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES")) + Long.parseLong(utility.GetString("OtpExpiration"))) >= Long.parseLong(utility.GetString("OtpExpiration"))) {
+                                            && (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES")) + Long.parseLong(utility.GetString("OtpExpiration").getResult())) >= Long.parseLong(utility.GetString("OtpExpiration").getResult())) {
 //                                        if (this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME") != null) {
 //                                            if (Long.parseLong(this.GetDatesDifferential(userA.getOtpdatecreated(), "TIME")) >= 0) {
 //                                                if (this.GetDatesDifferential(userA.getOtpdatecreated(), "MINUTES") != null) {

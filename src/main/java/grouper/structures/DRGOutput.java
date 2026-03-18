@@ -27,6 +27,9 @@ public class DRGOutput {
     private String DC;
     private String PDC;
     private String CC;
+    private String prepccl;
+    private String finalpccl;
+    private String warningerror;
     private String SDXFINDER;
     private String claimseries;
 }

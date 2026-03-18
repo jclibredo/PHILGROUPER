@@ -5,12 +5,15 @@
  */
 package grouper.methods.premdc;
 
+import grouper.methods.validation.GenderConfictValidation;
+import grouper.methods.validation.GetDA;
+import grouper.methods.validation.GetICD10PreMDC;
+import grouper.methods.validation.GetPCOM;
 import grouper.structures.CombinationCode;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.ICD10PreMDCResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.text.ParseException;
@@ -50,7 +53,7 @@ public class ValidateFindMDC {
                 String dataA = ProcList.get(y).replace(">1", "");  //TEST DATA HERE  Procwithgreathervalue
                 for (int w = 0; w < ProcList.size(); w++) {  //TEST DATA HERE  Procwithgreathervalue
                     String dataB = ProcList.get(w).replace(">1", "");  //TEST DATA HERE  Procwithgreathervalue
-                    DRGWSResult pcomResult = new GrouperMethod().GetPCOM(datasource, dataA.trim(), dataB.trim());
+                    DRGWSResult pcomResult = new GetPCOM().GetPCOM(datasource, dataA.trim(), dataB.trim());
                     if (String.valueOf(pcomResult.isSuccess()).equals("true")) {
                         combiCode.add(pcomResult.getResult());
                         for (int i = 0; i < ProcList.size(); i++) {  //TEST DATA HERE  Procwithgreathervalue
@@ -77,7 +80,7 @@ public class ValidateFindMDC {
             //==================================
             List<String> SDxList = Arrays.asList(grouperparameter.getSdx().split(","));
             for (int b = 0; b < SDxList.size(); b++) {
-                DRGWSResult gDAResult = new GrouperMethod().GetDA(datasource, grouperparameter.getPdx(), SDxList.get(b).trim());
+                DRGWSResult gDAResult = new GetDA().GetDA(datasource, grouperparameter.getPdx(), SDxList.get(b).trim());
                 if (gDAResult.isSuccess()) {
                     asterisk.add("true");
                 } else {
@@ -92,9 +95,9 @@ public class ValidateFindMDC {
             if (asterisk.contains(checker)) {
                 SDxList.set(indexNumber, grouperparameter.getPdx());
                 StringBuilder newListSDx = new StringBuilder("");
-                for (String eachstring : SDxList) {
+                SDxList.forEach((eachstring) -> {
                     newListSDx.append(eachstring).append(",");
-                }
+                });
                 //Swapping area
                 FinalSDxList = FinalSDxList.substring(0, FinalSDxList.length());
                 swapping.setNewsdx(newListSDx.toString());
@@ -110,8 +113,8 @@ public class ValidateFindMDC {
                 }
             }
             //==========================================================================================================
-            DRGWSResult geticd10Result = new GrouperMethod().GetICD10PreMDC(datasource, swapping.getNewpdx());
-            DRGWSResult getSexConfictResult = new GrouperMethod().GenderConfictValidation(datasource, swapping.getNewpdx(), grouperparameter.getGender());
+            DRGWSResult geticd10Result = new GetICD10PreMDC().GetICD10PreMDC(datasource, swapping.getNewpdx());
+            DRGWSResult getSexConfictResult = new GenderConfictValidation().GenderConfictValidation(datasource, swapping.getNewpdx(), grouperparameter.getGender());
             //==========================================================================================================
             if (!geticd10Result.isSuccess()) {
                 drgResult.setDRG("26509");
@@ -160,7 +163,7 @@ public class ValidateFindMDC {
                         combinationcode.setComcode(Combinecode);
                         combinationcode.setIndexlist(indextoremove);
                         combinationcode.setProclist(OrigList);
-                        String comResult = new GrouperMethod().ProcedureExecute(combinationcode);
+                        String comResult = utility.ProcedureExecute(combinationcode);
                         Newgrouperparam.setProc(comResult);
                     }
                     Newgrouperparam.setSdx(grouperparameter.getSdx());
@@ -193,7 +196,7 @@ public class ValidateFindMDC {
                     combinationcode.setComcode(Combinecode);
                     combinationcode.setIndexlist(indextoremove);
                     combinationcode.setProclist(OrigList);
-                    String comResult = new GrouperMethod().ProcedureExecute(combinationcode);
+                    String comResult = utility.ProcedureExecute(combinationcode);
                     Newgrouperparam.setProc(comResult);
                 }
                 Newgrouperparam.setSdx(swapping.getNewsdx());

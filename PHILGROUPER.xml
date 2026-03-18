@@ -4,36 +4,50 @@
                  xsi:schemaLocation="http://xmlns.oracle.com/weblogic/deployment-plan http://xmlns.oracle.com/weblogic/deployment-plan/1.0/deployment-plan.xsd" 
                  global-variables="false">
     <application-name>PHILGROUPER-0.1</application-name> 
-    <variable-definition>      
+    <variable-definition> 
+             
         <variable>
             <name>SeekerModule</name>
             <value>http://172.21.15.63:8501/?=drgSeeker</value>
         </variable>
+        
         <variable>
             <name>OtpExpiration</name>
             <value>5</value>
         </variable>
+        
+        
     </variable-definition>
     <module-override>
+        
         <module-name>PHILGROUPER-0.1.war</module-name>
         <module-type>war</module-type>
+        
+        
         <module-descriptor external="false">
             <root-element>weblogic-web-app</root-element>
             <uri>WEB-INF/weblogic.xml</uri>
         </module-descriptor>
+        
+        
         <module-descriptor external="false">
             <root-element>web-app</root-element>
             <uri>WEB-INF/web.xml</uri>
+            
             <variable-assignment>
                 <name>SeekerModule</name>
                 <xpath>/web-app/env-entry/[env-entry-name="SeekerModule"]/env-entry-value</xpath>
                 <operation>replace</operation>
-            </variable-assignment>   
+            </variable-assignment> 
+            
+                
             <variable-assignment>
                 <name>OtpExpiration</name>
                 <xpath>/web-app/env-entry/[env-entry-name="OtpExpiration"]/env-entry-value</xpath>
                 <operation>replace</operation>
             </variable-assignment>   
+            
+            
         </module-descriptor>
         <module-descriptor external="true">
             <root-element>wldf-resource</root-element>

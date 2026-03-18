@@ -5,12 +5,15 @@
  */
 package grouper.methods.mdc;
 
+import grouper.methods.validation.AX;
+import grouper.methods.validation.DRG;
+import grouper.methods.validation.GetPDC;
+import grouper.methods.validation.MDCProcedureMethod;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,6 +42,8 @@ public class GetMDC28 {
         result.setResult("");
         result.setSuccess(false);
         try {
+
+            AX checkAX = new AX();
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             ArrayList<Integer> hierarvalue = new ArrayList<>();
@@ -57,11 +62,11 @@ public class GetMDC28 {
             int Counter28BX = 0;
             int Counter28CX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
-                DRGWSResult JoinResult = new GrouperMethod().MDCProcedure(datasource, ProcedureList.get(x).trim(), drgResult.getMDC());
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(x).trim(), drgResult.getMDC());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GrouperMethod().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
@@ -80,13 +85,13 @@ public class GetMDC28 {
             if (CaCRxSDx > 0 && CaCRxProc > 0) {
                 CaCRx++;
             }
-            if (new GrouperMethod().AX(datasource, "28EX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, "28EX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
                 Counter28EX++;
             }
-            if (new GrouperMethod().AX(datasource, "28BX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, "28BX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
                 Counter28BX++;
             }
-            if (new GrouperMethod().AX(datasource, "28CX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, "28CX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
                 Counter28CX++;
             }
             // PROCESS BEGINS HERE
@@ -380,8 +385,8 @@ public class GetMDC28 {
             }
             //=================================================
             if (drgResult.getDRG() != null) {
-                if (new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                    drgResult.setDRGName(new GrouperMethod().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
+                if (new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
+                    drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
                 } else {
                     drgResult.setDRGName("Grouper Error");
                 }
