@@ -559,46 +559,52 @@ public class GetMDC14 {
             }
 
             //PROCESS LAST DRG DIGIT
-            // DC to DRG for DC 1401,1402,1407,1408,1409,1450
+            DRG checkDRG = new DRG();
+            // 2. Call the service ONCE and store the result
+            DRGWSResult checkResult = checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
             if (drgResult.getDRG() == null) {
+                drgResult.setPrepccl("X");
+                drgResult.setFinalpccl("X");
+                drgResult.setDRGName("Grouper Error");
+                drgResult.setDRG(drgResult.getDC() + "X");
                 String rest = drgResult.getDC().substring(0, 2);
                 if (Integer.parseInt(rest) == 26) {
                     if (utility.isValidDCList(drgResult.getDC())) {
                         drgResult.setDRG(drgResult.getDC() + "9");
+                        drgResult.setPrepccl("9");
+                        drgResult.setFinalpccl("9");
                     } else {
-                        //----------------------------------------------------------------------
                         //  String sdxfinalList =  new GrouperMethod().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
                         String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
                         DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
                         if (getpcclvalue.isSuccess()) {
                             DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
-                            String drgValue = finaldrgresult.getDRG();
-                            DRGWSResult drgname = new DRG().DRG(datasource, drgResult.getDC(), drgValue);
-                            //-----------------------------------------------------------------------
-                            if (drgname.isSuccess()) {
-                                drgResult.setDRG(drgValue);
-                                drgResult.setDRGName(drgname.getMessage());
-
+                            drgResult.setPrepccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
+                            drgResult.setFinalpccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
+                            drgResult.setDRG(finaldrgresult.getDRG());
+                            if (checkDRG.DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
+                                drgResult.setDRGName(checkDRG.DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
                             } else {
-                                DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, drgResult.getDC(), drgValue);
+                                DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, drgResult.getDC(), finaldrgresult.getDRG());
                                 if (drgvalues.isSuccess()) {
-                                    drgResult.setDRG(drgResult.getDC() + drgvalues.getResult());
-                                    DRGWSResult drgnames = new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG());
-                                    drgResult.setDRGName(drgnames.getMessage());
+                                    String drgcode = drgResult.getDC() + drgvalues.getResult();
+                                    drgResult.setDRG(drgcode);
+                                    DRGWSResult drgnames = checkDRG.DRG(datasource, drgResult.getDC(), drgcode);
+                                    if (drgnames.isSuccess()) {
+                                        drgResult.setDRGName(drgnames.getMessage());
+                                    }
+                                    drgResult.setFinalpccl(drgcode.substring(drgcode.length() - 1));
                                 } else {
-                                    drgResult.setDRG(drgValue);
-                                    drgResult.setDRGName("Grouper Error");
+                                    drgResult.setDRGName("DRG code grouper provide not exist in the library");
                                 }
                             }
-                        } else {
-                            drgResult.setDRG("00000");
-                            drgResult.setDRGName("Grouper Error");
                         }
                     }
-
                 } else {
                     // PROCESS LAST DRG DIGIT
                     if (pdxax14cx > 0 || Counter14CX > 0) {
+                        drgResult.setPrepccl("3");
+                        drgResult.setFinalpccl("3");
                         if (Counter14CX > 1) {
                             drgResult.setDRG(drgResult.getDC() + "3");
                         } else {
@@ -606,33 +612,39 @@ public class GetMDC14 {
                                 drgResult.setDRG(drgResult.getDC() + "3");
                             } else {
                                 drgResult.setDRG(drgResult.getDC() + "2");
+                                drgResult.setPrepccl("2");
+                                drgResult.setFinalpccl("2");
                             }
                         }
                     } else {
                         if (pdxax14dx > 0 || Counter14DX > 0) {
                             drgResult.setDRG(drgResult.getDC() + "1");
+                            drgResult.setPrepccl("1");
+                            drgResult.setFinalpccl("1");
                         } else {
                             drgResult.setDRG(drgResult.getDC() + "0");
+                            drgResult.setPrepccl("0");
+                            drgResult.setFinalpccl("0");
                         }
                     }
-                    if (drgResult.getDRG().equals("26041")) {
+
+                    // 1. Handle the specific edge case for "26041" first
+                    if ("26041".equals(drgResult.getDRG())) {
                         drgResult.setDRG("26040");
                         drgResult.setDC("2604");
-                        if (new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                            drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
-                        }
-                    } else {
-                        if (new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                            drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
-                        }
                     }
-                    //=======================================
+                    // 3. Use a ternary operator or a simple if/else for the result
+                    if (checkResult.isSuccess()) {
+                        drgResult.setDRGName(checkResult.getMessage());
+                    } else {
+                        drgResult.setDRGName("DRG code grouper provide not exist in the library");
+                    }
                 }
             } else {
-                if (new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                    drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
+                if (checkResult.isSuccess()) {
+                    drgResult.setDRGName(checkResult.getMessage());
                 } else {
-                    drgResult.setDRGName("Grouper Error");
+                    drgResult.setDRGName("DRG code grouper provide not exist in the library");
                 }
             }
             result.setSuccess(true);

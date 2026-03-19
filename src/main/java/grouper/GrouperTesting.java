@@ -11,6 +11,7 @@ import grouper.methods.validation.GenderConfictValidation;
 import grouper.methods.validation.GenderConfictValidationProc;
 import grouper.methods.validation.GetICD10;
 import grouper.methods.validation.GetICD10PreMDC;
+import grouper.methods.validation.GET_ICD9;
 import grouper.methods.validation.InsertGrouperAuditTrail;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
@@ -77,7 +78,7 @@ public class GrouperTesting {
                     }
                 }
                 if (grouperparameter.size() > 0) {
-                    result.setMessage("Data Process : " + grouperparameter.size() + " DRG Claims , Error Ecounter : " + errorList.toString());
+                    result.setMessage("Data Process : " + grouperparameter.size() + " DRG Claims , Error Ecounter : ");
                     result.setSuccess(true);
                     File file = new File(utility.GetString("FilePathReports").getResult());
                     result.setResult("Open file: //" + file.getAbsolutePath().replace("\\", "/"));
@@ -95,7 +96,7 @@ public class GrouperTesting {
         return result;
     }
 
-    public DRGWSResult ProcessData(
+    private DRGWSResult ProcessData(
             final String Path,
             final DataSource datasource,
             final GrouperParameter grouperparameter) {
@@ -120,9 +121,12 @@ public class GrouperTesting {
             grouper.setClaimseries(grouperparameter.getClaimseries());
             grouper.setGender(grouperparameter.getGender());
             grouper.setIdseries(grouperparameter.getIdseries());
+            grouper.setDischargeType(grouperparameter.getDischargeType());
+            
             drgresult.setPrepccl("");
             drgresult.setFinalpccl("");
             drgresult.setWarningerror("");
+            
             if (new GetICD10PreMDC().GetICD10PreMDC(datasource, grouperparameter.getPdx()).isSuccess()) {
                 grouper.setPdx(grouperparameter.getPdx());
             } else if (new GetICD10PreMDC().GetICD10PreMDC(datasource, utility.icd10Cleaner(grouperparameter.getPdx())).isSuccess()) {
@@ -131,37 +135,38 @@ public class GrouperTesting {
                 grouper.setPdx(grouperparameter.getPdx());
             }
             grouper.setAdmissionWeight(grouperparameter.getAdmissionWeight());
-            switch (grouperparameter.getDischargeType()) {
-                case "E": {
-                    grouper.setDischargeType("8");
-                    break;
-                }
-                case "O": {
-                    grouper.setDischargeType("5");
-                    break;
-                }
-                case "I":
-                case "R": {
-                    grouper.setDischargeType("1");
-                    break;
-                }
-                case "A": {
-                    grouper.setDischargeType("3");
-                    break;
-                }
-                case "T": {
-                    grouper.setDischargeType("4");
-                    break;
-                }
-                case "H": {
-                    grouper.setDischargeType("2");
-                    break;
-                }
-                default: {
-                    grouper.setDischargeType("");
-                    break;
-                }
-            }
+
+//            switch (grouperparameter.getDischargeType()) {
+//                case "E": {
+//                    grouper.setDischargeType("8");
+//                    break;
+//                }
+//                case "O": {
+//                    grouper.setDischargeType("5");
+//                    break;
+//                }
+//                case "I":
+//                case "R": {
+//                    grouper.setDischargeType("1");
+//                    break;
+//                }
+//                case "A": {
+//                    grouper.setDischargeType("3");
+//                    break;
+//                }
+//                case "T": {
+//                    grouper.setDischargeType("4");
+//                    break;
+//                }
+//                case "H": {
+//                    grouper.setDischargeType("2");
+//                    break;
+//                }
+//                default: {
+//                    grouper.setDischargeType(grouperparameter.getDischargeType());
+//                    break;
+//                }
+//            }
             //CLEANING PROC DATA
             if (!grouperparameter.getProc().trim().isEmpty()) {
                 LinkedList<String> newprocList = new LinkedList<>();
@@ -170,28 +175,35 @@ public class GrouperTesting {
                     newprocList.add(procList.get(m));
                 }
                 for (int pro = 0; pro < procList.size(); pro++) {
-                    DRGWSResult sexvalidationresult = new GenderConfictValidationProc().GenderConfictValidationProc(datasource, procList.get(pro).trim(), grouperparameter.getGender());
-                    if (!sexvalidationresult.isSuccess()) {
-                        newprocList.remove(procList.get(pro).trim());
+                    DRGWSResult checkicd9cm = new GET_ICD9().GetICD9cm(datasource, procList.get(pro));
+                    if (checkicd9cm.isSuccess()) {
+                        DRGWSResult sexvalidationresult = new GenderConfictValidationProc().GenderConfictValidationProc(datasource, procList.get(pro).trim(), grouperparameter.getGender());
+                        if (!sexvalidationresult.isSuccess()) {
+                            newprocList.remove(procList.get(pro).trim());
+                        }
+                    } else {
+                        warningerror.add("Proc " + procList.get(pro) + " invalid");
                     }
                 }
                 grouper.setProc(String.join(",", newprocList));
             } else {
                 grouper.setProc(grouperparameter.getProc());
             }
-            //CLEANING SDX
+
+//            CLEANING SDX
             if (!grouperparameter.getSdx().isEmpty()) {
                 LinkedList<String> newsdxList = new LinkedList<>();
                 List<String> sdxList = Arrays.asList(grouperparameter.getSdx().split(","));
                 for (int m = 0; m < sdxList.size(); m++) {
-                    if (!utility.icd10Cleaner(sdxList.get(m)).equals(grouper.getPdx())) {
-                    } else if (sdxList.get(m).equals(grouper.getPdx())) {
-                        warningerror.add("SDx " + newsdxList.get(m) + " duplicate with the PDx");
+                    if (sdxList.get(m).toUpperCase().trim().equals(grouper.getPdx().toUpperCase().trim())) {
+                        warningerror.add("SDx " + sdxList.get(m) + " duplicate with the PDx");
                     } else {
                         if (new GetICD10PreMDC().GetICD10PreMDC(datasource, sdxList.get(m)).isSuccess()) {
                             newsdxList.add(sdxList.get(m));
-                        } else if (new GetICD10PreMDC().GetICD10PreMDC(datasource, utility.icd10Cleaner(sdxList.get(m))).isSuccess()) {
-                            newsdxList.add(utility.icd10Cleaner(sdxList.get(m)));
+                        } else if (new GetICD10PreMDC().GetICD10PreMDC(datasource, sdxList.get(m)).isSuccess()) {
+                            newsdxList.add(sdxList.get(m));
+                        } else {
+                            warningerror.add("SDx " + sdxList.get(m) + " invalid");
                         }
                     }
                 }
@@ -231,7 +243,7 @@ public class GrouperTesting {
                                                 finalSdx.add(newsdxList.get(u));
                                             }
                                         } else {
-                                            warningerror.add("SDx " + newsdxList.get(u) + " is not valid");
+                                            warningerror.add("SDx " + newsdxList.get(u) + " not valid");
                                             newsdxList.remove(newsdxList.get(u));
                                         }
                                     }
@@ -245,8 +257,11 @@ public class GrouperTesting {
             } else {
                 grouper.setSdx(grouperparameter.getSdx());
             }
+            if (!warningerror.isEmpty()) {
+                grouper.setWarningerror(String.join(",", warningerror));
+                drgresult.setWarningerror(String.join(",", warningerror));
+            }
 
-            //===================VALIDATION AREA ==================================
             DRGWSResult geticd10Result = new GetICD10PreMDC().GetICD10PreMDC(datasource, grouper.getPdx());
             if (grouper.getPdx().isEmpty()) {
                 drgresult.setDRG("26509");
@@ -357,65 +372,36 @@ public class GrouperTesting {
                 }
             }
             if (drgresult.getDRG() != null) {
-//                DRGWSResult updatedrgresult = new GrouperMethod().UpdateDRGResult(datasource,
-//                        "ERR",
-//                        "ERR",
-//                        drgresult.getDC(),
-//                        grouper.getResult_id(),
-//                        grouper.getClaimseries(),
-//                        drgresult.getDRG(),
-//                        drgresult.getDRGName());
-//                if (updatedrgresult.isSuccess()) {
-//                    result.setSuccess(true);
-//                }
-//                result.setMessage(updatedrgresult.getMessage());
+                //result.setMessage(updatedrgresult.getMessage());
                 drgresult.setClaimseries(grouperparameter.getClaimseries());
                 result.setResult(utility.objectMapper().writeValueAsString(drgresult));
 
                 // File writer
-                this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName());
-
+                this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
             } else {
                 DRGWSResult validateresult = new ValidateFindMDC().ValidateFindMDC(datasource, grouper);
                 if (validateresult.isSuccess()) {
                     DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
-//                    DRGWSResult updatedrgresult = new GrouperMethod().UpdateDRGResult(datasource,
-//                            drgResults.getMDC(),
-//                            drgResults.getPDC(),
-//                            drgResults.getDC(),
-//                            grouper.getResult_id(),
-//                            grouper.getClaimseries(),
-//                            drgResults.getDRG(), "");
-//                    drgResults.setResultid(grouper.getResult_id());
-//                    drgResults.setClaimseries(grouperparameter.getClaimseries());
-//                    result.setSuccess(true);
-//                    result.setResult(utility.objectMapper().writeValueAsString(drgResults));
-//                    result.setMessage(validateresult.getMessage());
-//                    DRGAuditTrail(datasource, grouper.getClaimseries(),
-//                            grouper.getIdseries(),
-//                            updatedrgresult.getMessage(), "SUCCESS");
-
-//                 File writer
-                    this.FileWriter(Path, grouperparameter.getClaimseries(), drgResults.getDRG(), drgResults.getPDC(), drgResults.getDRGName());
+                    //File writer
+                    this.FileWriter(Path, grouperparameter.getClaimseries(), drgResults.getDRG(), drgResults.getPDC(), drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
                 } else {
                     DRGAuditTrail(datasource, grouper.getClaimseries(), grouper.getIdseries(), validateresult.getMessage(), "FAILED");
                     result.setResult(utility.objectMapper().writeValueAsString(validateresult.getResult()));
                     result.setMessage(validateresult.getMessage());
-//                 File writer
-                    this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage());
+                    //File writer
+                    this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage(), "N/A", "N/A", "N/A");
                 }
             }
         } catch (ParseException | IOException ex) {
             result.setMessage("Something went wrong");
             Logger.getLogger(GrouperTesting.class.getName()).log(Level.SEVERE, null, ex);
             // File writer
-            this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString());
+            this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
         }
         return result;
     }
 
-//    public void FileWriter(String path, String series, String drgcode, String pdc, String drgname, String status) {
-    public void FileWriter(String path, String series, String drgcode, String pdc, String drgname) {
+    public void FileWriter(String path, String series, String drgcode, String pdc, String drgname, String prepccl, String finalpccl, String warningerror) {
         try {
             FileReader fr = new FileReader(path);
             ArrayList<String> oldContent;
@@ -430,8 +416,7 @@ public class GrouperTesting {
                 for (int a = 0; a < oldContent.size(); a++) {
                     pw.write(oldContent.get(a) + "\n");
                 }
-                pw.write(series + "," + drgcode + "," + pdc + "," + drgname + "\n");
-//                pw.write("SERIES:" +series + " DRG:" + drgcode + " PDC:" + pdc + " DRGNAME:" + drgname + " STATUS:" + status + "\n");
+                pw.write(series + "," + drgcode + "," + pdc + "," + drgname + ", PREPCCL:" + prepccl + ", FINALPCCL:" + finalpccl + ", WARNING:" + warningerror + "\n");
                 pw.flush();
 
             }

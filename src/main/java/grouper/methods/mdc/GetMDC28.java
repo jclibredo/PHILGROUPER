@@ -383,12 +383,12 @@ public class GetMDC28 {
                     break;
                 }
             }
-            //=================================================
+            DRG checkDRG = new DRG();
             if (drgResult.getDRG() != null) {
-                if (new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                    drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
+                if (checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
+                    drgResult.setDRGName(checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
                 } else {
-                    drgResult.setDRGName("Grouper Error");
+                    drgResult.setDRGName("DRG code grouper provide not exist in the library");
                 }
             }
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));

@@ -63,7 +63,14 @@ public class ProcessGrouperParameter {
             grouper.setGender(grouperparameter.getGender());
             grouper.setIdseries(grouperparameter.getIdseries());
             grouper.setPdx(grouperparameter.getPdx());
-            
+            grouper.setPrepccl("");
+            grouper.setFinalpccl("");
+            grouper.setWarningerror("");
+
+            drgresult.setPrepccl("");
+            drgresult.setFinalpccl("");
+            drgresult.setWarningerror("");
+
             //CLEANING PROC DATA
             if (!grouperparameter.getProc().trim().isEmpty()) {
                 LinkedList<String> newprocList = new LinkedList<>();
@@ -275,11 +282,11 @@ public class ProcessGrouperParameter {
                             drgResults.getDRG(), "");
                     drgResults.setResultid(grouper.getResult_id());
                     drgResults.setClaimseries(grouperparameter.getClaimseries());
-                    
+
                     result.setSuccess(true);
                     result.setResult(utility.objectMapper().writeValueAsString(drgResults));
                     result.setMessage(validateresult.getMessage());
-                    
+
                     //Grouper Auditrail
                     DRGAuditTrail(datasource, grouper.getClaimseries(),
                             grouper.getIdseries(),
@@ -320,7 +327,6 @@ public class ProcessGrouperParameter {
 //            Logger.getLogger(ProcessGrouperParameter.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //    }
-
     public String DRGAuditTrail(final DataSource datasource, String claimsSeries, String idSeries, String deTails, String status) {
         GrouperMethod gm = new GrouperMethod();
         DRGWSResult grouperauditrail = new InsertGrouperAuditTrail().InsertGrouperAuditTrail(datasource, claimsSeries, idSeries, deTails, status);

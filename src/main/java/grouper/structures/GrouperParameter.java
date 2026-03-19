@@ -32,6 +32,9 @@ public class GrouperParameter {
     private String ExpiredDate;
     private String TimeOfBirth;
     private String AdmissionWeight;
+    private String prepccl;
+    private String finalpccl;
+    private String warningerror;
     private String idseries;
 
 }

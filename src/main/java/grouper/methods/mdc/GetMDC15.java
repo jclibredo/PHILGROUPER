@@ -230,6 +230,8 @@ public class GetMDC15 {
                 }
             }
             // FINDING FINAL DRG
+            DRG checkDRG = new DRG();
+            DRGWSResult checkResult = checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
             if (drgResult.getDRG() == null) {
                 if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
@@ -254,10 +256,10 @@ public class GetMDC15 {
                 }
             }
             // FINAL RESULT IS HERE
-            if (new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                drgResult.setDRGName(new DRG().DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
+            if (checkResult.isSuccess()) {
+                drgResult.setDRGName(checkResult.getMessage());
             } else {
-                drgResult.setDRGName("Grouper Error");
+                drgResult.setDRGName("DRG code grouper provide not exist in the library");
             }
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setSuccess(true);

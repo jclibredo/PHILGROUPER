@@ -49,6 +49,7 @@ public class GetValidatedPreMDC {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().trim().split(","));
             List<String> SDxList = Arrays.asList(grouperparameter.getSdx().trim().split(","));
             DRGOutput drgResult = new DRGOutput();
+            drgResult.setWarningerror(grouperparameter.getWarningerror());
             int finaldays = 0;
             if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                 finaldays = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) * 365;
@@ -180,7 +181,7 @@ public class GetValidatedPreMDC {
                                 grouperparameter.getDischargeDate(),
                                 utility.Convert24to12(grouperparameter.getTimeDischarge())) < 2) {
                             drgResult.setDRG("26549");
-                            drgResult.setDRGName("LOS < 6 Hours");
+                            drgResult.setDRGName("LOS < 24 Hours");
                         } else {
                             drgResult.setMDC("28");
                         }
@@ -307,6 +308,7 @@ public class GetValidatedPreMDC {
                         drgResults.setCC(drgResult.getCC());
                         drgResults.setDC(drgResult.getDC());
                         drgResults.setDRG(drgResult.getDRG());
+                        drgResults.setWarningerror(grouperparameter.getWarningerror());
                         drgResults.setDRGName(drgResult.getDRGName());
                         if (drgResult.getPDC().length() > 2) {
                             drgResults.setMDC(drgResult.getPDC().substring(0, 2));

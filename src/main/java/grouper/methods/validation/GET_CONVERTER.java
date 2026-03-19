@@ -6,7 +6,6 @@
 package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -24,13 +23,13 @@ import oracle.jdbc.OracleTypes;
  *
  * @author MinoSun
  */
-public class GetICD9cms {
+public class GET_CONVERTER {
 
-    public GetICD9cms() {
+    public GET_CONVERTER() {
     }
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetICD9cms(final DataSource datasource, final String rvs_code) {
+    public DRGWSResult GET_CONVERTER(final DataSource datasource, final String rvs_code) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
             result.setSuccess(false);
@@ -58,7 +57,7 @@ public class GetICD9cms {
 
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GetICD9cms.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GET_CONVERTER.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

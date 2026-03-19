@@ -5,7 +5,7 @@
  */
 package grouper.utility;
 
-import grouper.methods.validation.GetICD9cms;
+import grouper.methods.validation.GET_CONVERTER;
 import grouper.structures.CombinationCode;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
@@ -400,7 +400,7 @@ public class Utility {
         List<String> ProcList = Arrays.asList(rvs.split(","));
         for (int m = 0; m < ProcList.size(); m++) {
             String rvs_code = ProcList.get(m);
-            DRGWSResult finalResult = new GetICD9cms().GetICD9cms(datasouce, rvs_code);
+            DRGWSResult finalResult = new GET_CONVERTER().GET_CONVERTER(datasouce, rvs_code);
             if (String.valueOf(finalResult.isSuccess()).equals(true)) {
                 result = finalResult.getResult();
             }
@@ -430,7 +430,7 @@ public class Utility {
         List<String> ProcList = Arrays.asList(icd10.split(","));
         for (int m = 0; m < ProcList.size(); m++) {
             String rvs_code = ProcList.get(m);
-            DRGWSResult finalResult = new GetICD9cms().GetICD9cms(datasouce, rvs_code);
+            DRGWSResult finalResult = new GET_CONVERTER().GET_CONVERTER(datasouce, rvs_code);
             if (String.valueOf(finalResult.isSuccess()).equals(true)) {
                 result = finalResult.getResult();
             }

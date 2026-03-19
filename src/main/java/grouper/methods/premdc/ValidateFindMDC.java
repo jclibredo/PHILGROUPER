@@ -45,6 +45,21 @@ public class ValidateFindMDC {
         result.setSuccess(false);
         DRGOutput drgResult = new DRGOutput();
         try {
+            //REMAP AREA
+            GrouperParameter Newgrouperparam = new GrouperParameter();
+            Newgrouperparam.setAdmissionDate(grouperparameter.getAdmissionDate());
+            Newgrouperparam.setAdmissionWeight(grouperparameter.getAdmissionWeight());
+            Newgrouperparam.setBirthDate(grouperparameter.getBirthDate());
+            Newgrouperparam.setDischargeDate(grouperparameter.getDischargeDate());
+            Newgrouperparam.setDischargeType(grouperparameter.getDischargeType());
+            Newgrouperparam.setExpireTime(grouperparameter.getExpireTime());
+            Newgrouperparam.setExpiredDate(grouperparameter.getExpiredDate());
+            Newgrouperparam.setTimeAdmission(grouperparameter.getTimeAdmission());
+            Newgrouperparam.setTimeDischarge(grouperparameter.getTimeDischarge());
+            Newgrouperparam.setTimeOfBirth(grouperparameter.getTimeOfBirth());
+            Newgrouperparam.setWarningerror(grouperparameter.getWarningerror());
+            Newgrouperparam.setGender(grouperparameter.getGender());
+
             List<String> ProcList = Arrays.asList(grouperparameter.getProc().split(","));
             ArrayList<String> asterisk = new ArrayList<>();
             ArrayList<String> combiCode = new ArrayList<>();
@@ -65,6 +80,7 @@ public class ValidateFindMDC {
                     }
                 }
             }
+
             LinkedList<String> FinalListComcode = new LinkedList<>();
             for (int m = 0; m < NegativeIndex.size(); m++) {
                 FinalListComcode.add(ProcList.get(NegativeIndex.get(m))); //TEST DATA HERE  Procwithgreathervalue
@@ -102,7 +118,6 @@ public class ValidateFindMDC {
                 FinalSDxList = FinalSDxList.substring(0, FinalSDxList.length());
                 swapping.setNewsdx(newListSDx.toString());
                 List<String> NewPrimary = Arrays.asList(grouperparameter.getSdx().split(","));
-//                FinalPrimary = NewPrimary.get(indexNumber);
                 swapping.setNewpdx(NewPrimary.get(indexNumber));
             } else {
                 if (!grouperparameter.getSdx().isEmpty()) {
@@ -135,6 +150,7 @@ public class ValidateFindMDC {
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
             } else if (!asterisk.contains(checker)) {
+
                 ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(geticd10Result.getResult(), ICD10PreMDCResult.class);
                 if (!icd10Result.getAccPDX().equals("Y")) {
                     drgResult.setDRG("26509");
@@ -143,15 +159,6 @@ public class ValidateFindMDC {
                     result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                     result.setSuccess(true);
                 } else {
-                    GrouperParameter Newgrouperparam = new GrouperParameter();
-                    Newgrouperparam.setAdmissionDate(grouperparameter.getAdmissionDate());
-                    Newgrouperparam.setAdmissionWeight(grouperparameter.getAdmissionWeight());
-                    Newgrouperparam.setBirthDate(grouperparameter.getBirthDate());
-                    Newgrouperparam.setDischargeDate(grouperparameter.getDischargeDate());
-                    Newgrouperparam.setDischargeType(grouperparameter.getDischargeType());
-                    Newgrouperparam.setExpireTime(grouperparameter.getExpireTime());
-                    Newgrouperparam.setExpiredDate(grouperparameter.getExpiredDate());
-                    Newgrouperparam.setGender(grouperparameter.getGender());
                     Newgrouperparam.setPdx(grouperparameter.getPdx());
                     if (NegativeIndex.isEmpty()) {
                         Newgrouperparam.setProc(String.join(",", ProcList));
@@ -167,24 +174,12 @@ public class ValidateFindMDC {
                         Newgrouperparam.setProc(comResult);
                     }
                     Newgrouperparam.setSdx(grouperparameter.getSdx());
-                    Newgrouperparam.setTimeAdmission(grouperparameter.getTimeAdmission());
-                    Newgrouperparam.setTimeDischarge(grouperparameter.getTimeDischarge());
-                    Newgrouperparam.setTimeOfBirth(grouperparameter.getTimeOfBirth());
                     DRGWSResult getvalidatedpremdcResult = new GetValidatedPreMDC().GetValidatedPreMDC(datasource, Newgrouperparam);
                     result.setSuccess(getvalidatedpremdcResult.isSuccess());
                     result.setMessage(getvalidatedpremdcResult.getMessage());
                     result.setResult(getvalidatedpremdcResult.getResult());
                 }
             } else {
-                GrouperParameter Newgrouperparam = new GrouperParameter();
-                Newgrouperparam.setAdmissionDate(grouperparameter.getAdmissionDate());
-                Newgrouperparam.setAdmissionWeight(grouperparameter.getAdmissionWeight());
-                Newgrouperparam.setBirthDate(grouperparameter.getBirthDate());
-                Newgrouperparam.setDischargeDate(grouperparameter.getDischargeDate());
-                Newgrouperparam.setDischargeType(grouperparameter.getDischargeType());
-                Newgrouperparam.setExpireTime(grouperparameter.getExpireTime());
-                Newgrouperparam.setExpiredDate(grouperparameter.getExpiredDate());
-                Newgrouperparam.setGender(grouperparameter.getGender());
                 Newgrouperparam.setPdx(swapping.getNewpdx());
                 if (NegativeIndex.isEmpty()) {
                     Newgrouperparam.setProc(String.join(",", ProcList));
@@ -200,14 +195,8 @@ public class ValidateFindMDC {
                     Newgrouperparam.setProc(comResult);
                 }
                 Newgrouperparam.setSdx(swapping.getNewsdx());
-                Newgrouperparam.setTimeAdmission(grouperparameter.getTimeAdmission());
-                Newgrouperparam.setTimeDischarge(grouperparameter.getTimeDischarge());
-                Newgrouperparam.setTimeOfBirth(grouperparameter.getTimeOfBirth());
                 DRGWSResult getvalidatedpremdcResult = new GetValidatedPreMDC().GetValidatedPreMDC(datasource, Newgrouperparam);
-                result.setSuccess(getvalidatedpremdcResult.isSuccess());
-                result.setResult(getvalidatedpremdcResult.getResult());
-                result.setMessage(getvalidatedpremdcResult.getMessage());
-
+                result = getvalidatedpremdcResult;
             }
             //====================================================================== 
         } catch (IOException ex) {
@@ -216,6 +205,7 @@ public class ValidateFindMDC {
         }
         return result;
     }
+//
 
     public class SDxPDx {
 
@@ -240,4 +230,113 @@ public class ValidateFindMDC {
 
     }
 
+//    public DRGWSResult ValidateFindMDC(final DataSource datasource, final GrouperParameter grouperparameter) throws ParseException {
+//        DRGWSResult result = utility.DRGWSResult();
+//        result.setSuccess(false);
+//        DRGOutput drgResult = new DRGOutput();
+//        drgResult.setWarningerror(grouperparameter.getWarningerror());
+//        
+//        try {
+//            // 1. Process Procedures efficiently
+//            List<String> procList = Arrays.stream(grouperparameter.getProc().split(","))
+//                    .map(String::trim)
+//                    .collect(Collectors.toList());
+//            
+//            Set<String> combiCodes = new LinkedHashSet<>();
+//            Set<Integer> negativeIndices = new HashSet<>();
+//            GetPCOM pcomService = new GetPCOM();
+//
+//            // Optimized nested loop: only iterate what is necessary
+//            for (int y = 0; y < procList.size(); y++) {
+//                String dataA = procList.get(y).replace(">1", "").trim();
+//                for (int w = 0; w < procList.size(); w++) {
+//                    String dataB = procList.get(w).replace(">1", "").trim();
+//                    
+//                    DRGWSResult pcomResult = pcomService.GetPCOM(datasource, dataA, dataB);
+//                    if (pcomResult.isSuccess()) {
+//                        combiCodes.add(pcomResult.getResult());
+//                        negativeIndices.add(y);
+//                        negativeIndices.add(w);
+//                    }
+//                }
+//            }
+//
+//            // 2. Secondary Diagnosis (SDx) Validation
+//            List<String> sdxList = new ArrayList<>(Arrays.asList(grouperparameter.getSdx().split(",")));
+//            List<Boolean> asterisk = new ArrayList<>();
+//            GetDA daService = new GetDA();
+//            sdxList.forEach((sdx) -> {
+//                asterisk.add(daService.GetDA(datasource, grouperparameter.getPdx(), sdx.trim()).isSuccess());
+//            });
+//            // 3. Handle Swapping Logic
+//            SDxPDx swapping = new SDxPDx();
+//            int swapIndex = asterisk.indexOf(true);
+//            boolean hasSwap = swapIndex != -1;
+//            
+//            if (hasSwap) {
+//                swapping.setNewpdx(sdxList.get(swapIndex));
+//                sdxList.set(swapIndex, grouperparameter.getPdx());
+//                swapping.setNewsdx(String.join(",", sdxList));
+//            } else {
+//                swapping.setNewpdx(grouperparameter.getPdx());
+//                swapping.setNewsdx(grouperparameter.getSdx());
+//            }
+//
+//            // 4. Validations
+//            DRGWSResult icd10Check = new GetICD10PreMDC().GetICD10PreMDC(datasource, swapping.getNewpdx());
+//            DRGWSResult sexCheck = new GenderConfictValidation().GenderConfictValidation(datasource, swapping.getNewpdx(), grouperparameter.getGender());
+//            long age = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+//            
+//            if (!icd10Check.isSuccess() || age > 124 || !sexCheck.isSuccess()) {
+//                return buildErrorResult(result, drgResult, swapping.getNewpdx(), age > 124 ? "age" : "pdx");
+//            }
+//
+//            // 5. Finalize Parameters and Execute
+//            GrouperParameter newParam = cloneParams(grouperparameter);
+//            newParam.setPdx(swapping.getNewpdx());
+//            newParam.setSdx(swapping.getNewsdx());
+//            
+//            if (!negativeIndices.isEmpty()) {
+//                CombinationCode combo = new CombinationCode();
+//                combo.setComcode(String.join(",", combiCodes));
+//                combo.setIndexlist(negativeIndices.stream().map(procList::get).collect(Collectors.joining(",")));
+//                combo.setProclist(String.join(",", procList));
+//                newParam.setProc(utility.ProcedureExecute(combo));
+//            } else {
+//                newParam.setProc(String.join(",", procList));
+//            }
+//            return new GetValidatedPreMDC().GetValidatedPreMDC(datasource, newParam);
+//        } catch (IOException ex) {
+//            result.setMessage("Something went wrong");
+//            Logger.getLogger(ValidateFindMDC.class.getName()).log(Level.SEVERE, null, ex);
+//            return result;
+//        }
+//    }
+//
+//    // Helper to avoid duplicate code for Error Building
+//    private DRGWSResult buildErrorResult(DRGWSResult res, DRGOutput drg, String pdx, String type) throws IOException {
+//        drg.setDRG("26509");
+//        drg.setDC("2650");
+//        drg.setDRGName("Error with " + type + " : " + pdx);
+//        res.setResult(utility.objectMapper().writeValueAsString(drg));
+//        res.setSuccess(true);
+//        return res;
+//    }
+//
+//    // Helper to clone GrouperParameter
+//    private GrouperParameter cloneParams(GrouperParameter old) {
+//        GrouperParameter n = new GrouperParameter();
+//        n.setAdmissionDate(old.getAdmissionDate());
+//        n.setAdmissionWeight(old.getAdmissionWeight());
+//        n.setBirthDate(old.getBirthDate());
+//        n.setDischargeDate(old.getDischargeDate());
+//        n.setDischargeType(old.getDischargeType());
+//        n.setExpireTime(old.getExpireTime());
+//        n.setExpiredDate(old.getExpiredDate());
+//        n.setGender(old.getGender());
+//        n.setTimeAdmission(old.getTimeAdmission());
+//        n.setTimeDischarge(old.getTimeDischarge());
+//        n.setTimeOfBirth(old.getTimeOfBirth());
+//        return n;
+//    }
 }
