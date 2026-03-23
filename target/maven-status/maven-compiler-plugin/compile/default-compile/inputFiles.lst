@@ -1,113 +1,113 @@
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC25.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\TRAUMAICD10.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetCCLValue.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC11.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\premdc\ProcessGrouperParameter.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetICD9cm.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetClaimDuplication.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC08.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerICD9cm.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\CheckExclusionList.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\utility\Cryptor.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\ApplicationConfig.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC24.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetValidCodeICD10.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\utility\GrouperMethod.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetICD10PreMDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\DRGOutput.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetDA.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\InsertDRGAuditTrail.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetPCOM.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\ValidatePCCL.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\premdc\GetValidatedPreMDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC09.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetCCL.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\WarningError.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\GrouperParameter.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC06.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC22.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetValidICD10Accpdx.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\CleanSDxDCDeterminationPLSQL.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\DC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GETPATIENTBDAY.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC19.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC13.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\AgeConfictValidation.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\MajorORPRrocedure.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetPDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\COUNTBMDCICD10CODE.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\DRGRESULT.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC01.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC04.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\CodeConverter.java
-D:\Java Swing\PHILGROUPER\src\main\java\drgseeker\utilities\DataWarehouse.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC07.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\MDCProcedure.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerICD10.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetWarningError.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC23.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\CleanSDxDCDetermination.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GenderConfictValidationProc.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC10.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\UnralatedANDORProc.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\premdc\ProcessMDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\Seeker.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\RVS.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetICD9cms.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\premdc\ValidateFindMDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\PDCUseProcedureChecking.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC02.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\Endovasc.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\DRGPayload.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetPDCUsePDx.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC16.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\MDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC20.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerDRG.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetPCCLResult.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\MainCCChecking.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\InsertGrouperAuditTrail.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\PDXandMDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\AX.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\NClaimsData.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\PDCHierar.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC03.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC17.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\ORProcedure.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\ICD9PreMDCResult.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC14.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\CombinationCode.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\DRGWSResult.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\MDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC28.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\TRAUMAICD9CM.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerRVS.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\UpdateDRGResult.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetGrouper.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\CCL.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\MDCProcedureMethod.java
-D:\Java Swing\PHILGROUPER\src\main\java\drgseeker\utilities\SeekerUser.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC05.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\FindMDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\GrouperTesting.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\BMDCPreMDCResult.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\DRG.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\utility\TestParamObject.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GenderConfictValidation.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\PDxMalignancy.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\Grouper.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC12.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC15.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC21.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\utility\Utility.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\utility\NamedParameterStatement.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetICD10.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\PCOM.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC18.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetBMDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\ICD10PreMDCResult.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\PreMDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\methods\validation\GetPCCL.java
-D:\Java Swing\PHILGROUPER\src\main\java\grouper\structures\PDC.java
-D:\Java Swing\PHILGROUPER\src\main\java\drgseeker\utilities\SeekerMethods.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetDA.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\FindMDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\premdc\ValidateFindMDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\CodeConverter.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\premdc\ProcessMDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetBMDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC01.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\utility\Cryptor.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\DRGPayload.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC15.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GET_CONVERTER.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\PCOM.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetValidCodeICD10.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\BMDCPreMDCResult.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\MainCCChecking.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\AX.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\MDCProcedureMethod.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\CleanSDxDCDetermination.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetPDCUsePDx.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\Seeker.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\COUNTBMDCICD10CODE.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GET_ICD9.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC17.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC14.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\UpdateDRGResult.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\utility\Utility.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC28.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC03.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC09.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetPCCLResult.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GETPATIENTBDAY.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\ValidatePCCL.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\utility\TestParamObject.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerRVS.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetValidICD10Accpdx.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\ORProcedure.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC04.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC20.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\utility\NamedParameterStatement.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\DC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC13.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC10.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC19.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GenderConfictValidation.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\MDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\Grouper.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC16.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\drgseeker\utilities\SeekerMethods.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetGrouper.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\GrouperParameter.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\ICD9PreMDCResult.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\InsertGrouperAuditTrail.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetICD10.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetPDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\TRAUMAICD10.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\DRGWSResult.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC06.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\PDCUseProcedureChecking.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetCCL.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\premdc\ProcessGrouperParameter.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerICD10.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\PDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\RVS.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\CCL.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\premdc\GetValidatedPreMDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetICD10PreMDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerDRG.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetClaimDuplication.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC07.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC23.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\MDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetWarningError.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\ApplicationConfig.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\AgeConfictValidation.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\PreMDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\DRGRESULT.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\InsertDRGAuditTrail.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\CheckExclusionList.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC22.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\ICD10PreMDCResult.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetCCLValue.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC25.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GenderConfictValidationProc.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\WarningError.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\PDXandMDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetPCCL.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\PDCHierar.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC11.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\MajorORPRrocedure.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\drgseeker\utilities\SeekerUser.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\DRG.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\NClaimsData.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC18.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\TRAUMAICD9CM.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\DRGOutput.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\UnralatedANDORProc.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC12.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC02.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetPCOM.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC05.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC08.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\CleanSDxDCDeterminationPLSQL.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC21.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC24.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerICD9cm.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\Endovasc.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\CombinationCode.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\drgseeker\utilities\DataWarehouse.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\utility\GrouperMethod.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\MDCProcedure.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\PDxMalignancy.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\GrouperTesting.java

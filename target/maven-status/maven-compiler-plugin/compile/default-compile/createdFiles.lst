@@ -31,7 +31,6 @@ grouper\methods\validation\GetPCOM.class
 grouper\structures\NClaimsData.class
 grouper\structures\MDCProcedure.class
 grouper\methods\mdc\GetMDC25.class
-grouper\methods\validation\GetICD9cms.class
 grouper\structures\DRGOutput.class
 grouper\methods\seeker\SeekerICD10.class
 grouper\methods\validation\GetClaimDuplication.class
@@ -45,7 +44,6 @@ grouper\methods\mdc\GetMDC19.class
 grouper\utility\GrouperMethod.class
 grouper\methods\premdc\ProcessMDC.class
 grouper\methods\validation\GetICD10PreMDC.class
-grouper\methods\validation\GetICD9cm.class
 grouper\methods\validation\AX.class
 grouper\methods\validation\TRAUMAICD9CM.class
 grouper\methods\validation\InsertGrouperAuditTrail.class
