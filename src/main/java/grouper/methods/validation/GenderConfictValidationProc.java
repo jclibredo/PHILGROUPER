@@ -6,7 +6,6 @@
 package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -14,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
 
@@ -21,6 +21,7 @@ import oracle.jdbc.OracleTypes;
  *
  * @author MinoSun
  */
+@RequestScoped
 public class GenderConfictValidationProc {
 
     public GenderConfictValidationProc() {
@@ -36,7 +37,7 @@ public class GenderConfictValidationProc {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getSexProcValidation = connection.prepareCall("begin :age_proc_validation := MINOSUN.DRGPKGFUNCTION.PROC_AGE_VALIDATION(:procode,:gender); end;");
+            CallableStatement getSexProcValidation = connection.prepareCall("begin :age_proc_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.PROC_AGE_VALIDATION(:procode,:gender); end;");
             getSexProcValidation.registerOutParameter("age_proc_validation", OracleTypes.CURSOR);
             getSexProcValidation.setString("procode", procode.trim());
             getSexProcValidation.setString("gender", gender);

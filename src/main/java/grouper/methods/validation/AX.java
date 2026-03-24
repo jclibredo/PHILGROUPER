@@ -6,7 +6,6 @@
 package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -37,9 +36,9 @@ public class AX {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :get_ax := MINOSUN.DRGPKGFUNCTION.GET_AX_PARAM(:axcodes); end;");
+            CallableStatement statement = connection.prepareCall("begin :get_ax := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_AX_PARAM(:ax_code); end;");
             statement.registerOutParameter("get_ax", OracleTypes.CURSOR);
-            statement.setString("axcodes", axcodes.trim());
+            statement.setString("ax_code", axcodes.trim());
             statement.execute();
             ResultSet resultSet = (ResultSet) statement.getObject("get_ax");
             if (resultSet.next()) {

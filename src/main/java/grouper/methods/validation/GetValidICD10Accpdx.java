@@ -34,7 +34,7 @@ public class GetValidICD10Accpdx {
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getAccpdx = connection.prepareCall("begin :accpdxs := MINOSUN.DRGPKGFUNCTION.GET_ACCPDX_VALUE(:p_pdx_code); end;");
+            CallableStatement getAccpdx = connection.prepareCall("begin :accpdxs := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ACCPDX_VALUE(:p_pdx_code); end;");
             getAccpdx.registerOutParameter("accpdxs", OracleTypes.CURSOR);
             getAccpdx.setString("p_pdx_code", p_pdx_code);
             getAccpdx.execute();

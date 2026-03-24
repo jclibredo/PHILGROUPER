@@ -36,7 +36,7 @@ public class GETPATIENTBDAY {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :nclaims := MINOSUN.UHCDRGPKG.GET_NCLAIMS(:seriesnum); end;");
+            CallableStatement statement = connection.prepareCall("begin :nclaims := DRG_SHADOWBILLING.UHCDRGPKG.GET_NCLAIMS(:seriesnum); end;");
             statement.registerOutParameter("nclaims", OracleTypes.CURSOR);
             statement.setString("seriesnum", seriesnum.trim());
             statement.execute();

@@ -6,7 +6,6 @@
 package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -35,15 +34,15 @@ public class ORProcedure {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetORproce = connection.prepareCall("begin :get_orp := MINOSUN.DRGPKGFUNCTION.GET_PROC_ORP(:orpCode); end;");
+            CallableStatement GetORproce = connection.prepareCall("begin :get_orp := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PROC_ORP(:orpCode); end;");
             GetORproce.registerOutParameter("get_orp", OracleTypes.CURSOR);
             GetORproce.setString("orpCode", orpCode);
             GetORproce.execute();
-            ResultSet ORProceResultset = (ResultSet) GetORproce.getObject("get_orp");
-            if (ORProceResultset.next()) {
+            ResultSet resultSet = (ResultSet) GetORproce.getObject("get_orp");
+            if (resultSet.next()) {
                 result.setSuccess(true);
-                result.setMessage(ORProceResultset.getString("PROC_SITE"));
-                result.setResult(ORProceResultset.getString("PROCGR"));
+                result.setMessage(resultSet.getString("PROC_SITE"));
+                result.setResult(resultSet.getString("PROCGR"));
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");

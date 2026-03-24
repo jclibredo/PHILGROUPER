@@ -27,34 +27,13 @@ public class GET_ICD9 {
     public GET_ICD9() {
     }
     private final Utility utility = new Utility();
-
-//    public DRGWSResult GetICD9cm(final DataSource datasource, final String procS) {
-//        DRGWSResult result = utility.DRGWSResult();
-//        result.setMessage("");
-//        result.setResult("");
-//        result.setSuccess(false);
-//        try (Connection connection = datasource.getConnection()) {
-//            CallableStatement statement = connection.prepareCall("begin :get_icd9_DC := MINOSUN.DRGPKGFUNCTION.GET_ICD9CM_FINDDC(:ICD9CODE); end;");
-//            statement.registerOutParameter("get_icd9_DC", OracleTypes.CURSOR);
-//            statement.setString("ICD9CODE", procS);
-//            statement.execute();
-//            ResultSet resultSet = (ResultSet) statement.getObject("get_icd9_DC");
-//            if (resultSet.next()) {
-//                result.setSuccess(true);
-//            }
-//        } catch (SQLException ex) {
-//            result.setMessage("Something went wrong");
-//            Logger.getLogger(GetICD9cm.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return result;
-//    }
     public DRGWSResult GetICD9cm(final DataSource datasource, final String procS) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :icd9code_output := MINOSUN.DRGPKGFUNCTION.GET_ICD9(:rvs); end;");
+            CallableStatement statement = connection.prepareCall("begin :icd9code_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD9(:rvs); end;");
             statement.registerOutParameter("icd9code_output", OracleTypes.CURSOR);
             statement.setString("rvs", procS);
             statement.execute();

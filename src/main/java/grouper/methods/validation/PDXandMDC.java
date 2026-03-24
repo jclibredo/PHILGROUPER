@@ -7,7 +7,6 @@ package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
 import grouper.structures.ICD10PreMDCResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -16,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
 
@@ -23,6 +23,7 @@ import oracle.jdbc.OracleTypes;
  *
  * @author MinoSun
  */
+@RequestScoped
 public class PDXandMDC {
 
     public PDXandMDC() {
@@ -36,10 +37,10 @@ public class PDXandMDC {
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :pdxmdc := MINOSUN.DRGPKGFUNCTION.GET_PDX_MDC(:pdx,:mdc); end;");
+            CallableStatement statement = connection.prepareCall("begin :pdxmdc := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDX_MDC(:p_pdx_code,:mdcs); end;");
             statement.registerOutParameter("pdxmdc", OracleTypes.CURSOR);
-            statement.setString("pdx", pdx);
-            statement.setString("mdc", mdc);
+            statement.setString("p_pdx_code", pdx);
+            statement.setString("mdcs", mdc);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("pdxmdc");
             if (resultset.next()) {

@@ -34,7 +34,7 @@ public class PDxMalignancy {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMalignantPDx = connection.prepareCall("begin :pdx_malignant := MINOSUN.DRGPKGFUNCTION.GET_PDX_MALIGNANCY(:primaryPDx,:pdcs); end;");
+            CallableStatement GetMalignantPDx = connection.prepareCall("begin :pdx_malignant := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDX_MALIGNANCY(:primaryPDx,:pdcs); end;");
             GetMalignantPDx.registerOutParameter("pdx_malignant", OracleTypes.CURSOR);
             GetMalignantPDx.setString("primaryPDx", primaryPDx);
             GetMalignantPDx.setString("pdcs", pdcs);

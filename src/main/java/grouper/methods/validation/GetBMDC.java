@@ -7,7 +7,6 @@ package grouper.methods.validation;
 
 import grouper.structures.BMDCPreMDCResult;
 import grouper.structures.DRGWSResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -16,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
 
@@ -23,6 +23,7 @@ import oracle.jdbc.OracleTypes;
  *
  * @author MinoSun
  */
+@RequestScoped
 public class GetBMDC {
 
     public GetBMDC() {
@@ -36,7 +37,7 @@ public class GetBMDC {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetBMDC = connection.prepareCall("begin :bmdc_validation := MINOSUN.DRGPKGFUNCTION.GET_BMDC_VALIDATION_PREMDC(:p_pdx_code); end;");
+            CallableStatement GetBMDC = connection.prepareCall("begin :bmdc_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_BMDC_VALIDATION_PREMDC(:p_pdx_code); end;");
             GetBMDC.registerOutParameter("bmdc_validation", OracleTypes.CURSOR);
             GetBMDC.setString("p_pdx_code", p_pdx_code);
             GetBMDC.execute();

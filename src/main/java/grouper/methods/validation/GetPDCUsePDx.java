@@ -28,9 +28,9 @@ public class GetPDCUsePDx {
     public String GetPDCUsePDx(final DataSource datasource, final String pdx) {
         String result = "";
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getPDCUsePDx = connection.prepareCall("begin :pdc_pdx := MINOSUN.DRGPKGFUNCTION.GET_PDC_USE_PDX(:pdx); end;");
+            CallableStatement getPDCUsePDx = connection.prepareCall("begin :pdc_pdx := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDC_USE_PDX(:primaryPDx); end;");
             getPDCUsePDx.registerOutParameter("pdc_pdx", OracleTypes.CURSOR);
-            getPDCUsePDx.setString("pdx", pdx);
+            getPDCUsePDx.setString("primaryPDx", pdx);
             getPDCUsePDx.execute();
             ResultSet PDCPDxResultset = (ResultSet) getPDCUsePDx.getObject("pdc_pdx");
             if (PDCPDxResultset.next()) {

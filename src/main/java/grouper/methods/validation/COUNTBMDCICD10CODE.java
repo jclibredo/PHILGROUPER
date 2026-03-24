@@ -35,7 +35,7 @@ public class COUNTBMDCICD10CODE {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := MINOSUN.DRGPKGFUNCTION.COUNTBMDCICD10CODE(:icd10code); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.COUNTBMDCICD10CODE(:icd10code); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.setString("icd10code", icd10code.trim());
             statement.execute();

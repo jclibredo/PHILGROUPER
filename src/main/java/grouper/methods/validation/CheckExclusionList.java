@@ -35,10 +35,10 @@ public class CheckExclusionList {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement exclusionlist = connection.prepareCall("begin :getexclusion := MINOSUN.DRGPKGFUNCTION.GET_EXCLUSION(:sdx,:pdx); end;");
+            CallableStatement exclusionlist = connection.prepareCall("begin :getexclusion := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_EXCLUSION(:secondary,:primarys); end;");
             exclusionlist.registerOutParameter("getexclusion", OracleTypes.CURSOR);
-            exclusionlist.setString("sdx", sdx);
-            exclusionlist.setString("pdx", pdx);
+            exclusionlist.setString("secondary", utility.CleanCode(sdx));
+            exclusionlist.setString("primarys", utility.CleanCode(pdx));
             exclusionlist.execute();
             ResultSet EndovascResult = (ResultSet) exclusionlist.getObject("getexclusion");
             if (EndovascResult.next()) {

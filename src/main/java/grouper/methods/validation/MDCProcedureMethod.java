@@ -37,7 +37,7 @@ public class MDCProcedureMethod {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMDCProcedure = connection.prepareCall("begin :join_icd9_output := MINOSUN.DRGPKGFUNCTION.GET_ICD9_JOIN_TABLE(:icd9code,:mdcs); end;");
+            CallableStatement GetMDCProcedure = connection.prepareCall("begin :join_icd9_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD9_JOIN_TABLE(:icd9code,:mdcs); end;");
             GetMDCProcedure.registerOutParameter("join_icd9_output", OracleTypes.CURSOR);
             GetMDCProcedure.setString("icd9code", icd9code.trim());
             GetMDCProcedure.setString("mdcs", mdcs.trim());

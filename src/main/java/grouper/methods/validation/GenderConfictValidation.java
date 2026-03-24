@@ -27,6 +27,7 @@ public class GenderConfictValidation {
     public GenderConfictValidation() {
     }
     private final Utility utility = new Utility();
+
     // GET GENDER VALIDATION THIS AREA
     public DRGWSResult GenderConfictValidation(final DataSource datasource,
             final String p_pdx_code,
@@ -35,30 +36,13 @@ public class GenderConfictValidation {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        if (this.ProcessGenderConfictValidation(datasource, p_pdx_code, gender).isSuccess()) {
-            result = this.ProcessGenderConfictValidation(datasource, p_pdx_code, gender);
-        } else {
-            if (this.ProcessGenderConfictValidation(datasource, p_pdx_code.substring(0, p_pdx_code.length() - 1), gender).isSuccess()) {
-                result = this.ProcessGenderConfictValidation(datasource, p_pdx_code.substring(0, p_pdx_code.length() - 1), gender);
-            }
-        }
-        return result;
-    }
-
-    private DRGWSResult ProcessGenderConfictValidation(final DataSource datasource,
-            final String p_pdx_code,
-            final String gender) {
-        DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :gENDer_validation := MINOSUN.DRGPKGFUNCTION.VALIDATE_GENDER(:p_pdx_code,:gENDer); end;");
-            statement.registerOutParameter("gENDer_validation", OracleTypes.CURSOR);
+            CallableStatement statement = connection.prepareCall("begin :gender_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.VALIDATE_GENDER(:p_pdx_code,:gender); end;");
+            statement.registerOutParameter("gender_validation", OracleTypes.CURSOR);
             statement.setString("p_pdx_code", utility.CleanCode(p_pdx_code).trim());
-            statement.setString("gENDer", gender.toUpperCase());
+            statement.setString("gender", gender.toUpperCase());
             statement.execute();
-            ResultSet getSexValidationResult = (ResultSet) statement.getObject("gENDer_validation");
+            ResultSet getSexValidationResult = (ResultSet) statement.getObject("gender_validation");
             if (getSexValidationResult.next()) {
                 result.setSuccess(true);
             }

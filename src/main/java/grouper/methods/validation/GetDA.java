@@ -34,10 +34,10 @@ public class GetDA {
         result.setSuccess(false);
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement conn = connection.prepareCall("begin :DaggerAs := MINOSUN.DRGPKGFUNCTION.get_da(:dagger,:asterisk); end;");
+            CallableStatement conn = connection.prepareCall("begin :DaggerAs := DRG_SHADOWBILLING.DRGPKGFUNCTION.get_da(:daggers,:ASterisks); end;");
             conn.registerOutParameter("DaggerAs", OracleTypes.CURSOR);
-            conn.setString("dagger", dagger.toUpperCase().trim());
-            conn.setString("asterisk", asterisk.toUpperCase().trim());
+            conn.setString("daggers", dagger.toUpperCase().trim());
+            conn.setString("ASterisks", asterisk.toUpperCase().trim());
             conn.execute();
             ResultSet connResult = (ResultSet) conn.getObject("DaggerAs");
             if (connResult.next()) {

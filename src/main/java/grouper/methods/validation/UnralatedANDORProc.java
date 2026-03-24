@@ -34,10 +34,10 @@ public class UnralatedANDORProc {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :unralated_or_proc := MINOSUN.DRGPKGFUNCTION.GET_UNRALATED_PROC_ORPROC(:icd9codes,:mdccode); end;");
+            CallableStatement statement = connection.prepareCall("begin :unralated_or_proc := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_UNRALATED_PROC_ORPROC(:icd9code,:mdcs); end;");
             statement.registerOutParameter("unralated_or_proc", OracleTypes.CURSOR);
-            statement.setString("icd9codes", icd9codes);
-            statement.setString("mdccode", mdccode);
+            statement.setString("icd9code", icd9codes);
+            statement.setString("mdcs", mdccode);
             statement.execute();
             ResultSet resultSet = (ResultSet) statement.getObject("unralated_or_proc");
             if (resultSet.next()) {

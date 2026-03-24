@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
 
@@ -23,6 +24,7 @@ import oracle.jdbc.OracleTypes;
  *
  * @author MinoSun
  */
+@RequestScoped
 public class GET_CONVERTER {
 
     public GET_CONVERTER() {
@@ -37,7 +39,7 @@ public class GET_CONVERTER {
             result.setResult("");
             String ProcListNew = "";
             List<String> FinalNewProcList = new ArrayList<>();
-            CallableStatement statement = connection.prepareCall("begin :converter := MINOSUN.DRGPKGFUNCTION.GET_CONVERTER(:rvs_code); end;");
+            CallableStatement statement = connection.prepareCall("begin :converter := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_CONVERTER(:rvs_code); end;");
             statement.registerOutParameter("converter", OracleTypes.CURSOR);
             statement.setString("rvs_code", rvs_code);
             statement.execute();

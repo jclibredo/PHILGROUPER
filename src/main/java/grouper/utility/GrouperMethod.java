@@ -39,7 +39,7 @@ public class GrouperMethod {
 //        result.setSuccess(false);
 //        result.setResult("");
 //        try (Connection connection = datasource.getConnection()) {
-//            CallableStatement getResult = connection.prepareCall("begin :count_output := MINOSUN..DRGPKGFUNCTION.GET_COUNT(:codes); end;");
+//            CallableStatement getResult = connection.prepareCall("begin :count_output := DRG_SHADOWBILLING..DRGPKGFUNCTION.GET_COUNT(:codes); end;");
 //            getResult.registerOutParameter("count_output", OracleTypes.CURSOR);
 //            getResult.setString("codes", codes.trim());
 //            getResult.execute();
@@ -83,7 +83,7 @@ public class GrouperMethod {
 //        result.setSuccess(false);
 //        try (Connection connection = datasource.getConnection()) {
 //            String tagss = "FG";
-//            CallableStatement grouperdata = connection.prepareCall("call MINOSUN.DRGPKGPROCEDURE.INSERT_DRG_RESULT(:Message,:Code,:uclaimid,:uresultid,:useries,:utags,:ulhio,:updxcode,:usdxcode,:uproc)");
+//            CallableStatement grouperdata = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.INSERT_DRG_RESULT(:Message,:Code,:uclaimid,:uresultid,:useries,:utags,:ulhio,:updxcode,:usdxcode,:uproc)");
 //            grouperdata.registerOutParameter("Message", OracleTypes.VARCHAR);
 //            grouperdata.registerOutParameter("Code", OracleTypes.INTEGER);
 //            //=====================================================================Process SDx duplication================================

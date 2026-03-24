@@ -18,7 +18,6 @@ grouper\methods\validation\CleanSDxDCDeterminationPLSQL.class
 grouper\methods\validation\COUNTBMDCICD10CODE.class
 grouper\structures\PDCHierar.class
 grouper\methods\seeker\SeekerICD9cm.class
-grouper\methods\validation\MainCCChecking.class
 grouper\methods\mdc\GetMDC06.class
 grouper\methods\seeker\SeekerRVS.class
 grouper\structures\CCL.class
@@ -28,12 +27,12 @@ grouper\methods\mdc\GetMDC09.class
 grouper\methods\validation\GetICD10.class
 grouper\utility\Utility.class
 grouper\methods\validation\GetPCOM.class
+grouper\methods\validation\GET_CONVERTER.class
 grouper\structures\NClaimsData.class
 grouper\structures\MDCProcedure.class
 grouper\methods\mdc\GetMDC25.class
 grouper\structures\DRGOutput.class
 grouper\methods\seeker\SeekerICD10.class
-grouper\methods\validation\GetClaimDuplication.class
 grouper\structures\GrouperParameter.class
 grouper\methods\mdc\GetMDC08.class
 grouper\methods\mdc\GetMDC18.class
@@ -48,7 +47,6 @@ grouper\methods\validation\AX.class
 grouper\methods\validation\TRAUMAICD9CM.class
 grouper\methods\validation\InsertGrouperAuditTrail.class
 grouper\methods\mdc\GetMDC12.class
-grouper\methods\validation\InsertDRGAuditTrail.class
 grouper\methods\mdc\GetMDC07.class
 grouper\methods\mdc\GetMDC01.class
 grouper\methods\validation\MajorORPRrocedure.class
@@ -61,7 +59,6 @@ grouper\methods\validation\AgeConfictValidation.class
 grouper\structures\ICD9PreMDCResult.class
 grouper\ApplicationConfig.class
 grouper\methods\validation\GetGrouper.class
-grouper\methods\validation\GetCCL.class
 grouper\methods\validation\GenderConfictValidation.class
 grouper\methods\validation\GetPCCL.class
 drgseeker\utilities\SeekerUser.class
@@ -71,6 +68,7 @@ grouper\methods\validation\GetValidCodeICD10.class
 grouper\structures\DRGPayload.class
 drgseeker\utilities\DataWarehouse.class
 grouper\methods\validation\GetPDCUsePDx.class
+grouper\methods\validation\GET_ICD9.class
 grouper\utility\TestParamObject.class
 grouper\methods\mdc\GetMDC02.class
 grouper\structures\RVS.class

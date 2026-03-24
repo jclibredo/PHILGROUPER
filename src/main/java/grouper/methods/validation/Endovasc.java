@@ -34,11 +34,11 @@ public class Endovasc {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement Endovasc = connection.prepareCall("begin :get_icd9_cm := MINOSUN.DRGPKGFUNCTION.GET_ICD9_MDC(:proce,:pdcs,:mdcs); end;");
+            CallableStatement Endovasc = connection.prepareCall("begin :get_icd9_cm := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD9_MDC(:icd9code,:p_pdc,:p_mdc); end;");
             Endovasc.registerOutParameter("get_icd9_cm", OracleTypes.CURSOR);
-            Endovasc.setString("proce", proce);
-            Endovasc.setString("pdcs", pdcs);
-            Endovasc.setString("mdcs", mdcs);
+            Endovasc.setString("icd9code", proce);
+            Endovasc.setString("p_pdc", pdcs);
+            Endovasc.setString("p_mdc", mdcs);
             Endovasc.execute();
             ResultSet EndovascResult = (ResultSet) Endovasc.getObject("get_icd9_cm");
             if (EndovascResult.next()) {

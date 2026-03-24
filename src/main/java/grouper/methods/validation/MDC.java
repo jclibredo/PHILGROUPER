@@ -6,7 +6,6 @@
 package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -36,7 +35,7 @@ public class MDC {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :mdc_output := MINOSUN.DRGPKGFUNCTION.GET_MDC(:mdcs); end;");
+            CallableStatement statement = connection.prepareCall("begin :mdc_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_MDC(:mdcs); end;");
             statement.registerOutParameter("mdc_output", OracleTypes.CURSOR);
             statement.setString("mdcs", mdc);
             statement.execute();

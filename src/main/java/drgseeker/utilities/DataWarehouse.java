@@ -57,7 +57,7 @@ public class DataWarehouse {
         prop.put("schema", "DRG_SCHEMA");
         prop.put("warehouse", "COMPUTE_WH");
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :a_result := MINOSUN.DRGPKGFUNCTION.GET_ALL_ICD10(); end;");
+            CallableStatement statement = connection.prepareCall("begin :a_result := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ALL_ICD10(); end;");
             statement.registerOutParameter("a_result", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("a_result");

@@ -37,7 +37,7 @@ public class GetWarningError {
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement geterror = connection.prepareCall("begin :warningerror := MINOSUN.DRGPKGFUNCTION.GET_WARNING_ERROR(:claimsid); end;");
+            CallableStatement geterror = connection.prepareCall("begin :warningerror := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_WARNING_ERROR(:claimsid); end;");
             geterror.registerOutParameter("warningerror", OracleTypes.CURSOR);
             geterror.setString("claimsid", claimsid);
             geterror.execute();

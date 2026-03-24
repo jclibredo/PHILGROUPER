@@ -37,7 +37,7 @@ public class DRG {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement Getdrg = connection.prepareCall("begin :drg_output := MINOSUN.DRGPKGFUNCTION.GET_DRG(:dcs,:drgs); end;");
+            CallableStatement Getdrg = connection.prepareCall("begin :drg_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG(:dcs,:drgs); end;");
             Getdrg.registerOutParameter("drg_output", OracleTypes.CURSOR);
             Getdrg.setString("dcs", dcs);
             Getdrg.setString("drgs", drgs);

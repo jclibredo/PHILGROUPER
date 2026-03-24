@@ -12,7 +12,6 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\PCOM.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetValidCodeICD10.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\BMDCPreMDCResult.java
-D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\MainCCChecking.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\AX.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\MDCProcedureMethod.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\CleanSDxDCDetermination.java
@@ -57,7 +56,6 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\DRGWSResult.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC06.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\PDCUseProcedureChecking.java
-D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetCCL.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\premdc\ProcessGrouperParameter.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerICD10.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\PDC.java
@@ -66,7 +64,6 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\CCL.jav
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\premdc\GetValidatedPreMDC.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetICD10PreMDC.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerDRG.java
-D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetClaimDuplication.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC07.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC23.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\MDC.java
@@ -75,7 +72,6 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\ApplicationConfig.
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\AgeConfictValidation.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\PreMDC.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\DRGRESULT.java
-D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\InsertDRGAuditTrail.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\CheckExclusionList.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC22.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\ICD10PreMDCResult.java

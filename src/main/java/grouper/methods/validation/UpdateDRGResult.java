@@ -41,7 +41,7 @@ public class UpdateDRGResult {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement updatedrgresult = connection.prepareCall("call MINOSUN.DRGPKGPROCEDURE.UPDATE_DRG_RESULT(:Message,"
+            CallableStatement updatedrgresult = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.UPDATE_DRG_RESULT(:Message,"
                     + ":Code,:umdc,:updc,:udc,:uresultid,:useries,:utags,:udrg,:udrgdetails)");
             updatedrgresult.registerOutParameter("Message", OracleTypes.VARCHAR);
             updatedrgresult.registerOutParameter("Code", OracleTypes.INTEGER);

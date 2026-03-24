@@ -36,10 +36,10 @@ public class GetPCOM {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetPCOM = connection.prepareCall("begin :pcom := MINOSUN.DRGPKGFUNCTION.GET_PCOM(:code1,:code2); end;");
+            CallableStatement GetPCOM = connection.prepareCall("begin :pcom := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PCOM(:codea,:codeb); end;");
             GetPCOM.registerOutParameter("pcom", OracleTypes.CURSOR);
-            GetPCOM.setString("code1", code1);
-            GetPCOM.setString("code2", code2);
+            GetPCOM.setString("codea", code1);
+            GetPCOM.setString("codeb", code2);
             GetPCOM.execute();
             ResultSet PCOMResultset = (ResultSet) GetPCOM.getObject("pcom");
             if (PCOMResultset.next()) {

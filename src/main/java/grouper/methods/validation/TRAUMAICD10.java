@@ -34,7 +34,7 @@ public class TRAUMAICD10 {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :trauma_output := MINOSUN.DRGPKGFUNCTION.TRAUMAICD10(:sdx); end;");
+            CallableStatement statement = connection.prepareCall("begin :trauma_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.TRAUMAICD10(:sdx); end;");
             statement.registerOutParameter("trauma_output", OracleTypes.CURSOR);
             statement.setString("sdx", sdx);
             statement.execute();

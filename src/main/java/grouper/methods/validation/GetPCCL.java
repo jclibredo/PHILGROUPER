@@ -8,7 +8,6 @@ package grouper.methods.validation;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -37,10 +36,10 @@ public class GetPCCL {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement ps = connection.prepareCall("call MINOSUN.DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:pdx,:sdx,:p_dc)");
+            CallableStatement ps = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:p_pdx,:p_sdx,:p_dc)");
             ps.registerOutParameter("p_pccl", OracleTypes.NUMBER);
-            ps.setString("pdx", grouperparameter.getPdx());
-            ps.setString("sdx", sdxfinalList);
+            ps.setString("p_pdx", grouperparameter.getPdx());
+            ps.setString("p_sdx", sdxfinalList);
             ps.setString("p_dc", drgResult.getDC());
             ps.execute();
             drgResult.setDRG(drgResult.getDC() + "" + ps.getString("p_pccl"));

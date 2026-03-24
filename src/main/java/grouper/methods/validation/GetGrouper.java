@@ -42,7 +42,7 @@ public class GetGrouper {
         ArrayList<String> errorList = new ArrayList<>();
         ArrayList<GrouperParameter> grouperparameterlsit = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement state = connection.prepareCall("begin :drgresult := MINOSUN.DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
+            CallableStatement state = connection.prepareCall("begin :drgresult := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
             state.registerOutParameter("drgresult", OracleTypes.CURSOR);
             state.setString("tagss", tagss.trim());
             state.execute();
@@ -51,7 +51,7 @@ public class GetGrouper {
             while (resultset.next()) {
                 GrouperParameter ggrouperparameter = new GrouperParameter();
                 DRGRESULT drgresultparam = new DRGRESULT();
-                //======================================================GET GROUPER RESULT
+                //GET GROUPER RESULT
                 drgresultparam.setResult_id(resultset.getString("RESULT_ID"));
                 ggrouperparameter.setResult_id(resultset.getString("RESULT_ID"));
                 drgresultparam.setSeriesnum(resultset.getString("CLAIMS_SERIES"));
@@ -72,7 +72,6 @@ public class GetGrouper {
                 }
                 drgresultparam.setLhio(resultset.getString("LHIO"));
                 ggrouperparameter.setIdseries(resultset.getString("CLAIM_ID"));
-                //=====================================================================
                 if (resultset.getString("PROC") == null || resultset.getString("PROC").isEmpty() || resultset.getString("PROC").equals("")) {
                     drgresultparam.setProc("");
                     ggrouperparameter.setProc("");
@@ -80,7 +79,6 @@ public class GetGrouper {
                     drgresultparam.setProc(resultset.getString("PROC"));
                     ggrouperparameter.setProc(resultset.getString("PROC"));
                 }
-                //======================================================================
                 if (resultset.getString("SDX") == null || resultset.getString("SDX").isEmpty() || resultset.getString("SDX").equals("")) {
                     drgresultparam.setSdx("");
                     ggrouperparameter.setSdx("");
@@ -88,10 +86,9 @@ public class GetGrouper {
                     drgresultparam.setSdx(resultset.getString("SDX"));
                     ggrouperparameter.setSdx(resultset.getString("SDX"));
                 }
-                //======================================================================
                 drgresultparam.setTags(resultset.getString("TAGS"));
-                //========================================== DRG XML GET PATIENT INFO
-                CallableStatement getdrg_info = connection.prepareCall("begin :getdrginfo := MINOSUN.DRGPKGFUNCTION.GET_DRG_INFO(:seriesnums); end;");
+                //DRG XML GET PATIENT INFO
+                CallableStatement getdrg_info = connection.prepareCall("begin :getdrginfo := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG_INFO(:seriesnums); end;");
                 getdrg_info.registerOutParameter("getdrginfo", OracleTypes.CURSOR);
                 getdrg_info.setString("seriesnums", resultset.getString("CLAIMS_SERIES").trim());
                 getdrg_info.execute();
@@ -103,8 +100,7 @@ public class GetGrouper {
                 } else {
                     ggrouperparameter.setAdmissionWeight("");
                 }
-                //==============================================ECLAIMS XML GET NCLAIMS DATA============================================================
-                CallableStatement statement = connection.prepareCall("begin :v_result := MINOSUN.UHCDRGPKG.GETPATIENTDATA(:seriesnums); end;");
+                CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.UHCDRGPKG.GETPATIENTDATA(:seriesnums); end;");
                 statement.registerOutParameter("v_result", OracleTypes.CURSOR);
                 statement.setString("seriesnums", resultset.getString("CLAIMS_SERIES"));
                 statement.execute();
@@ -135,20 +131,8 @@ public class GetGrouper {
                             || resultSet.getString("DISCHARGEDATE").equals("")
                             || resultSet.getString("DISCHARGEDATE").isEmpty() ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DISCHARGEDATE")));
                     //DATEOFBIRTH
-//                    if (this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess()) {
-//                        if (utility.isParsableDate(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult(), "MM/dd/yyyy")) {
-//                            ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess() ? ""
-//                                    : utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult())));
-//                        } else {
-//                            ggrouperparameter.setBirthDate("");
-//                        }
                     ggrouperparameter.setBirthDate(!new GETPATIENTBDAY().GETPATIENTBDAY(datasource, resultset.getString("CLAIMS_SERIES").trim()).isSuccess()
                             ? "" : new GETPATIENTBDAY().GETPATIENTBDAY(datasource, resultset.getString("CLAIMS_SERIES").trim()).getResult());
-//                    } else {
-//                        ggrouperparameter.setBirthDate("");
-//                    }
-                    //ggrouperparameter.setBirthDate(!this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).isSuccess() ? ""
-                    //       : utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(this.GETPATIENTBDAY(datasource, getDRGParamResult.getString("CLAIMS_SERIES").trim()).getResult())));
                     //GENDER
                     ggrouperparameter.setGender(resultSet.getString("GENDER") == null
                             || resultSet.getString("GENDER").equals("")

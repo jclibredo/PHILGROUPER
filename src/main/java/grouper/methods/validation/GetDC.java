@@ -7,7 +7,6 @@ package grouper.methods.validation;
 
 import grouper.structures.DC;
 import grouper.structures.DRGWSResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -37,7 +36,7 @@ public class GetDC {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetDC = connection.prepareCall("begin :dcs_output := MINOSUN.DRGPKGFUNCTION.GET_DC(:dcs); end;");
+            CallableStatement GetDC = connection.prepareCall("begin :dcs_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DC(:dcs); end;");
             GetDC.registerOutParameter("dcs_output", OracleTypes.CURSOR);
             GetDC.setString("dcs", dcs);
             GetDC.execute();

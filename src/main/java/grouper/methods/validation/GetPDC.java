@@ -7,7 +7,6 @@ package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
 import grouper.structures.PDC;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -16,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
 
@@ -23,6 +23,7 @@ import oracle.jdbc.OracleTypes;
  *
  * @author MinoSun
  */
+@RequestScoped
 public class GetPDC {
 
     public GetPDC() {
@@ -37,10 +38,10 @@ public class GetPDC {
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
             //Get BMDC Validation Result
-            CallableStatement getPDC = connection.prepareCall("begin :pdc_output := MINOSUN.DRGPKGFUNCTION.GET_PDC(:pdcs,:mdc); end;");
+            CallableStatement getPDC = connection.prepareCall("begin :pdc_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDC(:pdcs,:mdcs); end;");
             getPDC.registerOutParameter("pdc_output", OracleTypes.CURSOR);
             getPDC.setString("pdcs", pdcs);
-            getPDC.setString("mdc", mdc);
+            getPDC.setString("mdcs", mdc);
             getPDC.execute();
             ResultSet Pdcresultset = (ResultSet) getPDC.getObject("pdc_output");
             if (Pdcresultset.next()) {

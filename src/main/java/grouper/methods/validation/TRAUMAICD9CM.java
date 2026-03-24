@@ -34,7 +34,7 @@ public class TRAUMAICD9CM {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement conn = connection.prepareCall("begin :trauma_output := MINOSUN.DRGPKGFUNCTION.TRAUMAICD9CM(:icdproc); end;");
+            CallableStatement conn = connection.prepareCall("begin :trauma_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.TRAUMAICD9CM(:icdproc); end;");
             conn.registerOutParameter("trauma_output", OracleTypes.CURSOR);
             conn.setString("icdproc", icdproc);
             conn.execute();

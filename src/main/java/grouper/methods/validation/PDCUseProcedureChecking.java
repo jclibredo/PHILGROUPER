@@ -6,7 +6,6 @@
 package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -36,7 +35,7 @@ public class PDCUseProcedureChecking {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetPDCProcedure = connection.prepareCall("begin :join_icd9_output := MINOSUN.DRGPKGFUNCTION.GET_PROC_PDC(:icd9code,:pdcs); end;");
+            CallableStatement GetPDCProcedure = connection.prepareCall("begin :join_icd9_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PROC_PDC(:icd9code,:pdcs); end;");
             GetPDCProcedure.registerOutParameter("join_icd9_output", OracleTypes.CURSOR);
             GetPDCProcedure.setString("icd9code", icd9code);
             GetPDCProcedure.setString("pdcs", pdcs);

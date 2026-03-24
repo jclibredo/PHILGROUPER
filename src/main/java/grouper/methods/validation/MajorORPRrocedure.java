@@ -6,7 +6,6 @@
 package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -36,7 +35,7 @@ public class MajorORPRrocedure {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMajorORProc = connection.prepareCall("begin :major_or_proc := MINOSUN.DRGPKGFUNCTION.GET_MAINCC_USED_ICD10(:icd9codes,:mdcs,:pdcs); end;");
+            CallableStatement GetMajorORProc = connection.prepareCall("begin :major_or_proc := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_MAINCC_USED_ICD10(:icd9codes,:mdcs,:pdcs); end;");
             GetMajorORProc.registerOutParameter("major_or_proc", OracleTypes.CURSOR);
             GetMajorORProc.setString("icd9codes", icd9codes);
             GetMajorORProc.setString("mdcs", mdcs);

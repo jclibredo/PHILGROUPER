@@ -28,7 +28,7 @@ public class GetCCLValue {
     public int GetCCLValue(final DataSource datasource, final String dccol, final String ccrows) {
         int result = 0;
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getccrowval = connection.prepareCall("begin :cclvalue := MINOSUN.DRGPKGFUNCTION.GET_CCLVALUE(:ccrows); end;");
+            CallableStatement getccrowval = connection.prepareCall("begin :cclvalue := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_CCLVALUE(:ccrows); end;");
             getccrowval.registerOutParameter("cclvalue", OracleTypes.CURSOR);
             getccrowval.setString("ccrows", ccrows);
             getccrowval.execute();
