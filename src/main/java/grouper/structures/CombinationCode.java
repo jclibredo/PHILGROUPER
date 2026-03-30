@@ -5,45 +5,16 @@
  */
 package grouper.structures;
 
+import lombok.Data;
 
 /**
  *
  * @author MINOSUN
  */
-
+@Data
 public class CombinationCode {
+
     private String indexlist;
     private String comcode;
-    private String proclist; 
-
-    public String getIndexlist() {
-        return indexlist;
-    }
-
-    public void setIndexlist(String indexlist) {
-        this.indexlist = indexlist;
-    }
-
-    public String getComcode() {
-        return comcode;
-    }
-
-    public void setComcode(String comcode) {
-        this.comcode = comcode;
-    }
-
-    public String getProclist() {
-        return proclist;
-    }
-
-    public void setProclist(String proclist) {
-        this.proclist = proclist;
-    }
-    
-    
-    
-    
+    private String proclist;
 }
-
-
-

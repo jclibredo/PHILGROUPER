@@ -273,19 +273,7 @@ public class Seeker {
         return result;
     }
 
-//    @POST
-//    @Path("TestInsertUser")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public DRGWSResult TestInsertUser(
-//            final SeekerUser user) {
-//        DRGWSResult result = utility.DRGWSResult();
-//        result.setMessage(new SeekerMethods().TestUserInsert(dataSource, user).getMessage());
-//        result.setSuccess(new SeekerMethods().TestUserInsert(dataSource, user).isSuccess());
-//        result.setResult(new SeekerMethods().TestUserInsert(dataSource, user).getResult());
-//        return result;
-//    }
-    //EncryptPasscode
+
     @GET
     @Path("EncryptPasscode/{password}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -346,27 +334,4 @@ public class Seeker {
         }
         return result;
     }
-
-    //https://www.172.21.53.144:8501/
-//    @GET
-//    @Path("TESTGETHCFSEEKERMODULE")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public DRGWSResult TESTGETHCFSEEKERMODULE() {
-//        DRGWSResult result = utility.DRGWSResult();
-//        result.setMessage("");
-//        result.setResult("");
-//        result.setSuccess(false);
-//        try {
-//            Desktop desktop = Desktop.getDesktop();
-//            URI uri = new URI(utility.GetString("SeekerModule"));
-//            desktop.browse(uri);
-//            URL myURL = new URL(utility.GetString("SeekerModule"));
-//            URLConnection myURLConnection = myURL.openConnection();
-//            myURLConnection.connect();
-//        } catch (IOException | URISyntaxException ex) {
-//            result.setMessage(ex.toString());
-//            Logger.getLogger(Seeker.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return result;
-//    }
 }

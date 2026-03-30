@@ -59,6 +59,8 @@ public class ValidateFindMDC {
             Newgrouperparam.setTimeOfBirth(grouperparameter.getTimeOfBirth());
             Newgrouperparam.setWarningerror(grouperparameter.getWarningerror());
             Newgrouperparam.setGender(grouperparameter.getGender());
+            Newgrouperparam.setClaimseries(grouperparameter.getClaimseries());
+            drgResult.setClaimseries(grouperparameter.getClaimseries());
 
             List<String> ProcList = Arrays.asList(grouperparameter.getProc().split(","));
             ArrayList<String> asterisk = new ArrayList<>();
@@ -127,10 +129,9 @@ public class ValidateFindMDC {
                     swapping.setNewpdx(grouperparameter.getPdx());
                 }
             }
-            //==========================================================================================================
+            GetValidatedPreMDC validatePreMDC = new GetValidatedPreMDC();
             DRGWSResult geticd10Result = new GetICD10PreMDC().GetICD10PreMDC(datasource, swapping.getNewpdx());
             DRGWSResult getSexConfictResult = new GenderConfictValidation().GenderConfictValidation(datasource, swapping.getNewpdx(), grouperparameter.getGender());
-            //==========================================================================================================
             if (!geticd10Result.isSuccess()) {
                 drgResult.setDRG("26509");
                 drgResult.setDC("2650");
@@ -174,10 +175,7 @@ public class ValidateFindMDC {
                         Newgrouperparam.setProc(comResult);
                     }
                     Newgrouperparam.setSdx(grouperparameter.getSdx());
-                    DRGWSResult getvalidatedpremdcResult = new GetValidatedPreMDC().GetValidatedPreMDC(datasource, Newgrouperparam);
-                    result.setSuccess(getvalidatedpremdcResult.isSuccess());
-                    result.setMessage(getvalidatedpremdcResult.getMessage());
-                    result.setResult(getvalidatedpremdcResult.getResult());
+                    result = validatePreMDC.GetValidatedPreMDC(datasource, Newgrouperparam);
                 }
             } else {
                 Newgrouperparam.setPdx(swapping.getNewpdx());
@@ -195,8 +193,7 @@ public class ValidateFindMDC {
                     Newgrouperparam.setProc(comResult);
                 }
                 Newgrouperparam.setSdx(swapping.getNewsdx());
-                DRGWSResult getvalidatedpremdcResult = new GetValidatedPreMDC().GetValidatedPreMDC(datasource, Newgrouperparam);
-                result = getvalidatedpremdcResult;
+                result = validatePreMDC.GetValidatedPreMDC(datasource, Newgrouperparam);
             }
             //====================================================================== 
         } catch (IOException ex) {

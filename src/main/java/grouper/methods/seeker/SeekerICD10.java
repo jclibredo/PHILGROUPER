@@ -7,7 +7,6 @@ package grouper.methods.seeker;
 
 import grouper.structures.DRGWSResult;
 import grouper.structures.PreMDC;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;

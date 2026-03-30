@@ -37,7 +37,6 @@ public class GetPCCLResult {
         result.setResult("");
         result.setSuccess(false);
         try {
-
             DRG checkDRG = new DRG();
             if (drgResult.getDRG() == null) {
                 drgResult.setPrepccl("X");

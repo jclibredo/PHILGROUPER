@@ -88,26 +88,29 @@ public class Grouper {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        ArrayList<DRGOutput> drgresultList = new ArrayList<>();
+//        ArrayList<DRGOutput> drgresultList = new ArrayList<>();
+        ArrayList<String> drgresultList = new ArrayList<>();
         ArrayList<String> errorList = new ArrayList<>();
         try {
             for (int g = 0; g < grouperparameter.size(); g++) {
                 DRGWSResult grouperResult = new ProcessGrouperParameter().ProcessGrouperParameter(datasource, grouperparameter.get(g));
                 if (grouperResult.isSuccess()) {
-                    DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
-                    drgresultList.add(drgout);
+//                    DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
+//                    drgresultList.add(drgout);
+                    drgresultList.add(grouperResult.getResult());
                 } else {
                     errorList.add(grouperResult.getMessage());
                 }
             }
             if (grouperparameter.size() > 0) {
-                result.setMessage("Data Process : " + grouperparameter.size() + " DRG Claims , Error Ecounter : " + errorList.toString());
+                result.setMessage("Data Process : " + grouperparameter.size() + " DRG Claims , Error Ecounter : " + (errorList.isEmpty() ? "0" : errorList.toString()));
                 result.setSuccess(true);
-                result.setResult(utility.objectMapper().writeValueAsString(drgresultList));
+//                result.setResult(utility.objectMapper().writeValueAsString(drgresultList));
+                result.setResult(drgresultList.toString());
             } else {
                 result.setMessage("NO DATA AVAILABLE TO PROCESS");
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             result.setMessage("Something went wrong");
             Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
         }

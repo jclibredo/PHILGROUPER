@@ -40,6 +40,7 @@ public class GetGrouper {
         result.setResult("");
         result.setSuccess(false);
         ArrayList<String> errorList = new ArrayList<>();
+        GetICD10PreMDC preMDC = new GetICD10PreMDC();
         ArrayList<GrouperParameter> grouperparameterlsit = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
             CallableStatement state = connection.prepareCall("begin :drgresult := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
@@ -59,10 +60,10 @@ public class GetGrouper {
                     drgresultparam.setPdx("");
                     ggrouperparameter.setPdx("");
                 } else {
-                    if (new GetICD10PreMDC().GetICD10PreMDC(datasource, resultset.getString("PDX").replaceAll("\\.", "").toUpperCase()).isSuccess()) {
+                    if (preMDC.GetICD10PreMDC(datasource, resultset.getString("PDX").replaceAll("\\.", "").toUpperCase()).isSuccess()) {
                         drgresultparam.setPdx(resultset.getString("PDX").replaceAll("\\.", "").toUpperCase());
                         ggrouperparameter.setPdx(resultset.getString("PDX").replaceAll("\\.", "").toUpperCase());
-                    } else if (new GetICD10PreMDC().GetICD10PreMDC(datasource, (resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase()).isSuccess()) {
+                    } else if (preMDC.GetICD10PreMDC(datasource, (resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase()).isSuccess()) {
                         drgresultparam.setPdx((resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase());
                         ggrouperparameter.setPdx((resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase());
                     } else {
@@ -100,9 +101,10 @@ public class GetGrouper {
                 } else {
                     ggrouperparameter.setAdmissionWeight("");
                 }
-                CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.UHCDRGPKG.GETPATIENTDATA(:seriesnums); end;");
+                CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.UHCDRGPKG.GETPATIENTDATA(:seriesnums,:claimid); end;");
                 statement.registerOutParameter("v_result", OracleTypes.CURSOR);
-                statement.setString("seriesnums", resultset.getString("CLAIMS_SERIES"));
+                statement.setString("seriesnums", resultset.getString("CLAIMS_SERIES")); //claimid
+                statement.setString("claimid", infoResult.next() ? resultset.getString("CLAIMS_SERIES") : "");
                 statement.execute();
                 ResultSet resultSet = (ResultSet) statement.getObject("v_result");
                 if (resultSet.next()) {
@@ -193,7 +195,7 @@ public class GetGrouper {
                 result.setMessage("OK");
                 result.setResult(utility.objectMapper().writeValueAsString(drgresultList));
             } else {
-                result.setMessage("NO DATA FOUND here");
+                result.setMessage("NO DATA FOUND");
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong");

@@ -5,34 +5,16 @@
  */
 package grouper.structures;
 
+import lombok.Data;
+
 /**
  *
  * @author MINOSUN
  */
+@Data
 public class CCL {
-    
-    
-    
-    
+
     private String ccrow;
     private String ccl;
 
-    public String getCcrow() {
-        return ccrow;
-    }
-
-    public void setCcrow(String ccrow) {
-        this.ccrow = ccrow;
-    }
-
-    public String getCcl() {
-        return ccl;
-    }
-
-    public void setCcl(String ccl) {
-        this.ccl = ccl;
-    }
-    
-    
-    
 }

@@ -95,20 +95,21 @@ public class GetMDC01 {
                 if (checkAX.AX(datasource, "99PBX", ProcedureList.get(a).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
-//                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(a).trim(), drgResult.getMDC());
-                if (new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(a).trim(), drgResult.getMDC()).isSuccess()) {
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(a).trim(), drgResult.getMDC());
+                if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
-                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(a).trim(), drgResult.getMDC()).getResult(), MDCProcedure.class);
-//                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                    if (new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC()).isSuccess()) {
-                        PDC hiarresult = utility.objectMapper().readValue(new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC()).getResult(), PDC.class);
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
+                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    if (pdcresult.isSuccess()) {
+                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                if (new ORProcedure().ORProcedure(datasource, ProcedureList.get(a).trim()).isSuccess()) {
+                DRGWSResult getOrProc = new ORProcedure().ORProcedure(datasource, ProcedureList.get(a).trim());
+                if (getOrProc.isSuccess()) {
                     ORProcedureCounter++;
-                    ORProcedureCounterList.add(Integer.valueOf(new ORProcedure().ORProcedure(datasource, ProcedureList.get(a).trim()).getResult()));
+                    ORProcedureCounterList.add(Integer.valueOf(getOrProc.getResult()));
                 }
                 if (checkAX.AX(datasource, "1PBX", ProcedureList.get(a).trim()).isSuccess()) {
                     Counter1PBX++;
