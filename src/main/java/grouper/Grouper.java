@@ -88,7 +88,6 @@ public class Grouper {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-//        ArrayList<DRGOutput> drgresultList = new ArrayList<>();
         ArrayList<String> drgresultList = new ArrayList<>();
         ArrayList<String> errorList = new ArrayList<>();
         try {

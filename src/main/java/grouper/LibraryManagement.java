@@ -39,7 +39,7 @@ public class LibraryManagement {
 
     private final Utility utility = new Utility();
 
-    @PUT
+    @POST
     @Path("UpdateAX")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

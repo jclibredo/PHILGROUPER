@@ -230,8 +230,6 @@ public class GetMDC15 {
                 }
             }
             // FINDING FINAL DRG
-            DRG checkDRG = new DRG();
-            DRGWSResult checkResult = checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
             if (drgResult.getDRG() == null) {
                 if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
@@ -256,6 +254,8 @@ public class GetMDC15 {
                 }
             }
             // FINAL RESULT IS HERE
+            DRG checkDRG = new DRG();
+            DRGWSResult checkResult = checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
             if (checkResult.isSuccess()) {
                 drgResult.setDRGName(checkResult.getMessage());
             } else {
