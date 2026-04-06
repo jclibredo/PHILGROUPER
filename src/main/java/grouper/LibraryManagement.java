@@ -7,19 +7,24 @@ package grouper;
 
 import grouper.methods.library.ServicesICD10;
 import grouper.methods.library.ServicesAX;
+import grouper.methods.validation.DRG;
 import grouper.structures.AX;
 import grouper.structures.DRGWSResult;
 import grouper.structures.ICD10;
+import grouper.structures.ICD10PreMDCResult;
+import grouper.structures.PCOM;
 import grouper.utility.Utility;
+import java.io.IOException;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -43,7 +48,7 @@ public class LibraryManagement {
     @Path("UpdateAX")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult UpdateAX(@HeaderParam("token") String token, final List<AX> ax, final String action) {
+    public DRGWSResult UpdateAX(@HeaderParam("token") String token, final List<AX> ax, @HeaderParam("action") String action) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -91,12 +96,11 @@ public class LibraryManagement {
     @Path("UpdateICD10")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult UpdateICD10(@HeaderParam("token") String token, final List<ICD10> icd10, final String action) {
+    public DRGWSResult UpdateICD10(@HeaderParam("token") String token, final List<ICD10> icd10, @HeaderParam("action") String action) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-
         DRGWSResult authCheck = utility.GetPayload(dataSource, token);
         if (!authCheck.isSuccess()) {
             result.setMessage(authCheck.getMessage());
@@ -131,6 +135,49 @@ public class LibraryManagement {
                 result.setMessage("Action not authorize");
                 break;
             }
+        }
+        return result;
+    }
+
+    @GET
+    @Path("GetJsonFormat/{type}") //ICD10,ICD10PREMDC,RVS,ICD9CM,DRG,AX,ICD9CMPREMDC
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GenerateJson(@PathParam("type") String type) {
+        DRGWSResult result = utility.DRGWSResult();
+        try {
+
+            switch (type.toUpperCase().trim()) {
+                case "ICD10": {
+                    result.setResult(utility.objectMapper().writeValueAsString(new ICD10()));
+                    break;
+                }
+                case "ICD10PREMDC": {
+                    result.setResult(utility.objectMapper().writeValueAsString(new ICD10PreMDCResult()));
+                    break;
+                }
+                case "AX": {
+                    result.setResult(utility.objectMapper().writeValueAsString(new AX()));
+                    break;
+                }
+
+                case "DRG": {
+                    result.setResult(utility.objectMapper().writeValueAsString(new DRG()));
+                    break;
+                }
+
+                case "PCOM": {
+                    result.setResult(utility.objectMapper().writeValueAsString(new PCOM()));
+                    break;
+                }
+                default: {
+                    result.setMessage("REQUEST TYPE NOT VALID");
+                    break;
+                }
+
+            }
+
+        } catch (IOException ex) {
+            result.setMessage(ex.toString());
         }
         return result;
     }

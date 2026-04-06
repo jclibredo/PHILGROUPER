@@ -1,3 +1,4 @@
+grouper\methods\library\ServicesICD10.class
 grouper\structures\CodeConverter.class
 grouper\methods\mdc\GetMDC03.class
 grouper\methods\mdc\GetMDC13.class
@@ -28,6 +29,7 @@ grouper\methods\validation\GetICD10.class
 grouper\utility\Utility.class
 grouper\methods\validation\GetPCOM.class
 grouper\methods\validation\GET_CONVERTER.class
+grouper\structures\BMDC.class
 grouper\structures\NClaimsData.class
 grouper\structures\MDCProcedure.class
 grouper\methods\mdc\GetMDC25.class
@@ -47,6 +49,7 @@ grouper\methods\validation\AX.class
 grouper\methods\validation\TRAUMAICD9CM.class
 grouper\methods\validation\InsertGrouperAuditTrail.class
 grouper\methods\mdc\GetMDC12.class
+grouper\LibraryManagement.class
 grouper\methods\mdc\GetMDC07.class
 grouper\methods\mdc\GetMDC01.class
 grouper\methods\validation\MajorORPRrocedure.class
@@ -70,14 +73,17 @@ drgseeker\utilities\DataWarehouse.class
 grouper\methods\validation\GetPDCUsePDx.class
 grouper\methods\validation\GET_ICD9.class
 grouper\utility\TestParamObject.class
+grouper\structures\CCEX.class
 grouper\methods\mdc\GetMDC02.class
 grouper\structures\RVS.class
 grouper\methods\mdc\GetMDC22.class
+grouper\methods\library\ServicesDRG.class
 grouper\methods\validation\GetCCLValue.class
 grouper\structures\PDC.class
 grouper\methods\mdc\GetMDC17.class
 grouper\methods\mdc\GetMDC11.class
 grouper\methods\validation\GenderConfictValidationProc.class
+grouper\methods\library\ServiceICD10PREMDC.class
 grouper\methods\mdc\GetMDC14.class
 grouper\methods\validation\CheckExclusionList.class
 grouper\methods\validation\DRG.class
@@ -89,6 +95,7 @@ grouper\structures\DC.class
 grouper\structures\BMDCPreMDCResult.class
 grouper\methods\validation\GetValidICD10Accpdx.class
 grouper\methods\validation\PDXandMDC.class
+grouper\structures\AX.class
 grouper\methods\mdc\GetMDC15.class
 grouper\structures\FindMDC.class
 grouper\methods\mdc\GetMDC05.class
@@ -99,9 +106,11 @@ grouper\methods\premdc\ValidateFindMDC$SDxPDx.class
 grouper\structures\DRGRESULT.class
 grouper\Grouper.class
 grouper\methods\validation\MDCProcedureMethod.class
+grouper\methods\library\ServicesAX.class
 grouper\methods\premdc\ValidateFindMDC.class
 grouper\methods\validation\GetBMDC.class
 grouper\methods\mdc\GetMDC16.class
+grouper\structures\ICD10.class
 grouper\structures\DRGWSResult.class
 grouper\Seeker.class
 grouper\methods\validation\ORProcedure.class

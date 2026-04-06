@@ -5,10 +5,8 @@
  */
 package grouper.methods.library;
 
-import grouper.methods.seeker.SeekerICD10;
 import grouper.structures.AX;
 import grouper.structures.DRGWSResult;
-import grouper.structures.PreMDC;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;
