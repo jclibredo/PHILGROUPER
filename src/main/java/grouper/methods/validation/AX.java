@@ -11,8 +11,8 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
+//import java.util.Arrays;
+//import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
@@ -36,20 +36,22 @@ public class AX {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :get_ax := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_AX_PARAM(:ax_code); end;");
+            CallableStatement statement = connection.prepareCall("begin :get_ax := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_AX_PARAM(:p_ax,:p_code); end;");
             statement.registerOutParameter("get_ax", OracleTypes.CURSOR);
-            statement.setString("ax_code", axcodes.trim());
+            statement.setString("p_ax", axcodes.trim());
+            statement.setString("p_code", requestcode.trim());
             statement.execute();
             ResultSet resultSet = (ResultSet) statement.getObject("get_ax");
             if (resultSet.next()) {
-                List<String> codelist = Arrays.asList(resultSet.getString("CODES").split(","));
-                for (int x = 0; x < codelist.size(); x++) {
-                    if (requestcode.trim().equals(codelist.get(x).trim())) {
-                        result.setResult(requestcode);
-                        result.setSuccess(true);
-                        break;
-                    }
-                }
+                // THIS LINE IS FOR OLD LIBRARY
+//                List<String> codelist = Arrays.asList(resultSet.getString("CODES").split(","));
+//                for (int x = 0; x < codelist.size(); x++) {
+//                    if (requestcode.trim().equals(codelist.get(x).trim())) {
+                result.setResult(requestcode);
+                result.setSuccess(true);
+//                        break;
+//                    }
+//                }
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
