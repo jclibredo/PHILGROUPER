@@ -14,12 +14,14 @@ import grouper.structures.GrouperParameter;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -173,6 +175,26 @@ public class Grouper {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult(utility.GenerateToken(payload.getCode1(), payload.getCode2(), utility.GetString("OtpExpiration").getResult()));
         result.setSuccess(true);
+        return result;
+    }
+
+    @GET
+    @Path("GetVersion")
+    @Produces()
+    public String GetSoftwareVersion() {
+        String result;
+        Properties properties = new Properties();
+        try (InputStream input = Grouper.class.getClassLoader().getResourceAsStream("version.properties")) {
+            if (input == null) {
+                result = "Sorry unable to find version.properties";
+            } else {
+                properties.load(input);
+                result = properties.getProperty("project.version");
+            }
+        } catch (IOException ex) {
+            result = ex.toString();
+            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return result;
     }
 }
