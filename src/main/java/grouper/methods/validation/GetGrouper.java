@@ -108,6 +108,7 @@ public class GetGrouper {
                 statement.execute();
                 ResultSet resultSet = (ResultSet) statement.getObject("v_result");
                 if (resultSet.next()) {
+                    DRGWSResult pPatientbday = new GETPATIENTBDAY().GETPATIENTBDAY(datasource, resultset.getString("CLAIMS_SERIES").trim());
                     //EXPIREDDATE
                     ggrouperparameter.setExpiredDate(resultSet.getString("EXPIREDDATE") == null
                             || resultSet.getString("EXPIREDDATE").equals("")
@@ -133,8 +134,8 @@ public class GetGrouper {
                             || resultSet.getString("DISCHARGEDATE").equals("")
                             || resultSet.getString("DISCHARGEDATE").isEmpty() ? "" : utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DISCHARGEDATE")));
                     //DATEOFBIRTH
-                    ggrouperparameter.setBirthDate(!new GETPATIENTBDAY().GETPATIENTBDAY(datasource, resultset.getString("CLAIMS_SERIES").trim()).isSuccess()
-                            ? "" : new GETPATIENTBDAY().GETPATIENTBDAY(datasource, resultset.getString("CLAIMS_SERIES").trim()).getResult());
+                    ggrouperparameter.setBirthDate(!pPatientbday.isSuccess()
+                            ? "" : pPatientbday.getResult());
                     //GENDER
                     ggrouperparameter.setGender(resultSet.getString("GENDER") == null
                             || resultSet.getString("GENDER").equals("")

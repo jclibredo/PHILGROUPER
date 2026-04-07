@@ -180,7 +180,7 @@ public class Grouper {
 
     @GET
     @Path("GetVersion")
-    @Produces()
+    @Produces(MediaType.TEXT_PLAIN)
     public String GetSoftwareVersion() {
         String result;
         Properties properties = new Properties();
