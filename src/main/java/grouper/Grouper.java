@@ -173,7 +173,8 @@ public class Grouper {
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GenerateToken(final DRGPayload payload) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setResult(utility.GenerateToken(payload.getCode1(), payload.getCode2(), utility.GetString("OtpExpiration").getResult()));
+        result.setResult(utility.GenerateToken(payload.getCode1(), 
+                payload.getCode2(), utility.GetString("OtpExpiration").getResult()));
         result.setSuccess(true);
         return result;
     }

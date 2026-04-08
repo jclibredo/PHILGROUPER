@@ -23,6 +23,7 @@
         <module-name>PHILGROUPER-0.1.war</module-name>
         <module-type>war</module-type>
         
+<!--        //http://172.21.53.144:7001/PHILGROUPER/application.wadl-->
         
         <module-descriptor external="false">
             <root-element>weblogic-web-app</root-element>

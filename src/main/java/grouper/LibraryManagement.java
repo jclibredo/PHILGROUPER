@@ -49,7 +49,10 @@ public class LibraryManagement {
     @Path("ManageAX")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult UpdateAX(@HeaderParam("token") String token, final List<AX> ax, @HeaderParam("action") String action) {
+    public DRGWSResult UpdateAX(
+            @HeaderParam("token") String token, 
+            final List<AX> ax, 
+            @HeaderParam("action") String action) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -222,7 +225,9 @@ public class LibraryManagement {
     @Path("ManageCCEX")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult UpdateCCEX(@HeaderParam("token") String token, final List<CCEX> ccex, @HeaderParam("action") String action) {
+    public DRGWSResult UpdateCCEX(
+            @HeaderParam("token") String token, 
+            final List<CCEX> ccex, @HeaderParam("action") String action) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");

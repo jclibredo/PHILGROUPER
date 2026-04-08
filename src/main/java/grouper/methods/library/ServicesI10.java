@@ -44,22 +44,22 @@ public class ServicesI10 {
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_result");
             while (resultset.next()) {
-                ICD10PreMDCResult premdc = new ICD10PreMDCResult();
-                premdc.setAccPDX(resultset.getString("ACCPDX"));
-                premdc.setAgeDMin(resultset.getString("AGEDMIN"));
-                premdc.setAgeDUse(resultset.getString("AGEDUSE"));
-                premdc.setAgeMax(resultset.getString("AGEMAX"));
-                premdc.setAgeMin(resultset.getString("AGEMIN"));
-                premdc.setCC(resultset.getString("CC"));
-                premdc.setCCRow(resultset.getString("CCROW"));
-                premdc.setCode(resultset.getString("CODE"));
-                premdc.setHIV_AX(resultset.getString("HIV_AX"));
-                premdc.setMDC(resultset.getString("MDC"));
-                premdc.setMainCC(resultset.getString("MAINCC"));
-                premdc.setPDC(resultset.getString("PDC"));
-                premdc.setSex(resultset.getString("SEX"));
-                premdc.setTrauma(resultset.getString("TRAUMA"));
-                icd10List.add(premdc);
+                ICD10PreMDCResult i10 = new ICD10PreMDCResult();
+                i10.setAccPDX(resultset.getString("ACCPDX"));
+                i10.setAgeDMin(resultset.getString("AGEDMIN"));
+                i10.setAgeDUse(resultset.getString("AGEDUSE"));
+                i10.setAgeMax(resultset.getString("AGEMAX"));
+                i10.setAgeMin(resultset.getString("AGEMIN"));
+                i10.setCC(resultset.getString("CC"));
+                i10.setCCRow(resultset.getString("CCROW"));
+                i10.setCode(resultset.getString("CODE"));
+                i10.setHIV_AX(resultset.getString("HIV_AX"));
+                i10.setMDC(resultset.getString("MDC"));
+                i10.setMainCC(resultset.getString("MAINCC"));
+                i10.setPDC(resultset.getString("PDC"));
+                i10.setSex(resultset.getString("SEX"));
+                i10.setTrauma(resultset.getString("TRAUMA"));
+                icd10List.add(i10);
             }
             if (icd10List.size() > 0) {
                 result.setMessage("OK");
