@@ -95,7 +95,6 @@ public class ValidateFindMDC {
                     }
                 }
             }
-            //==================================
             List<String> SDxList = Arrays.asList(grouperparameter.getSdx().split(","));
             for (int b = 0; b < SDxList.size(); b++) {
                 DRGWSResult gDAResult = new GetDA().GetDA(datasource, grouperparameter.getPdx(), SDxList.get(b).trim());
@@ -195,14 +194,12 @@ public class ValidateFindMDC {
                 Newgrouperparam.setSdx(swapping.getNewsdx());
                 result = validatePreMDC.GetValidatedPreMDC(datasource, Newgrouperparam);
             }
-            //====================================================================== 
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
             Logger.getLogger(ValidateFindMDC.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
-//
 
     public class SDxPDx {
 

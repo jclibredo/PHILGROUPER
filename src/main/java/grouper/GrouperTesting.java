@@ -202,47 +202,22 @@ public class GrouperTesting {
                                     if (utility.ComputeYear(grouper.getBirthDate(), grouper.getAdmissionDate()) >= 0
                                             && utility.ComputeDay(grouper.getBirthDate(),
                                                     grouper.getAdmissionDate()) >= 0 && !newsdxList.get(u).isEmpty()) {
-
-                                        boolean baseCode = SDxResult.GetICD10(datasource, newsdxList.get(u).toUpperCase().trim()).isSuccess();
-                                        boolean cleanBaseCode = SDxResult.GetICD10(datasource, utility.icd10Cleaner(newsdxList.get(u).toUpperCase()).trim()).isSuccess();
-                                        if (baseCode) {
-                                            //CHECKING FOR AGE CONFLICT
-                                            DRGWSResult getAgeConfictResult = ageValidation.AgeConfictValidation(datasource, newsdxList.get(u).toUpperCase().trim(),
-                                                    String.valueOf(daysfinal), year);
-                                            //CHECKING FOR GENDER CONFLICT
-                                            DRGWSResult getSexConfictResult = sexValidation.GenderConfictValidation(datasource, newsdxList.get(u), grouper.getGender());
-                                            if (!ageValidation.AgeConfictValidation(datasource, newsdxList.get(u).toUpperCase().trim(),
-                                                    String.valueOf(daysfinal), year).isSuccess()) {
-                                                warningerror.add("SDx " + newsdxList.get(u) + " age conflict");
-                                                newsdxList.remove(newsdxList.get(u));
-                                            }
-                                            if (!getSexConfictResult.isSuccess()) {
-                                                warningerror.add("SDx " + newsdxList.get(u) + " sex conflict");
-                                                newsdxList.remove(newsdxList.get(u));
-                                            }
-                                            if (getAgeConfictResult.isSuccess() && getSexConfictResult.isSuccess()) {
-                                                finalSdx.add(newsdxList.get(u));
-                                            }
-                                        } else if (cleanBaseCode) {
-                                            //CHECKING FOR AGE CONFLICT
-                                            DRGWSResult getAgeConfictResult = ageValidation.AgeConfictValidation(datasource, utility.icd10Cleaner(newsdxList.get(u).toUpperCase()).trim(),
-                                                    String.valueOf(daysfinal), year);
-                                            //CHECKING FOR GENDER CONFLICT
-                                            DRGWSResult getSexConfictResult = sexValidation.GenderConfictValidation(datasource, utility.icd10Cleaner(newsdxList.get(u).toUpperCase()).trim(), grouper.getGender());
-                                            if (!getAgeConfictResult.isSuccess()) {
-                                                warningerror.add("SDx " + newsdxList.get(u) + " age conflict");
-                                                newsdxList.remove(newsdxList.get(u));
-                                            }
-                                            if (!getSexConfictResult.isSuccess()) {
-                                                warningerror.add("SDx " + newsdxList.get(u) + " sex conflict");
-                                                newsdxList.remove(newsdxList.get(u));
-                                            }
-                                            if (getAgeConfictResult.isSuccess() && getSexConfictResult.isSuccess()) {
-                                                finalSdx.add(newsdxList.get(u));
-                                            }
-                                        } else {
-                                            warningerror.add("SDx " + newsdxList.get(u) + " not valid");
+                                        //CHECKING FOR AGE CONFLICT
+                                        DRGWSResult getAgeConfictResult = ageValidation.AgeConfictValidation(datasource, newsdxList.get(u).toUpperCase().trim(),
+                                                String.valueOf(daysfinal), year);
+                                        //CHECKING FOR GENDER CONFLICT
+                                        DRGWSResult getSexConfictResult = sexValidation.GenderConfictValidation(datasource, newsdxList.get(u), grouper.getGender());
+                                        if (!ageValidation.AgeConfictValidation(datasource, newsdxList.get(u).toUpperCase().trim(),
+                                                String.valueOf(daysfinal), year).isSuccess()) {
+                                            warningerror.add("SDx " + newsdxList.get(u) + " age conflict");
                                             newsdxList.remove(newsdxList.get(u));
+                                        }
+                                        if (!getSexConfictResult.isSuccess()) {
+                                            warningerror.add("SDx " + newsdxList.get(u) + " sex conflict");
+                                            newsdxList.remove(newsdxList.get(u));
+                                        }
+                                        if (getAgeConfictResult.isSuccess() && getSexConfictResult.isSuccess()) {
+                                            finalSdx.add(newsdxList.get(u));
                                         }
 
                                     }
@@ -260,6 +235,7 @@ public class GrouperTesting {
                 grouper.setWarningerror(String.join(",", warningerror));
                 drgresult.setWarningerror(String.join(",", warningerror));
             }
+
             if (grouper.getPdx().isEmpty()) {
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
@@ -373,7 +349,7 @@ public class GrouperTesting {
                 //result.setMessage(updatedrgresult.getMessage());
                 drgresult.setClaimseries(grouperparameter.getClaimseries());
                 result.setResult(utility.objectMapper().writeValueAsString(drgresult));
-
+                result.setSuccess(true);
                 // File writer
 //                this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
             } else {
