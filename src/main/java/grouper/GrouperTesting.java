@@ -177,7 +177,7 @@ public class GrouperTesting {
                         if (getPreMDC.GetICD10PreMDC(datasource, sdxList.get(m)).isSuccess()) {
                             newsdxList.add(sdxList.get(m));
                         } else if (getPreMDC.GetICD10PreMDC(datasource, utility.icd10Cleaner(sdxList.get(m))).isSuccess()) {
-                            newsdxList.add(sdxList.get(m));
+                            newsdxList.add(utility.icd10Cleaner(sdxList.get(m)));
                         } else {
                             warningerror.add("SDx " + sdxList.get(m) + " invalid");
                         }
