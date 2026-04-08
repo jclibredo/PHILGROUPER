@@ -18,8 +18,6 @@ public class AX {
     }
 
     private String ax;
-    private String descr;
-    private String type;
     private String codes;
 
 }

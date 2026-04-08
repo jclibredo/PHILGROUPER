@@ -45,8 +45,6 @@ public class ServicesAX {
             ResultSet resultset = (ResultSet) statement.getObject("validate_ax");
             while (resultset.next()) {
                 AX ax = new AX();
-                ax.setDescr(resultset.getString("DESCR"));
-                ax.setType(resultset.getString("TYPE"));
                 ax.setAx(resultset.getString("AX"));
                 ax.setCodes(resultset.getString("CODES"));
                 axList.add(ax);
@@ -65,27 +63,23 @@ public class ServicesAX {
 
     public DRGWSResult CreateAx(final DataSource datasource,
             final String u_ax,
-            final String u_descr,
-            final String u_type,
             final String u_codes) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.INSERT_AX(:Message,:Code,"
-                    + ":u_ax,:u_descr,:u_type,:u_codes)");
-            auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
-            auditrail.registerOutParameter("Code", OracleTypes.INTEGER);
-            auditrail.setString("u_ax", u_ax);
-            auditrail.setString("u_descr", u_descr);
-            auditrail.setString("u_type", u_type);
-            auditrail.setString("u_codes", u_codes);
-            auditrail.execute();
-            if (auditrail.getString("Message").equals("SUCC")) {
+            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.INSERT_AX(:Message,:Code,"
+                    + ":u_ax,:u_codes)");
+            statement.registerOutParameter("Message", OracleTypes.VARCHAR);
+            statement.registerOutParameter("Code", OracleTypes.INTEGER);
+            statement.setString("u_ax", u_ax);
+            statement.setString("u_codes", u_codes);
+            statement.execute();
+            if (statement.getString("Message").equals("SUCC")) {
                 result.setSuccess(true);
             } else {
-                result.setMessage(auditrail.getString("Message"));
+                result.setMessage(statement.getString("Message"));
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
@@ -93,9 +87,8 @@ public class ServicesAX {
         }
         return result;
     }
-    
-    
-     public DRGWSResult DeleteAx(final DataSource datasource) {
+
+    public DRGWSResult DeleteAx(final DataSource datasource) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
@@ -112,7 +105,7 @@ public class ServicesAX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ServicesICD10.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ServicesI10VX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
