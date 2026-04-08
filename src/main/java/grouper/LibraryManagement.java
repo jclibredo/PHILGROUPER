@@ -5,6 +5,7 @@
  */
 package grouper;
 
+import grouper.methods.library.ServiceDashboard;
 import grouper.methods.library.ServicesI10VX;
 import grouper.methods.library.ServicesAX;
 import grouper.methods.library.ServicesCCEX;
@@ -50,8 +51,8 @@ public class LibraryManagement {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult UpdateAX(
-            @HeaderParam("token") String token, 
-            final List<AX> ax, 
+            @HeaderParam("token") String token,
+            final List<AX> ax,
             @HeaderParam("action") String action) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -226,7 +227,7 @@ public class LibraryManagement {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult UpdateCCEX(
-            @HeaderParam("token") String token, 
+            @HeaderParam("token") String token,
             final List<CCEX> ccex, @HeaderParam("action") String action) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -279,7 +280,7 @@ public class LibraryManagement {
     @Path("GetJsonFormat") //I10VX,I10,AX,CCEX
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GenerateJson(
-            @HeaderParam("token") String token, 
+            @HeaderParam("token") String token,
             @HeaderParam("type") String type) {
         DRGWSResult result = utility.DRGWSResult();
         DRGWSResult authCheck = utility.GetPayload(dataSource, token);
@@ -312,6 +313,22 @@ public class LibraryManagement {
             }
         } catch (IOException ex) {
             result.setMessage(ex.toString());
+        }
+        return result;
+    }
+
+    @GET
+    @Path("DASHBOARD")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GetDashboard(
+            @HeaderParam("token") String token) {
+        DRGWSResult result = utility.DRGWSResult();
+        DRGWSResult authCheck = utility.GetPayload(dataSource, token);
+        if (!authCheck.isSuccess()) {
+            result.setMessage(authCheck.getMessage());
+            return result;
+        } else {
+            result = new ServiceDashboard().GetDashboard(dataSource);
         }
         return result;
     }
