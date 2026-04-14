@@ -15,7 +15,6 @@ import grouper.methods.validation.UpdateDRGResult;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.text.ParseException;
@@ -328,7 +327,6 @@ public class ProcessGrouperParameter {
 //        }
 //    }
     public String DRGAuditTrail(final DataSource datasource, String claimsSeries, String idSeries, String deTails, String status) {
-        GrouperMethod gm = new GrouperMethod();
         DRGWSResult grouperauditrail = new InsertGrouperAuditTrail().InsertGrouperAuditTrail(datasource, claimsSeries, idSeries, deTails, status);
         return grouperauditrail.getMessage();
     }

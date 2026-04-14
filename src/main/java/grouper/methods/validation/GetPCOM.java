@@ -7,7 +7,6 @@ package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
 import grouper.structures.PCOM;
-import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -57,7 +56,7 @@ public class GetPCOM {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GrouperMethod.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GetPCOM.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

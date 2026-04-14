@@ -44,9 +44,13 @@ public class GETPATIENTBDAY {
             if (resultSet.next()) {
                 if (resultSet.getString("DATEOFBIRTH") == null || resultSet.getString("DATEOFBIRTH").isEmpty() || resultSet.getString("DATEOFBIRTH").equals("")) {
                 } else {
+                    utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(resultSet.getString("DATEOFBIRTH")));
+                    // FOR DEPLOYMENT FORMAT DATE
+                    result.setResult(utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(resultSet.getString("DATEOFBIRTH"))));
+                    //FOR MY LOCAL FORMAT DATE
+//                    result.setResult(utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DATEOFBIRTH")));
                     result.setSuccess(true);
                     result.setMessage("OK");
-                    result.setResult(utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DATEOFBIRTH")));
                 }
             }
         } catch (Exception ex) {

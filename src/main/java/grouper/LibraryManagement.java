@@ -6,15 +6,19 @@
 package grouper;
 
 import grouper.methods.library.ServiceDashboard;
+import grouper.methods.library.ServiceUserActivity;
 import grouper.methods.library.ServicesI10VX;
 import grouper.methods.library.ServicesAX;
 import grouper.methods.library.ServicesCCEX;
+import grouper.methods.library.ServicesDRG;
 import grouper.methods.library.ServicesI10;
 import grouper.structures.AX;
 import grouper.structures.CCEX;
+import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.ICD10;
 import grouper.structures.ICD10PreMDCResult;
+import grouper.structures.UserLogs;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,6 +67,7 @@ public class LibraryManagement {
             result.setMessage(authCheck.getMessage());
             return result;
         }
+        ServiceUserActivity serviceLogs = new ServiceUserActivity();
         ServicesAX axAction = new ServicesAX();
         String upperAction = (action == null) ? "" : action.toUpperCase();
         int succ = 0;
@@ -114,44 +119,56 @@ public class LibraryManagement {
         if (!authCheck.isSuccess()) {
             result.setMessage(authCheck.getMessage());
             return result;
-        }
-        ServicesI10VX serviceIcd10vx = new ServicesI10VX();
-        String upperAction = (action == null) ? "" : action.toUpperCase();
-        int succ = 0;
-        int err = 0;
-        ArrayList<String> errorList = new ArrayList<>();
-        switch (upperAction) {
-            case "CREATE": {
-                DRGWSResult removeIcd10VX = serviceIcd10vx.DeleteIcd10(dataSource);
-                if (removeIcd10VX.isSuccess()) {
-                    for (int x = 0; x < icd10vx.size(); x++) {
-                        DRGWSResult create = serviceIcd10vx.CreateIcd10(dataSource,
-                                icd10vx.get(x).getValidcode(),
-                                icd10vx.get(x).getDescription(),
-                                icd10vx.get(x).getCode());
-                        if (create.isSuccess()) {
-                            succ++;
-                        } else {
-                            errorList.add(create.getMessage());
-                            err++;
+        } else {
+            ServiceUserActivity serviceLogs = new ServiceUserActivity();
+            ServicesI10VX serviceIcd10vx = new ServicesI10VX();
+            String upperAction = (action == null) ? "" : action.toUpperCase();
+            int succ = 0;
+            int err = 0;
+            String actions = "";
+            String details = "";
+            ArrayList<String> errorList = new ArrayList<>();
+            switch (upperAction) {
+                case "CREATE": {
+                    DRGWSResult removeIcd10VX = serviceIcd10vx.DeleteIcd10(dataSource);
+                    if (removeIcd10VX.isSuccess()) {
+                        for (int x = 0; x < icd10vx.size(); x++) {
+                            DRGWSResult create = serviceIcd10vx.CreateIcd10(dataSource,
+                                    icd10vx.get(x).getValidcode(),
+                                    icd10vx.get(x).getDescription(),
+                                    icd10vx.get(x).getCode());
+                            if (create.isSuccess()) {
+                                succ++;
+                            } else {
+                                errorList.add(create.getMessage());
+                                err++;
+                            }
                         }
+                        result.setSuccess(true);
+                        result.setResult(errorList.toString());
+                        result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
+                    } else {
+                        result = removeIcd10VX;
                     }
-                    result.setSuccess(true);
-                    result.setResult(errorList.toString());
-                    result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
-                } else {
-                    result = removeIcd10VX;
+                    actions = "CREATE";
+                    details = "Total rows[" + icd10vx.size() + "] inserted[" + succ + "]";
+                    break;
                 }
-                break;
+                case "READ": {
+                    result = serviceIcd10vx.GetIcd10(dataSource);
+                    actions = "READ";
+                    details = "Get all I10VX data";
+                    break;
+                }
+                default: {
+                    result.setMessage("Action not authorize");
+                    actions = "FAIL";
+                    details = "Action not authorize";
+                    break;
+                }
             }
-            case "READ": {
-                result = serviceIcd10vx.GetIcd10(dataSource);
-                break;
-            }
-            default: {
-                result.setMessage("Action not authorize");
-                break;
-            }
+            //ACTIVITY LOGS
+            serviceLogs.CreateUserLogs(dataSource, authCheck.getMessage(), "I10VX", actions, details);
         }
         return result;
     }
@@ -170,6 +187,7 @@ public class LibraryManagement {
             result.setMessage(authCheck.getMessage());
             return result;
         }
+        ServiceUserActivity serviceLogs = new ServiceUserActivity();
         ServicesI10 serviceIcd10 = new ServicesI10();
         String upperAction = (action == null) ? "" : action.toUpperCase();
         int succ = 0;
@@ -238,6 +256,7 @@ public class LibraryManagement {
             result.setMessage(authCheck.getMessage());
             return result;
         }
+        ServiceUserActivity serviceLogs = new ServiceUserActivity();
         ServicesCCEX serviceCCEX = new ServicesCCEX();
         String upperAction = (action == null) ? "" : action.toUpperCase();
         int succ = 0;
@@ -266,6 +285,67 @@ public class LibraryManagement {
             }
             case "READ": {
                 result = serviceCCEX.GetCCEX(dataSource);
+                break;
+            }
+            default: {
+                result.setMessage("Action not authorize");
+                break;
+            }
+        }
+        return result;
+    }
+
+    @POST
+    @Path("ManageDRG")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult UpdateDRG(@HeaderParam("token") String token, final List<DRGOutput> drgOutput, @HeaderParam("action") String action) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        DRGWSResult authCheck = utility.GetPayload(dataSource, token);
+        if (!authCheck.isSuccess()) {
+            result.setMessage(authCheck.getMessage());
+            return result;
+        }
+        ServicesDRG serviceDRG = new ServicesDRG();
+        ServiceUserActivity serviceLogs = new ServiceUserActivity();
+        String upperAction = (action == null) ? "" : action.toUpperCase();
+        int succ = 0;
+        int err = 0;
+        ArrayList<String> errorList = new ArrayList<>();
+        switch (upperAction) {
+            case "CREATE": {
+                DRGWSResult removeDRG = serviceDRG.DeleteDrg(dataSource);
+                if (removeDRG.isSuccess()) {
+                    for (int x = 0; x < drgOutput.size(); x++) {
+                        DRGWSResult create = serviceDRG.CreateDrg(dataSource,
+                                drgOutput.get(x).getRW(),
+                                drgOutput.get(x).getWTLOS(),
+                                drgOutput.get(x).getOT(),
+                                drgOutput.get(x).getMDF(),
+                                drgOutput.get(x).getDRGName(),
+                                drgOutput.get(x).getDRG(),
+                                drgOutput.get(x).getMDC(),
+                                drgOutput.get(x).getDC());
+                        if (create.isSuccess()) {
+                            succ++;
+                        } else {
+                            errorList.add(create.getMessage());
+                            err++;
+                        }
+                    }
+                    result.setSuccess(true);
+                    result.setResult(errorList.toString());
+                    result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
+                } else {
+                    result = removeDRG;
+                }
+                break;
+            }
+            case "READ": {
+                result = serviceDRG.GetDrg(dataSource);
                 break;
             }
             default: {
@@ -306,11 +386,16 @@ public class LibraryManagement {
                     result.setResult(utility.objectMapper().writeValueAsString(new CCEX()));
                     break;
                 }
+                case "DRG": {
+                    result.setResult(utility.objectMapper().writeValueAsString(new DRGOutput()));
+                    break;
+                }
                 default: {
                     result.setMessage("REQUEST TYPE NOT VALID");
                     break;
                 }
             }
+
         } catch (IOException ex) {
             result.setMessage(ex.toString());
         }

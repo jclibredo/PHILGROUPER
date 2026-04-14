@@ -7,7 +7,6 @@ package grouper.methods.library;
 
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
-import grouper.structures.ICD10;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;

@@ -259,7 +259,7 @@ public class SeekerMethods {
                 user.setOtpdatecreated(resultset.getString("OTPDATECREATED") == null
                         || resultset.getString("OTPDATECREATED").isEmpty()
                         || resultset.getString("OTPDATECREATED").equals("") ? "N/A" : datetimeformat.format(resultset.getTimestamp("OTPDATECREATED")));
-                result.setMessage("OK");
+                result.setMessage(user.getName()+" | "+user.getEmail());
                 result.setSuccess(true);
                 result.setResult(utility.objectMapper().writeValueAsString(user));
             } else {
@@ -353,8 +353,8 @@ public class SeekerMethods {
                         final String otpcode = utility.Create2FACode().toUpperCase().trim();
                         if (this.POSTOTP(dataSource, userA.getUserid(), otpcode).isSuccess()) {
                             //SEND OTP CODE TO GMAIL
-                            if (this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).isSuccess()) {
-//                            if (this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).isSuccess()) {
+//                            if (this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).isSuccess()) {
+                            if (this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).isSuccess()) {
                                 SeekerUser user = new SeekerUser();
                                 user.setUserid(userA.getUserid());
                                 user.setCreatedby(userA.getCreatedby());
@@ -371,8 +371,8 @@ public class SeekerMethods {
                                 result.setSuccess(true);
                                 result.setResult(utility.objectMapper().writeValueAsString(user));
                             } else {
-                                result.setMessage(this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).getMessage());
-//                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
+//                                result.setMessage(this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).getMessage());
+                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
                             }
                         } else {
                             result.setMessage(this.POSTOTP(dataSource, userA.getUserid(), otpcode).getMessage());

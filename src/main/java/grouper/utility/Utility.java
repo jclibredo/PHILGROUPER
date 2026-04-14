@@ -246,6 +246,7 @@ public class Utility {
 //                        if (new SeekerMethods().ValidatePayloadValue(dataSource, this.DecryptString((String) claims.get("Code1")), this.DecryptString((String) claims.get("Code2")), "10000").isSuccess()) {
                         result.setSuccess(true);
                         result.setResult(this.objectMapper().writeValueAsString(payload));
+                        result.setMessage(payload.getCode1());
 //                        } else {
 //                            result.setMessage("Unrecognized User");
 //                        }
