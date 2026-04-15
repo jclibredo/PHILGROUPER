@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
@@ -36,6 +34,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -50,6 +50,8 @@ public class GrouperTesting {
 
     @Resource(lookup = "jdbc/grouperuser")
     private DataSource datasource;
+
+    private final Logger logger = (Logger) LogManager.getLogger(GrouperTesting.class);
     private final Utility utility = new Utility();
 
     @POST
@@ -93,7 +95,8 @@ public class GrouperTesting {
 
         } catch (Exception ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GrouperTesting.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing JasonData API end point");
+            logger.error("Error in JasonData API end point : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -372,7 +375,8 @@ public class GrouperTesting {
             }
         } catch (ParseException | IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GrouperTesting.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing ProcessData Method");
+            logger.error("Error in ProcessData Method : {}", ex.getMessage(), ex);
             // File writer
 //            this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
         }
@@ -399,8 +403,8 @@ public class GrouperTesting {
 
             }
         } catch (IOException ex) {
-            Logger.getLogger(GrouperTesting.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing File writer Method");
+            logger.error("Error in File writer Method : {}", ex.getMessage(), ex);
         }
     }
 

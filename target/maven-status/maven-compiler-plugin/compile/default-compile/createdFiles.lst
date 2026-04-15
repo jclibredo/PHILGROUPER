@@ -16,6 +16,7 @@ drgseeker\utilities\SeekerMethods$1.class
 grouper\methods\validation\PDxMalignancy.class
 grouper\methods\validation\CleanSDxDCDeterminationPLSQL.class
 grouper\methods\validation\COUNTBMDCICD10CODE.class
+grouper\methods\library\ServiceUserActivity.class
 grouper\methods\library\ServicesI10VX.class
 grouper\structures\PDCHierar.class
 grouper\methods\library\ServiceDashboard.class
@@ -44,7 +45,6 @@ grouper\methods\validation\GETPATIENTBDAY.class
 grouper\GrouperTesting.class
 grouper\methods\validation\UpdateDRGResult.class
 grouper\methods\mdc\GetMDC19.class
-grouper\utility\GrouperMethod.class
 grouper\methods\premdc\ProcessMDC.class
 grouper\methods\validation\GetICD10PreMDC.class
 grouper\methods\validation\AX.class
@@ -54,6 +54,7 @@ grouper\methods\mdc\GetMDC12.class
 grouper\LibraryManagement.class
 grouper\methods\mdc\GetMDC07.class
 grouper\methods\mdc\GetMDC01.class
+grouper\structures\UserLogs.class
 grouper\methods\validation\MajorORPRrocedure.class
 grouper\methods\premdc\ProcessGrouperParameter.class
 grouper\utility\Cryptor.class

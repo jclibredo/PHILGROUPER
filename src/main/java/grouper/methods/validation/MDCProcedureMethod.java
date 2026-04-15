@@ -12,23 +12,22 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author MinoSun
  */
-
 @RequestScoped
 public class MDCProcedureMethod {
 
     public MDCProcedureMethod() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(MDCProcedureMethod.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult MDCProcedure(final DataSource datasource, String icd9code, final String mdcs) {
@@ -64,7 +63,8 @@ public class MDCProcedureMethod {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(MDCProcedureMethod.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing MDCProcedure Method");
+            logger.error("Error in MDCProcedure Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

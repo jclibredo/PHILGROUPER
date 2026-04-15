@@ -10,11 +10,11 @@ import grouper.utility.Utility;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -25,7 +25,7 @@ public class GETPATIENTBDAY {
 
     public GETPATIENTBDAY() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(GETPATIENTBDAY.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GETPATIENTBDAY(
@@ -55,7 +55,8 @@ public class GETPATIENTBDAY {
             }
         } catch (Exception ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GETPATIENTBDAY.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing Get patient birthday Method");
+            logger.error("Error in Get patient birthday Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

@@ -11,18 +11,22 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author MinoSun
  */
+@RequestScoped
 public class CleanSDxDCDetermination {
 
     public CleanSDxDCDetermination() {
     }
+
+    private final Logger logger = (Logger) LogManager.getLogger(CleanSDxDCDetermination.class);
 
     public String CleanSDxDCDetermination(
             final DataSource datasource,
@@ -239,7 +243,8 @@ public class CleanSDxDCDetermination {
 
         } catch (NumberFormatException ex) {
             result = "Something went wrong";
-            Logger.getLogger(CleanSDxDCDetermination.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing clean SDX DC determination Method");
+            logger.error("Error in clean SDX DC determination Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

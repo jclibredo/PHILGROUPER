@@ -12,11 +12,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -27,6 +27,7 @@ public class GetPCOM {
 
     public GetPCOM() {
     }
+    private final Logger logger = LogManager.getLogger(GetPCOM.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetPCOM(final DataSource datasource, final String code1, final String code2) {
@@ -56,7 +57,8 @@ public class GetPCOM {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GetPCOM.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetPCOM Method");
+            logger.error("Error in GetPCOM Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

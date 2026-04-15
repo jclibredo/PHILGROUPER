@@ -13,11 +13,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -28,6 +28,7 @@ public class PDXandMDC {
 
     public PDXandMDC() {
     }
+    private final Logger logger = (Logger) LogManager.getLogger(PDXandMDC.class);
     private final Utility utility = new Utility();
 
     //PDX used to find MDC
@@ -67,7 +68,8 @@ public class PDXandMDC {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(PDXandMDC.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing PDXandMDC Method");
+            logger.error("Error in PDXandMDC Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,6 +26,7 @@ public class ORProcedure {
 
     public ORProcedure() {
     }
+    private final Logger logger = (Logger) LogManager.getLogger(ORProcedure.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult ORProcedure(final DataSource datasource, final String orpCode) {
@@ -46,7 +47,8 @@ public class ORProcedure {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ORProcedure.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing ORProcedure Method");
+            logger.error("Error in ORProcedure Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

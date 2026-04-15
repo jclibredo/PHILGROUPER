@@ -14,11 +14,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,7 @@ public class SeekerICD10 {
 
     public SeekerICD10() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(SeekerICD10.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult SeekerICD10(final DataSource datasource) {
@@ -58,35 +58,8 @@ public class SeekerICD10 {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(SeekerICD10.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return result;
-    }
-
-    public DRGWSResult INSERT_ICD10(final DataSource datasource,
-            final String validcode,
-            final String description,
-            final String code) {
-        DRGWSResult result = utility.DRGWSResult();
-        result.setResult("");
-        result.setMessage("");
-        result.setSuccess(false);
-        try (Connection connection = datasource.getConnection()) {
-            CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.INSERT_ICD10(:Message,:Code,"
-                    + ":u_val,:u_desc,:u_code)");
-            auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
-            auditrail.registerOutParameter("Code", OracleTypes.INTEGER);
-            auditrail.setString("u_val", validcode);
-            auditrail.setString("u_desc", description);
-            auditrail.setString("u_code", code);
-            auditrail.execute();
-            if (auditrail.getString("Message").equals("SUCC")) {
-                result.setSuccess(true);
-                result.setMessage(auditrail.getString("Message"));
-            }
-        } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            Logger.getLogger(SeekerICD10.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing SeekerICD10 Method");
+            logger.error("Error in SeekerICD10 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

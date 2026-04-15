@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,6 +26,7 @@ public class GetDA {
 
     public GetDA() {
     }
+    private final Logger logger = (Logger) LogManager.getLogger(GetDA.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetDA(final DataSource datasource, final String dagger, final String asterisk) {
@@ -45,7 +46,8 @@ public class GetDA {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GetDA.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetDA Method");
+            logger.error("Error in GetDA Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

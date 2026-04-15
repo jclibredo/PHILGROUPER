@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -35,6 +35,8 @@ public class ValidateFindMDC {
 
     public ValidateFindMDC() {
     }
+
+    private final Logger logger = (Logger) LogManager.getLogger(ValidateFindMDC.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult ValidateFindMDC(final DataSource datasource, final GrouperParameter grouperparameter) throws ParseException {
@@ -196,7 +198,8 @@ public class ValidateFindMDC {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ValidateFindMDC.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing Find MDC Method");
+            logger.error("Error in Find MDC Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -223,114 +226,4 @@ public class ValidateFindMDC {
         }
 
     }
-
-//    public DRGWSResult ValidateFindMDC(final DataSource datasource, final GrouperParameter grouperparameter) throws ParseException {
-//        DRGWSResult result = utility.DRGWSResult();
-//        result.setSuccess(false);
-//        DRGOutput drgResult = new DRGOutput();
-//        drgResult.setWarningerror(grouperparameter.getWarningerror());
-//        
-//        try {
-//            // 1. Process Procedures efficiently
-//            List<String> procList = Arrays.stream(grouperparameter.getProc().split(","))
-//                    .map(String::trim)
-//                    .collect(Collectors.toList());
-//            
-//            Set<String> combiCodes = new LinkedHashSet<>();
-//            Set<Integer> negativeIndices = new HashSet<>();
-//            GetPCOM pcomService = new GetPCOM();
-//
-//            // Optimized nested loop: only iterate what is necessary
-//            for (int y = 0; y < procList.size(); y++) {
-//                String dataA = procList.get(y).replace(">1", "").trim();
-//                for (int w = 0; w < procList.size(); w++) {
-//                    String dataB = procList.get(w).replace(">1", "").trim();
-//                    
-//                    DRGWSResult pcomResult = pcomService.GetPCOM(datasource, dataA, dataB);
-//                    if (pcomResult.isSuccess()) {
-//                        combiCodes.add(pcomResult.getResult());
-//                        negativeIndices.add(y);
-//                        negativeIndices.add(w);
-//                    }
-//                }
-//            }
-//
-//            // 2. Secondary Diagnosis (SDx) Validation
-//            List<String> sdxList = new ArrayList<>(Arrays.asList(grouperparameter.getSdx().split(",")));
-//            List<Boolean> asterisk = new ArrayList<>();
-//            GetDA daService = new GetDA();
-//            sdxList.forEach((sdx) -> {
-//                asterisk.add(daService.GetDA(datasource, grouperparameter.getPdx(), sdx.trim()).isSuccess());
-//            });
-//            // 3. Handle Swapping Logic
-//            SDxPDx swapping = new SDxPDx();
-//            int swapIndex = asterisk.indexOf(true);
-//            boolean hasSwap = swapIndex != -1;
-//            
-//            if (hasSwap) {
-//                swapping.setNewpdx(sdxList.get(swapIndex));
-//                sdxList.set(swapIndex, grouperparameter.getPdx());
-//                swapping.setNewsdx(String.join(",", sdxList));
-//            } else {
-//                swapping.setNewpdx(grouperparameter.getPdx());
-//                swapping.setNewsdx(grouperparameter.getSdx());
-//            }
-//
-//            // 4. Validations
-//            DRGWSResult icd10Check = new GetICD10PreMDC().GetICD10PreMDC(datasource, swapping.getNewpdx());
-//            DRGWSResult sexCheck = new GenderConfictValidation().GenderConfictValidation(datasource, swapping.getNewpdx(), grouperparameter.getGender());
-//            long age = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
-//            
-//            if (!icd10Check.isSuccess() || age > 124 || !sexCheck.isSuccess()) {
-//                return buildErrorResult(result, drgResult, swapping.getNewpdx(), age > 124 ? "age" : "pdx");
-//            }
-//
-//            // 5. Finalize Parameters and Execute
-//            GrouperParameter newParam = cloneParams(grouperparameter);
-//            newParam.setPdx(swapping.getNewpdx());
-//            newParam.setSdx(swapping.getNewsdx());
-//            
-//            if (!negativeIndices.isEmpty()) {
-//                CombinationCode combo = new CombinationCode();
-//                combo.setComcode(String.join(",", combiCodes));
-//                combo.setIndexlist(negativeIndices.stream().map(procList::get).collect(Collectors.joining(",")));
-//                combo.setProclist(String.join(",", procList));
-//                newParam.setProc(utility.ProcedureExecute(combo));
-//            } else {
-//                newParam.setProc(String.join(",", procList));
-//            }
-//            return new GetValidatedPreMDC().GetValidatedPreMDC(datasource, newParam);
-//        } catch (IOException ex) {
-//            result.setMessage("Something went wrong");
-//            Logger.getLogger(ValidateFindMDC.class.getName()).log(Level.SEVERE, null, ex);
-//            return result;
-//        }
-//    }
-//
-//    // Helper to avoid duplicate code for Error Building
-//    private DRGWSResult buildErrorResult(DRGWSResult res, DRGOutput drg, String pdx, String type) throws IOException {
-//        drg.setDRG("26509");
-//        drg.setDC("2650");
-//        drg.setDRGName("Error with " + type + " : " + pdx);
-//        res.setResult(utility.objectMapper().writeValueAsString(drg));
-//        res.setSuccess(true);
-//        return res;
-//    }
-//
-//    // Helper to clone GrouperParameter
-//    private GrouperParameter cloneParams(GrouperParameter old) {
-//        GrouperParameter n = new GrouperParameter();
-//        n.setAdmissionDate(old.getAdmissionDate());
-//        n.setAdmissionWeight(old.getAdmissionWeight());
-//        n.setBirthDate(old.getBirthDate());
-//        n.setDischargeDate(old.getDischargeDate());
-//        n.setDischargeType(old.getDischargeType());
-//        n.setExpireTime(old.getExpireTime());
-//        n.setExpiredDate(old.getExpiredDate());
-//        n.setGender(old.getGender());
-//        n.setTimeAdmission(old.getTimeAdmission());
-//        n.setTimeDischarge(old.getTimeDischarge());
-//        n.setTimeOfBirth(old.getTimeOfBirth());
-//        return n;
-//    }
 }

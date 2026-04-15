@@ -17,11 +17,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -32,6 +32,7 @@ public class GetGrouper {
 
     public GetGrouper() {
     }
+    private final Logger logger = (Logger) LogManager.getLogger(GetGrouper.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetGrouper(final DataSource datasource, final String tagss) {
@@ -200,7 +201,8 @@ public class GetGrouper {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GetGrouper.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetGrouper Method");
+            logger.error("Error in GetGrouper Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

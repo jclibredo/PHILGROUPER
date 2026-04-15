@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -38,7 +38,7 @@ public class GetMDC14 {
 
     public GetMDC14() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC14.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC14(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
@@ -653,7 +653,8 @@ public class GetMDC14 {
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GetMDC04.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing MDC14 Method");
+            logger.error("Error in MDC14 Method : {}", ex.getMessage(), ex);
         }
 
         return result;

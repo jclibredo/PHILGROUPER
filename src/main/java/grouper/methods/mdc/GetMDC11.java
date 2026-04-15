@@ -20,10 +20,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -34,7 +34,7 @@ public class GetMDC11 {
 
     public GetMDC11() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC11.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC11(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
@@ -153,53 +153,6 @@ public class GetMDC11 {
                     processDefaultPDC(drgResult, grouperparameter, utility, CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter11PCX, PBX99Proc, Counter11PBX);
                 }
             }
-
-            //SECOND STAGE OF PROCESS
-//            DRG drgService = new DRG();
-//            String dc = drgResult.getDC();
-//            String currentDrg = drgResult.getDRG();
-//            if (currentDrg == null) {
-//                if (utility.isValidDCList(dc)) {
-//                    drgResult.setDRG(dc + "9");
-//                } else {
-//                    // 2. Extract complex logic into a single call
-//                    String sdxfinalList = new CleanSDxDCDeterminationPLSQL()
-//                            .CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), dc);
-//                    DRGWSResult pcclResult = new GetPCCL().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
-//                    if (pcclResult.isSuccess()) {
-//                        DRGOutput finalOutput = utility.objectMapper().readValue(pcclResult.getResult(), DRGOutput.class);
-//                        String finalDrg = finalOutput.getDRG();
-//                        // 3. Cache the DRG lookup result to avoid calling it twice in the if/else
-//                        DRGWSResult drgLookup = drgService.DRG(datasource, dc, finalDrg);
-//                        if (drgLookup.isSuccess()) {
-//                            drgResult.setDRG(finalDrg);
-//                            drgResult.setDRGName(drgLookup.getMessage());
-//                        } else {
-//                            // 4. Fallback logic
-//                            DRGWSResult validatedPccl = new ValidatePCCL().ValidatePCCL(datasource, dc, finalDrg);
-//                            if (validatedPccl.isSuccess()) {
-//                                String fullDrg = dc + validatedPccl.getResult();
-//                                drgResult.setDRG(fullDrg);
-//                                // Get name for the newly constructed DRG
-//                                drgResult.setDRGName(drgService.DRG(datasource, dc, fullDrg).getMessage());
-//                            } else {
-//                                drgResult.setDRG(finalDrg);
-//                                drgResult.setDRGName("Grouper Error");
-//                            }
-//                        }
-//                    } else {
-//                        drgResult.setDRG(dc + "X");
-//                        drgResult.setDRGName("Grouper Error");
-//                    }
-//                }
-//            } else {
-//                // 5. Handle the case where DRG is already present
-//                DRGWSResult drgLookup = drgService.DRG(datasource, dc, currentDrg);
-//                drgResult.setDRGName(drgLookup.isSuccess() ? drgLookup.getMessage() : "Grouper Error");
-//            }
-//            result.setSuccess(true);
-//            result.setResult(utility.objectMapper().writeValueAsString(drgResult));
-//            result.setMessage("MDC 11 Done Checking");
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
@@ -210,7 +163,8 @@ public class GetMDC11 {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GetMDC11.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing MDC11 Method");
+            logger.error("Error in MDC11 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

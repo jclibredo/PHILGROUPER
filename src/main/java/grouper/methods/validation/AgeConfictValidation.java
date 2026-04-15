@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,30 +26,8 @@ public class AgeConfictValidation {
 
     public AgeConfictValidation() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(AgeConfictValidation.class);
     private final Utility utility = new Utility();
-
-    // GET AGE VALIDATION THIS AREA
-//    public DRGWSResult AgeConfictValidation(final DataSource datasource,
-//            final String p_pdx_code,
-//            final String age_day,
-//            final String age_min_year) {
-//        DRGWSResult result = utility.DRGWSResult();
-//        result.setMessage("");
-//        result.setResult("");
-//        result.setSuccess(false);
-//        if (new GetICD10().GetICD10(datasource, p_pdx_code).isSuccess()) {
-//            if (this.ProcessAgeConflict(datasource, p_pdx_code, age_day, age_min_year).isSuccess()) {
-//                result.setSuccess(true);
-//            } else {
-//                if (this.ProcessAgeConflict(datasource,
-//                        p_pdx_code.substring(0, p_pdx_code.length() - 1).replaceAll("\\.", "").toUpperCase().trim(), age_day, age_min_year).isSuccess()) {
-//                    result.setSuccess(true);
-//                }
-//            }
-//        }
-//        return result;
-//    }
 
     public DRGWSResult AgeConfictValidation(
             final DataSource datasource,
@@ -73,7 +51,8 @@ public class AgeConfictValidation {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(AgeConfictValidation.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing Age conflict validation Method");
+            logger.error("Error in Age conflict validation Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

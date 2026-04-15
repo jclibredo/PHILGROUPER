@@ -21,10 +21,10 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -35,6 +35,8 @@ public class ProcessGrouperParameter {
 
     public ProcessGrouperParameter() {
     }
+
+    private final Logger logger = (Logger) LogManager.getLogger(ProcessGrouperParameter.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult ProcessGrouperParameter(
@@ -298,7 +300,8 @@ public class ProcessGrouperParameter {
             }
         } catch (ParseException | IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ProcessGrouperParameter.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing Process Grouper Parameter Method");
+            logger.error("Error in Process Grouper Parameter Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

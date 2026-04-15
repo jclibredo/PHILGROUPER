@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,6 +26,8 @@ public class TRAUMAICD10 {
 
     public TRAUMAICD10() {
     }
+
+    private final Logger logger = (Logger) LogManager.getLogger(TRAUMAICD10.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult TRAUMAICD10(final DataSource datasource, final String sdx) {
@@ -45,7 +47,8 @@ public class TRAUMAICD10 {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(TRAUMAICD10.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing TRAUMAICD10 Method");
+            logger.error("Error in TRAUMAICD10 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

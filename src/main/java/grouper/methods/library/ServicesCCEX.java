@@ -7,7 +7,6 @@ package grouper.methods.library;
 
 import grouper.structures.CCEX;
 import grouper.structures.DRGWSResult;
-import grouper.structures.ICD10;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -15,11 +14,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -30,7 +29,7 @@ public class ServicesCCEX {
 
     public ServicesCCEX() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(ServicesCCEX.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetCCEX(final DataSource datasource) {
@@ -57,7 +56,8 @@ public class ServicesCCEX {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ServicesCCEX.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetCCEX Method");
+            logger.error("Error in GetCCEX Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -84,7 +84,8 @@ public class ServicesCCEX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ServicesCCEX.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing CreateCCEX Method");
+            logger.error("Error in CreateCCEX Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -106,7 +107,8 @@ public class ServicesCCEX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ServicesCCEX.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing DeleteCCEX Method");
+            logger.error("Error in DeleteCCEX Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

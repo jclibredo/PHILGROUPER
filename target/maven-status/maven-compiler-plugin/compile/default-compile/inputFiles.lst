@@ -15,6 +15,7 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\BMDCPreMDCResult.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\CCEX.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\AX.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\UserLogs.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\MDCProcedureMethod.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\CleanSDxDCDetermination.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetPDCUsePDx.java
@@ -53,6 +54,7 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\library\Se
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\MDC.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\Grouper.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC16.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\library\ServiceUserActivity.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\drgseeker\utilities\SeekerMethods.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetGrouper.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\GrouperParameter.java
@@ -115,7 +117,6 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\seeker\See
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\Endovasc.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\CombinationCode.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\drgseeker\utilities\DataWarehouse.java
-D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\utility\GrouperMethod.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\MDCProcedure.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\PDxMalignancy.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\GrouperTesting.java

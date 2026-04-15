@@ -14,11 +14,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,7 @@ public class ServicesI10VX {
 
     public ServicesI10VX() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(ServicesI10VX.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetIcd10(final DataSource datasource) {
@@ -57,7 +57,8 @@ public class ServicesI10VX {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ServicesI10VX.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetIcd10 Method");
+            logger.error("Error in GetIcd10 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -86,12 +87,13 @@ public class ServicesI10VX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ServicesI10VX.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing CreateIcd10 Method");
+            logger.error("Error in CreateIcd10 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
-    
-     public DRGWSResult DeleteIcd10(final DataSource datasource) {
+
+    public DRGWSResult DeleteIcd10(final DataSource datasource) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
@@ -108,7 +110,8 @@ public class ServicesI10VX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ServicesI10VX.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing DeleteIcd10 Method");
+            logger.error("Error in DeleteIcd10 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

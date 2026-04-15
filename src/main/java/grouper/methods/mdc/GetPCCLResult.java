@@ -14,10 +14,10 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -28,7 +28,7 @@ public class GetPCCLResult {
 
     public GetPCCLResult() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(GetPCCLResult.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetPCCLResult(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
@@ -85,7 +85,8 @@ public class GetPCCLResult {
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
         } catch (IOException | NumberFormatException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GetPCCLResult.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetPCCLResult Method");
+            logger.error("Error in GetPCCLResult Method : {}", ex.getMessage(), ex);
         }
 
         return result;

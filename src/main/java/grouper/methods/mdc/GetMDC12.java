@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -33,6 +33,7 @@ import javax.sql.DataSource;
 @RequestScoped
 public class GetMDC12 {
 
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC12.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC12(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
@@ -329,51 +330,6 @@ public class GetMDC12 {
                         break;
                 }
             }
-
-//            if (drgResult.getDRG() == null) {
-//                //-------------------------------------------------------------------------------------
-//                if (utility.isValidDCList(drgResult.getDC())) {
-//                    drgResult.setDRG(drgResult.getDC() + "9");
-//                } else {
-//                    //----------------------------------------------------------------------
-//                    //  String sdxfinalList = gm.CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-//                    String sdxfinalList = gm.CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-//                    DRGWSResult getpcclvalue = gm.GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
-//                    if (getpcclvalue.isSuccess()) {
-//                        DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
-//                        String drgValue = finaldrgresult.getDRG();
-//                        DRGWSResult drgname = gm.DRG(datasource, drgResult.getDC(), drgValue);
-//                        //-----------------------------------------------------------------------
-//                        if (drgname.isSuccess()) {
-//                            drgResult.setDRG(drgValue);
-//                            drgResult.setDRGName(drgname.getMessage());
-//                        } else {
-//                            DRGWSResult drgvalues = gm.ValidatePCCL(datasource, drgResult.getDC(), drgValue);
-//                            if (drgvalues.isSuccess()) {
-//                                drgResult.setDRG(drgResult.getDC() + drgvalues.getResult());
-//                                DRGWSResult drgnames = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
-//                                drgResult.setDRGName(drgnames.getMessage());
-//                            } else {
-//                                drgResult.setDRG(drgValue);
-//                                drgResult.setDRGName("Grouper Error");
-//                            }
-//                        }
-//                    } else {
-//                        drgResult.setDRG("00000");
-//                        drgResult.setDRGName("Grouper Error");
-//                    }
-//                }
-//                result.setSuccess(true);
-//                //----------------------------------------------------------------------
-//            } else {
-//                result.setSuccess(true);
-//                DRGWSResult drgname = gm.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
-//                if (drgname.isSuccess()) {
-//                    drgResult.setDRGName(drgname.getMessage());
-//                } else {
-//                    drgResult.setDRGName("Grouper Error");
-//                }
-//            }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
@@ -382,12 +338,10 @@ public class GetMDC12 {
             } else {
                 result = getPCCLResult;
             }
-
-//            result.setMessage("MDC 12 Done Checking");
-//            result.setResult(utility.objectMapper().writeValueAsString(drgResult));
         } catch (IOException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(GetMDC12.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing MDC12 Method");
+            logger.error("Error in MDC12 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

@@ -9,11 +9,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -24,6 +24,7 @@ public class GetCCLValue {
 
     public GetCCLValue() {
     }
+    private final Logger logger = (Logger) LogManager.getLogger(GetCCLValue.class);
 
     public int GetCCLValue(final DataSource datasource, final String dccol, final String ccrows) {
         int result = 0;
@@ -41,7 +42,8 @@ public class GetCCLValue {
                 result = Integer.parseInt(cclval);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(GetCCLValue.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetCCLValue Method");
+            logger.error("Error in GetCCLValue Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

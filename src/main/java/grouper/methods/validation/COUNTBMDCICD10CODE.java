@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,7 @@ public class COUNTBMDCICD10CODE {
 
     public COUNTBMDCICD10CODE() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(COUNTBMDCICD10CODE.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult COUNTBMDCICD10CODE(final DataSource datasource, final String icd10code) {
@@ -47,7 +47,8 @@ public class COUNTBMDCICD10CODE {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(COUNTBMDCICD10CODE.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing count bmdc Method");
+            logger.error("Error in count bmdc Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

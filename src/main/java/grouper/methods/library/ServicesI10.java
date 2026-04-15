@@ -14,11 +14,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,7 @@ public class ServicesI10 {
 
     public ServicesI10() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(ServicesI10.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetIcd10PreMDC(final DataSource datasource) {
@@ -68,7 +68,8 @@ public class ServicesI10 {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ServicesI10.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetIcd10PreMDC Method");
+            logger.error("Error in GetIcd10PreMDC Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -119,7 +120,8 @@ public class ServicesI10 {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ServicesI10.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing CreateIcd10PreMdc Method");
+            logger.error("Error in CreateIcd10PreMdc Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -141,7 +143,8 @@ public class ServicesI10 {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(ServicesI10.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing DeleteIcd10PreMdc Method");
+            logger.error("Error in DeleteIcd10PreMdc Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

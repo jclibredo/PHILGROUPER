@@ -7,9 +7,9 @@ package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
 import grouper.utility.Utility;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -19,77 +19,9 @@ public class ValidatePCCL {
 
     public ValidatePCCL() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(ValidatePCCL.class);
     private final Utility utility = new Utility();
 
-//    public DRGWSResult ValidatePCCL(final DataSource datasource, final String dcs, final String drgs) {
-//        DRGWSResult result = utility.DRGWSResult();
-//        result.setMessage("");
-//        result.setResult("");
-//        result.setSuccess(false);
-//        try {
-//            String cclval = drgs.substring(5 - 1, 5);
-//            switch (Integer.parseInt(cclval)) {
-//                case 4: {
-//                    if (new DRG().DRG(datasource, dcs, dcs + "3").isSuccess()) {
-//                        result.setResult("3");
-//
-//                    } else if (new DRG().DRG(datasource, dcs, dcs + "2").isSuccess()) {
-//                        result.setResult("2");
-//
-//                    } else if (new DRG().DRG(datasource, dcs, dcs + "1").isSuccess()) {
-//                        result.setResult("1");
-//                    }
-//                    result.setSuccess(true);
-//                    break;
-//                }
-//                case 3: {
-//                    if (new DRG().DRG(datasource, dcs, dcs + "4").isSuccess()) {
-//                        result.setResult("4");
-//                    } else if (new DRG().DRG(datasource, dcs, dcs + "2").isSuccess()) {
-//                        result.setResult("2");
-//                    } else if (new DRG().DRG(datasource, dcs, dcs + "1").isSuccess()) {
-//                        result.setResult("1");
-//                    }
-//                    result.setSuccess(true);
-//                    break;
-//                }
-//                case 2: {
-//                    if (new DRG().DRG(datasource, dcs, dcs + "3").isSuccess()) {
-//                        result.setResult("3");
-//                    } else if (new DRG().DRG(datasource, dcs, dcs + "4").isSuccess()) {
-//                        result.setResult("4");
-//                    } else if (new DRG().DRG(datasource, dcs, dcs + "1").isSuccess()) {
-//                        result.setResult("1");
-//                    }
-//                    result.setSuccess(true);
-//                    break;
-//                }
-//                case 1: {
-//                    if (new DRG().DRG(datasource, dcs, dcs + "2").isSuccess()) {
-//                        result.setResult("2");
-//                    } else if (new DRG().DRG(datasource, dcs, dcs + "3").isSuccess()) {
-//                        result.setResult("3");
-//                    } else if (new DRG().DRG(datasource, dcs, dcs + "4").isSuccess()) {
-//                        result.setResult("4");
-//                    }
-//                    result.setSuccess(true);
-//                    break;
-//                }
-//                case 0: {
-//                    if (new DRG().DRG(datasource, dcs, dcs + "0").isSuccess()) {
-//                        result.setResult("0");
-//                    }
-//                    result.setSuccess(true);
-//                    break;
-//                }
-//            }
-//        } catch (NumberFormatException ex) {
-//            result.setMessage("Something went wrong");
-//            Logger.getLogger(ValidatePCCL.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return result;
-//    }
     //Get Validate PCCL Value
     public DRGWSResult ValidatePCCL(final DataSource datasource, final String dcs, final String drgs) {
         DRGWSResult result = utility.DRGWSResult();
@@ -168,7 +100,8 @@ public class ValidatePCCL {
 
         } catch (NumberFormatException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(ValidatePCCL.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing ValidatePCCL Method");
+            logger.error("Error in ValidatePCCL Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

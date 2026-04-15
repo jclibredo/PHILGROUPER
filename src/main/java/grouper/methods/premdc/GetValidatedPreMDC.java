@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -34,11 +34,13 @@ import javax.sql.DataSource;
  */
 @RequestScoped
 public class GetValidatedPreMDC {
-    
+
     public GetValidatedPreMDC() {
     }
+
+    private final Logger logger = (Logger) LogManager.getLogger(GetValidatedPreMDC.class);
     private final Utility utility = new Utility();
-    
+
     public DRGWSResult GetValidatedPreMDC(final DataSource datasource, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
@@ -107,7 +109,7 @@ public class GetValidatedPreMDC {
                 int PDC0PB = 0;
                 int PDC0PD = 0;
                 int PDC0PA = 0;
-                
+
                 if (checkAx.AX(datasource, "0CX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0CX++;
                 }
@@ -133,7 +135,7 @@ public class GetValidatedPreMDC {
                         if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PA", "0").isSuccess()) {
                             PDC0PA++;
                         }
-                        
+
                     }
                 }
                 //Proc Validation for MDC 24
@@ -251,7 +253,7 @@ public class GetValidatedPreMDC {
                                     utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                     grouperparameter.getDischargeDate(),
                                     utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0) {
-                        
+
                         if (utility.ComputeTime(grouperparameter.getAdmissionDate(),
                                 utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                 grouperparameter.getDischargeDate(),
@@ -295,7 +297,7 @@ public class GetValidatedPreMDC {
                     } else {
                         drgResult.setMDC(icd10Result.getMDC());
                         drgResult.setPDC(icd10Result.getPDC());
-                        
+
                     }
                 }
             }
@@ -303,9 +305,9 @@ public class GetValidatedPreMDC {
             //END OF PARSING PART
             ProcessMDC getMDC = new ProcessMDC();
             if (drgResult.getDRG() == null) {
-                
+
                 if (drgResult.getMDC().equals("30")) {
-                    
+
                     if (drgResult.getPDC().isEmpty()) {
                         drgResult.setDRG("26519");
                         drgResult.setDC("2651");
@@ -336,7 +338,7 @@ public class GetValidatedPreMDC {
                 } else {
                     result = getMDC.ProcessMDC(datasource, drgResult, grouperparameter);
                 }
-                
+
             } else {
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
@@ -344,9 +346,10 @@ public class GetValidatedPreMDC {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GetValidatedPreMDC.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing Pre-MDC Validation Method");
+            logger.error("Error in Pre-MDC Validation Method : {}", ex.getMessage(), ex);
         }
-        
+
         return result;
     }
 }

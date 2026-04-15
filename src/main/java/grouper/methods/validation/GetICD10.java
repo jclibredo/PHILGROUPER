@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,6 +26,7 @@ public class GetICD10 {
 
     public GetICD10() {
     }
+    private final Logger logger = (Logger) LogManager.getLogger(GetICD10.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetICD10(final DataSource datasource, final String p_icd10_code) {
@@ -48,7 +49,8 @@ public class GetICD10 {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GetICD10.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetICD10 Method");
+            logger.error("Error in GetICD10 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

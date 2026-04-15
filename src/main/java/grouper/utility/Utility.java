@@ -37,8 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -52,6 +50,8 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.xml.bind.DatatypeConverter;
 import okhttp3.OkHttpClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -64,7 +64,7 @@ public class Utility {
 
     public Utility() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(Utility.class);
     private static SecretKeySpec secretkey;
     private byte[] key;
     String regex = "^(?=.*[0-9])"
@@ -130,7 +130,8 @@ public class Utility {
             long AgeY = (difference_In_Time / (1000l * 60 * 60 * 24 * 365));
             result = AgeY > 124;
         } catch (ParseException ex) {
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing MaxAge Utility");
+            logger.error("Error in MaxAge Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -177,7 +178,8 @@ public class Utility {
             cipher.init(Cipher.ENCRYPT_MODE, secretkey);
             result = Base64.getEncoder().encodeToString(cipher.doFinal(string.getBytes("UTF-8"))).replaceAll("=", "");
         } catch (UnsupportedEncodingException | InvalidKeyException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException ex) {
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing EncryptString Utility");
+            logger.error("Error in EncryptString Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -192,7 +194,8 @@ public class Utility {
             key = Arrays.copyOf(key, 16);
             secretkey = new SecretKeySpec(key, "AES");
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing SetKey Utility");
+            logger.error("Error in SetKey Utility : {}", ex.getMessage(), ex);
         }
     }
 
@@ -216,7 +219,8 @@ public class Utility {
             result = new String(cipher.doFinal(Base64.getDecoder().decode(string)));
         } catch (InvalidKeyException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException ex) {
             result = ex.toString();
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing DecryptString Utility");
+            logger.error("Error in DecryptString Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -259,7 +263,8 @@ public class Utility {
             }
         } catch (ExpiredJwtException | MalformedJwtException | SignatureException | UnsupportedJwtException | IllegalArgumentException | IOException ex) {
             result.setMessage(ex.getLocalizedMessage());
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetPayload Utility");
+            logger.error("Error in GetPayload Utility : {}", ex.getMessage(), ex);
 
         }
         return result;
@@ -295,7 +300,8 @@ public class Utility {
             result = (int) Hours_difference;
         } catch (ParseException ex) {
             ex.getLocalizedMessage();
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing ComputeTime Utility");
+            logger.error("Error in ComputeTime Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -313,7 +319,8 @@ public class Utility {
 
             result = (int) Minutes;
         } catch (ParseException ex) {
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing MinutesCompute Utility");
+            logger.error("Error in MinutesCompute Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -328,7 +335,8 @@ public class Utility {
             long AgeY = (difference_In_Time / (1000l * 60 * 60 * 24 * 365));
             result = (int) AgeY;
         } catch (ParseException ex) {
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing ComputeYear Utility");
+            logger.error("Error in ComputeYear Utility : {}", ex.getMessage(), ex);
         }
         return result;
 
@@ -343,7 +351,8 @@ public class Utility {
             result = displayFormat.format(dates);
 
         } catch (ParseException ex) {
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing Convert12to24 Utility");
+            logger.error("Error in Convert12to24 Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -356,7 +365,8 @@ public class Utility {
             Date time24 = displayFormat.parse(times);
             result = parseFormat.format(time24);
         } catch (ParseException ex) {
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing Convert24to12 Utility");
+            logger.error("Error in Convert24to12 Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -372,7 +382,8 @@ public class Utility {
             result = (int) difference_In_Days;
         } catch (ParseException ex) {
             ex.getLocalizedMessage();
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing ComputeDay Utility");
+            logger.error("Error in ComputeDay Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -391,7 +402,8 @@ public class Utility {
 
         } catch (ParseException ex) {
             ex.getLocalizedMessage();
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing ComputeLOS Utility");
+            logger.error("Error in ComputeLOS Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -586,21 +598,6 @@ public class Utility {
     public SimpleDateFormat SimpleDateFormat(String pattern) {
         return new SimpleDateFormat(pattern);
     }
-
-//    public String GetString(String name) {
-//        String result = "";
-//        try {
-//            Context context = new InitialContext();
-//            Context environment = (Context) context.lookup("java:comp/env");
-//            result = (String) environment.lookup(name);
-//
-//        } catch (NamingException ex) {
-//            Logger.getLogger(Utility.class
-//                    .getName()).log(Level.SEVERE, null, ex);
-//            result = ex.getMessage();
-//        }
-//        return result;
-//    }
     public DRGWSResult GetString(String name) {
         DRGWSResult result = new DRGWSResult();
         result.setMessage("");
@@ -613,7 +610,8 @@ public class Utility {
             result.setSuccess(true);
         } catch (NamingException ex) {
             result.setMessage(ex.toString());
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetString Utility");
+            logger.error("Error in GetString Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -776,7 +774,8 @@ public class Utility {
         try {
             sf = this.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a").parse(stringdate);
         } catch (ParseException ex) {
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing StringToDate Utility");
+            logger.error("Error in StringToDate Utility : {}", ex.getMessage(), ex);
         }
         return sf;
     }

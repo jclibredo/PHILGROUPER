@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -36,7 +36,7 @@ public class GetMDC06 {
 
     public GetMDC06() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC06.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC06(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
@@ -624,54 +624,6 @@ public class GetMDC06 {
                         break;
                 }
             }
-
-//            drgResult.setPrepccl("X");
-//            drgResult.setFinalpccl("X");
-//            drgResult.setDRGName("Grouper Error");
-//            drgResult.setDRG(drgResult.getDC() + "X");
-//            DRG checkDRG = new DRG();
-//            if (drgResult.getDRG() == null) {
-//                if (utility.isValidDCList(drgResult.getDC())) {
-//                    drgResult.setDRG(drgResult.getDC() + "9");
-//                    drgResult.setPrepccl("9");
-//                    drgResult.setFinalpccl("9");
-//                } else {
-//                    //  String sdxfinalList =  new GrouperMethod().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-//                    String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-//                    DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
-//                    if (getpcclvalue.isSuccess()) {
-//                        DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
-//                        drgResult.setPrepccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
-//                        drgResult.setFinalpccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
-//                        drgResult.setDRG(finaldrgresult.getDRG());
-//                        if (checkDRG.DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
-//                            drgResult.setDRGName(checkDRG.DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
-//                        } else {
-//                            DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, drgResult.getDC(), finaldrgresult.getDRG());
-//                            if (drgvalues.isSuccess()) {
-//                                String drgcode = drgResult.getDC() + drgvalues.getResult();
-//                                drgResult.setDRG(drgcode);
-//                                DRGWSResult drgnames = checkDRG.DRG(datasource, drgResult.getDC(), drgcode);
-//                                if (drgnames.isSuccess()) {
-//                                    drgResult.setDRGName(drgnames.getMessage());
-//                                }
-//                                drgResult.setFinalpccl(drgcode.substring(drgcode.length() - 1));
-//                            } else {
-//                                drgResult.setDRGName("DRG code grouper provide not exist in the library");
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                if (checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-//                    drgResult.setDRGName(checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
-//                } else {
-//                    drgResult.setDRGName("DRG code grouper provide not exist in the library");
-//                }
-//            }
-//            result.setSuccess(true);
-//            result.setResult(utility.objectMapper().writeValueAsString(drgResult));
-//            result.setMessage("MDC 06 Done Checking");
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
@@ -683,7 +635,8 @@ public class GetMDC06 {
 
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GetMDC06.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing MDC6 Method");
+            logger.error("Error in MDC6 Method : {}", ex.getMessage(), ex);
         }
 
         return result;

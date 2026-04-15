@@ -13,6 +13,7 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -22,8 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
@@ -34,6 +33,9 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * REST Web Service
@@ -49,6 +51,8 @@ public class Grouper {
 
     @Resource(lookup = "jdbc/grouperuser")
     private DataSource datasource;
+
+    private final Logger logger = (Logger) LogManager.getLogger(Grouper.class);
     private final Utility utility = new Utility();
 
     //TRIGGER GROUPER METHOD TO GROUP
@@ -76,7 +80,8 @@ public class Grouper {
             }
         } catch (SQLException ex) {
             result = "Something went wrong";
-            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetServerDateTime");
+            logger.error("Error in GetServerDateTime: {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -113,7 +118,8 @@ public class Grouper {
             }
         } catch (Exception ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing ProcessGrouperParameter");
+            logger.error("Error in ProcessGrouperParameter: {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -162,7 +168,8 @@ public class Grouper {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing PhilSeeker");
+            logger.error("Error in PhilSeeker: {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -173,7 +180,7 @@ public class Grouper {
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GenerateToken(final DRGPayload payload) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setResult(utility.GenerateToken(payload.getCode1(), 
+        result.setResult(utility.GenerateToken(payload.getCode1(),
                 payload.getCode2(), utility.GetString("OtpExpiration").getResult()));
         result.setSuccess(true);
         return result;
@@ -194,8 +201,23 @@ public class Grouper {
             }
         } catch (IOException ex) {
             result = ex.toString();
-            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing GetVersion");
+            logger.error("Error in GetVersion: {}", ex.getMessage(), ex);
         }
         return result;
+    }
+
+    @GET
+    @Path("download-log")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response downloadLogFile() {
+        // This MUST match the fileName in the XML above
+        File logFile = new File("logs/drg-system/app-log.log");
+        if (!logFile.exists()) {
+            return Response.status(404).entity("Log file not found at " + logFile.getAbsolutePath()).build();
+        }
+        return Response.ok(logFile)
+                .header("Content-Disposition", "attachment; filename=drg-api-system.log")
+                .build();
     }
 }

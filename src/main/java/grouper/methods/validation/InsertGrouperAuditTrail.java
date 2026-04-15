@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,7 @@ public class InsertGrouperAuditTrail {
 
     public InsertGrouperAuditTrail() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(InsertGrouperAuditTrail.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult InsertGrouperAuditTrail(final DataSource datasource,
@@ -57,7 +57,8 @@ public class InsertGrouperAuditTrail {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(InsertGrouperAuditTrail.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing InsertGrouperAuditTrail Method");
+            logger.error("Error in InsertGrouperAuditTrail Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

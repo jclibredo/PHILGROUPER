@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -23,9 +23,11 @@ import oracle.jdbc.OracleTypes;
  */
 @RequestScoped
 public class Endovasc {
-    
+
     public Endovasc() {
     }
+
+    private final Logger logger = (Logger) LogManager.getLogger(Endovasc.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult Endovasc(final DataSource datasource, final String proce, final String pdcs, final String mdcs) {
@@ -46,7 +48,8 @@ public class Endovasc {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(Endovasc.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing Endovasc Method");
+            logger.error("Error in Endovasc Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

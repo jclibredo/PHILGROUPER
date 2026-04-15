@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,9 @@ public class GET_ICD9 {
 
     public GET_ICD9() {
     }
+    private final Logger logger = (Logger) LogManager.getLogger(GET_ICD9.class);
     private final Utility utility = new Utility();
+
     public DRGWSResult GetICD9cm(final DataSource datasource, final String procS) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -43,7 +45,8 @@ public class GET_ICD9 {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(GET_ICD9.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info("Executing Get ICD9CM Method");
+            logger.error("Error in Get ICD9CM Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

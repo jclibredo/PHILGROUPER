@@ -13,15 +13,11 @@ import grouper.methods.seeker.SeekerICD9cm;
 import grouper.methods.seeker.SeekerRVS;
 import grouper.structures.DRGWSResult;
 import grouper.utility.Cryptor;
-import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -55,26 +51,6 @@ public class Seeker {
     private Session session;
 
     private final Utility utility = new Utility();
-
-    @GET
-    @Path("GetServerDateTime")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String GetServerDateTime() {
-        String result = "";
-        try (Connection connection = dataSource.getConnection()) {
-            String query = "SELECT SYSDATE FROM DUAL";
-            NamedParameterStatement SDxVal = new NamedParameterStatement(connection, query);
-            SDxVal.execute();
-            ResultSet rest = SDxVal.executeQuery();
-            if (rest.next()) {
-                result = "SERVER DATE AND TIME : " + String.valueOf(utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a").format(rest.getDate("SYSDATE")));
-            }
-        } catch (SQLException ex) {
-            result = "Something went wrong";
-            Logger.getLogger(Seeker.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return result;
-    }
 
     /**
      * Retrieves representation of an instance of Seeker.Seeker
@@ -284,20 +260,7 @@ public class Seeker {
         result.setSuccess(true);
         return result;
     }
-
-    @GET
-    @Path("GenerateToken/{username}/{password}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult GenerateToken(
-            @PathParam("username") String username,
-            @PathParam("password") String password) {
-        DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("OK");
-        result.setSuccess(true);
-        result.setResult(utility.GenerateToken(username, password, "480000"));
-        return result;
-    }
-
+    
     //FOR HCF FRONT GUI
     @GET
     @Path("GetHcfToken")
