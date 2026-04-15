@@ -249,7 +249,6 @@ public class Seeker {
         return result;
     }
 
-
     @GET
     @Path("EncryptPasscode/{password}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -260,7 +259,7 @@ public class Seeker {
         result.setSuccess(true);
         return result;
     }
-    
+
     //FOR HCF FRONT GUI
     @GET
     @Path("GetHcfToken")
@@ -283,9 +282,9 @@ public class Seeker {
             } else {
                 DRGWSResult insertResult = new SeekerMethods().InsertToken(dataSource, token);
                 if (insertResult.isSuccess()) {
-                    
+
                     URI uri = new URI(utility.GetString("SeekerModule").getResult());
-                    
+
                     Desktop.getDesktop().browse(uri);
                 } else {
                     result = insertResult;
@@ -293,7 +292,6 @@ public class Seeker {
             }
         } catch (IOException | URISyntaxException ex) {
             result.setMessage("Something went wrong");
-            Logger.getLogger(Seeker.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

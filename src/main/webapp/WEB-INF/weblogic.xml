@@ -4,11 +4,12 @@
         <keepgenerated>true</keepgenerated>
         <debug>true</debug>
     </jsp-descriptor>
-    <context-root>/PHILGROUPER</context-root>
     <container-descriptor>
         <prefer-application-packages>
             <package-name>org.apache.logging.log4j.*</package-name>
             <package-name>org.slf4j.*</package-name>
+            <package-name>org.apache.logging.log4j.web.*</package-name>
         </prefer-application-packages>
     </container-descriptor>
+    <context-root>/PHILGROUPER</context-root>
 </weblogic-web-app>

@@ -123,7 +123,6 @@ public class SeekerMethods {
                     result.setSuccess(true);
                     result.setMessage(statement.getString("Message"));
                     this.EmailSender(dataSource, seekerUser.getEmail().trim(), seekerUser.getPassword(), mailsession, "ACCOUNT");
-//                    this.TestEmailSender(dataSource, seekerUser.getEmail().trim(), seekerUser.getPassword(), "ACCOUNT", "00");//test
                 } else {
                     result.setMessage(statement.getString("Message"));
                 }
@@ -132,45 +131,6 @@ public class SeekerMethods {
             result.setMessage("Something went wrong");
             logger.info("Executing UserInsert Utility");
             logger.error("Error in UserInsert Utility : {}", ex.getMessage(), ex);
-        }
-        return result;
-    }
-
-    public DRGWSResult TestUserInsert(
-            final DataSource dataSource,
-            final SeekerUser seekerUser) {
-        DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
-        try (Connection connection = dataSource.getConnection()) {
-            if (this.GetUserByUsername(dataSource, seekerUser.getEmail()).isSuccess()) {
-                result.setMessage("Email is already exist");
-            } else {
-                String encryptpword = new Cryptor().encrypt(seekerUser.getPassword(), seekerUser.getPassword(), "SEEKER");
-                CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.drgseeker.insertuser(:message,:code,:pemail,:ppassword,:prole,:udatecreated,:ucreatedby,:ustatus,:uname)");
-                statement.registerOutParameter("Message", OracleTypes.VARCHAR);
-                statement.registerOutParameter("Code", OracleTypes.INTEGER);
-                statement.setString("pemail", seekerUser.getEmail().trim());
-                statement.setString("ppassword", encryptpword);
-                statement.setString("prole", seekerUser.getRole().trim());
-                statement.setTimestamp("p_datecreated", (Timestamp) new Timestamp(utility.StringToDate(seekerUser.getDatecreated()).getTime()));//tranch.getDatecreated());
-                statement.setString("ucreatedby", seekerUser.getCreatedby());
-                statement.setString("ustatus", "A".trim());
-                statement.setString("uname", seekerUser.getName());
-                statement.execute();
-                if (statement.getString("Message").equals("SUCC")) {
-                    result.setSuccess(true);
-                    result.setMessage(statement.getString("Message"));
-                    this.TestEmailSender(dataSource, seekerUser.getEmail().trim(), seekerUser.getPassword().trim(), "ACCOUNT", "OTP");
-                } else {
-                    result.setMessage(statement.getString("Message"));
-                }
-            }
-        } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing TestUserInsert Utility");
-            logger.error("Error in TestUserInsert Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -361,8 +321,8 @@ public class SeekerMethods {
                         final String otpcode = utility.Create2FACode().toUpperCase().trim();
                         if (this.POSTOTP(dataSource, userA.getUserid(), otpcode).isSuccess()) {
                             //SEND OTP CODE TO GMAIL
-//                            if (this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).isSuccess()) {
-                            if (this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).isSuccess()) {
+                            if (this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).isSuccess()) {
+//                            if (this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).isSuccess()) {
                                 SeekerUser user = new SeekerUser();
                                 user.setUserid(userA.getUserid());
                                 user.setCreatedby(userA.getCreatedby());
@@ -379,8 +339,8 @@ public class SeekerMethods {
                                 result.setSuccess(true);
                                 result.setResult(utility.objectMapper().writeValueAsString(user));
                             } else {
-//                                result.setMessage(this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).getMessage());
-                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
+                                result.setMessage(this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).getMessage());
+//                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
                             }
                         } else {
                             result.setMessage(this.POSTOTP(dataSource, userA.getUserid(), otpcode).getMessage());
