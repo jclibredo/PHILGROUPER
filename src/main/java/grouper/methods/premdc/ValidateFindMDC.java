@@ -139,10 +139,16 @@ public class ValidateFindMDC {
                 drgResult.setDRGName("Invalid PDx : " + grouperparameter.getPdx());
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
+            } else if (Newgrouperparam.getBirthDate().equals("") || Newgrouperparam.getBirthDate().isEmpty()) {
+                drgResult.setDRG("26539");
+                drgResult.setDC("2653");
+                drgResult.setDRGName("Ungroupable, invalid age due to missing birthdate");
+                result.setResult(utility.objectMapper().writeValueAsString(drgResult));
+                result.setSuccess(true);
             } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
                 drgResult.setDRG("26509");
                 drgResult.setDC("2650");
-                drgResult.setDRGName("PDx : " + grouperparameter.getPdx() + " Having age conflict : ");
+                drgResult.setDRGName("Ungroupable, invalid age more than 124 years old");
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
             } else if (!getSexConfictResult.isSuccess()) {
@@ -155,9 +161,9 @@ public class ValidateFindMDC {
 
                 ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(geticd10Result.getResult(), ICD10PreMDCResult.class);
                 if (!icd10Result.getAccPDX().equals("Y")) {
-                    drgResult.setDRG("26509");
-                    drgResult.setDC("2650");
-                    drgResult.setDRGName("Unacceptable PDx" + grouperparameter.getPdx());
+                    drgResult.setDRG("26519");
+                    drgResult.setDC("2651");
+                    drgResult.setDRGName("Inappropriate PDx " + grouperparameter.getPdx());
                     result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                     result.setSuccess(true);
                 } else {

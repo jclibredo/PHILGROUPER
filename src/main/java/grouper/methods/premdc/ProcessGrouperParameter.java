@@ -67,7 +67,6 @@ public class ProcessGrouperParameter {
             grouper.setPrepccl("");
             grouper.setFinalpccl("");
             grouper.setWarningerror("");
-
             drgresult.setPrepccl("");
             drgresult.setFinalpccl("");
             drgresult.setWarningerror("");
@@ -155,6 +154,14 @@ public class ProcessGrouperParameter {
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
                 drgresult.setDRGName("Unacceptable PDx");
+            } else if (grouper.getBirthDate().equals("") || grouper.getBirthDate().isEmpty()) {
+                drgresult.setDRG("26539");
+                drgresult.setDC("2653");
+                drgresult.setDRGName("Ungroupable, invalid age due to missing birthdate");
+            } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
+                drgresult.setDRG("26509");
+                drgresult.setDC("2650");
+                drgresult.setDRGName("Ungroupable, invalid age more than 124 years old");
             } else {
                 if (grouper.getGender().trim().isEmpty()) {
                     drgresult.setDRG("26509");
@@ -208,6 +215,16 @@ public class ProcessGrouperParameter {
                     drgresult.setDRG("26509");
                     drgresult.setDC("2650");
                     drgresult.setDRGName("Disposition is empty");
+                } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 1
+                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 0) {
+                    drgresult.setDRG("26539");
+                    drgresult.setDC("2653");
+                    drgresult.setDRGName("Ungroupable, DateofBirth Must be less than or equal to AdmissionDate");
+                } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getDischargeDate()) < 1
+                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getDischargeDate()) < 0) {
+                    drgresult.setDRG("26539");
+                    drgresult.setDC("2653");
+                    drgresult.setDRGName("Ungroupable, DateofBirth Must be less than or equal to DischargeDate");
                 } else if (!Arrays.asList(disposition).contains(grouper.getDischargeType())) {
                     drgresult.setDRG("26509");
                     drgresult.setDC("2650");

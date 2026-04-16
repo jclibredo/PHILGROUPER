@@ -34,13 +34,13 @@ import org.apache.logging.log4j.Logger;
  */
 @RequestScoped
 public class GetValidatedPreMDC {
-
+    
     public GetValidatedPreMDC() {
     }
-
+    
     private final Logger logger = (Logger) LogManager.getLogger(GetValidatedPreMDC.class);
     private final Utility utility = new Utility();
-
+    
     public DRGWSResult GetValidatedPreMDC(final DataSource datasource, final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
@@ -64,10 +64,12 @@ public class GetValidatedPreMDC {
                 finaldays = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             }
             DRGWSResult getAgeConfictResult = new AgeConfictValidation().AgeConfictValidation(datasource,
-                    grouperparameter.getPdx(), String.valueOf(finaldays), String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())));
+                    grouperparameter.getPdx(),
+                    String.valueOf(finaldays),
+                    String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())));
             if (!getAgeConfictResult.isSuccess()) {
-                drgResult.setDRG("26539");
-                drgResult.setDC("2653");
+                drgResult.setDRG("26509");
+                drgResult.setDC("2650");
                 drgResult.setDRGName("PDx : " + grouperparameter.getPdx() + " Having conflict with age");
             } else {
                 DRGWSResult icd10SortResult = new GetICD10PreMDC().GetICD10(datasource, grouperparameter.getPdx(), String.valueOf(finaldays), String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())), grouperparameter.getGender());
@@ -109,7 +111,7 @@ public class GetValidatedPreMDC {
                 int PDC0PB = 0;
                 int PDC0PD = 0;
                 int PDC0PA = 0;
-
+                
                 if (checkAx.AX(datasource, "0CX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0CX++;
                 }
@@ -135,7 +137,7 @@ public class GetValidatedPreMDC {
                         if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PA", "0").isSuccess()) {
                             PDC0PA++;
                         }
-
+                        
                     }
                 }
                 //Proc Validation for MDC 24
@@ -181,11 +183,15 @@ public class GetValidatedPreMDC {
 //                    DRGWSResult restA = new GrouperMethod().COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx());
                     BMDCPreMDCResult bmdcResult = utility.objectMapper().readValue(getBmdcResult.getResult(), BMDCPreMDCResult.class);
                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
-                        drgResult.setDRG("26539");
+                        drgResult.setDRG("26509");
+                        drgResult.setDC("2650");
                         drgResult.setDRGName("Invalid Age");
                     } else if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0
                             && utility.ComputeTime(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 6
-                            && utility.MinutesCompute(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()), grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0) {
+                            && utility.MinutesCompute(grouperparameter.getAdmissionDate(), 
+                                    utility.Convert24to12(grouperparameter.getTimeAdmission()), 
+                                    grouperparameter.getDischargeDate(), 
+                                    utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0) {
                         if (utility.ComputeTime(grouperparameter.getAdmissionDate(),
                                 utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                 grouperparameter.getDischargeDate(),
@@ -239,7 +245,7 @@ public class GetValidatedPreMDC {
                     }
                 } else {
                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
-                        drgResult.setDRG("26539");
+                        drgResult.setDRG("26509");
                         drgResult.setDRGName("Invalid Age");
                     } else if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                             utility.Convert24to12(grouperparameter.getTimeAdmission()),
@@ -253,11 +259,11 @@ public class GetValidatedPreMDC {
                                     utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                     grouperparameter.getDischargeDate(),
                                     utility.Convert24to12(grouperparameter.getTimeDischarge())) <= 0) {
-
+                        
                         if (utility.ComputeTime(grouperparameter.getAdmissionDate(),
                                 utility.Convert24to12(grouperparameter.getTimeAdmission()),
                                 grouperparameter.getDischargeDate(),
-                                utility.Convert24to12(grouperparameter.getTimeDischarge())) < 2) {
+                                utility.Convert24to12(grouperparameter.getTimeDischarge())) < 6) {
                             drgResult.setDRG("26549");
                             drgResult.setDRGName("LOS < 6 Hours");
                         } else {
@@ -297,7 +303,7 @@ public class GetValidatedPreMDC {
                     } else {
                         drgResult.setMDC(icd10Result.getMDC());
                         drgResult.setPDC(icd10Result.getPDC());
-
+                        
                     }
                 }
             }
@@ -305,9 +311,9 @@ public class GetValidatedPreMDC {
             //END OF PARSING PART
             ProcessMDC getMDC = new ProcessMDC();
             if (drgResult.getDRG() == null) {
-
+                
                 if (drgResult.getMDC().equals("30")) {
-
+                    
                     if (drgResult.getPDC().isEmpty()) {
                         drgResult.setDRG("26519");
                         drgResult.setDC("2651");
@@ -338,7 +344,7 @@ public class GetValidatedPreMDC {
                 } else {
                     result = getMDC.ProcessMDC(datasource, drgResult, grouperparameter);
                 }
-
+                
             } else {
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
@@ -349,7 +355,7 @@ public class GetValidatedPreMDC {
             logger.info("Executing Pre-MDC Validation Method");
             logger.error("Error in Pre-MDC Validation Method : {}", ex.getMessage(), ex);
         }
-
+        
         return result;
     }
 }
