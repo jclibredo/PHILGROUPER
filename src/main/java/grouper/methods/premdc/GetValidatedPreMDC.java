@@ -307,7 +307,6 @@ public class GetValidatedPreMDC {
                     }
                 }
             }
-
             //END OF PARSING PART
             ProcessMDC getMDC = new ProcessMDC();
             if (drgResult.getDRG() == null) {

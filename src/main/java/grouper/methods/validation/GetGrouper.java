@@ -51,6 +51,7 @@ public class GetGrouper {
             int stopper = 0;
             ResultSet resultset = (ResultSet) state.getObject("drgresult");
             while (resultset.next()) {
+
                 GrouperParameter ggrouperparameter = new GrouperParameter();
                 DRGRESULT drgresultparam = new DRGRESULT();
                 //GET GROUPER RESULT
@@ -105,7 +106,7 @@ public class GetGrouper {
                 CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.UHCDRGPKG.GETPATIENTDATA(:seriesnums,:claimid); end;");
                 statement.registerOutParameter("v_result", OracleTypes.CURSOR);
                 statement.setString("seriesnums", resultset.getString("CLAIMS_SERIES")); //claimid
-                statement.setString("claimid", infoResult.next() ? resultset.getString("CLAIMS_SERIES") : "");
+                statement.setString("claimid", resultset.getString("CLAIM_ID"));
                 statement.execute();
                 ResultSet resultSet = (ResultSet) statement.getObject("v_result");
                 if (resultSet.next()) {

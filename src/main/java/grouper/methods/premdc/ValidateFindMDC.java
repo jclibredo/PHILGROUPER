@@ -158,7 +158,6 @@ public class ValidateFindMDC {
                 result.setResult(utility.objectMapper().writeValueAsString(drgResult));
                 result.setSuccess(true);
             } else if (!asterisk.contains(checker)) {
-
                 ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(geticd10Result.getResult(), ICD10PreMDCResult.class);
                 if (!icd10Result.getAccPDX().equals("Y")) {
                     drgResult.setDRG("26519");
