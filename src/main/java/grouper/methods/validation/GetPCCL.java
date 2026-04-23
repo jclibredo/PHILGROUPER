@@ -37,6 +37,7 @@ public class GetPCCL {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+//        System.out.println(sdxfinalList);
         try (Connection connection = datasource.getConnection()) {
             CallableStatement ps = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:p_pdx,:p_sdx,:p_dc)");
             ps.registerOutParameter("p_pccl", OracleTypes.NUMBER);
@@ -45,6 +46,7 @@ public class GetPCCL {
             ps.setString("p_dc", drgResult.getDC());
             ps.execute();
             drgResult.setDRG(drgResult.getDC() + "" + ps.getString("p_pccl"));
+//             System.out.println(ps.getString("p_pccl"));
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setSuccess(true);
         } catch (SQLException | IOException ex) {

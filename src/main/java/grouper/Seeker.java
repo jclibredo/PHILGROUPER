@@ -18,8 +18,6 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.mail.Session;
 import javax.sql.DataSource;
@@ -126,7 +124,7 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new SeekerMethods().UserInsert(dataSource, user, session);
+            return new SeekerMethods().UserInsert(dataSource, user, session);
         }
         return result;
     }

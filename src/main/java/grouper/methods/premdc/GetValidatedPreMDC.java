@@ -226,16 +226,16 @@ public class GetValidatedPreMDC {
                     } else if (TraumaCounterPDX1 > 0 && finalprocnewlist.size() >= 2) {
                         drgResult.setMDC("24");
                         //TRAUMA CHECKING AREA  
-                    } else if (icd10Result.getPDC() != null && icd10Result.getPDC().equals("25A")) {
+                    } else if (icd10Result.getPDC() != null && icd10Result.getPDC().toUpperCase().equals("25A")) {
                         drgResult.setMDC("25");
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) == 0
                             && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 28) {
                         drgResult.setMDC("15");
                     } else if (new COUNTBMDCICD10CODE().COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx()).isSuccess()) {
-                        if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("M")) {
+                        if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().toUpperCase().equals("M")) {
                             drgResult.setMDC(bmdcResult.getMDC_M());
                             drgResult.setPDC(bmdcResult.getPDC_M());
-                        } else if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().equals("F")) {
+                        } else if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().toUpperCase().equals("F")) {
                             drgResult.setMDC(bmdcResult.getMDC_F());
                             drgResult.setPDC(bmdcResult.getPDC_F());
                         }
@@ -294,7 +294,7 @@ public class GetValidatedPreMDC {
                     } else if (TraumaCounterPDX1 > 0 && finalprocnewlist.size() >= 2) {
                         drgResult.setMDC("24");
                         //TRAUMA CHECKING AREA    
-                    } else if (icd10Result.getPDC() != null && icd10Result.getPDC().equals("25A")) {
+                    } else if (icd10Result.getPDC() != null && icd10Result.getPDC().toUpperCase().equals("25A")) {
                         drgResult.setMDC("25");
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(),
                             grouperparameter.getAdmissionDate()) <= 0 && utility.ComputeDay(grouperparameter.getBirthDate(),

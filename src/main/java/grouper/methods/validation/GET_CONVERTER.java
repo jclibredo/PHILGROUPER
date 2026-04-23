@@ -67,4 +67,35 @@ public class GET_CONVERTER {
         return result;
     }
 
+    public DRGWSResult ValidateRVS(final DataSource datasource, final String rvs_code) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setSuccess(false);
+        result.setMessage("");
+        result.setResult("");
+        try (Connection connection = datasource.getConnection()) {
+            CallableStatement statement = connection.prepareCall("begin :converter := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_CONVERTER(:rvs_code); end;");
+            statement.registerOutParameter("converter", OracleTypes.CURSOR);
+            statement.setString("rvs_code", rvs_code.trim());
+            statement.execute();
+            ResultSet resultset = (ResultSet) statement.getObject("converter");
+            if (resultset.next()) {
+                if (resultset.getString("ICD9CODE").trim() != null
+                        || resultset.getString("ICD9CODE").trim().equals("")
+                        || !resultset.getString("ICD9CODE").trim().isEmpty()) {
+                    result.setResult(resultset.getString("ICD9CODE").trim());
+                    result.setSuccess(true);
+                } else {
+                    result.setMessage("RVS " + rvs_code + " icd9cm not found");
+                }
+            } else {
+                result.setMessage("RVS " + rvs_code + " invalid");
+            }
+        } catch (SQLException ex) {
+            result.setMessage("Something went wrong");
+            logger.info("Executing RVS Validate");
+            logger.error("Error in RVS Validate Method : {}", ex.getMessage(), ex);
+        }
+        return result;
+    }
+
 }

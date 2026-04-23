@@ -7,9 +7,10 @@ package grouper;
 
 import grouper.methods.premdc.ValidateFindMDC;
 import grouper.methods.validation.AgeConfictValidation;
+import grouper.methods.validation.GET_CONVERTER;
 import grouper.methods.validation.GenderConfictValidation;
 import grouper.methods.validation.GenderConfictValidationProc;
-import grouper.methods.validation.GetICD10;
+//import grouper.methods.validation.GetICD10;
 import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.GET_ICD9;
 import grouper.methods.validation.InsertGrouperAuditTrail;
@@ -18,14 +19,19 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+//import java.sql.CallableStatement;
+//import java.sql.ResultSet;
+//import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+//import java.util.logging.Level;
 import javax.annotation.Resource;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
@@ -34,6 +40,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+//import oracle.jdbc.OracleTypes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -64,34 +71,34 @@ public class GrouperTesting {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-//        ArrayList<DRGOutput> drgresultList = new ArrayList<>();
         ArrayList<String> drgresultList = new ArrayList<>();
         ArrayList<String> errorList = new ArrayList<>();
         try {
 
-//            if (utility.GetString("FilePathReports").isSuccess()) {
-            for (int g = 0; g < grouperparameter.size(); g++) {
-//                    DRGWSResult grouperResult = this.ProcessData(utility.GetString("FilePathReports").getResult(), datasource, grouperparameter.get(g));
-                DRGWSResult grouperResult = this.ProcessData(datasource, grouperparameter.get(g));
-                if (grouperResult.isSuccess()) {
+            if (utility.GetString("FilePathReports").isSuccess()) {
+                for (int g = 0; g < grouperparameter.size(); g++) {
+                    DRGWSResult grouperResult = this.ProcessData(utility.GetString("FilePathReports").getResult(), datasource, grouperparameter.get(g));
+//                DRGWSResult grouperResult = this.ProcessData(datasource, grouperparameter.get(g));
+                    if (grouperResult.isSuccess()) {
 //                    DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
-                    drgresultList.add(grouperResult.getResult());
-                } else {
-                    errorList.add(grouperResult.getMessage());
+                        drgresultList.add(grouperResult.getResult());
+                    } else {
+                        errorList.add(grouperResult.getMessage());
+                    }
                 }
-            }
-            if (grouperparameter.size() > 0) {
-                result.setMessage("Data Process : " + drgresultList.size());
-                result.setSuccess(true);
-                result.setResult(drgresultList.toString());
-//                    File file = new File(utility.GetString("FilePathReports").getResult());
-//                    result.setResult("Open file: //" + file.getAbsolutePath().replace("\\", "/"));
+                if (grouperparameter.size() > 0) {
+                    result.setMessage("Data Process : " + grouperparameter.size());
+                    result.setSuccess(true);
+//                    result.setResult(drgresultList.toString());
+                    //FILE HANDLER
+                    File file = new File(utility.GetString("FilePathReports").getResult());
+                    result.setResult("Open file: //" + file.getAbsolutePath().replace("\\", "/"));
+                } else {
+                    result.setMessage("NO DATA AVAILABLE TO PROCESS");
+                }
             } else {
-                result.setMessage("NO DATA AVAILABLE TO PROCESS");
+                result.setMessage("File or directory not found");
             }
-//            } else {
-//                result.setMessage("File or directory not found");
-//            }
 
         } catch (Exception ex) {
             result.setMessage("Something went wrong");
@@ -102,7 +109,7 @@ public class GrouperTesting {
     }
 
     private DRGWSResult ProcessData(
-            //            final String Path,
+            final String Path,
             final DataSource datasource,
             final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -113,7 +120,6 @@ public class GrouperTesting {
         result.setSuccess(false);
         ArrayList<String> warningerror = new ArrayList<>();
         GetICD10PreMDC getPreMDC = new GetICD10PreMDC();
-        GetICD10 SDxResult = new GetICD10();
         AgeConfictValidation ageValidation = new AgeConfictValidation();
         GenderConfictValidation sexValidation = new GenderConfictValidation();
         try {
@@ -130,7 +136,37 @@ public class GrouperTesting {
             grouper.setClaimseries(grouperparameter.getClaimseries());
             grouper.setGender(grouperparameter.getGender());
             grouper.setIdseries(grouperparameter.getIdseries());
-            grouper.setDischargeType(grouperparameter.getDischargeType());
+            switch (grouperparameter.getDischargeType().toUpperCase()) {
+                case "E": {
+                    grouper.setDischargeType("8");
+                    break;
+                }
+                case "O": {
+                    grouper.setDischargeType("5");
+                    break;
+                }
+                case "I":
+                case "R": {
+                    grouper.setDischargeType("1");
+                    break;
+                }
+                case "A": {
+                    grouper.setDischargeType("3");
+                    break;
+                }
+                case "T": {
+                    grouper.setDischargeType("4");
+                    break;
+                }
+                case "H": {
+                    grouper.setDischargeType("2");
+                    break;
+                }
+                default: {
+                    grouper.setDischargeType(grouperparameter.getDischargeType());
+                    break;
+                }
+            }
 
             drgresult.setPrepccl("");
             drgresult.setFinalpccl("");
@@ -145,30 +181,38 @@ public class GrouperTesting {
             }
             grouper.setAdmissionWeight(grouperparameter.getAdmissionWeight());
 
-            //CLEANING PROC DATA
+            //CONVERT RVS CODE TO ICD9CM AND
             GET_ICD9 icd9cm = new GET_ICD9();
+            GET_CONVERTER converter = new GET_CONVERTER();
             GenderConfictValidationProc sexValidateProc = new GenderConfictValidationProc();
             if (!grouperparameter.getProc().trim().isEmpty()) {
                 LinkedList<String> newprocList = new LinkedList<>();
-                List<String> procList = Arrays.asList(grouperparameter.getProc().split(","));
-                for (int m = 0; m < procList.size(); m++) {
-                    newprocList.add(procList.get(m));
-                }
-                for (int pro = 0; pro < procList.size(); pro++) {
-                    if (icd9cm.GetICD9cm(datasource, procList.get(pro)).isSuccess()) {
-                        DRGWSResult sexvalidationresult = sexValidateProc.GenderConfictValidationProc(datasource, procList.get(pro).trim(), grouperparameter.getGender());
-                        if (!sexvalidationresult.isSuccess()) {
-                            newprocList.remove(procList.get(pro).trim());
+                List<String> rvsList = Arrays.asList(grouperparameter.getProc().split(","));
+                for (int m = 0; m < rvsList.size(); m++) {
+                    DRGWSResult processRVS = converter.ValidateRVS(datasource, rvsList.get(m).trim());
+                    if (processRVS.isSuccess()) {
+                        List<String> procList = Arrays.asList(processRVS.getResult().split(","));
+                        for (int x = 0; x < procList.size(); x++) {
+                            newprocList.add(procList.get(x));
+                        }
+                        for (int pro = 0; pro < procList.size(); pro++) {
+                            if (icd9cm.GetICD9cm(datasource, procList.get(pro)).isSuccess()) {
+                                DRGWSResult sexvalidationresult = sexValidateProc.GenderConfictValidationProc(datasource, procList.get(pro).trim(), grouperparameter.getGender());
+                                if (!sexvalidationresult.isSuccess()) {
+                                    newprocList.remove(procList.get(pro).trim());
+                                }
+                            } else {
+                                warningerror.add("Proc " + procList.get(pro) + " invalid");
+                            }
                         }
                     } else {
-                        warningerror.add("Proc " + procList.get(pro) + " invalid");
+                        warningerror.add(processRVS.getMessage());
                     }
                 }
                 grouper.setProc(String.join(",", newprocList));
             } else {
-                grouper.setProc(grouperparameter.getProc());
+                grouper.setProc(grouperparameter.getProc().trim());
             }
-
 //            CLEANING SDX
             if (!grouperparameter.getSdx().isEmpty()) {
                 LinkedList<String> newsdxList = new LinkedList<>();
@@ -248,6 +292,14 @@ public class GrouperTesting {
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
                 drgresult.setDRGName("Unacceptable PDx");
+            } else if (grouper.getBirthDate().equals("") || grouper.getBirthDate().isEmpty()) {
+                drgresult.setDRG("26539");
+                drgresult.setDC("2653");
+                drgresult.setDRGName("Ungroupable, invalid age due to missing birthdate");
+            } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 124) {
+                drgresult.setDRG("26509");
+                drgresult.setDC("2650");
+                drgresult.setDRGName("Ungroupable, invalid age more than 124 years old");
             } else {
                 if (grouper.getGender().trim().isEmpty()) {
                     drgresult.setDRG("26509");
@@ -320,7 +372,7 @@ public class GrouperTesting {
                     } else {
                         drgresult.setDRG("26509");
                         drgresult.setDC("2650");
-                        drgresult.setDRGName("Admission Weight is empty");
+                        drgresult.setDRGName("Newborn <28 days requires AdmWt");
                     }
                 } else {
                     int oras = utility.ComputeTime(
@@ -354,24 +406,24 @@ public class GrouperTesting {
                 result.setResult(utility.objectMapper().writeValueAsString(drgresult));
                 result.setSuccess(true);
                 // File writer
-//                this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
+                this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
             } else {
-//                DRGWSResult validateresult = new ValidateFindMDC().ValidateFindMDC(datasource, grouper);
-                result = new ValidateFindMDC().ValidateFindMDC(datasource, grouper);
-//                if (validateresult.isSuccess()) {
-////                    DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
+                DRGWSResult validateresult = new ValidateFindMDC().ValidateFindMDC(datasource, grouper);
+//                result = new ValidateFindMDC().ValidateFindMDC(datasource, grouper);
+                if (validateresult.isSuccess()) {
+                    DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
 ////                    result.setResult(utility.objectMapper().writeValueAsString(utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class)));
 //                    result.setResult(validateresult.getResult());
-//                    //File writer
-////                    this.FileWriter(Path, grouperparameter.getClaimseries(), drgResults.getDRG(), drgResults.getPDC(), drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
-//                } else {
+                    //File writer
+                    this.FileWriter(Path, grouperparameter.getClaimseries(), drgResults.getDRG(), drgResults.getPDC(), drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
+                } else {
 ////                    DRGAuditTrail(datasource, grouper.getClaimseries(), grouper.getIdseries(), validateresult.getMessage(), "FAILED");
 ////                    result.setResult(utility.objectMapper().writeValueAsString(validateresult.getResult()));
 //                    result.setResult(validateresult.getResult());
 //                    result.setMessage(validateresult.getMessage());
 //                    //File writer
-////                    this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage(), "N/A", "N/A", "N/A");
-//                }
+                    this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage(), "N/A", "N/A", "N/A");
+                }
             }
         } catch (ParseException | IOException ex) {
             result.setMessage("Something went wrong");
@@ -379,6 +431,10 @@ public class GrouperTesting {
             logger.error("Error in ProcessData Method : {}", ex.getMessage(), ex);
             // File writer
 //            this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
+//        } catch (SQLException ex) {
+//            java.util.logging.Logger.getLogger(GrouperTesting.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+
         }
         return result;
     }
@@ -398,7 +454,7 @@ public class GrouperTesting {
                 for (int a = 0; a < oldContent.size(); a++) {
                     pw.write(oldContent.get(a) + "\n");
                 }
-                pw.write(series + "," + drgcode + "," + pdc + "," + drgname + ", PREPCCL:" + prepccl + ", FINALPCCL:" + finalpccl + ", WARNING:" + warningerror + "\n");
+                pw.write("SERIES: " + series + ", DRGCODE:" + drgcode + ", PDC:" + pdc + ", NAME:" + drgname + ", PREPCCL:" + prepccl + ", FINALPCCL:" + finalpccl + ", ERROR:" + warningerror + "\n");
                 pw.flush();
 
             }

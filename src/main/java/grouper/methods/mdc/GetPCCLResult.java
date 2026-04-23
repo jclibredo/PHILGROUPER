@@ -5,6 +5,7 @@
  */
 package grouper.methods.mdc;
 
+import grouper.methods.validation.CleanSDxDCDetermination;
 import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
 import grouper.methods.validation.DRG;
 import grouper.methods.validation.GetPCCL;
@@ -48,8 +49,9 @@ public class GetPCCLResult {
                     drgResult.setPrepccl("9");
                     drgResult.setFinalpccl("9");
                 } else {
-                    //  String sdxfinalList =  new GrouperMethod().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                    String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
+//                    String sdxfinalList = new CleanSDxDCDetermination().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
+                    String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(),
+                            drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
                     DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
                     if (getpcclvalue.isSuccess()) {
                         DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);

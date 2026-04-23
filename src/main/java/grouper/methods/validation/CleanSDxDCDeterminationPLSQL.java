@@ -34,7 +34,6 @@ public class CleanSDxDCDeterminationPLSQL {
             for (int i = 0; i < sdxlist.size(); i++) {
                 SDXoriglist.add(sdxlist.get(i).trim());
             }
-
             if (sdxdcfinder != null) {
                 LinkedList<String> SDxUseDC = new LinkedList<>();
                 List<String> sdxfinder = Arrays.asList(sdxdcfinder.split(","));
@@ -65,7 +64,6 @@ public class CleanSDxDCDeterminationPLSQL {
                         SDXoriglist.add(SDxUseDC.get(i));
                     }
                     result = String.join(",", SDXoriglist);
-
                 }
             } else {
                 Collections.sort(SDXoriglist, Collections.reverseOrder());
