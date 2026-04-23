@@ -1,0 +1,46 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package grouper.methods.cache;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import grouper.structures.GrouperParameter;
+import grouper.structures.ICD10PreMDCResult;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ *
+ * @author LAPTOP
+ */
+public class I10Cache {
+
+    // This is where your data lives in memory
+    private static List<ICD10PreMDCResult> cachedList = new ArrayList<>();
+
+    public static void init() {
+        ObjectMapper mapper = new ObjectMapper();
+        File jsonFile = new File("D:\\REPORTS\\I10.json");
+        try {
+            // Your exact code snippet to load the data
+            cachedList = mapper.readValue(
+                    jsonFile,
+                    new TypeReference<List<ICD10PreMDCResult>>() {
+            }
+            );
+        } catch (IOException e) {
+        }
+    }
+
+    public static List<ICD10PreMDCResult> getData() {
+        if (cachedList.isEmpty()) {
+            init(); // Load it if it hasn't been loaded yet
+        }
+        return cachedList;
+    }
+}

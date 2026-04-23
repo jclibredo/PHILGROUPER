@@ -5,12 +5,15 @@
  */
 package grouper;
 
+import grouper.methods.cache.GrouperCache;
+import grouper.methods.cache.I10Cache;
 import grouper.methods.premdc.ProcessGrouperParameter;
 import grouper.methods.validation.GetGrouper;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.ICD10PreMDCResult;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
 import java.io.File;
@@ -22,6 +25,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import javax.annotation.Resource;
 import javax.enterprise.context.RequestScoped;
@@ -32,6 +36,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
@@ -219,5 +224,64 @@ public class Grouper {
         return Response.ok(logFile)
                 .header("Content-Disposition", "attachment; filename=drg-api-system.log")
                 .build();
+    }
+
+//    @GET
+//    @Path("GetJsonFile")
+//    @Produces(MediaType.TEXT_PLAIN)
+//    public String GetJsonFile() throws IOException {
+//        // Get the data from memory (zero disk IO)
+//        List<GrouperParameter> myData = GrouperCache.getData();
+//        System.out.println(utility.objectMapper().writeValueAsString(myData));
+//        return null;
+//    }
+    @GET
+    @Path("GetJsonFile")
+    @Produces(MediaType.APPLICATION_JSON) // Better for JSON data
+    public String GetJsonFile() throws IOException {
+
+        
+        //TEST GROUPER PARAMETER
+//        List<GrouperParameter> myData = GrouperCache.getData();
+//        if (myData.isEmpty()) {
+//            return "[]"; // Return empty array string if no data
+//        }
+//        String jsonOutput = utility.objectMapper().writeValueAsString(myData);
+//        // This prints to the SERVER console (IDE)
+//        System.out.println("Outputting data: " + myData.size());
+
+
+        //TEST I10
+        List<ICD10PreMDCResult> myData = I10Cache.getData();
+        if (myData.isEmpty()) {
+            return "[]"; // Return empty array string if no data
+        }
+        String jsonOutput = utility.objectMapper().writeValueAsString(myData);
+        // This prints to the SERVER console (IDE)
+        System.out.println("Outputting data: " + myData.size());
+        return jsonOutput;
+    }
+
+    @GET
+    @Path("GetByClaim")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getByClaim(@QueryParam("id") String claimId) throws IOException {
+        // 1. Get the data from memory
+        List<GrouperParameter> myData = GrouperCache.getData();
+
+        // 2. Use Stream to find the specific claim
+        Optional<GrouperParameter> result = myData.stream()
+                .filter(p -> p.getClaimseries() != null && p.getClaimseries().equals(claimId))
+                .findFirst();
+
+        // 3. Return the result if found, otherwise return 404
+        if (result.isPresent()) {
+            String json = utility.objectMapper().writeValueAsString(result.get());
+            return Response.ok(json).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"error\": \"Claim series not found\"}")
+                    .build();
+        }
     }
 }
