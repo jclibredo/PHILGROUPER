@@ -328,7 +328,7 @@ public class SeekerMethods {
                 }
 
                 if (errorList.size() > 0) {
-                    result.setResult(utility.objectMapper().writeValueAsString(errorList));
+                    result.setMessage(utility.objectMapper().writeValueAsString(errorList));
                 } else {
                     SeekerUser user = new SeekerUser();
                     user.setUserid(userA.getUserid());
