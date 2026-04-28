@@ -641,11 +641,11 @@ public class SeekerMethods {
         return result;//  PHL-DRGSEEKER
     }
 
+    
     public DRGWSResult ForgatPassword(
             final DataSource dataSource,
             final String uemail,
-            final String randpass,
-            final Session mailSession) {
+            final String randpass) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setSuccess(false);
@@ -654,16 +654,32 @@ public class SeekerMethods {
             DRGWSResult getAccountID = this.GetUserByUsername(dataSource, uemail);
             if (getAccountID.isSuccess()) {
                 SeekerUser user = utility.objectMapper().readValue(getAccountID.getResult(), SeekerUser.class);
-                DRGWSResult updatepassword = this.UPDATEPASSWORD(dataSource, user.getUserid(), uemail, new Cryptor().encrypt(randpass, randpass, "SEEKER"));
+                DRGWSResult updatepassword = this.UPDATEPASSWORD(dataSource, user.getUserid(), uemail, randpass);
                 if (updatepassword.isSuccess()) {
                     result.setSuccess(true);
                     result.setMessage("Account password successfully resetted and sended to your email please check the new passcode ");
-                    Message message = new MimeMessage(mailSession);
-                    message.setFrom(new InternetAddress("noreply@philhealth.gov.ph", false));
-                    message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(uemail.trim(), false));
-                    message.setSubject("GROUPER SEEKER");
-                    message.setSentDate(new Date());
-                    message.setText("PHL-DRGSEEKER NEW PASSWORD : " + randpass);
+                    Properties properties = System.getProperties();
+                    properties.put("mail.smtp.host", "smtp.gmail.com");
+                    properties.put("mail.smtp.port", "465");
+                    properties.put("mail.smtp.ssl.enable", "true");
+                    properties.put("mail.smtp.auth", "true");
+                    // Get the Session object.// and pass username and password
+                    Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
+                        @Override
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication("roland.aboga@gmail.com", "hwph yllj oqbg ptfc");
+                        }
+                    });
+                    // Used to debug SMTP issues
+                    session.setDebug(true);
+                    // Create a default MimeMessage object.
+                    MimeMessage message = new MimeMessage(session);
+                    message.setFrom(new InternetAddress("no_reply@phic.gov.ph", "no_reply@phic.gov.ph"));
+                    message.setReplyTo(InternetAddress.parse("no_reply@phic.gov.ph", false));
+                    // Set To: header field of the header.
+                    message.addRecipient(Message.RecipientType.TO, new InternetAddress(uemail.trim()));
+                    message.setSubject("PHIL SEEKER PASSWORD RESET");
+                    message.setText("New Passcode is : " + randpass);
                     Transport.send(message);
                 } else {
                     result.setMessage(updatepassword.getResult());

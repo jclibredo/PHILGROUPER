@@ -169,7 +169,7 @@ public class Seeker {
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult ForgetPassword(
             @HeaderParam("mail") String mail) {
-        return new SeekerMethods().ForgatPassword(dataSource, mail, utility.GenerateRandomPassword(10), session);
+        return new SeekerMethods().ForgatPassword(dataSource, mail, utility.GenerateRandomPassword(10));
     }
 
     @GET
