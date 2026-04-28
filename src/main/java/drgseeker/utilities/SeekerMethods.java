@@ -311,49 +311,46 @@ public class SeekerMethods {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        ArrayList<String> errorList = new ArrayList<>();
         try {
             DRGWSResult getUserDetails = this.GetUserByUsername(dataSource, uemail.trim());
             if (getUserDetails.isSuccess()) {
                 SeekerUser userA = utility.objectMapper().readValue(getUserDetails.getResult(), SeekerUser.class);
                 String decryptString = new Cryptor().decrypt(userA.getPassword(), upassword, "SEEKER");
-                if (decryptString.trim().equals(upassword)) {
-                    if (userA.getStatus().trim().equals("A")) {
-                        final String otpcode = utility.Create2FACode().toUpperCase().trim();
-                        if (this.POSTOTP(dataSource, userA.getUserid(), otpcode).isSuccess()) {
-                            //SEND OTP CODE TO GMAIL
-                            if (this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).isSuccess()) {
-//                            if (this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).isSuccess()) {
-                                SeekerUser user = new SeekerUser();
-                                user.setUserid(userA.getUserid());
-                                user.setCreatedby(userA.getCreatedby());
-                                user.setDatecreated(userA.getDatecreated());
-                                user.setDateupdated(userA.getDateupdated());
-                                user.setEmail(userA.getEmail());
-                                user.setName(userA.getName());
-                                user.setPassword(userA.getPassword());
-                                user.setRole(userA.getRole());
-                                user.setStatus(userA.getStatus());
-                                user.setToken(utility.GenerateToken(uemail, upassword, expire));
-                                user.setUpdatedby(userA.getUpdatedby());
-                                result.setMessage("OK");
-                                result.setSuccess(true);
-                                result.setResult(utility.objectMapper().writeValueAsString(user));
-                            } else {
-                                result.setMessage(this.TestEmailSender(dataSource, uemail, upassword, "OTP", otpcode).getMessage());
-//                                result.setMessage(this.EmailSender(dataSource, uemail, upassword, mailsession, otpcode).getMessage());
-                            }
-                        } else {
-                            result.setMessage(this.POSTOTP(dataSource, userA.getUserid(), otpcode).getMessage());
-                        }
-                    } else {
-                        result.setMessage("LOGIN CREDENTIAL IS CURRENTLY DISABLED BY THE SYSTEM ADMIN");
-                    }
-                } else {
-                    result.setMessage("INVALID USERNAME OR PASSWORD");
+                if (!decryptString.trim().equals(upassword)) {
+                    errorList.add("INVALID PASSWORD");
                 }
+                if (!userA.getStatus().trim().equals("A")) {
+                    errorList.add("LOGIN CREDENTIAL IS CURRENTLY DISABLED BY THE SYSTEM ADMIN");
+                }
+                if (!utility.IsValidNumber(expire)) {
+                    errorList.add(expire + " IS NOT A VALID NUMBER. PLEASE ENTER DIGITS ONLY.");
+                }
+
+                if (errorList.size() > 0) {
+                    result.setResult(utility.objectMapper().writeValueAsString(errorList));
+                } else {
+                    SeekerUser user = new SeekerUser();
+                    user.setUserid(userA.getUserid());
+                    user.setCreatedby(userA.getCreatedby());
+                    user.setDatecreated(userA.getDatecreated());
+                    user.setDateupdated(userA.getDateupdated());
+                    user.setEmail(userA.getEmail());
+                    user.setName(userA.getName());
+                    user.setPassword(userA.getPassword());
+                    user.setRole(userA.getRole());
+                    user.setStatus(userA.getStatus());
+                    user.setToken(utility.GenerateToken(uemail, upassword, expire));
+                    user.setUpdatedby(userA.getUpdatedby());
+                    result.setMessage("SUCCESS: Welcome back, " + uemail + "!");
+                    result.setSuccess(true);
+                    result.setResult(utility.objectMapper().writeValueAsString(user));
+                }
+
             } else {
-                result.setMessage("INVALID USERNAME OR PASSWORD");
+                result.setMessage("INVALID USERNAME");
             }
+
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
             logger.info("Executing UserLogin Utility");
