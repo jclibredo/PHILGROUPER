@@ -5,61 +5,61 @@
  */
 package grouper.structures;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+//import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+//import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
  *
  * @author MINOSUN
  */
+//@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ICD10PreMDCResult {
 
     public ICD10PreMDCResult() {
     }
     
-    @JsonProperty("code")
+//    @JsonProperty("code")
     private String Code;
     
-    @JsonProperty("mdc")
+//    @JsonProperty("mdc")
     private String MDC;
     
-    @JsonProperty("pdc")
+//    @JsonProperty("pdc")
     private String PDC;
     
-    @JsonProperty("cc")
+//    @JsonProperty("cc")
     private String CC;
     
-    @JsonProperty("maincc")
+//    @JsonProperty("maincc")
     private String MainCC;
     
-    @JsonProperty("ccrow")
+//    @JsonProperty("ccrow")
     private String CCRow;
     
-    @JsonProperty("hiv_ax")
+//    @JsonProperty("hiv_ax")
     private String HIV_AX;
     
-    @JsonProperty("sex")
+//    @JsonProperty("sex")
     private String Sex;
     
-    @JsonProperty("accpdx")
+//    @JsonProperty("accpdx")
     private String AccPDX;
     
-    @JsonProperty("ageduse")
+//    @JsonProperty("ageduse")
     private String AgeDUse;
     
-    @JsonProperty("agemin")
+//    @JsonProperty("agemin")
     private String AgeMin;
     
-    @JsonProperty("agemax")
+//    @JsonProperty("agemax")
     private String AgeMax;
     
-    @JsonProperty("agedmin")
+//    @JsonProperty("agedmin")
     private String AgeDMin;
     
-    @JsonProperty("trauma")
+//    @JsonProperty("trauma")
     private String Trauma;
 
 }

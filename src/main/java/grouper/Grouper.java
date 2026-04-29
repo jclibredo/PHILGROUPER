@@ -235,53 +235,53 @@ public class Grouper {
 //        System.out.println(utility.objectMapper().writeValueAsString(myData));
 //        return null;
 //    }
-    @GET
-    @Path("GetJsonFile")
-    @Produces(MediaType.APPLICATION_JSON) // Better for JSON data
-    public String GetJsonFile() throws IOException {
-
-        
-        //TEST GROUPER PARAMETER
-//        List<GrouperParameter> myData = GrouperCache.getData();
+//    @GET
+//    @Path("GetJsonFile")
+//    @Produces(MediaType.APPLICATION_JSON) // Better for JSON data
+//    public String GetJsonFile() throws IOException {
+//
+//        
+//        //TEST GROUPER PARAMETER
+////        List<GrouperParameter> myData = GrouperCache.getData();
+////        if (myData.isEmpty()) {
+////            return "[]"; // Return empty array string if no data
+////        }
+////        String jsonOutput = utility.objectMapper().writeValueAsString(myData);
+////        // This prints to the SERVER console (IDE)
+////        System.out.println("Outputting data: " + myData.size());
+//
+//
+//        //TEST I10
+//        List<ICD10PreMDCResult> myData = I10Cache.getData();
 //        if (myData.isEmpty()) {
 //            return "[]"; // Return empty array string if no data
 //        }
 //        String jsonOutput = utility.objectMapper().writeValueAsString(myData);
 //        // This prints to the SERVER console (IDE)
 //        System.out.println("Outputting data: " + myData.size());
+//        return jsonOutput;
+//    }
 
-
-        //TEST I10
-        List<ICD10PreMDCResult> myData = I10Cache.getData();
-        if (myData.isEmpty()) {
-            return "[]"; // Return empty array string if no data
-        }
-        String jsonOutput = utility.objectMapper().writeValueAsString(myData);
-        // This prints to the SERVER console (IDE)
-        System.out.println("Outputting data: " + myData.size());
-        return jsonOutput;
-    }
-
-    @GET
-    @Path("GetByClaim")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getByClaim(@QueryParam("id") String claimId) throws IOException {
-        // 1. Get the data from memory
-        List<GrouperParameter> myData = GrouperCache.getData();
-
-        // 2. Use Stream to find the specific claim
-        Optional<GrouperParameter> result = myData.stream()
-                .filter(p -> p.getClaimseries() != null && p.getClaimseries().equals(claimId))
-                .findFirst();
-
-        // 3. Return the result if found, otherwise return 404
-        if (result.isPresent()) {
-            String json = utility.objectMapper().writeValueAsString(result.get());
-            return Response.ok(json).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("{\"error\": \"Claim series not found\"}")
-                    .build();
-        }
-    }
+//    @GET
+//    @Path("GetByClaim")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response getByClaim(@QueryParam("id") String claimId) throws IOException {
+//        // 1. Get the data from memory
+//        List<GrouperParameter> myData = GrouperCache.getData();
+//
+//        // 2. Use Stream to find the specific claim
+//        Optional<GrouperParameter> result = myData.stream()
+//                .filter(p -> p.getClaimseries() != null && p.getClaimseries().equals(claimId))
+//                .findFirst();
+//
+//        // 3. Return the result if found, otherwise return 404
+//        if (result.isPresent()) {
+//            String json = utility.objectMapper().writeValueAsString(result.get());
+//            return Response.ok(json).build();
+//        } else {
+//            return Response.status(Response.Status.NOT_FOUND)
+//                    .entity("{\"error\": \"Claim series not found\"}")
+//                    .build();
+//        }
+//    }
 }

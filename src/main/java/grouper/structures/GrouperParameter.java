@@ -5,79 +5,79 @@
  */
 package grouper.structures;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+//import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+//import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
  *
  * @author MINOSUN
  */
+//@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class GrouperParameter {
 
     public GrouperParameter() {
     }
 
-    @JsonProperty("expiretime")
+//    @JsonProperty("expiretime")
     private String ExpireTime;
     
-    @JsonProperty("expiredate")
+//    @JsonProperty("expiredate")
     private String ExpiredDate;
     
-    @JsonProperty("timeofbirth")
+//    @JsonProperty("timeofbirth")
     private String TimeOfBirth;
     
-    @JsonProperty("prepccl")
+//    @JsonProperty("prepccl")
     private String prepccl;
     
-    @JsonProperty("finalpccl")
+//    @JsonProperty("finalpccl")
     private String finalpccl;
     
-    @JsonProperty("warningerror")
+//    @JsonProperty("warningerror")
     private String warningerror;
     
-    @JsonProperty("idseries")
+//    @JsonProperty("idseries")
     private String idseries;
     
-    @JsonProperty("result_id")
+//    @JsonProperty("result_id")
     private String result_id;
 
-    @JsonProperty("claimseries")
+//    @JsonProperty("claimseries")
     private String claimseries;
 
-    @JsonProperty("pdx")
+//    @JsonProperty("pdx")
     private String Pdx;
 
-    @JsonProperty("sdx")
+//    @JsonProperty("sdx")
     private String Sdx;
 
-    @JsonProperty("proc")
+//    @JsonProperty("proc")
     private String Proc;
 
-    @JsonProperty("birthDate")
+//    @JsonProperty("birthDate")
     private String BirthDate;
 
-    @JsonProperty("admissionDate")
+//    @JsonProperty("admissionDate")
     private String AdmissionDate;
 
-    @JsonProperty("dischargeDate")
+//    @JsonProperty("dischargeDate")
     private String DischargeDate;
 
-    @JsonProperty("gender")
+//    @JsonProperty("gender")
     private String Gender;
 
-    @JsonProperty("timeAdmission")
+//    @JsonProperty("timeAdmission")
     private String TimeAdmission;
 
-    @JsonProperty("timeDischarge")
+//    @JsonProperty("timeDischarge")
     private String TimeDischarge;
 
-    @JsonProperty("dischargeType")
+//    @JsonProperty("dischargeType")
     private String DischargeType;
 
-    @JsonProperty("admissionWeight")
+//    @JsonProperty("admissionWeight")
     private String AdmissionWeight;
 
 }
