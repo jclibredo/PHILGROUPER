@@ -48,6 +48,8 @@ public class GetPCCLResult {
                     drgResult.setDRG(drgResult.getDC() + "9");
                     drgResult.setPrepccl("9");
                     drgResult.setFinalpccl("9");
+                    drgResult.setDRGName(checkDRG.DRG(datasource, drgResult.getDC(),
+                            drgResult.getDC() + "9").getMessage());
                 } else {
 //                    String sdxfinalList = new CleanSDxDCDetermination().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
                     String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(),
@@ -58,8 +60,10 @@ public class GetPCCLResult {
                         drgResult.setPrepccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
                         drgResult.setFinalpccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
                         drgResult.setDRG(finaldrgresult.getDRG());
-                        if (checkDRG.DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
-                            drgResult.setDRGName(checkDRG.DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
+                        if (checkDRG.DRG(datasource, drgResult.getDC(),
+                                finaldrgresult.getDRG()).isSuccess()) {
+                            drgResult.setDRGName(checkDRG.DRG(datasource, drgResult.getDC(),
+                                    finaldrgresult.getDRG()).getMessage());
                         } else {
                             DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, drgResult.getDC(), finaldrgresult.getDRG());
                             if (drgvalues.isSuccess()) {
