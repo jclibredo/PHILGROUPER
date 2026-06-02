@@ -99,7 +99,10 @@ public class GetMDC05 {
             int PPCount = 0;
             int Counter5PBX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(x).trim(), drgResult.getMDC());
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
+                        ProcedureList.get(x).trim(), 
+                        drgResult.getMDC(),
+                        grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);

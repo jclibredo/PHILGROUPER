@@ -128,13 +128,13 @@ public class GetValidatedPreMDC {
                             procSite.add(checkProc.getResult());
                             procnewlist.add(checkProc.getResult());
                         }
-                        if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PB", "0").isSuccess()) {
+                        if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PB", "00").isSuccess()) {
                             PDC0PB++;
                         }
-                        if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PD", "0").isSuccess()) {
+                        if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PD", "00").isSuccess()) {
                             PDC0PD++;
                         }
-                        if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PA", "0").isSuccess()) {
+                        if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PA", "00").isSuccess()) {
                             PDC0PA++;
                         }
                         

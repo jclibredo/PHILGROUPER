@@ -64,10 +64,15 @@ public class GetMDC02 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             int Counter2PDX = 0;
+
+            MDCProcedureMethod mdcProcess = new MDCProcedureMethod();
             for (int y = 0; y < ProcedureList.size(); y++) {
-                if (new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(y).trim(), drgResult.getMDC()).isSuccess()) {
+                if (mdcProcess.MDCProcedure(datasource, ProcedureList.get(y).trim(), drgResult.getMDC(), grouperparameter.getGender()).isSuccess()) {
                     mdcprocedureCounter++;
-                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(y).trim(), drgResult.getMDC()).getResult(), MDCProcedure.class);
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(mdcProcess.MDCProcedure(datasource, 
+                            ProcedureList.get(y).trim(), 
+                            drgResult.getMDC(), 
+                            grouperparameter.getGender()).getResult(), MDCProcedure.class);
 //                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC().trim(), drgResult.getMDC());
                     if (new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC().trim(), drgResult.getMDC()).isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC().trim(), drgResult.getMDC()).getResult(), PDC.class);

@@ -98,7 +98,10 @@ public class GetMDC09 {
                 if (checkAX.AX(datasource, "9PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter9PDX++;
                 }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(y).trim(), drgResult.getMDC());
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
+                        ProcedureList.get(y).trim(), 
+                        drgResult.getMDC(),
+                        grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);

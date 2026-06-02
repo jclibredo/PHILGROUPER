@@ -95,9 +95,16 @@ public class GetMDC17 {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(new ORProcedure().ORProcedure(datasource, ProcedureList.get(x).trim()).getResult()));
                 }
-                if (new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(x).trim(), drgResult.getMDC()).isSuccess()) {
+                MDCProcedureMethod mdcProcedureRes = new MDCProcedureMethod();
+                if (mdcProcedureRes.MDCProcedure(datasource,
+                        ProcedureList.get(x).trim(),
+                        drgResult.getMDC(),
+                        grouperparameter.getGender()).isSuccess()) {
 //                    mdcprocedureCounter++;
-                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(x).trim(), drgResult.getMDC()).getResult(), MDCProcedure.class);
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(mdcProcedureRes.MDCProcedure(datasource,
+                            ProcedureList.get(x).trim(),
+                            drgResult.getMDC(),
+                            grouperparameter.getGender()).getResult(), MDCProcedure.class);
                     DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);

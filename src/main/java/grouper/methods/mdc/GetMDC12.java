@@ -53,7 +53,10 @@ public class GetMDC12 {
             ArrayList<String> pdclist = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String proc = ProcedureList.get(y);
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, proc.trim(), drgResult.getMDC());
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
+                        proc.trim(), 
+                        drgResult.getMDC(),
+                        grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);

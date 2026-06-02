@@ -25,7 +25,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
@@ -75,7 +74,8 @@ public class GrouperTesting {
                     DRGWSResult grouperResult = this.ProcessData(utility.GetString("FilePathReports").getResult(), datasource, grouperparameter.get(g));
 //                DRGWSResult grouperResult = this.ProcessData(datasource, grouperparameter.get(g));
                     if (grouperResult.isSuccess()) {
-//                    DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
+                        DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
+                        System.out.println("SERIES: " + drgout.getClaimseries() + " PDC: " + drgout.getPDC() + " MDC: " + drgout.getMDC() + " DRG: " + drgout.getDRG());
                         drgresultList.add(grouperResult.getResult());
                     } else {
                         errorList.add(grouperResult.getMessage());
@@ -125,7 +125,6 @@ public class GrouperTesting {
         try {
             DRGOutput drgresult = utility.DRGOutput();
             GrouperParameter grouper = utility.GrouperParameter();
-
             // Deep string sanitization copying
             grouper.setResult_id(grouperparameter.getResult_id());
             grouper.setExpireTime(grouperparameter.getExpireTime());
@@ -139,37 +138,41 @@ public class GrouperTesting {
             grouper.setGender(grouperparameter.getGender());
             grouper.setIdseries(grouperparameter.getIdseries());
             grouper.setAdmissionWeight(grouperparameter.getAdmissionWeight());
-
-            // Optimize layout translation mapping via structural switch
             String rawDischargeType = grouperparameter.getDischargeType().toUpperCase();
             switch (rawDischargeType) {
-                case "E":
-                    ->
+                case "E": {
                     grouper.setDischargeType("8");
-                case "O":
-                    ->
+                    break;
+                }
+                case "O": {
                     grouper.setDischargeType("5");
+                    break;
+                }
                 case "I":
-                    , "R": ->
+                case "R": {
                     grouper.setDischargeType("1");
-                case "A":
-                    ->
+                    break;
+                }
+                case "A": {
                     grouper.setDischargeType("3");
-                case "T":
-                    ->
+                    break;
+                }
+                case "T": {
                     grouper.setDischargeType("4");
-                case "H":
-                    ->
+                    break;
+                }
+                case "H": {
                     grouper.setDischargeType("2");
-                default
-                    ->
+                    break;
+                }
+                default: {
                     grouper.setDischargeType(grouperparameter.getDischargeType());
+                    break;
+                }
             }
-
             drgresult.setPrepccl("");
             drgresult.setFinalpccl("");
             drgresult.setWarningerror("");
-
             // PDx Cleanup Check
             String rawPdx = grouperparameter.getPdx();
             if (getPreMDC.GetICD10PreMDC(datasource, rawPdx).isSuccess()) {
@@ -190,13 +193,22 @@ public class GrouperTesting {
 
             if (rawProc != null && !rawProc.trim().isEmpty()) {
                 List<String> newprocList = new ArrayList<>();
+//                for (String proc : rawProc.split(",")) {
+//                    String trimmed = proc.trim();
+//                    if (!trimmed.isEmpty()) {
+//                        newprocList.add(trimmed);
+//                    }
+//                }
                 for (String proc : rawProc.split(",")) {
                     String trimmed = proc.trim();
                     if (!trimmed.isEmpty()) {
-                        newprocList.add(trimmed);
+                        String cleanProc = trimmed.replaceFirst("^0+", "");
+                        if (cleanProc.isEmpty()) {
+                            cleanProc = "0";
+                        }
+                        newprocList.add(cleanProc);
                     }
                 }
-
                 for (int m = 0; m < newprocList.size(); m++) {
                     String currentProc = newprocList.get(m);
                     if (icd9cm.GetICD9cm(datasource, currentProc).isSuccess()) {
@@ -254,7 +266,6 @@ public class GrouperTesting {
                             if (currentSdx.isEmpty()) {
                                 continue;
                             }
-
                             String upperSdx = currentSdx.toUpperCase().trim();
                             DRGWSResult ageConflictResult = ageValidation.AgeConfictValidation(datasource, upperSdx, daysStr, yearStr);
                             DRGWSResult sexConflictResult = sexValidation.GenderConfictValidation(datasource, upperSdx, grouper.getGender());
@@ -369,23 +380,26 @@ public class GrouperTesting {
                 drgresult.setClaimseries(grouperparameter.getClaimseries());
                 result.setResult(utility.objectMapper().writeValueAsString(drgresult));
                 result.setSuccess(true);
-                this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
+//                this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
             } else {
                 DRGWSResult validateresult = new ValidateFindMDC().ValidateFindMDC(datasource, grouper);
                 if (validateresult.isSuccess()) {
-                    DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
-                    this.FileWriter(Path, grouperparameter.getClaimseries(), drgResults.getDRG(), drgResults.getPDC(), drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
+//                    DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
+//                    this.FileWriter(Path, grouperparameter.getClaimseries(), drgResults.getDRG(), drgResults.getPDC(), drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
                     result.setResult(validateresult.getResult());
                     result.setSuccess(true);
+//                    System.out.println(validateresult.getResult());
                 } else {
-                    this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage(), "N/A", "N/A", "N/A");
+//                    this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage(), "N/A", "N/A", "N/A");
                     result.setMessage(validateresult.getMessage());
+                    System.out.println(validateresult.getMessage());
                 }
             }
         } catch (IOException | NumberFormatException | ParseException ex) {
             result.setMessage("Something went wrong");
             logger.error("Error in ProcessData Method : {}", ex.getMessage(), ex);
-            this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
+            System.out.println(ex.toString());
+//            this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
         }
         return result;
     }

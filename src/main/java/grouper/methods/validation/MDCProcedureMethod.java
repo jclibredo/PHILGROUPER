@@ -6,12 +6,14 @@
 package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
+import grouper.structures.MDCProcedure;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
@@ -30,20 +32,21 @@ public class MDCProcedureMethod {
     private final Logger logger = (Logger) LogManager.getLogger(MDCProcedureMethod.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult MDCProcedure(final DataSource datasource, String icd9code, final String mdcs) {
+    public DRGWSResult MDCProcedure(final DataSource datasource, final String icd9code, final String mdcs, final String u_sex) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMDCProcedure = connection.prepareCall("begin :join_icd9_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD9_JOIN_TABLE(:icd9code,:mdcs); end;");
+            CallableStatement GetMDCProcedure = connection.prepareCall("begin :join_icd9_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD9_JOIN_TABLE(:icd9code,:u_sex,:mdcs); end;");
             GetMDCProcedure.registerOutParameter("join_icd9_output", OracleTypes.CURSOR);
             GetMDCProcedure.setString("icd9code", icd9code.trim());
+            GetMDCProcedure.setString("u_sex", u_sex.trim());
             GetMDCProcedure.setString("mdcs", mdcs.trim());
             GetMDCProcedure.execute();
             ResultSet MDCProcResultset = (ResultSet) GetMDCProcedure.getObject("join_icd9_output");
-            if (MDCProcResultset.next()) {
-                grouper.structures.MDCProcedure mdcProcedure = new grouper.structures.MDCProcedure();
+            if(MDCProcResultset.next()) {
+                MDCProcedure mdcProcedure = new grouper.structures.MDCProcedure();
                 mdcProcedure.setA_CODE(MDCProcResultset.getString("CODES"));
                 mdcProcedure.setA_MDC(MDCProcResultset.getString(String.valueOf("MDC")));
                 mdcProcedure.setA_PDC(MDCProcResultset.getString("PDC"));

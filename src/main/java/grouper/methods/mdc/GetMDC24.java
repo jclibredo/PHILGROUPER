@@ -73,7 +73,10 @@ public class GetMDC24 {
                     ORProcedureCounter++;
                 }
 
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(x).trim(), drgResult.getMDC());
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
+                        ProcedureList.get(x).trim(), 
+                        drgResult.getMDC(),
+                        grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
 //                    mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);

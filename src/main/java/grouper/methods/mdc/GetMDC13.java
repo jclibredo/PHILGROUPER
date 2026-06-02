@@ -68,6 +68,9 @@ public class GetMDC13 {
                 if (utility.isValid99PFX(ProcedureList.get(x).trim())) {
                     CaCRxProc++;
                 }
+                if (checkAX.AX(datasource, "99PBX", ProcedureList.get(x).trim()).isSuccess()) {
+                    PBX99Proc++;
+                }
                 //AX 99PDX Checking
                 if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
                     PDXCounter99++;
@@ -88,7 +91,10 @@ public class GetMDC13 {
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(x).trim(), drgResult.getMDC());
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        ProcedureList.get(x).trim(),
+                        drgResult.getMDC(),
+                        grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
