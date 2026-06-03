@@ -41,6 +41,8 @@ public class GetMDC28 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
 
             AX checkAX = new AX();
@@ -62,9 +64,9 @@ public class GetMDC28 {
             int Counter28BX = 0;
             int Counter28CX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
-                        ProcedureList.get(x).trim(), 
-                        drgResult.getMDC(),
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        ProcedureList.get(x).trim(),
+                        mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
@@ -76,12 +78,19 @@ public class GetMDC28 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                if (utility.isValid99PFX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid99PFX(ProcedureList.get(x).trim())) {
+//                    CaCRxProc++;
+//                }
+
+                if (checkAX.AX(datasource, "99PFX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     CaCRxProc++;
                 }
             }
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
+//                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
+//                    CaCRxSDx++;
+//                }
+                if (checkAX.AX(datasource, "99CX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
                     CaCRxSDx++;
                 }
             }
@@ -347,7 +356,8 @@ public class GetMDC28 {
                         drgResult.setDRG("28619");
                         drgResult.setDC("2861");
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 11) {
-                        if (utility.isValid28PBX(grouperparameter.getPdx())) {
+                        if (checkAX.AX(datasource, "28PBX", grouperparameter.getPdx().trim()).isSuccess()) {
+//                            if (utility.isValid28PBX(grouperparameter.getPdx())) {
                             drgResult.setDRG("28019");
                             drgResult.setDC("2801");
                         } else {
@@ -356,7 +366,7 @@ public class GetMDC28 {
                         }
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 12
                             && utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) <= 65) {
-                        if (utility.isValid28PBX(grouperparameter.getPdx())) {
+                        if (checkAX.AX(datasource, "28PBX", grouperparameter.getPdx().trim()).isSuccess()) {
                             drgResult.setDRG("28029");
                             drgResult.setDC("2802");
                         } else {
@@ -370,11 +380,11 @@ public class GetMDC28 {
                         } else if (Counter28CX > 0) {
                             drgResult.setDRG("28659");
                             drgResult.setDC("2865");
-                        } else if (utility.isValid28DX(grouperparameter.getPdx())) {
+                        } else if (checkAX.AX(datasource, "28DX", grouperparameter.getPdx().trim()).isSuccess()) {
                             drgResult.setDRG("28669");
                             drgResult.setDC("2866");
                         } else {
-                            if (utility.isValid28PBX(grouperparameter.getPdx())) {
+                            if (checkAX.AX(datasource, "28PBX", grouperparameter.getPdx().trim()).isSuccess()) {
                                 drgResult.setDRG("28039");
                                 drgResult.setDC("2803");
                             } else {

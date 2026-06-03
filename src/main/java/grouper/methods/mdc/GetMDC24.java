@@ -5,6 +5,7 @@
  */
 package grouper.methods.mdc;
 
+import grouper.methods.validation.AX;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -40,6 +41,8 @@ public class GetMDC24 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             //CHECKING FOR TRAUMA CODES
@@ -59,23 +62,34 @@ public class GetMDC24 {
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
+            AX checkAX = new AX();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
-                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
+//                    PDXCounter99++;
+//                }
+                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
+//                    PCXCounter99++;
+//                }
+                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PCXCounter99++;
                 }
-                if (utility.isValid24PBX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid24PBX(ProcedureList.get(x).trim())) {
+//                    Counter24PBX++;
+//                    ORProcedureCounter++;
+//                }
+                if (checkAX.AX(datasource, "24PBX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     Counter24PBX++;
                     ORProcedureCounter++;
                 }
 
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
-                        ProcedureList.get(x).trim(), 
-                        drgResult.getMDC(),
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        ProcedureList.get(x).trim(),
+                        mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
 //                    mdcprocedureCounter++;

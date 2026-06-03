@@ -44,6 +44,8 @@ public class GetMDC12 {
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
         List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
         AX axRest = new AX();
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             // CHECKING ICD9 TO MDC START
             int ORProcedureCounter = 0;
@@ -53,9 +55,9 @@ public class GetMDC12 {
             ArrayList<String> pdclist = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String proc = ProcedureList.get(y);
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
-                        proc.trim(), 
-                        drgResult.getMDC(),
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        proc.trim(),
+                        mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
@@ -95,26 +97,42 @@ public class GetMDC12 {
 
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y);
-                if (utility.isValid99PDX(procS.trim())) {
+//                if (utility.isValid99PDX(procS.trim())) {
+//                    PDXCounter99++;
+//                }
+                if (axRest.AX(datasource, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
+
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(procS.trim())) {
+//                if (utility.isValid99PCX(procS.trim())) {
+//                    PCXCounter99++;
+//                }
+                if (axRest.AX(datasource, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-                if (utility.isValid99PEX(procS.trim())) {
+//                if (utility.isValid99PEX(procS.trim())) {
+//                    CartProc++;
+//                }
+                if (axRest.AX(datasource, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
-                if (utility.isValid99PFX(procS.trim())) {
+//                if (utility.isValid99PFX(procS.trim())) {
+//                    CaCRxProc++;
+//                }
+                if (axRest.AX(datasource, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
 
-                DRGWSResult Result12PBX = axRest.AX(datasource, "12PBX", procS.trim());
+                DRGWSResult Result12PBX = axRest.AX(datasource, "12PBX", ProcedureList.get(y).trim());
                 if (Result12PBX.isSuccess()) {
                     PBX12Proc++;
                 }
 
-                if (utility.isValid99PBX(procS.trim())) {
+//                if (utility.isValid99PBX(procS.trim())) {
+//                    PBX99Proc++;
+//                }
+                if (axRest.AX(datasource, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
             }
@@ -122,10 +140,16 @@ public class GetMDC12 {
             //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
-                if (utility.isValid99BX(Secon.trim())) {
+//                if (utility.isValid99BX(Secon.trim())) {
+//                    CartSDx++;
+//                }
+                if (axRest.AX(datasource, "99BX", Secon.trim()).isSuccess()) {
                     CartSDx++;
                 }
-                if (utility.isValid99CX(Secon.trim())) {
+//                if (utility.isValid99CX(Secon.trim())) {
+//                    CaCRxSDx++;
+//                }
+                if (axRest.AX(datasource, "99CX", Secon.trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
             }

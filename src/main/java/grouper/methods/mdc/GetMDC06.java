@@ -44,6 +44,8 @@ public class GetMDC06 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -57,10 +59,16 @@ public class GetMDC06 {
             int PBX99Proc = 0;
             //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
+//                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
+//                    CartSDx++;
+//                }
+                if (checkAX.AX(datasource, "99BX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
                     CartSDx++;
                 }
-                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
+//                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
+//                    CaCRxSDx++;
+//                }
+                if (checkAX.AX(datasource, "99CX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
                     CaCRxSDx++;
                 }
             }
@@ -85,9 +93,9 @@ public class GetMDC06 {
             ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
-                        ProcedureList.get(y).trim(), 
-                        drgResult.getMDC(),
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        ProcedureList.get(y).trim(),
+                        mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
@@ -100,7 +108,7 @@ public class GetMDC06 {
                     }
                 }
                 //Inguinal or Femoral PDC 6PH
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "6PH", drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "6PH", mdcWithoutZeros).isSuccess()) {
                     Counter6PH++;
                 }
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, ProcedureList.get(y).trim());
@@ -109,23 +117,38 @@ public class GetMDC06 {
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 //AX 99PDX Checking
-                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
+//                    PDXCounter99++;
+//                }
+                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
+//                    PCXCounter99++;
+//                }
+                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
+//                    CartProc++;
+//                }
+                if (checkAX.AX(datasource, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
-                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
+//                    CaCRxProc++;
+//                }
+                if (checkAX.AX(datasource, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
                 if (checkAX.AX(datasource, "6PBX", ProcedureList.get(y).trim()).isSuccess()) {//Dx Procedure
                     PBX6Proc++;
                 }
-                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
+//                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
+//                    PBX99Proc++;
+//                }
+                if (checkAX.AX(datasource, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {//Dx Procedure
                     PBX99Proc++;
                 }
             }
@@ -213,7 +236,8 @@ public class GetMDC06 {
                                 drgResult.setDC("0629");
                                 break;
                             case "6PJ"://Appendectomy
-                                if (utility.isValid6CX(grouperparameter.getPdx())) {
+                                if (checkAX.AX(datasource, "6CX", grouperparameter.getPdx().trim()).isSuccess()) {
+//                                if (utility.isValid6CX(grouperparameter.getPdx())) {
                                     drgResult.setDC("0632");
                                 } else {
                                     drgResult.setDC("0607");
@@ -462,7 +486,8 @@ public class GetMDC06 {
                         drgResult.setDC("0629");
                         break;
                     case "6PJ"://Appendectomy
-                        if (utility.isValid6CX(grouperparameter.getPdx())) {
+//                        if (utility.isValid6CX(grouperparameter.getPdx())) {
+                        if (checkAX.AX(datasource, "6CX", grouperparameter.getPdx().trim()).isSuccess()) {
                             drgResult.setDC("0632");
                         } else {
                             drgResult.setDC("0607");

@@ -43,6 +43,8 @@ public class GetMDC01 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -83,8 +85,7 @@ public class GetMDC01 {
                 if (checkAX.AX(datasource, "99PCX", ProcedureList.get(a).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(a).trim(), "1PJ", drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(a).trim(), "1PJ", mdcWithoutZeros).isSuccess()) {
                     EndoCounter++;
                 }
                 if (checkAX.AX(datasource, "99PEX", ProcedureList.get(a).trim()).isSuccess()) {
@@ -96,7 +97,7 @@ public class GetMDC01 {
                 if (checkAX.AX(datasource, "99PBX", ProcedureList.get(a).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(a).trim(), drgResult.getMDC(), grouperparameter.getGender());
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(a).trim(), mdcWithoutZeros, grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);

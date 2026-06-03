@@ -73,44 +73,44 @@ public class Utility {
             + "(?=\\S+$).{8,20}$";
     private static final String CIPHERKEY = "A263B7980A15ADE7";
 
-    String[] pkgcode = {"", "", "", ""};
-    String[] OPA = {"5051", "5059"};
-    String[] OPB = {"3350", "3351", "3352", "336", "3751"};
-    String[] OPD = {"4100", "4101", "4102", "4103", "4104", "4105", "4106", "4107", "4108", "4109"};
+//    String[] pkgcode = {"", "", "", ""};
+//    String[] OPA = {"5051", "5059"};
+//    String[] OPB = {"3350", "3351", "3352", "336", "3751"};
+//    String[] OPD = {"4100", "4101", "4102", "4103", "4104", "4105", "4106", "4107", "4108", "4109"};
 
     //AX 99BX Radiotherapy
-    String[] BX99 = {"Z510"};
+//    String[] BX99 = {"Z510"};
 
     //AX 99CX Chemotherapy
-    String[] CX99 = {"Z511"};
+//    String[] CX99 = {"Z511"};
 
     //AX 99PBX Blood transfusion
-    String[] PBX99 = {"9903", "9905", "9904"};
+//    String[] PBX99 = {"9903", "9905", "9904"};
 
     //AX 99PCX Cont mech ventilation 96 consecutive hours or more
-    String[] PCX99 = {"9672"};
+//    String[] PCX99 = {"9672"};
 
     //AX 2PDX Cataract Frag/Asp
     //AX 99PDX Tracheostomy
-    String[] PDX99 = {"311", "3121", "3129"};
+//    String[] PDX99 = {"311", "3121", "3129"};
 
     //AX 99PEX Radiotherapeutic procedure
-    String[] PEX99 = {"9223", "9224", "9225", "9227", "9228", "9229", "9230", "9231", "9232", "9241"};
+//    String[] PEX99 = {"9223", "9224", "9225", "9227", "9228", "9229", "9230", "9231", "9232", "9241"};
 
     //AX 99PFX Parenteral cancer chemotherapy
-    String[] PFX99 = {"9925", "1770"};
+//    String[] PFX99 = {"9925", "1770"};
     //AX 2BX Parenteral cancer chemotherapy
 
     //Procedures for upper airway obstruction
-    String[] CX6 = {"C181", "K352", "K383"};
-    String[] PEX8 = {"8156"};
-    String[] PBX9 = {"86221>1"};
-    String[] PBX10 = {"3995"};
-    String[] PBX11 = {"9851"};
-    String[] PBX16 = {"0096"};
-    String[] PBX28 = {"9671"};
-    String[] DX28 = {"K920", "K922"};
-    String[] PBX24 = {"8628>1"};
+//    String[] CX6 = {"C181", "K352", "K383"};
+//    String[] PEX8 = {"8156"};
+//    String[] PBX9 = {"86221>1"};
+//    String[] PBX10 = {"3995"};
+//    String[] PBX11 = {"9851"};
+//    String[] PBX16 = {"0096"};
+//    String[] PBX28 = {"9671"};
+//    String[] DX28 = {"K920", "K922"};
+//    String[] PBX24 = {"8628>1"};
     String[] dclist = {"0019", "0029", "0049", "0107", "0110", "0203", "0210", "0213", "0214", "0215", "0311", "0318", "0319", "0450", "0503", "0507", "0510", "0525", "0528", "0535",
         "0557", "0615", "0620", "0622", "0625", "0626", "0627", "0629", "0634", "0712", "0713", "0804", "0826", "0827", "0832", "0833", "0834", "0835", "0907", "0912",
         "0913", "1005", "1009", "1011", "1012", "1113", "1114", "1115", "1152", "1161", "1209", "1210", "1253", "1255", "1312", "1313", "1314", "1318", "1319", "1361",
@@ -457,123 +457,123 @@ public class Utility {
         return result;
     }
 
-    public boolean isValid24PBX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(PBX24).contains(icd10);
-        return result;
-    }
-
-    public boolean isValid28DX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(DX28).contains(icd10);
-        return result;
-    }
-
-    public boolean isValid28PBX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(PBX28).contains(icd10);
-        return result;
-    }
-
-    public boolean isValid16PBX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(PBX16).contains(icd10);
-        return result;
-    }
-
-    public boolean isValid11PBX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(PBX11).contains(icd10);
-        return result;
-    }
-
-    public boolean isValid10PBX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(PBX10).contains(icd10);
-        return result;
-    }
-
-    public boolean isValid9PBX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(PBX9).contains(icd10);
-        return result;
-    }
-
-    public boolean isValid8PEX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(PEX8).contains(icd10);
-        return result;
-    }
-
-    public boolean isValid6CX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(CX6).contains(icd10);
-        return result;
-    }
-
-    public boolean isValidOPA(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(OPA).contains(icd10);
-        return result;
-
-    }
-
-    public boolean isValidOPB(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(OPB).contains(icd10);
-        return result;
-    }
-
-    public boolean isValidOPD(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(OPD).contains(icd10);
-        return result;
-
-    }
-
-    public boolean isValid99BX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(BX99).contains(icd10);
-        return result;
-
-    }
-
-    public boolean isValid99CX(String icd10) {
-        boolean result = false;
-        result = Arrays.asList(CX99).contains(icd10);
-        return result;
-
-    }
-
-    public boolean isValid99PBX(String icd9cm) {
-        boolean result = false;
-        result = Arrays.asList(PBX99).contains(icd9cm);
-        return result;
-    }
-
-    public boolean isValid99PCX(String icd9cm) {
-        boolean result = false;
-        result = Arrays.asList(PCX99).contains(icd9cm);
-        return result;
-    }
-
-    public boolean isValid99PDX(String icd9cm) {
-        boolean result = false;
-        result = Arrays.asList(PDX99).contains(icd9cm);
-        return result;
-    }
-
-    public boolean isValid99PEX(String icd9cm) {
-        boolean result = false;
-        result = Arrays.asList(PEX99).contains(icd9cm);
-        return result;
-    }
-
-    public boolean isValid99PFX(String icd9cm) {
-        boolean result = false;
-        result = Arrays.asList(PFX99).contains(icd9cm);
-        return result;
-    }
+//    public boolean isValid24PBX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(PBX24).contains(icd10);
+//        return result;
+//    }
+//
+//    public boolean isValid28DX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(DX28).contains(icd10);
+//        return result;
+//    }
+//
+//    public boolean isValid28PBX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(PBX28).contains(icd10);
+//        return result;
+//    }
+//
+//    public boolean isValid16PBX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(PBX16).contains(icd10);
+//        return result;
+//    }
+//
+//    public boolean isValid11PBX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(PBX11).contains(icd10);
+//        return result;
+//    }
+//
+//    public boolean isValid10PBX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(PBX10).contains(icd10);
+//        return result;
+//    }
+//
+//    public boolean isValid9PBX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(PBX9).contains(icd10);
+//        return result;
+//    }
+//
+//    public boolean isValid8PEX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(PEX8).contains(icd10);
+//        return result;
+//    }
+//
+//    public boolean isValid6CX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(CX6).contains(icd10);
+//        return result;
+//    }
+//
+//    public boolean isValidOPA(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(OPA).contains(icd10);
+//        return result;
+//
+//    }
+//
+//    public boolean isValidOPB(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(OPB).contains(icd10);
+//        return result;
+//    }
+//
+//    public boolean isValidOPD(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(OPD).contains(icd10);
+//        return result;
+//
+//    }
+//
+//    public boolean isValid99BX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(BX99).contains(icd10);
+//        return result;
+//
+//    }
+//
+//    public boolean isValid99CX(String icd10) {
+//        boolean result = false;
+//        result = Arrays.asList(CX99).contains(icd10);
+//        return result;
+//
+//    }
+//
+//    public boolean isValid99PBX(String icd9cm) {
+//        boolean result = false;
+//        result = Arrays.asList(PBX99).contains(icd9cm);
+//        return result;
+//    }
+//
+//    public boolean isValid99PCX(String icd9cm) {
+//        boolean result = false;
+//        result = Arrays.asList(PCX99).contains(icd9cm);
+//        return result;
+//    }
+//
+//    public boolean isValid99PDX(String icd9cm) {
+//        boolean result = false;
+//        result = Arrays.asList(PDX99).contains(icd9cm);
+//        return result;
+//    }
+//
+//    public boolean isValid99PEX(String icd9cm) {
+//        boolean result = false;
+//        result = Arrays.asList(PEX99).contains(icd9cm);
+//        return result;
+//    }
+//
+//    public boolean isValid99PFX(String icd9cm) {
+//        boolean result = false;
+//        result = Arrays.asList(PFX99).contains(icd9cm);
+//        return result;
+//    }
 
     public DRGWSResult DRGWSResult() {
         return new DRGWSResult();

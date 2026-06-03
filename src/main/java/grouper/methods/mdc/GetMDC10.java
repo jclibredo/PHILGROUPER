@@ -5,6 +5,7 @@
  */
 package grouper.methods.mdc;
 
+import grouper.methods.validation.AX;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -41,6 +42,9 @@ public class GetMDC10 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        AX getAx = new AX();
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             //CHECKING FOR TRAUMA CODES
@@ -54,19 +58,28 @@ public class GetMDC10 {
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
-                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
+//                    PDXCounter99++;
+//                }
+                if (getAx.AX(datasource, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
+//                    PCXCounter99++;
+//                }
+                if (getAx.AX(datasource, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-                if (utility.isValid10PBX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid10PBX(ProcedureList.get(x).trim())) {
+//                    Counter10PBX++;
+//                }
+                if (getAx.AX(datasource, "10PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter10PBX++;
                 }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
-                        ProcedureList.get(x).trim(), 
-                        drgResult.getMDC(),
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        ProcedureList.get(x).trim(),
+                        mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;

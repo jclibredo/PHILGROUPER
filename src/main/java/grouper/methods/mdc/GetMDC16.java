@@ -5,6 +5,7 @@
  */
 package grouper.methods.mdc;
 
+import grouper.methods.validation.AX;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -41,6 +42,8 @@ public class GetMDC16 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
 //            List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -53,21 +56,24 @@ public class GetMDC16 {
             int mdcprocedureCounter = 0;
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
+            AX getAx = new AX();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
-                if (utility.isValid16PBX(ProcedureList.get(x).trim())) {
+
+                //AX 16PBX Checking
+                if (getAx.AX(datasource, "16PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter16PBX++;
                 }
                 //AX 99PDX Checking
-                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
+                if (getAx.AX(datasource, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PBX Checking
-                if (utility.isValid99PBX(ProcedureList.get(x).trim())) {
+                if (getAx.AX(datasource, "99PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     PBXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
+                if (getAx.AX(datasource, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, ProcedureList.get(x).trim());
@@ -75,9 +81,9 @@ public class GetMDC16 {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
-                        ProcedureList.get(x).trim(), 
-                        drgResult.getMDC(),
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        ProcedureList.get(x).trim(),
+                        mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;

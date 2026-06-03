@@ -13,7 +13,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
@@ -45,7 +45,7 @@ public class MDCProcedureMethod {
             GetMDCProcedure.setString("mdcs", mdcs.trim());
             GetMDCProcedure.execute();
             ResultSet MDCProcResultset = (ResultSet) GetMDCProcedure.getObject("join_icd9_output");
-            if(MDCProcResultset.next()) {
+            if (MDCProcResultset.next()) {
                 MDCProcedure mdcProcedure = new grouper.structures.MDCProcedure();
                 mdcProcedure.setA_CODE(MDCProcResultset.getString("CODES"));
                 mdcProcedure.setA_MDC(MDCProcResultset.getString(String.valueOf("MDC")));

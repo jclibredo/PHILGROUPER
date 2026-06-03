@@ -44,6 +44,8 @@ public class GetMDC05 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -99,9 +101,9 @@ public class GetMDC05 {
             int PPCount = 0;
             int Counter5PBX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
-                        ProcedureList.get(x).trim(), 
-                        drgResult.getMDC(),
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        ProcedureList.get(x).trim(),
+                        mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
@@ -119,11 +121,17 @@ public class GetMDC05 {
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 //AX 99PDX Checking
-                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
+//                    PDXCounter99++;
+//                }
+                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
+//                    PCXCounter99++;
+//                }
+                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
 
@@ -159,7 +167,7 @@ public class GetMDC05 {
                 }
 
                 //Cardiac Cath PDC 5PT
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "5PT", drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "5PT", mdcWithoutZeros).isSuccess()) {
                     CardiacCount++;
                 }
                 //AX 5PBX
@@ -167,7 +175,7 @@ public class GetMDC05 {
                     Counter5PBX++;
                 }
 
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "5PK", drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "5PK", mdcWithoutZeros).isSuccess()) {
                     PPCount++;
                 }
             }

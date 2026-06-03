@@ -324,6 +324,8 @@ public class GetMDC11 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -345,25 +347,41 @@ public class GetMDC11 {
             AX getAx = new AX();
             MDCProcedureMethod getMdcProced = new MDCProcedureMethod();
             for (int x = 0; x < ProcedureList.size(); x++) {
-                if (utility.isValid99PEX(ProcedureList.get(x).trim())) {
-                    System.out.println("CART PROC : " + ProcedureList.get(x).trim());
+//                if (utility.isValid99PEX(ProcedureList.get(x).trim())) {
+//                    CartProc++;
+//                }
+                if (getAx.AX(datasource, "99PEX", ProcedureList.get(x).trim()).isSuccess()) {
                     CartProc++;
                 }
-                if (utility.isValid99PFX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid99PFX(ProcedureList.get(x).trim())) {
+//                    CaCRxProc++;
+//                }
+                if (getAx.AX(datasource, "99PFX", ProcedureList.get(x).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
+
                 //AX 99PDX Checking
-                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
+//                    PDXCounter99++;
+//                }
+                if (getAx.AX(datasource, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
+//                    PCXCounter99++;
+//                }
+                if (getAx.AX(datasource, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
                 //AX 11PBX Checking
-                if (utility.isValid11PBX(ProcedureList.get(x).trim())) {
+//                if (utility.isValid11PBX(ProcedureList.get(x).trim())) {
+//                    Counter11PBX++;
+//                }
+                if (getAx.AX(datasource, "11PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter11PBX++;
                 }
+
                 if (getAx.AX(datasource, "11PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter11PCX++;
                 }
@@ -380,7 +398,7 @@ public class GetMDC11 {
                 //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
                 DRGWSResult JoinResult = getMdcProced.MDCProcedure(datasource,
                         ProcedureList.get(x).trim(),
-                        drgResult.getMDC(),
+                        mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
@@ -395,11 +413,18 @@ public class GetMDC11 {
             }
 
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
-                    System.out.println("CART SDX : " + SecondaryList.get(a));
+//                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
+//                    System.out.println("CART SDX : " + SecondaryList.get(a));
+//                    CartSDx++;
+//                }
+
+                if (getAx.AX(datasource, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
                 }
-                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
+//                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
+//                    CaCRxSDx++;
+//                }
+                if (getAx.AX(datasource, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
             }

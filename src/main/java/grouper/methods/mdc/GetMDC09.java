@@ -43,6 +43,8 @@ public class GetMDC09 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -66,10 +68,16 @@ public class GetMDC09 {
                 if (new PDxMalignancy().PDxMalignancy(datasource, SecondaryList.get(a).trim(), "9E").isSuccess()) {
                     SDxMalignantCount++;
                 }
-                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
+//                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
+//                    CartSDx++;
+//                }
+                if (checkAX.AX(datasource, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
                 }
-                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
+//                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
+//                    CaCRxSDx++;
+//                }
+                if (checkAX.AX(datasource, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
             }
@@ -98,9 +106,9 @@ public class GetMDC09 {
                 if (checkAX.AX(datasource, "9PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter9PDX++;
                 }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
-                        ProcedureList.get(y).trim(), 
-                        drgResult.getMDC(),
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        ProcedureList.get(y).trim(),
+                        mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
@@ -115,26 +123,44 @@ public class GetMDC09 {
 
                 //-------------------------
                 //AX 99PDX Checking
-                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
+//                    PDXCounter99++;
+//                }
+                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
+//                    PCXCounter99++;
+//                }
+                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
+//                    CartProc++;
+//                }
+                if (checkAX.AX(datasource, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
-                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
+//                    CaCRxProc++;
+//                }
+                if (checkAX.AX(datasource, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
+//                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
+//                    PBX99Proc++;
+//                }
+                if (checkAX.AX(datasource, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
                 if (checkAX.AX(datasource, "9PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter9PCX++;
                 }
-                if (utility.isValid9PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
+//                if (utility.isValid9PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
+//                    Counter9PBX++;
+//                }
+                if (checkAX.AX(datasource, "9PBX(", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter9PBX++;
                 }
 

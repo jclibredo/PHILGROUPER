@@ -43,6 +43,9 @@ public class GetMDC08 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
+
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -59,10 +62,16 @@ public class GetMDC08 {
             int Counter8PFX = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
-                if (utility.isValid99BX(Secon.toUpperCase().trim())) {
+//                if (utility.isValid99BX(Secon.toUpperCase().trim())) {
+//                    CartSDx++;
+//                }
+                if (checkAX.AX(datasource, "99BX", Secon.trim()).isSuccess()) {
                     CartSDx++;
                 }
-                if (utility.isValid99CX(Secon.toUpperCase().trim())) {
+//                if (utility.isValid99CX(Secon.toUpperCase().trim())) {
+//                    CaCRxSDx++;
+//                }
+                if (checkAX.AX(datasource, "99CX", Secon.trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
             }
@@ -81,9 +90,9 @@ public class GetMDC08 {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, 
-                        ProcedureList.get(y).trim(), 
-                        drgResult.getMDC(),
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        ProcedureList.get(y).trim(),
+                        mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
@@ -95,29 +104,43 @@ public class GetMDC08 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "8PH", drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "8PH", mdcWithoutZeros).isSuccess()) {
                     Counter8PH++;
                 }
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "8QA", drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "8QA", mdcWithoutZeros).isSuccess()) {
                     Counter8QA++;
                 }
 
                 //AX 99PDX Checking
-                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
+//                    PDXCounter99++;
+//                }
+                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
+//                    PCXCounter99++;
+//                }
+                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-
-                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
+//                    CartProc++;
+//                }
+                if (checkAX.AX(datasource, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
-                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
+//                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
+//                    CaCRxProc++;
+//                }
+                if (checkAX.AX(datasource, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
+//                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
+//                    PBX99Proc++;
+//                }
+                if (checkAX.AX(datasource, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
                 if (checkAX.AX(datasource, "8PFX", ProcedureList.get(y).trim()).isSuccess()) {

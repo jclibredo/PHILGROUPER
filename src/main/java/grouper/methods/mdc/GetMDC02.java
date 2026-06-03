@@ -44,6 +44,8 @@ public class GetMDC02 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             int ORProcedureCounter = 0;
@@ -67,11 +69,11 @@ public class GetMDC02 {
 
             MDCProcedureMethod mdcProcess = new MDCProcedureMethod();
             for (int y = 0; y < ProcedureList.size(); y++) {
-                if (mdcProcess.MDCProcedure(datasource, ProcedureList.get(y).trim(), drgResult.getMDC(), grouperparameter.getGender()).isSuccess()) {
+                if (mdcProcess.MDCProcedure(datasource, ProcedureList.get(y).trim(), mdcWithoutZeros, grouperparameter.getGender()).isSuccess()) {
                     mdcprocedureCounter++;
-                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(mdcProcess.MDCProcedure(datasource, 
-                            ProcedureList.get(y).trim(), 
-                            drgResult.getMDC(), 
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(mdcProcess.MDCProcedure(datasource,
+                            ProcedureList.get(y).trim(),
+                            mdcWithoutZeros,
                             grouperparameter.getGender()).getResult(), MDCProcedure.class);
 //                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC().trim(), drgResult.getMDC());
                     if (new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC().trim(), drgResult.getMDC()).isSuccess()) {
@@ -81,16 +83,16 @@ public class GetMDC02 {
                     }
                 }
 
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "2PA".trim(), drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "2PA".trim(), mdcWithoutZeros).isSuccess()) {
                     pdcprocedureCounter2PA++;
                 }
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "2PJ".trim(), drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "2PJ".trim(), mdcWithoutZeros).isSuccess()) {
                     pdcprocedureCounter2PJ++;
                 }
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "2PH".trim(), drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "2PH".trim(), mdcWithoutZeros).isSuccess()) {
                     pdcprocedureCounter2PH++;
                 }
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y), "2PB".trim(), drgResult.getMDC()).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y), "2PB".trim(), mdcWithoutZeros).isSuccess()) {
                     pdcprocedureCounter2PB++;
                 }
                 if (checkAX.AX(datasource, "2PDX", ProcedureList.get(y).trim()).isSuccess()) {
