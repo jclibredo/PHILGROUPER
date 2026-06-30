@@ -17,7 +17,7 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
 import java.io.BufferedReader;
-import java.io.File;
+//import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -54,6 +54,7 @@ public class GrouperTesting {
 
     private final Logger logger = (Logger) LogManager.getLogger(GrouperTesting.class);
     private final Utility utility = new Utility();
+    private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");
 
     @POST
     @Path("JasonData")
@@ -62,43 +63,41 @@ public class GrouperTesting {
     public DRGWSResult ProcessGrouperParameter(
             final List<GrouperParameter> grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
-        ArrayList<String> drgresultList = new ArrayList<>();
-        ArrayList<String> errorList = new ArrayList<>();
-        try {
-
-            if (utility.GetString("FilePathReports").isSuccess()) {
-                for (int g = 0; g < grouperparameter.size(); g++) {
-                    DRGWSResult grouperResult = this.ProcessData(utility.GetString("FilePathReports").getResult(), datasource, grouperparameter.get(g));
+        if (dynamicSchema.isSuccess()) {
+            ArrayList<String> drgresultList = new ArrayList<>();
+            ArrayList<String> errorList = new ArrayList<>();
+            try {
+                if (utility.GetString("FilePathReports").isSuccess()) {
+                    for (int g = 0; g < grouperparameter.size(); g++) {
+                        DRGWSResult grouperResult = this.ProcessData(utility.GetString("FilePathReports").getResult(), datasource, grouperparameter.get(g));
 //                DRGWSResult grouperResult = this.ProcessData(datasource, grouperparameter.get(g));
-                    if (grouperResult.isSuccess()) {
+                        if (grouperResult.isSuccess()) {
 //                        DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
 //                        System.out.println("SERIES: " + drgout.getClaimseries() + " PDC: " + drgout.getPDC() + " MDC: " + drgout.getMDC() + " DRG: " + drgout.getDRG());
-                        drgresultList.add(grouperResult.getResult());
-                    } else {
-                        errorList.add(grouperResult.getMessage());
+                            drgresultList.add(grouperResult.getResult());
+                        } else {
+                            errorList.add(grouperResult.getMessage());
+                        }
                     }
-                }
-                if (grouperparameter.size() > 0) {
-                    result.setMessage("Data Process : " + grouperparameter.size());
-                    result.setSuccess(true);
+                    if (grouperparameter.size() > 0) {
+                        result.setMessage("Data Process : " + grouperparameter.size());
+                        result.setSuccess(true);
 //                    result.setResult(drgresultList.toString());
-                    //FILE HANDLER
+                        //FILE HANDLER
 //                    File file = new File(utility.GetString("FilePathReports").getResult());
 //                    result.setResult("Open file: //" + file.getAbsolutePath().replace("\\", "/"));
+                    } else {
+                        result.setMessage("NO DATA AVAILABLE TO PROCESS");
+                    }
                 } else {
-                    result.setMessage("NO DATA AVAILABLE TO PROCESS");
+                    result.setMessage("File or directory not found");
                 }
-            } else {
-                result.setMessage("File or directory not found");
-            }
 
-        } catch (Exception ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing JasonData API end point");
-            logger.error("Error in JasonData API end point : {}", ex.getMessage(), ex);
+            } catch (Exception ex) {
+                result.setMessage("Something went wrong");
+                logger.info("Executing JasonData API end point");
+                logger.error("Error in JasonData API end point : {}", ex.getMessage(), ex);
+            }
         }
         return result;
     }
@@ -175,11 +174,11 @@ public class GrouperTesting {
             drgresult.setWarningerror("");
             // PDx Cleanup Check
             String rawPdx = grouperparameter.getPdx();
-            if (getPreMDC.GetICD10PreMDC(datasource, rawPdx).isSuccess()) {
+            if (getPreMDC.GetICD10PreMDC(datasource, dynamicSchema.getResult(), rawPdx).isSuccess()) {
                 grouper.setPdx(rawPdx);
             } else {
                 String cleanedPdx = utility.icd10Cleaner(rawPdx);
-                if (getPreMDC.GetICD10PreMDC(datasource, cleanedPdx).isSuccess()) {
+                if (getPreMDC.GetICD10PreMDC(datasource, dynamicSchema.getResult(), cleanedPdx).isSuccess()) {
                     grouper.setPdx(cleanedPdx);
                 } else {
                     grouper.setPdx(rawPdx);
@@ -211,8 +210,8 @@ public class GrouperTesting {
                 }
                 for (int m = 0; m < newprocList.size(); m++) {
                     String currentProc = newprocList.get(m).replace(">1", "");
-                    if (icd9cm.GetICD9cm(datasource, currentProc).isSuccess()) {
-                        DRGWSResult sexvalidationresult = sexValidateProc.GenderConfictValidationProc(datasource, currentProc, grouperparameter.getGender());
+                    if (icd9cm.GetICD9cm(datasource, dynamicSchema.getResult(), currentProc).isSuccess()) {
+                        DRGWSResult sexvalidationresult = sexValidateProc.GenderConfictValidationProc(datasource, dynamicSchema.getResult(), currentProc, grouperparameter.getGender());
                         if (!sexvalidationresult.isSuccess()) {
                             warningerror.add("Proc " + currentProc + " sex conflict");
                             newprocList.remove(m);
@@ -237,11 +236,11 @@ public class GrouperTesting {
                     String trimmedSdx = sdx.trim();
                     if (trimmedSdx.toUpperCase().equals(targetPdx)) {
                         warningerror.add("SDx " + sdx + " duplicate with the PDx");
-                    } else if (getPreMDC.GetICD10PreMDC(datasource, trimmedSdx).isSuccess()) {
+                    } else if (getPreMDC.GetICD10PreMDC(datasource, dynamicSchema.getResult(), trimmedSdx).isSuccess()) {
                         newsdxList.add(trimmedSdx);
                     } else {
                         String cleanedSdx = utility.icd10Cleaner(trimmedSdx);
-                        if (getPreMDC.GetICD10PreMDC(datasource, cleanedSdx).isSuccess()) {
+                        if (getPreMDC.GetICD10PreMDC(datasource, dynamicSchema.getResult(), cleanedSdx).isSuccess()) {
                             newsdxList.add(cleanedSdx);
                         } else {
                             warningerror.add("SDx " + sdx + " invalid");
@@ -267,8 +266,8 @@ public class GrouperTesting {
                                 continue;
                             }
                             String upperSdx = currentSdx.toUpperCase().trim();
-                            DRGWSResult ageConflictResult = ageValidation.AgeConfictValidation(datasource, upperSdx, daysStr, yearStr);
-                            DRGWSResult sexConflictResult = sexValidation.GenderConfictValidation(datasource, upperSdx, grouper.getGender());
+                            DRGWSResult ageConflictResult = ageValidation.AgeConfictValidation(datasource, dynamicSchema.getResult(), upperSdx, daysStr, yearStr);
+                            DRGWSResult sexConflictResult = sexValidation.GenderConfictValidation(datasource, dynamicSchema.getResult(), upperSdx, grouper.getGender());
 
                             boolean hasAgeConflict = !ageConflictResult.isSuccess();
                             boolean hasSexConflict = !sexConflictResult.isSuccess();
@@ -306,7 +305,7 @@ public class GrouperTesting {
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
                 drgresult.setDRGName("Invalid PDx");
-            } else if (!getPreMDC.GetICD10PreMDC(datasource, checkedPdx).isSuccess()) {
+            } else if (!getPreMDC.GetICD10PreMDC(datasource, dynamicSchema.getResult(), checkedPdx).isSuccess()) {
                 // Note: Cleaner duplicate step dropped here since it was validated at the top initialization step!
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
@@ -382,7 +381,7 @@ public class GrouperTesting {
                 result.setSuccess(true);
                 this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
             } else {
-                DRGWSResult validateresult = new ValidateFindMDC().ValidateFindMDC(datasource, grouper);
+                DRGWSResult validateresult = new ValidateFindMDC().ValidateFindMDC(datasource, dynamicSchema.getResult(), grouper);
                 if (validateresult.isSuccess()) {
                     DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
                     this.FileWriter(Path, grouperparameter.getClaimseries(), drgResults.getDRG(), drgResults.getPDC(), drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
@@ -430,7 +429,7 @@ public class GrouperTesting {
     }
 
     public String DRGAuditTrail(final DataSource datasource, String claimsSeries, String idSeries, String deTails, String status) {
-        DRGWSResult grouperauditrail = new InsertGrouperAuditTrail().InsertGrouperAuditTrail(datasource, claimsSeries, idSeries, deTails, status);
+        DRGWSResult grouperauditrail = new InsertGrouperAuditTrail().InsertGrouperAuditTrail(datasource, dynamicSchema.getResult(), claimsSeries, idSeries, deTails, status);
         return grouperauditrail.getMessage();
     }
 

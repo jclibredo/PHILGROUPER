@@ -37,7 +37,11 @@ public class GetMDC04 {
     private final Logger logger = (Logger) LogManager.getLogger(GetMDC04.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC04(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetMDC04(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -66,13 +70,16 @@ public class GetMDC04 {
             ArrayList<String> pdclist = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        SchemaName,
                         ProcedureList.get(y).trim(),
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource,
+                            SchemaName,
+                            mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
@@ -80,29 +87,29 @@ public class GetMDC04 {
                     }
                 }
                 //AX 99PDX Checking
-                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-                if (checkAX.AX(datasource, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
-                if (checkAX.AX(datasource, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
 
                 //AX 4PCX
-                if (checkAX.AX(datasource, "4PCX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "4PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCX4Proc++;
                 }
-                if (checkAX.AX(datasource, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
 
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, ProcedureList.get(y).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
@@ -111,14 +118,14 @@ public class GetMDC04 {
 
             //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
                 }
-                if (checkAX.AX(datasource, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
             }
-            if (checkAX.AX(datasource, "4PBX", grouperparameter.getPdx().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "4PBX", grouperparameter.getPdx().trim()).isSuccess()) {
                 Counter4BX++;
             }
 
@@ -392,7 +399,8 @@ public class GetMDC04 {
                         break;
                 }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

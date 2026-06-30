@@ -30,13 +30,17 @@ public class PDxMalignancy {
     private final Logger logger = (Logger) LogManager.getLogger(PDxMalignancy.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult PDxMalignancy(final DataSource datasource, final String primaryPDx, final String pdcs) {
+    public DRGWSResult PDxMalignancy(
+            final DataSource datasource,
+            final String SchemaName,
+            final String primaryPDx,
+            final String pdcs) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMalignantPDx = connection.prepareCall("begin :pdx_malignant := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDX_MALIGNANCY(:primaryPDx,:pdcs); end;");
+            CallableStatement GetMalignantPDx = connection.prepareCall("begin :pdx_malignant := " + SchemaName + ".DRGPKGFUNCTION.GET_PDX_MALIGNANCY(:primaryPDx,:pdcs); end;");
             GetMalignantPDx.registerOutParameter("pdx_malignant", OracleTypes.CURSOR);
             GetMalignantPDx.setString("primaryPDx", primaryPDx);
             GetMalignantPDx.setString("pdcs", pdcs);

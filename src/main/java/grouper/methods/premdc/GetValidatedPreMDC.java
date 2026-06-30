@@ -41,7 +41,10 @@ public class GetValidatedPreMDC {
     private final Logger logger = (Logger) LogManager.getLogger(GetValidatedPreMDC.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetValidatedPreMDC(final DataSource datasource, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetValidatedPreMDC(
+            final DataSource datasource,
+            final String SchemaName,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
@@ -64,6 +67,7 @@ public class GetValidatedPreMDC {
                 finaldays = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             }
             DRGWSResult getAgeConfictResult = new AgeConfictValidation().AgeConfictValidation(datasource,
+                    SchemaName,
                     grouperparameter.getPdx(),
                     String.valueOf(finaldays),
                     String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())));
@@ -72,11 +76,13 @@ public class GetValidatedPreMDC {
                 drgResult.setDC("2650");
                 drgResult.setDRGName("PDx : " + grouperparameter.getPdx() + " Having conflict with age");
             } else {
-                DRGWSResult icd10SortResult = new GetICD10PreMDC().GetICD10(datasource, grouperparameter.getPdx(), String.valueOf(finaldays), String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())), grouperparameter.getGender());
+                DRGWSResult icd10SortResult = new GetICD10PreMDC().GetICD10(datasource,
+                        SchemaName,
+                        grouperparameter.getPdx(), String.valueOf(finaldays), String.valueOf(utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate())), grouperparameter.getGender());
                 ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(icd10SortResult.getResult(), ICD10PreMDCResult.class);
                 int TraumaCounterPDXO = 0;
                 int TraumaCounterPDX1 = 0;
-                DRGWSResult validatePdx = checkTraumaICD10.TRAUMAICD10(datasource, grouperparameter.getPdx());
+                DRGWSResult validatePdx = checkTraumaICD10.TRAUMAICD10(datasource, SchemaName, grouperparameter.getPdx());
                 if (validatePdx.isSuccess()) {
                     if (!validatePdx.getResult().equals("0")) {
                         TraumaCounterPDX1++;
@@ -96,7 +102,7 @@ public class GetValidatedPreMDC {
                 LinkedList<String> sdxpdxnewlist = new LinkedList<>();
                 if (SDxList.size() > 0) {
                     for (int x = 0; x < SDxList.size(); x++) {
-                        DRGWSResult SDxVal = checkTraumaICD10.TRAUMAICD10(datasource, SDxList.get(x).trim());
+                        DRGWSResult SDxVal = checkTraumaICD10.TRAUMAICD10(datasource, SchemaName, SDxList.get(x).trim());
                         if (SDxVal.isSuccess()) {
                             if (!SDxVal.getResult().equals("0")) {
                                 sdxSite.add(SDxVal.getResult());
@@ -112,18 +118,18 @@ public class GetValidatedPreMDC {
                 int PDC0PD = 0;
                 int PDC0PA = 0;
 
-                if (checkAx.AX(datasource, "0CX", grouperparameter.getPdx()).isSuccess()) {
+                if (checkAx.AX(datasource, SchemaName, "0CX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0CX++;
                 }
-                if (checkAx.AX(datasource, "0DX", grouperparameter.getPdx()).isSuccess()) {
+                if (checkAx.AX(datasource, SchemaName, "0DX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0DX++;
                 }
-                if (checkAx.AX(datasource, "0EX", grouperparameter.getPdx()).isSuccess()) {
+                if (checkAx.AX(datasource, SchemaName, "0EX", grouperparameter.getPdx()).isSuccess()) {
                     Counter0EX++;
                 }
                 if (ProcedureList.size() > 0) {
                     for (int x = 0; x < ProcedureList.size(); x++) {
-                        DRGWSResult checkProc = checkTraumaICD9.TRAUMAICD9CM(datasource, ProcedureList.get(x).trim());
+                        DRGWSResult checkProc = checkTraumaICD9.TRAUMAICD9CM(datasource, SchemaName, ProcedureList.get(x).trim());
                         if (checkProc.isSuccess()) {
                             procSite.add(checkProc.getResult());
                             procnewlist.add(checkProc.getResult());
@@ -145,18 +151,18 @@ public class GetValidatedPreMDC {
 //                            PDC0PA++;
 //                        }
 // This ensures Endovasc is only called a maximum of twice per code block, instead of repeating parameters.
-                        if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PB", "00").isSuccess()
-                                || endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PB", "0").isSuccess()) {
+                        if (endoVasc.Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "0PB", "00").isSuccess()
+                                || endoVasc.Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "0PB", "0").isSuccess()) {
                             PDC0PB++;
                         }
 
-                        if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PD", "00").isSuccess()
-                                || endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PD", "0").isSuccess()) {
+                        if (endoVasc.Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "0PD", "00").isSuccess()
+                                || endoVasc.Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "0PD", "0").isSuccess()) {
                             PDC0PD++;
                         }
 
-                        if (endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PA", "00").isSuccess()
-                                || endoVasc.Endovasc(datasource, ProcedureList.get(x).trim(), "0PA", "0").isSuccess()) {
+                        if (endoVasc.Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "0PA", "00").isSuccess()
+                                || endoVasc.Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "0PA", "0").isSuccess()) {
                             PDC0PA++;
                         }
                     }
@@ -199,7 +205,7 @@ public class GetValidatedPreMDC {
                 }
                 // START OF PARSING PART
                 GetBMDC checkBmdc = new GetBMDC();
-                DRGWSResult getBmdcResult = checkBmdc.GetBMDC(datasource, grouperparameter.getPdx());
+                DRGWSResult getBmdcResult = checkBmdc.GetBMDC(datasource, SchemaName, grouperparameter.getPdx());
                 if (getBmdcResult.isSuccess()) {
 //                    DRGWSResult restA = new GrouperMethod().COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx());
                     BMDCPreMDCResult bmdcResult = utility.objectMapper().readValue(getBmdcResult.getResult(), BMDCPreMDCResult.class);
@@ -252,7 +258,7 @@ public class GetValidatedPreMDC {
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) == 0
                             && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 28) {
                         drgResult.setMDC("15");
-                    } else if (new COUNTBMDCICD10CODE().COUNTBMDCICD10CODE(datasource, grouperparameter.getPdx()).isSuccess()) {
+                    } else if (new COUNTBMDCICD10CODE().COUNTBMDCICD10CODE(datasource, SchemaName, grouperparameter.getPdx()).isSuccess()) {
                         if (bmdcResult.getICD10().equals(grouperparameter.getPdx()) && grouperparameter.getGender().toUpperCase().equals("M")) {
                             drgResult.setMDC(bmdcResult.getMDC_M());
                             drgResult.setPDC(bmdcResult.getPDC_M());
@@ -359,10 +365,10 @@ public class GetValidatedPreMDC {
                         drgResults.setRW(drgResult.getRW());
                         drgResults.setClaimseries(grouperparameter.getClaimseries());
 //                        //-----------------------------------------------
-                        result = getMDC.ProcessMDC(datasource, drgResults, grouperparameter);
+                        result = getMDC.ProcessMDC(datasource, SchemaName, drgResults, grouperparameter);
                     }
                 } else {
-                    result = getMDC.ProcessMDC(datasource, drgResult, grouperparameter);
+                    result = getMDC.ProcessMDC(datasource, SchemaName, drgResult, grouperparameter);
                 }
 
             } else {

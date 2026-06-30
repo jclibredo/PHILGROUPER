@@ -37,7 +37,11 @@ public class GetMDC16 {
     private final Logger logger = (Logger) LogManager.getLogger(GetMDC16.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC16(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetMDC16(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -61,34 +65,34 @@ public class GetMDC16 {
             for (int x = 0; x < ProcedureList.size(); x++) {
 
                 //AX 16PBX Checking
-                if (getAx.AX(datasource, "16PBX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (getAx.AX(datasource, SchemaName, "16PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter16PBX++;
                 }
                 //AX 99PDX Checking
-                if (getAx.AX(datasource, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (getAx.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PBX Checking
-                if (getAx.AX(datasource, "99PBX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (getAx.AX(datasource, SchemaName, "99PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     PBXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (getAx.AX(datasource, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (getAx.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, ProcedureList.get(x).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName,
                         ProcedureList.get(x).trim(),
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
@@ -255,7 +259,8 @@ public class GetMDC16 {
                 }
 
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

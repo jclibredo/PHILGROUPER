@@ -49,6 +49,8 @@ public class LibraryManagement {
     private DataSource dataSource;
 
     private final Utility utility = new Utility();
+    
+    private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");
 
     @POST
     @Path("ManageAX")
@@ -59,62 +61,61 @@ public class LibraryManagement {
             final List<AX> ax,
             @HeaderParam("action") String action) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
         DRGWSResult authCheck = utility.GetPayload(dataSource, token);
         if (!authCheck.isSuccess()) {
             result.setMessage(authCheck.getMessage());
             return result;
         } else {
-            ServiceUserActivity serviceLogs = new ServiceUserActivity();
-            ServicesAX axAction = new ServicesAX();
-            String upperAction = (action == null) ? "" : action.toUpperCase();
-            int succ = 0;
-            int err = 0;
-            String actions = "";
-            String details = "";
-            ArrayList<String> errorList = new ArrayList<>();
-            switch (upperAction) {
-                case "CREATE": {
-                    DRGWSResult removeAx = axAction.DeleteAx(dataSource);
-                    if (removeAx.isSuccess()) {
-                        for (int x = 0; x < ax.size(); x++) {
-                            DRGWSResult create = axAction.CreateAx(dataSource, ax.get(x).getAx(), ax.get(x).getCodes());
-                            if (create.isSuccess()) {
-                                succ++;
-                            } else {
-                                errorList.add(create.getMessage());
-                                err++;
+            if (dynamicSchema.isSuccess()) {
+                ServiceUserActivity serviceLogs = new ServiceUserActivity();
+                ServicesAX axAction = new ServicesAX();
+                String upperAction = (action == null) ? "" : action.toUpperCase();
+                int succ = 0;
+                int err = 0;
+                String actions = "";
+                String details = "";
+                ArrayList<String> errorList = new ArrayList<>();
+                switch (upperAction) {
+                    case "CREATE": {
+                        DRGWSResult removeAx = axAction.DeleteAx(dataSource);
+                        if (removeAx.isSuccess()) {
+                            for (int x = 0; x < ax.size(); x++) {
+                                DRGWSResult create = axAction.CreateAx(dataSource, ax.get(x).getAx(), ax.get(x).getCodes());
+                                if (create.isSuccess()) {
+                                    succ++;
+                                } else {
+                                    errorList.add(create.getMessage());
+                                    err++;
+                                }
                             }
+                            result.setSuccess(true);
+                            result.setResult(errorList.toString());
+                            result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
+                            actions = "CREATE";
+                            details = "Total rows[" + ax.size() + "] inserted[" + succ + "]";
+                        } else {
+                            result = removeAx;
+                            actions = "DELETE";
+                            details = "Failed to remove all AX data";
                         }
-                        result.setSuccess(true);
-                        result.setResult(errorList.toString());
-                        result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
-                        actions = "CREATE";
-                        details = "Total rows[" + ax.size() + "] inserted[" + succ + "]";
-                    } else {
-                        result = removeAx;
-                        actions = "DELETE";
-                        details = "Failed to remove all AX data";
+                        break;
                     }
-                    break;
+                    case "READ": {
+                        result = axAction.GetAx(dataSource);
+                        actions = "READ";
+                        details = "Get all AX data";
+                        break;
+                    }
+                    default: {
+                        result.setMessage("Action not authorize");
+                        actions = "FAIL";
+                        details = "Action not authorize";
+                        break;
+                    }
                 }
-                case "READ": {
-                    result = axAction.GetAx(dataSource);
-                    actions = "READ";
-                    details = "Get all AX data";
-                    break;
-                }
-                default: {
-                    result.setMessage("Action not authorize");
-                    actions = "FAIL";
-                    details = "Action not authorize";
-                    break;
-                }
+                //ACTIVITY LOGS
+                serviceLogs.CreateUserLogs(dataSource, dynamicSchema.getResult(), authCheck.getMessage(), "AX", actions, details);
             }
-            //ACTIVITY LOGS
-            serviceLogs.CreateUserLogs(dataSource, authCheck.getMessage(), "AX", actions, details);
         }
         return result;
     }
@@ -133,57 +134,59 @@ public class LibraryManagement {
             result.setMessage(authCheck.getMessage());
             return result;
         } else {
-            ServiceUserActivity serviceLogs = new ServiceUserActivity();
-            ServicesI10VX serviceIcd10vx = new ServicesI10VX();
-            String upperAction = (action == null) ? "" : action.toUpperCase();
-            int succ = 0;
-            int err = 0;
-            String actions = "";
-            String details = "";
-            ArrayList<String> errorList = new ArrayList<>();
-            switch (upperAction) {
-                case "CREATE": {
-                    DRGWSResult removeIcd10VX = serviceIcd10vx.DeleteIcd10(dataSource);
-                    if (removeIcd10VX.isSuccess()) {
-                        for (int x = 0; x < icd10vx.size(); x++) {
-                            DRGWSResult create = serviceIcd10vx.CreateIcd10(dataSource,
-                                    icd10vx.get(x).getValidcode(),
-                                    icd10vx.get(x).getDescription(),
-                                    icd10vx.get(x).getCode());
-                            if (create.isSuccess()) {
-                                succ++;
-                            } else {
-                                errorList.add(create.getMessage());
-                                err++;
+            if (dynamicSchema.isSuccess()) {
+                ServiceUserActivity serviceLogs = new ServiceUserActivity();
+                ServicesI10VX serviceIcd10vx = new ServicesI10VX();
+                String upperAction = (action == null) ? "" : action.toUpperCase();
+                int succ = 0;
+                int err = 0;
+                String actions = "";
+                String details = "";
+                ArrayList<String> errorList = new ArrayList<>();
+                switch (upperAction) {
+                    case "CREATE": {
+                        DRGWSResult removeIcd10VX = serviceIcd10vx.DeleteIcd10(dataSource);
+                        if (removeIcd10VX.isSuccess()) {
+                            for (int x = 0; x < icd10vx.size(); x++) {
+                                DRGWSResult create = serviceIcd10vx.CreateIcd10(dataSource,
+                                        icd10vx.get(x).getValidcode(),
+                                        icd10vx.get(x).getDescription(),
+                                        icd10vx.get(x).getCode());
+                                if (create.isSuccess()) {
+                                    succ++;
+                                } else {
+                                    errorList.add(create.getMessage());
+                                    err++;
+                                }
                             }
+                            result.setSuccess(true);
+                            result.setResult(errorList.toString());
+                            result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
+                            actions = "CREATE";
+                            details = "Total rows[" + icd10vx.size() + "] inserted[" + succ + "]";
+                        } else {
+                            result = removeIcd10VX;
+                            actions = "DELETE";
+                            details = "Failed to remove all I10VX data";
                         }
-                        result.setSuccess(true);
-                        result.setResult(errorList.toString());
-                        result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
-                        actions = "CREATE";
-                        details = "Total rows[" + icd10vx.size() + "] inserted[" + succ + "]";
-                    } else {
-                        result = removeIcd10VX;
-                        actions = "DELETE";
-                        details = "Failed to remove all I10VX data";
+                        break;
                     }
-                    break;
+                    case "READ": {
+                        result = serviceIcd10vx.GetIcd10(dataSource);
+                        actions = "READ";
+                        details = "Get all I10VX data";
+                        break;
+                    }
+                    default: {
+                        result.setMessage("Action not authorize");
+                        actions = "FAIL";
+                        details = "Action not authorize";
+                        break;
+                    }
                 }
-                case "READ": {
-                    result = serviceIcd10vx.GetIcd10(dataSource);
-                    actions = "READ";
-                    details = "Get all I10VX data";
-                    break;
-                }
-                default: {
-                    result.setMessage("Action not authorize");
-                    actions = "FAIL";
-                    details = "Action not authorize";
-                    break;
-                }
+                //ACTIVITY LOGS
+                serviceLogs.CreateUserLogs(dataSource, dynamicSchema.getResult(), authCheck.getMessage(), "I10VX", actions, details);
             }
-            //ACTIVITY LOGS
-            serviceLogs.CreateUserLogs(dataSource, authCheck.getMessage(), "I10VX", actions, details);
         }
         return result;
     }
@@ -202,88 +205,90 @@ public class LibraryManagement {
             result.setMessage(authCheck.getMessage());
             return result;
         } else {
-            ServiceUserActivity serviceLogs = new ServiceUserActivity();
-            ServicesI10 serviceIcd10 = new ServicesI10();
-            String upperAction = (action == null) ? "" : action.toUpperCase();
-            int succ = 0;
-            int err = 0;
-            String actions = "";
-            String details = "";
-            ArrayList<String> errorList = new ArrayList<>();
-            switch (upperAction) {
-                case "CREATE": {
-                    DRGWSResult removeIcd10 = serviceIcd10.DeleteIcd10PreMdc(dataSource);
-                    if (removeIcd10.isSuccess()) {
-                        for (int x = 0; x < icd10.size(); x++) {
-                            DRGWSResult create = serviceIcd10.CreateIcd10PreMdc(dataSource,
-                                    icd10.get(x).getCode(),
-                                    icd10.get(x).getMDC(),
-                                    icd10.get(x).getPDC(),
-                                    icd10.get(x).getCC(),
-                                    icd10.get(x).getMainCC(),
-                                    icd10.get(x).getCCRow(),
-                                    icd10.get(x).getHIV_AX(),
-                                    icd10.get(x).getTrauma(),
-                                    icd10.get(x).getSex(),
-                                    icd10.get(x).getAccPDX(),
-                                    icd10.get(x).getAgeDUse(),
-                                    icd10.get(x).getAgeMin(),
-                                    icd10.get(x).getAgeMax(),
-                                    icd10.get(x).getAgeDMin());
-                            if (create.isSuccess()) {
-                                succ++;
-                            } else {
-                                errorList.add(create.getMessage());
-                                err++;
+            if (dynamicSchema.isSuccess()) {
+                ServiceUserActivity serviceLogs = new ServiceUserActivity();
+                ServicesI10 serviceIcd10 = new ServicesI10();
+                String upperAction = (action == null) ? "" : action.toUpperCase();
+                int succ = 0;
+                int err = 0;
+                String actions = "";
+                String details = "";
+                ArrayList<String> errorList = new ArrayList<>();
+                switch (upperAction) {
+                    case "CREATE": {
+                        DRGWSResult removeIcd10 = serviceIcd10.DeleteIcd10PreMdc(dataSource);
+                        if (removeIcd10.isSuccess()) {
+                            for (int x = 0; x < icd10.size(); x++) {
+                                DRGWSResult create = serviceIcd10.CreateIcd10PreMdc(dataSource,
+                                        icd10.get(x).getCode(),
+                                        icd10.get(x).getMDC(),
+                                        icd10.get(x).getPDC(),
+                                        icd10.get(x).getCC(),
+                                        icd10.get(x).getMainCC(),
+                                        icd10.get(x).getCCRow(),
+                                        icd10.get(x).getHIV_AX(),
+                                        icd10.get(x).getTrauma(),
+                                        icd10.get(x).getSex(),
+                                        icd10.get(x).getAccPDX(),
+                                        icd10.get(x).getAgeDUse(),
+                                        icd10.get(x).getAgeMin(),
+                                        icd10.get(x).getAgeMax(),
+                                        icd10.get(x).getAgeDMin());
+                                if (create.isSuccess()) {
+                                    succ++;
+                                } else {
+                                    errorList.add(create.getMessage());
+                                    err++;
+                                }
                             }
-                        }
-                        result.setSuccess(true);
-                        result.setResult(errorList.toString());
-                        result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
-                        actions = "CREATE";
-                        details = "Total rows[" + icd10.size() + "] inserted[" + succ + "]";
-                    } else {
-                        result = removeIcd10;
-                        actions = "DELETE";
-                        details = "Failed to remove all I10 data";
-                    }
-                    break;
-                }
-                case "READ": {
-                    result = serviceIcd10.GetIcd10PreMDC(dataSource);
-                    actions = "READ";
-                    details = "Get all I10 data";
-                    break;
-                }
-                case "CODE": {
-                    result = serviceIcd10.GetIcd10PreMDC(dataSource);
-                    actions = "READ";
-                    details = "Get all I10 data";
-                    break;
-                }
-                default: {
-                    String input = upperAction;
-                    if (input.contains(":")) {
-                        String[] parts = input.split(":");
-                        String prefix = parts[0];
-                        String code = parts[1];
-                        if (prefix.toUpperCase().trim().equals("CODE")) {
-                            return new GetValidICD10Accpdx().GetValidICD10Accpdx(dataSource, code.trim());
+                            result.setSuccess(true);
+                            result.setResult(errorList.toString());
+                            result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
+                            actions = "CREATE";
+                            details = "Total rows[" + icd10.size() + "] inserted[" + succ + "]";
                         } else {
-                            result.setMessage("Action not authorize");
-                            actions = "FAIL";
-                            details = "Action not authorize";
+                            result = removeIcd10;
+                            actions = "DELETE";
+                            details = "Failed to remove all I10 data";
                         }
-                    } else {
-                        result.setMessage("Seperator not found");
-                        actions = "FAIL";
-                        details = "Seperator not found";
+                        break;
                     }
-                    break;
+                    case "READ": {
+                        result = serviceIcd10.GetIcd10PreMDC(dataSource);
+                        actions = "READ";
+                        details = "Get all I10 data";
+                        break;
+                    }
+                    case "CODE": {
+                        result = serviceIcd10.GetIcd10PreMDC(dataSource);
+                        actions = "READ";
+                        details = "Get all I10 data";
+                        break;
+                    }
+                    default: {
+                        String input = upperAction;
+                        if (input.contains(":")) {
+                            String[] parts = input.split(":");
+                            String prefix = parts[0];
+                            String code = parts[1];
+                            if (prefix.toUpperCase().trim().equals("CODE")) {
+                                return new GetValidICD10Accpdx().GetValidICD10Accpdx(dataSource, dynamicSchema.getResult(), code.trim());
+                            } else {
+                                result.setMessage("Action not authorize");
+                                actions = "FAIL";
+                                details = "Action not authorize";
+                            }
+                        } else {
+                            result.setMessage("Seperator not found");
+                            actions = "FAIL";
+                            details = "Seperator not found";
+                        }
+                        break;
+                    }
                 }
+                //ACTIVITY LOGS
+                serviceLogs.CreateUserLogs(dataSource, dynamicSchema.getResult(), authCheck.getMessage(), "I10", actions, details);
             }
-            //ACTIVITY LOGS
-            serviceLogs.CreateUserLogs(dataSource, authCheck.getMessage(), "I10", actions, details);
         }
         return result;
     }
@@ -304,54 +309,56 @@ public class LibraryManagement {
             result.setMessage(authCheck.getMessage());
             return result;
         } else {
-            ServiceUserActivity serviceLogs = new ServiceUserActivity();
-            ServicesCCEX serviceCCEX = new ServicesCCEX();
-            String upperAction = (action == null) ? "" : action.toUpperCase();
-            int succ = 0;
-            int err = 0;
-            String actions = "";
-            String details = "";
-            ArrayList<String> errorList = new ArrayList<>();
-            switch (upperAction) {
-                case "CREATE": {
-                    DRGWSResult removeCCEX = serviceCCEX.DeleteCCEX(dataSource);
-                    if (removeCCEX.isSuccess()) {
-                        for (int x = 0; x < ccex.size(); x++) {
-                            DRGWSResult create = serviceCCEX.CreateCCEX(dataSource, ccex.get(x).getSdx(), ccex.get(x).getPdx());
-                            if (create.isSuccess()) {
-                                succ++;
-                            } else {
-                                errorList.add(create.getMessage());
-                                err++;
+            if (dynamicSchema.isSuccess()) {
+                ServiceUserActivity serviceLogs = new ServiceUserActivity();
+                ServicesCCEX serviceCCEX = new ServicesCCEX();
+                String upperAction = (action == null) ? "" : action.toUpperCase();
+                int succ = 0;
+                int err = 0;
+                String actions = "";
+                String details = "";
+                ArrayList<String> errorList = new ArrayList<>();
+                switch (upperAction) {
+                    case "CREATE": {
+                        DRGWSResult removeCCEX = serviceCCEX.DeleteCCEX(dataSource);
+                        if (removeCCEX.isSuccess()) {
+                            for (int x = 0; x < ccex.size(); x++) {
+                                DRGWSResult create = serviceCCEX.CreateCCEX(dataSource, ccex.get(x).getSdx(), ccex.get(x).getPdx());
+                                if (create.isSuccess()) {
+                                    succ++;
+                                } else {
+                                    errorList.add(create.getMessage());
+                                    err++;
+                                }
                             }
+                            result.setSuccess(true);
+                            result.setResult(errorList.toString());
+                            result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
+                            actions = "CREATE";
+                            details = "Total rows[" + ccex.size() + "] inserted[" + succ + "]";
+                        } else {
+                            result = removeCCEX;
+                            actions = "DELETE";
+                            details = "Failed to remove all CCEX data";
                         }
-                        result.setSuccess(true);
-                        result.setResult(errorList.toString());
-                        result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
-                        actions = "CREATE";
-                        details = "Total rows[" + ccex.size() + "] inserted[" + succ + "]";
-                    } else {
-                        result = removeCCEX;
-                        actions = "DELETE";
-                        details = "Failed to remove all CCEX data";
+                        break;
                     }
-                    break;
+                    case "READ": {
+                        result = serviceCCEX.GetCCEX(dataSource);
+                        actions = "READ";
+                        details = "Get all CCEX data";
+                        break;
+                    }
+                    default: {
+                        result.setMessage("Action not authorize");
+                        actions = "FAIL";
+                        details = "Action not authorize";
+                        break;
+                    }
                 }
-                case "READ": {
-                    result = serviceCCEX.GetCCEX(dataSource);
-                    actions = "READ";
-                    details = "Get all CCEX data";
-                    break;
-                }
-                default: {
-                    result.setMessage("Action not authorize");
-                    actions = "FAIL";
-                    details = "Action not authorize";
-                    break;
-                }
+                //ACTIVITY LOGS
+                serviceLogs.CreateUserLogs(dataSource, dynamicSchema.getResult(), authCheck.getMessage(), "CCEX", actions, details);
             }
-            //ACTIVITY LOGS
-            serviceLogs.CreateUserLogs(dataSource, authCheck.getMessage(), "CCEX", actions, details);
         }
         return result;
     }
@@ -370,62 +377,64 @@ public class LibraryManagement {
             result.setMessage(authCheck.getMessage());
             return result;
         } else {
-            ServiceUserActivity serviceLogs = new ServiceUserActivity();
-            ServicesDRG serviceDRG = new ServicesDRG();
-            String upperAction = (action == null) ? "" : action.toUpperCase();
-            int succ = 0;
-            int err = 0;
-            String actions = "";
-            String details = "";
-            ArrayList<String> errorList = new ArrayList<>();
-            switch (upperAction) {
-                case "CREATE": {
-                    DRGWSResult removeDRG = serviceDRG.DeleteDrg(dataSource);
-                    if (removeDRG.isSuccess()) {
-                        for (int x = 0; x < drgOutput.size(); x++) {
-                            DRGWSResult create = serviceDRG.CreateDrg(dataSource,
-                                    drgOutput.get(x).getRW(),
-                                    drgOutput.get(x).getWTLOS(),
-                                    drgOutput.get(x).getOT(),
-                                    drgOutput.get(x).getMDF(),
-                                    drgOutput.get(x).getDRGName(),
-                                    drgOutput.get(x).getDRG(),
-                                    drgOutput.get(x).getMDC(),
-                                    drgOutput.get(x).getDC());
-                            if (create.isSuccess()) {
-                                succ++;
-                            } else {
-                                errorList.add(create.getMessage());
-                                err++;
+            if (dynamicSchema.isSuccess()) {
+                ServiceUserActivity serviceLogs = new ServiceUserActivity();
+                ServicesDRG serviceDRG = new ServicesDRG();
+                String upperAction = (action == null) ? "" : action.toUpperCase();
+                int succ = 0;
+                int err = 0;
+                String actions = "";
+                String details = "";
+                ArrayList<String> errorList = new ArrayList<>();
+                switch (upperAction) {
+                    case "CREATE": {
+                        DRGWSResult removeDRG = serviceDRG.DeleteDrg(dataSource);
+                        if (removeDRG.isSuccess()) {
+                            for (int x = 0; x < drgOutput.size(); x++) {
+                                DRGWSResult create = serviceDRG.CreateDrg(dataSource,
+                                        drgOutput.get(x).getRW(),
+                                        drgOutput.get(x).getWTLOS(),
+                                        drgOutput.get(x).getOT(),
+                                        drgOutput.get(x).getMDF(),
+                                        drgOutput.get(x).getDRGName(),
+                                        drgOutput.get(x).getDRG(),
+                                        drgOutput.get(x).getMDC(),
+                                        drgOutput.get(x).getDC());
+                                if (create.isSuccess()) {
+                                    succ++;
+                                } else {
+                                    errorList.add(create.getMessage());
+                                    err++;
+                                }
                             }
+                            result.setSuccess(true);
+                            result.setResult(errorList.toString());
+                            result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
+                            actions = "CREATE";
+                            details = "Total rows[" + drgOutput.size() + "] inserted[" + succ + "]";
+                        } else {
+                            result = removeDRG;
+                            actions = "DELETE";
+                            details = "Failed to remove all DRG data";
                         }
-                        result.setSuccess(true);
-                        result.setResult(errorList.toString());
-                        result.setMessage("Total rows inserted: success[" + succ + "] error[" + err + "]");
-                        actions = "CREATE";
-                        details = "Total rows[" + drgOutput.size() + "] inserted[" + succ + "]";
-                    } else {
-                        result = removeDRG;
-                        actions = "DELETE";
-                        details = "Failed to remove all DRG data";
+                        break;
                     }
-                    break;
+                    case "READ": {
+                        result = serviceDRG.GetDrg(dataSource);
+                        actions = "READ";
+                        details = "Get all DRG data";
+                        break;
+                    }
+                    default: {
+                        result.setMessage("Action not authorize");
+                        actions = "FAIL";
+                        details = "Action not authorize";
+                        break;
+                    }
                 }
-                case "READ": {
-                    result = serviceDRG.GetDrg(dataSource);
-                    actions = "READ";
-                    details = "Get all DRG data";
-                    break;
-                }
-                default: {
-                    result.setMessage("Action not authorize");
-                    actions = "FAIL";
-                    details = "Action not authorize";
-                    break;
-                }
+                //ACTIVITY LOGS
+                serviceLogs.CreateUserLogs(dataSource, dynamicSchema.getResult(), authCheck.getMessage(), "DRG", actions, details);
             }
-            //ACTIVITY LOGS
-            serviceLogs.CreateUserLogs(dataSource, authCheck.getMessage(), "DRG", actions, details);
         }
         return result;
     }
@@ -443,33 +452,34 @@ public class LibraryManagement {
             return result;
         }
         try {
-            switch (type.toUpperCase().trim()) {
-                case "I10VX": {
-                    result.setResult(utility.objectMapper().writeValueAsString(new ICD10()));
-                    break;
-                }
-                case "I10": {
-                    result.setResult(utility.objectMapper().writeValueAsString(new ICD10PreMDCResult()));
-                    break;
-                }
-                case "AX": {
-                    result.setResult(utility.objectMapper().writeValueAsString(new AX()));
-                    break;
-                }
-                case "CCEX": {
-                    result.setResult(utility.objectMapper().writeValueAsString(new CCEX()));
-                    break;
-                }
-                case "DRG": {
-                    result.setResult(utility.objectMapper().writeValueAsString(new DRGOutput()));
-                    break;
-                }
-                default: {
-                    result.setMessage("REQUEST TYPE NOT VALID");
-                    break;
+            if (dynamicSchema.isSuccess()) {
+                switch (type.toUpperCase().trim()) {
+                    case "I10VX": {
+                        result.setResult(utility.objectMapper().writeValueAsString(new ICD10()));
+                        break;
+                    }
+                    case "I10": {
+                        result.setResult(utility.objectMapper().writeValueAsString(new ICD10PreMDCResult()));
+                        break;
+                    }
+                    case "AX": {
+                        result.setResult(utility.objectMapper().writeValueAsString(new AX()));
+                        break;
+                    }
+                    case "CCEX": {
+                        result.setResult(utility.objectMapper().writeValueAsString(new CCEX()));
+                        break;
+                    }
+                    case "DRG": {
+                        result.setResult(utility.objectMapper().writeValueAsString(new DRGOutput()));
+                        break;
+                    }
+                    default: {
+                        result.setMessage("REQUEST TYPE NOT VALID");
+                        break;
+                    }
                 }
             }
-
         } catch (IOException ex) {
             result.setMessage(ex.toString());
         }
@@ -487,7 +497,9 @@ public class LibraryManagement {
             result.setMessage(authCheck.getMessage());
             return result;
         } else {
-            result = new ServiceDashboard().GetDashboard(dataSource);
+            if (dynamicSchema.isSuccess()) {
+                result = new ServiceDashboard().GetDashboard(dataSource);
+            }
         }
         return result;
     }
@@ -502,7 +514,9 @@ public class LibraryManagement {
         if (!authCheck.isSuccess()) {
             result = authCheck;
         } else {
-            result = new ServiceUserActivity().GetUserLogs(dataSource);
+            if (dynamicSchema.isSuccess()) {
+                result = new ServiceUserActivity().GetUserLogs(dataSource);
+            }
         }
         return result;
     }

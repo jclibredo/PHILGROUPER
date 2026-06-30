@@ -30,13 +30,18 @@ public class Endovasc {
     private final Logger logger = (Logger) LogManager.getLogger(Endovasc.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult Endovasc(final DataSource datasource, final String proce, final String pdcs, final String mdcs) {
+    public DRGWSResult Endovasc(
+            final DataSource datasource,
+            final String SchemaName,
+            final String proce,
+            final String pdcs,
+            final String mdcs) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement Endovasc = connection.prepareCall("begin :get_icd9_cm := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD9_MDC(:icd9code,:p_pdc,:p_mdc); end;");
+            CallableStatement Endovasc = connection.prepareCall("begin :get_icd9_cm := " + SchemaName + ".DRGPKGFUNCTION.GET_ICD9_MDC(:icd9code,:p_pdc,:p_mdc); end;");
             Endovasc.registerOutParameter("get_icd9_cm", OracleTypes.CURSOR);
             Endovasc.setString("icd9code", proce);
             Endovasc.setString("p_pdc", pdcs);

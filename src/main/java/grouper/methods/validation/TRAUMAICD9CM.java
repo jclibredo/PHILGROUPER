@@ -29,13 +29,16 @@ public class TRAUMAICD9CM {
     private final Logger logger = (Logger) LogManager.getLogger(TRAUMAICD9CM.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult TRAUMAICD9CM(final DataSource datasource, final String icdproc) {
+    public DRGWSResult TRAUMAICD9CM(
+            final DataSource datasource,
+            final String SchemaName,
+            final String icdproc) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement conn = connection.prepareCall("begin :trauma_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.TRAUMAICD9CM(:icdproc); end;");
+            CallableStatement conn = connection.prepareCall("begin :trauma_output := " + SchemaName + ".DRGPKGFUNCTION.TRAUMAICD9CM(:icdproc); end;");
             conn.registerOutParameter("trauma_output", OracleTypes.CURSOR);
             conn.setString("icdproc", icdproc);
             conn.execute();

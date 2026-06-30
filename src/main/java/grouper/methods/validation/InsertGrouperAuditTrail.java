@@ -29,7 +29,9 @@ public class InsertGrouperAuditTrail {
     private final Logger logger = (Logger) LogManager.getLogger(InsertGrouperAuditTrail.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult InsertGrouperAuditTrail(final DataSource datasource,
+    public DRGWSResult InsertGrouperAuditTrail(
+            final DataSource datasource,
+            final String SchemaName,
             final String p_series,
             final String p_claimnumber,
             final String p_details,
@@ -39,7 +41,7 @@ public class InsertGrouperAuditTrail {
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.INSERT_GROUPER_AUDITRAIL(:Message,:Code,"
+            CallableStatement auditrail = connection.prepareCall("call " + SchemaName + ".DRGPKGPROCEDURE.INSERT_GROUPER_AUDITRAIL(:Message,:Code,"
                     + ":udatein,:useries,:uclaimnumber,:udesc,:ustats)");
             auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
             auditrail.registerOutParameter("Code", OracleTypes.INTEGER);

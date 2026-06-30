@@ -26,7 +26,13 @@ public class CleanSDxDCDeterminationPLSQL {
 
     private final Logger logger = (Logger) LogManager.getLogger(CleanSDxDCDeterminationPLSQL.class);
 
-    public String CleanSDxDCDeterminationPLSQL(final DataSource datasource, final String sdxoriglist, final String sdxdcfinder, final String pdx, final String dcs) {
+    public String CleanSDxDCDeterminationPLSQL(
+            final DataSource datasource,
+            final String SchemaName,
+            final String sdxoriglist, 
+            final String sdxdcfinder, 
+            final String pdx, 
+            final String dcs) {
         String result = "";
         try {
             LinkedList<String> SDXoriglist = new LinkedList<>();

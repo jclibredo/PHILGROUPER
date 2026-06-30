@@ -32,13 +32,16 @@ public class PDXandMDC {
     private final Utility utility = new Utility();
 
     //PDX used to find MDC
-    public DRGWSResult PDXandMDC(final DataSource datasource, final String pdx, final String mdc) {
+    public DRGWSResult PDXandMDC(
+            final DataSource datasource,
+            final String SchemaName,
+            final String pdx, final String mdc) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :pdxmdc := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDX_MDC(:p_pdx_code,:mdcs); end;");
+            CallableStatement statement = connection.prepareCall("begin :pdxmdc := " + SchemaName + ".DRGPKGFUNCTION.GET_PDX_MDC(:p_pdx_code,:mdcs); end;");
             statement.registerOutParameter("pdxmdc", OracleTypes.CURSOR);
             statement.setString("p_pdx_code", pdx);
             statement.setString("mdcs", mdc);

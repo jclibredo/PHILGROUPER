@@ -31,13 +31,16 @@ public class GetBMDC {
     private final Logger logger = (Logger) LogManager.getLogger(GetBMDC.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetBMDC(final DataSource datasource, final String p_pdx_code) {
+    public DRGWSResult GetBMDC(
+            final DataSource datasource,
+            final String SchemaName,
+            final String p_pdx_code) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetBMDC = connection.prepareCall("begin :bmdc_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_BMDC_VALIDATION_PREMDC(:p_pdx_code); end;");
+            CallableStatement GetBMDC = connection.prepareCall("begin :bmdc_validation := " + SchemaName + ".DRGPKGFUNCTION.GET_BMDC_VALIDATION_PREMDC(:p_pdx_code); end;");
             GetBMDC.registerOutParameter("bmdc_validation", OracleTypes.CURSOR);
             GetBMDC.setString("p_pdx_code", p_pdx_code);
             GetBMDC.execute();

@@ -35,23 +35,23 @@ public class GetGrouper {
     private final Logger logger = (Logger) LogManager.getLogger(GetGrouper.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetGrouper(final DataSource datasource, final String tagss) {
+    public DRGWSResult GetGrouper(
+            final DataSource datasource,
+            final String SchemaName,
+            final String tagss,
+            final int limitter) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
         ArrayList<String> errorList = new ArrayList<>();
         GetICD10PreMDC preMDC = new GetICD10PreMDC();
         ArrayList<GrouperParameter> grouperparameterlsit = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement state = connection.prepareCall("begin :drgresult := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
+            CallableStatement state = connection.prepareCall("begin :drgresult := " + SchemaName + ".DRGPKGFUNCTION.GET_DRG_RESULT(:tagss); end;");
             state.registerOutParameter("drgresult", OracleTypes.CURSOR);
             state.setString("tagss", tagss.trim());
             state.execute();
             int stopper = 0;
             ResultSet resultset = (ResultSet) state.getObject("drgresult");
             while (resultset.next()) {
-
                 GrouperParameter ggrouperparameter = new GrouperParameter();
                 DRGRESULT drgresultparam = new DRGRESULT();
                 //GET GROUPER RESULT
@@ -62,10 +62,10 @@ public class GetGrouper {
                     drgresultparam.setPdx("");
                     ggrouperparameter.setPdx("");
                 } else {
-                    if (preMDC.GetICD10PreMDC(datasource, resultset.getString("PDX").replaceAll("\\.", "").toUpperCase()).isSuccess()) {
+                    if (preMDC.GetICD10PreMDC(datasource, SchemaName, resultset.getString("PDX").replaceAll("\\.", "").toUpperCase()).isSuccess()) {
                         drgresultparam.setPdx(resultset.getString("PDX").replaceAll("\\.", "").toUpperCase());
                         ggrouperparameter.setPdx(resultset.getString("PDX").replaceAll("\\.", "").toUpperCase());
-                    } else if (preMDC.GetICD10PreMDC(datasource, (resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase()).isSuccess()) {
+                    } else if (preMDC.GetICD10PreMDC(datasource, SchemaName, (resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase()).isSuccess()) {
                         drgresultparam.setPdx((resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase());
                         ggrouperparameter.setPdx((resultset.getString("PDX").substring(0, resultset.getString("PDX").length() - 1)).replaceAll("\\.", "").toUpperCase());
                     } else {
@@ -91,7 +91,7 @@ public class GetGrouper {
                 }
                 drgresultparam.setTags(resultset.getString("TAGS"));
                 //DRG XML GET PATIENT INFO
-                CallableStatement getdrg_info = connection.prepareCall("begin :getdrginfo := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG_INFO(:seriesnums); end;");
+                CallableStatement getdrg_info = connection.prepareCall("begin :getdrginfo := " + SchemaName + ".DRGPKGFUNCTION.GET_DRG_INFO(:seriesnums); end;");
                 getdrg_info.registerOutParameter("getdrginfo", OracleTypes.CURSOR);
                 getdrg_info.setString("seriesnums", resultset.getString("CLAIMS_SERIES").trim());
                 getdrg_info.execute();
@@ -103,14 +103,14 @@ public class GetGrouper {
                 } else {
                     ggrouperparameter.setAdmissionWeight("");
                 }
-                CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.UHCDRGPKG.GETPATIENTDATA(:seriesnums,:claimid); end;");
+                CallableStatement statement = connection.prepareCall("begin :v_result := " + SchemaName + ".UHCDRGPKG.GETPATIENTDATA(:seriesnums,:claimid); end;");
                 statement.registerOutParameter("v_result", OracleTypes.CURSOR);
                 statement.setString("seriesnums", resultset.getString("CLAIMS_SERIES")); //claimid
                 statement.setString("claimid", resultset.getString("CLAIM_ID"));
                 statement.execute();
                 ResultSet resultSet = (ResultSet) statement.getObject("v_result");
                 if (resultSet.next()) {
-                    DRGWSResult pPatientbday = new GETPATIENTBDAY().GETPATIENTBDAY(datasource, resultset.getString("CLAIMS_SERIES").trim());
+                    DRGWSResult pPatientbday = new GETPATIENTBDAY().GETPATIENTBDAY(datasource, SchemaName, resultset.getString("CLAIMS_SERIES").trim());
                     //EXPIREDDATE
                     ggrouperparameter.setExpiredDate(resultSet.getString("EXPIREDDATE") == null
                             || resultSet.getString("EXPIREDDATE").equals("")
@@ -175,31 +175,34 @@ public class GetGrouper {
                             break;
                         }
                     }
-
                     grouperparameterlsit.add(ggrouperparameter);
                 } else {
                     errorList.add(resultset.getString("CLAIMS_SERIES") + " NOT FOUND");
                 }
                 stopper++;
-                if (stopper == 500) {
+                if (stopper >= limitter) {
                     break;
                 }
             }
             ArrayList<DRGOutput> drgresultList = new ArrayList<>();
             for (int y = 0; y < grouperparameterlsit.size(); y++) {
-                DRGWSResult processResult = new ProcessGrouperParameter().ProcessGrouperParameter(datasource, grouperparameterlsit.get(y));
+                DRGWSResult processResult = new ProcessGrouperParameter().ProcessGrouperParameter(datasource, SchemaName, grouperparameterlsit.get(y));
                 if (processResult.isSuccess()) {
                     DRGOutput drgout = utility.objectMapper().readValue(processResult.getResult(), DRGOutput.class);
                     drgresultList.add(drgout);
                 }
             }
-            if (drgresultList.size() > 0) {
-                result.setSuccess(true);
-                result.setMessage("OK");
-                result.setResult(utility.objectMapper().writeValueAsString(drgresultList));
+            if (grouperparameterlsit.size() > 0) {
+                if (drgresultList.size() > 0) {
+                    result.setSuccess(true);
+                    result.setMessage("OK");
+                    result.setResult(utility.objectMapper().writeValueAsString(drgresultList));
+                }
             } else {
-                result.setMessage("NO DATA FOUND");
+                result.setSuccess(true);
+                result.setMessage("NO DATA FOUND TO BE PROCESS");
             }
+
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong");
             logger.info("Executing GetGrouper Method");

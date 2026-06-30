@@ -30,13 +30,17 @@ public class GetPCOM {
     private final Logger logger = LogManager.getLogger(GetPCOM.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetPCOM(final DataSource datasource, final String code1, final String code2) {
+    public DRGWSResult GetPCOM(
+            final DataSource datasource,
+            final String SchemaName,
+            final String code1,
+            final String code2) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetPCOM = connection.prepareCall("begin :pcom := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PCOM(:codea,:codeb); end;");
+            CallableStatement GetPCOM = connection.prepareCall("begin :pcom := " + SchemaName + ".DRGPKGFUNCTION.GET_PCOM(:codea,:codeb); end;");
             GetPCOM.registerOutParameter("pcom", OracleTypes.CURSOR);
             GetPCOM.setString("codea", code1);
             GetPCOM.setString("codeb", code2);

@@ -9,6 +9,17 @@
         </session-timeout>
     </session-config>
     
+    <env-entry>
+        <env-entry-name>SchemaName</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>DRG_SHADOWBILLING</env-entry-value>  
+    </env-entry>
+    
+    <env-entry>
+        <env-entry-name>Limitter</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>500</env-entry-value>  
+    </env-entry>
     
     <env-entry>
         <env-entry-name>SeekerModule</env-entry-name>

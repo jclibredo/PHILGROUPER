@@ -29,13 +29,17 @@ public class AX {
     private final Logger logger = (Logger) LogManager.getLogger(AX.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult AX(final DataSource datasource, final String axcodes, final String requestcode) {
+    public DRGWSResult AX(
+            final DataSource datasource,
+            final String SchemaName,
+            final String axcodes,
+            final String requestcode) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :get_ax := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_AX_PARAM(:p_ax,:p_code); end;");
+            CallableStatement statement = connection.prepareCall("begin :get_ax := " + SchemaName + ".DRGPKGFUNCTION.GET_AX_PARAM(:p_ax,:p_code); end;");
             statement.registerOutParameter("get_ax", OracleTypes.CURSOR);
             statement.setString("p_ax", axcodes.trim());
             statement.setString("p_code", requestcode.trim());

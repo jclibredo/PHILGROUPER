@@ -5,8 +5,8 @@
  */
 package grouper;
 
-import drgseeker.utilities.SeekerMethods;
-import drgseeker.utilities.SeekerUser;
+import grouper.methods.validation.SeekerMethods;
+import grouper.structures.SeekerUser;
 import grouper.methods.seeker.SeekerDRG;
 import grouper.methods.seeker.SeekerICD10;
 import grouper.methods.seeker.SeekerICD9cm;
@@ -47,15 +47,11 @@ public class Seeker {
     //-------------------------------------
     @Resource(lookup = "mail/acrgbmail")
     private Session session;
-
+    
     private final Utility utility = new Utility();
+    
+    private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");
 
-    /**
-     * Retrieves representation of an instance of Seeker.Seeker
-     *
-     * @param token
-     * @return
-     */
     @GET
     @Path("GetAllUser")
     @Produces(MediaType.APPLICATION_JSON)
@@ -68,7 +64,9 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new SeekerMethods().GetAllUser(dataSource);
+            if (dynamicSchema.isSuccess()) {
+                result = new SeekerMethods().GetAllUser(dataSource, dynamicSchema.getResult());
+            }
         }
         return result;
     }
@@ -86,7 +84,9 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new SeekerMethods().GetUserByID(dataSource, puserid);
+            if (dynamicSchema.isSuccess()) {
+                result = new SeekerMethods().GetUserByID(dataSource, dynamicSchema.getResult(), puserid);
+            }
         }
         return result;
     }
@@ -105,7 +105,9 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new SeekerMethods().VALIDATEOTP(dataSource, user.getEmail(), user.getPassword(), user.getOtp());
+            if (dynamicSchema.isSuccess()) {
+                result = new SeekerMethods().VALIDATEOTP(dataSource, dynamicSchema.getResult(), user.getEmail(), user.getPassword(), user.getOtp());
+            }
         }
         return result;
     }
@@ -124,7 +126,9 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            return new SeekerMethods().UserInsert(dataSource, user, session);
+            if (dynamicSchema.isSuccess()) {
+                return new SeekerMethods().UserInsert(dataSource, dynamicSchema.getResult(), user, session);
+            }
         }
         return result;
     }
@@ -143,10 +147,12 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            if (!new SeekerMethods().ValidateUserUpdate(dataSource, user).isSuccess()) {
-                result.setMessage(new SeekerMethods().ValidateUserUpdate(dataSource, user).getMessage());
-            } else {
-                result = new SeekerMethods().UserUpdate(dataSource, user);
+            if (dynamicSchema.isSuccess()) {
+                if (!new SeekerMethods().ValidateUserUpdate(dataSource, dynamicSchema.getResult(), user).isSuccess()) {
+                    result.setMessage(new SeekerMethods().ValidateUserUpdate(dataSource, dynamicSchema.getResult(), user).getMessage());
+                } else {
+                    result = new SeekerMethods().UserUpdate(dataSource, dynamicSchema.getResult(), user);
+                }
             }
         }
         return result;
@@ -160,7 +166,11 @@ public class Seeker {
             @HeaderParam("email") String email,
             @HeaderParam("password") String password,
             @HeaderParam("expire") String expire) {
-        return new SeekerMethods().UserLogin(dataSource, email.trim(), password, expire.trim(), session);
+        DRGWSResult result = utility.DRGWSResult();
+        if (dynamicSchema.isSuccess()) {
+            return new SeekerMethods().UserLogin(dataSource, dynamicSchema.getResult(), email.trim(), password, expire.trim(), session);
+        }
+        return result;
     }
 
     @POST
@@ -169,7 +179,11 @@ public class Seeker {
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult ForgetPassword(
             @HeaderParam("mail") String mail) {
-        return new SeekerMethods().ForgatPassword(dataSource, mail, utility.GenerateRandomPassword(10));
+        DRGWSResult result = utility.DRGWSResult();
+        if (dynamicSchema.isSuccess()) {
+            return new SeekerMethods().ForgatPassword(dataSource, dynamicSchema.getResult(), mail, utility.GenerateRandomPassword(10));
+        }
+        return result;
     }
 
     @GET
@@ -188,13 +202,12 @@ public class Seeker {
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GetRVS(@HeaderParam("token") String token) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new SeekerRVS().SeekerRVS(dataSource);
+            if (dynamicSchema.isSuccess()) {
+                result = new SeekerRVS().SeekerRVS(dataSource);
+            }
         }
         return result;
     }
@@ -210,7 +223,9 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new SeekerICD9cm().SeekerICD9cm(dataSource);
+            if (dynamicSchema.isSuccess()) {
+                result = new SeekerICD9cm().SeekerICD9cm(dataSource);
+            }
         }
         return result;
     }
@@ -226,7 +241,9 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new SeekerDRG().SeekerDRG(dataSource);
+            if (dynamicSchema.isSuccess()) {
+                result = new SeekerDRG().SeekerDRG(dataSource);
+            }
         }
         return result;
     }
@@ -242,7 +259,9 @@ public class Seeker {
         if (!utility.GetPayload(dataSource, token).isSuccess()) {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
-            result = new SeekerICD10().SeekerICD10(dataSource);
+            if (dynamicSchema.isSuccess()) {
+                result = new SeekerICD10().SeekerICD10(dataSource);
+            }
         }
         return result;
     }
@@ -263,7 +282,11 @@ public class Seeker {
     @Path("GetHcfToken")
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GetHcfToken() {
-        return new SeekerMethods().GETTOKEN(dataSource);
+        DRGWSResult result = utility.DRGWSResult();
+        if (dynamicSchema.isSuccess()) {
+            return new SeekerMethods().GETTOKEN(dataSource, dynamicSchema.getResult());
+        }
+        return result;
     }
 
     @GET
@@ -271,21 +294,18 @@ public class Seeker {
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GETHCFSEEKERMODULE(@HeaderParam("token") String token) {
         DRGWSResult result = utility.DRGWSResult();
-        result.setMessage("");
-        result.setResult("");
-        result.setSuccess(false);
         try {
             if (!utility.GetPayload(dataSource, token).isSuccess()) {
                 result.setMessage(utility.GetPayload(dataSource, token).getMessage());
             } else {
-                DRGWSResult insertResult = new SeekerMethods().InsertToken(dataSource, token);
-                if (insertResult.isSuccess()) {
-
-                    URI uri = new URI(utility.GetString("SeekerModule").getResult());
-
-                    Desktop.getDesktop().browse(uri);
-                } else {
-                    result = insertResult;
+                if (dynamicSchema.isSuccess()) {
+                    DRGWSResult insertResult = new SeekerMethods().InsertToken(dataSource, dynamicSchema.getResult(), token);
+                    if (insertResult.isSuccess()) {
+                        URI uri = new URI(utility.GetString("SeekerModule").getResult());
+                        Desktop.getDesktop().browse(uri);
+                    } else {
+                        result = insertResult;
+                    }
                 }
             }
         } catch (IOException | URISyntaxException ex) {

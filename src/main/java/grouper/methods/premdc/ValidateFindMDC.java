@@ -39,7 +39,10 @@ public class ValidateFindMDC {
     private final Logger logger = (Logger) LogManager.getLogger(ValidateFindMDC.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult ValidateFindMDC(final DataSource datasource, final GrouperParameter grouperparameter) throws ParseException {
+    public DRGWSResult ValidateFindMDC(
+            final DataSource datasource,
+            final String SchemaName,
+            final GrouperParameter grouperparameter) throws ParseException {
         String checker = "true";
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -72,7 +75,7 @@ public class ValidateFindMDC {
                 String dataA = ProcList.get(y).replace(">1", "");  //TEST DATA HERE  Procwithgreathervalue
                 for (int w = 0; w < ProcList.size(); w++) {  //TEST DATA HERE  Procwithgreathervalue
                     String dataB = ProcList.get(w).replace(">1", "");  //TEST DATA HERE  Procwithgreathervalue
-                    DRGWSResult pcomResult = new GetPCOM().GetPCOM(datasource, dataA.trim(), dataB.trim());
+                    DRGWSResult pcomResult = new GetPCOM().GetPCOM(datasource, SchemaName, dataA.trim(), dataB.trim());
                     if (String.valueOf(pcomResult.isSuccess()).equals("true")) {
                         combiCode.add(pcomResult.getResult());
                         for (int i = 0; i < ProcList.size(); i++) {  //TEST DATA HERE  Procwithgreathervalue
@@ -99,7 +102,7 @@ public class ValidateFindMDC {
             }
             List<String> SDxList = Arrays.asList(grouperparameter.getSdx().split(","));
             for (int b = 0; b < SDxList.size(); b++) {
-                DRGWSResult gDAResult = new GetDA().GetDA(datasource, grouperparameter.getPdx(), SDxList.get(b).trim());
+                DRGWSResult gDAResult = new GetDA().GetDA(datasource, SchemaName, grouperparameter.getPdx(), SDxList.get(b).trim());
                 if (gDAResult.isSuccess()) {
                     asterisk.add("true");
                 } else {
@@ -131,8 +134,8 @@ public class ValidateFindMDC {
                 }
             }
             GetValidatedPreMDC validatePreMDC = new GetValidatedPreMDC();
-            DRGWSResult geticd10Result = new GetICD10PreMDC().GetICD10PreMDC(datasource, swapping.getNewpdx());
-            DRGWSResult getSexConfictResult = new GenderConfictValidation().GenderConfictValidation(datasource, swapping.getNewpdx(), grouperparameter.getGender());
+            DRGWSResult geticd10Result = new GetICD10PreMDC().GetICD10PreMDC(datasource, SchemaName, swapping.getNewpdx());
+            DRGWSResult getSexConfictResult = new GenderConfictValidation().GenderConfictValidation(datasource, SchemaName, swapping.getNewpdx(), grouperparameter.getGender());
             if (!geticd10Result.isSuccess()) {
                 drgResult.setDRG("26509");
                 drgResult.setDC("2650");
@@ -181,7 +184,7 @@ public class ValidateFindMDC {
                         Newgrouperparam.setProc(comResult);
                     }
                     Newgrouperparam.setSdx(grouperparameter.getSdx());
-                    result = validatePreMDC.GetValidatedPreMDC(datasource, Newgrouperparam);
+                    result = validatePreMDC.GetValidatedPreMDC(datasource, SchemaName, Newgrouperparam);
                 }
             } else {
                 Newgrouperparam.setPdx(swapping.getNewpdx());
@@ -199,7 +202,7 @@ public class ValidateFindMDC {
                     Newgrouperparam.setProc(comResult);
                 }
                 Newgrouperparam.setSdx(swapping.getNewsdx());
-                result = validatePreMDC.GetValidatedPreMDC(datasource, Newgrouperparam);
+                result = validatePreMDC.GetValidatedPreMDC(datasource, SchemaName, Newgrouperparam);
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong");

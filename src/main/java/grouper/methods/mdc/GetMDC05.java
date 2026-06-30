@@ -39,7 +39,11 @@ public class GetMDC05 {
     private final Logger logger = (Logger) LogManager.getLogger(GetMDC05.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC05(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetMDC05(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -62,7 +66,7 @@ public class GetMDC05 {
             AX checkAX = new AX();
             //5BX USES PRIMARY CODES
             int Counter5BX = 0;
-            if (checkAX.AX(datasource, "5BX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "5BX", grouperparameter.getPdx()).isSuccess()) {
                 Counter5BX++;
             }
             // AX 5CX
@@ -71,15 +75,15 @@ public class GetMDC05 {
             int Counter5DXSDx = 0;
             int Counter5DXPDx = 0;
             for (int x = 0; x < SecondaryList.size(); x++) {
-                if (checkAX.AX(datasource, "5CX", SecondaryList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "5CX", SecondaryList.get(x).trim()).isSuccess()) {
                     Counter5CX++;
                 }
-                if (checkAX.AX(datasource, "5DX", SecondaryList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "5DX", SecondaryList.get(x).trim()).isSuccess()) {
                     Counter5DXSDx++;
                 }
             }
 
-            if (checkAX.AX(datasource, "5DX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "5DX", grouperparameter.getPdx()).isSuccess()) {
                 Counter5DXPDx++;
             }
             //AX 5PEX
@@ -102,20 +106,21 @@ public class GetMDC05 {
             int Counter5PBX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        SchemaName,
                         ProcedureList.get(x).trim(),
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, ProcedureList.get(x).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
@@ -124,63 +129,63 @@ public class GetMDC05 {
 //                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
 //                    PDXCounter99++;
 //                }
-                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
 //                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
 //                    PCXCounter99++;
 //                }
-                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
 
                 //AX 5PEX
-                if (checkAX.AX(datasource, "5PEX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "5PEX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PEX++;
                 }
                 //AX 5PCX
-                if (checkAX.AX(datasource, "5PCX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "5PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PCX++;
                 }
                 //AX 5PFX
-                if (checkAX.AX(datasource, "5PFX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "5PFX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PFX++;
                 }
                 //AX 5PDX
-                if (checkAX.AX(datasource, "5PDX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "5PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PDX++;
                 }
 
                 //AX 5PGX
-                if (checkAX.AX(datasource, "5PGX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "5PGX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PGX++;
                 }
 
                 //AX 5PHX
-                if (checkAX.AX(datasource, "5PHX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "5PHX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PHX++;
                 }
 
-                if (checkAX.AX(datasource, "5PJX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "5PJX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PJX++;
                 }
 
                 //Cardiac Cath PDC 5PT
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "5PT", mdcWithoutZeros).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "5PT", mdcWithoutZeros).isSuccess()) {
                     CardiacCount++;
                 }
                 //AX 5PBX
-                if (checkAX.AX(datasource, "5PBX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "5PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PBX++;
                 }
 
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "5PK", mdcWithoutZeros).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "5PK", mdcWithoutZeros).isSuccess()) {
                     PPCount++;
                 }
             }
             int AMICount = 0;
-            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "5A").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "5A").isSuccess()) {
                 AMICount++;
             }
 
@@ -217,7 +222,7 @@ public class GetMDC05 {
                         } else if (Counter5PHX > 0) {
                             if (Counter5CX > 0) {
                                 for (int x = 0; x < SecondaryList.size(); x++) {
-                                    DRGWSResult sdxfinderResult = checkAX.AX(datasource, "5CX", SecondaryList.get(x));
+                                    DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", SecondaryList.get(x));
                                     if (sdxfinderResult.isSuccess()) {
                                         sdxfinder.add(SecondaryList.get(x));
                                     }
@@ -235,7 +240,7 @@ public class GetMDC05 {
                             if (Counter5CX > 0) {
 
                                 for (int x = 0; x < SecondaryList.size(); x++) {
-                                    DRGWSResult sdxfinderResult = checkAX.AX(datasource, "5CX", SecondaryList.get(x));
+                                    DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", SecondaryList.get(x));
                                     if (sdxfinderResult.isSuccess()) {
                                         sdxfinder.add(SecondaryList.get(x));
                                     }
@@ -345,7 +350,7 @@ public class GetMDC05 {
                             case "5PT"://Cardiac Cath
                                 if (Counter5DXPDx > 0 || Counter5DXSDx > 0) {
                                     for (int x = 0; x < SecondaryList.size(); x++) {
-                                        DRGWSResult sdxfinderResult = checkAX.AX(datasource, "5CX", SecondaryList.get(x));
+                                        DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", SecondaryList.get(x));
                                         if (sdxfinderResult.isSuccess()) {
                                             sdxfinder.add(SecondaryList.get(x));
                                         }
@@ -474,7 +479,7 @@ public class GetMDC05 {
                 } else if (Counter5PHX > 0) {
                     if (Counter5CX > 0) {
                         for (int x = 0; x < SecondaryList.size(); x++) {
-                            DRGWSResult sdxfinderResult = checkAX.AX(datasource, "5CX", SecondaryList.get(x));
+                            DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", SecondaryList.get(x));
                             if (sdxfinderResult.isSuccess()) {
                                 sdxfinder.add(SecondaryList.get(x));
                             }
@@ -491,7 +496,7 @@ public class GetMDC05 {
                 } else {
                     if (Counter5CX > 0) {
                         for (int x = 0; x < SecondaryList.size(); x++) {
-                            DRGWSResult sdxfinderResult = checkAX.AX(datasource, "5CX", SecondaryList.get(x));
+                            DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", SecondaryList.get(x));
                             if (sdxfinderResult.isSuccess()) {
                                 sdxfinder.add(SecondaryList.get(x));
                             }
@@ -601,7 +606,7 @@ public class GetMDC05 {
                     case "5PT"://Cardiac Cath
                         if (Counter5DXPDx > 0 || Counter5DXSDx > 0) {
                             for (int x = 0; x < SecondaryList.size(); x++) {
-                                DRGWSResult sdxfinderResult = checkAX.AX(datasource, "5CX", SecondaryList.get(x));
+                                DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", SecondaryList.get(x));
                                 if (sdxfinderResult.isSuccess()) {
                                     sdxfinder.add(SecondaryList.get(x));
                                 }
@@ -697,7 +702,8 @@ public class GetMDC05 {
                         break;
                 }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

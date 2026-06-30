@@ -31,13 +31,14 @@ public class ORProcedure {
 
     public DRGWSResult ORProcedure(
             final DataSource datasource,
+            final String SchemaName,
             final String orpCode) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetORproce = connection.prepareCall("begin :get_orp := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PROC_ORP(:orpCode); end;");
+            CallableStatement GetORproce = connection.prepareCall("begin :get_orp := " + SchemaName + ".DRGPKGFUNCTION.GET_PROC_ORP(:orpCode); end;");
             GetORproce.registerOutParameter("get_orp", OracleTypes.CURSOR);
             GetORproce.setString("orpCode", orpCode);
             GetORproce.execute();

@@ -30,13 +30,16 @@ public class TRAUMAICD10 {
     private final Logger logger = (Logger) LogManager.getLogger(TRAUMAICD10.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult TRAUMAICD10(final DataSource datasource, final String sdx) {
+    public DRGWSResult TRAUMAICD10(
+            final DataSource datasource,
+            final String SchemaName,
+            final String sdx) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :trauma_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.TRAUMAICD10(:sdx); end;");
+            CallableStatement statement = connection.prepareCall("begin :trauma_output := " + SchemaName + ".DRGPKGFUNCTION.TRAUMAICD10(:sdx); end;");
             statement.registerOutParameter("trauma_output", OracleTypes.CURSOR);
             statement.setString("sdx", sdx);
             statement.execute();

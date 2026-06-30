@@ -32,14 +32,18 @@ public class GetPDC {
     private final Logger logger = (Logger) LogManager.getLogger(GetPDC.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetPDC(final DataSource datasource, final String pdcs, final String mdc) {
+    public DRGWSResult GetPDC(
+            final DataSource datasource,
+            final String SchemaName,
+            final String pdcs,
+            final String mdc) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
             //Get BMDC Validation Result
-            CallableStatement getPDC = connection.prepareCall("begin :pdc_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDC(:pdcs,:mdcs); end;");
+            CallableStatement getPDC = connection.prepareCall("begin :pdc_output := " + SchemaName + ".DRGPKGFUNCTION.GET_PDC(:pdcs,:mdcs); end;");
             getPDC.registerOutParameter("pdc_output", OracleTypes.CURSOR);
             getPDC.setString("pdcs", pdcs);
             getPDC.setString("mdcs", mdc);

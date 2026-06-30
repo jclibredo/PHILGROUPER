@@ -30,27 +30,49 @@ public class GETPATIENTBDAY {
 
     public DRGWSResult GETPATIENTBDAY(
             final DataSource datasource,
+            final String SchemaName,
             final String seriesnum) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :nclaims := DRG_SHADOWBILLING.UHCDRGPKG.GET_NCLAIMS(:seriesnum); end;");
+            CallableStatement statement = connection.prepareCall("begin :nclaims := " + SchemaName + ".UHCDRGPKG.GET_NCLAIMS(:seriesnum); end;");
             statement.registerOutParameter("nclaims", OracleTypes.CURSOR);
             statement.setString("seriesnum", seriesnum.trim());
             statement.execute();
             ResultSet resultSet = (ResultSet) statement.getObject("nclaims");
             if (resultSet.next()) {
-                if (resultSet.getString("DATEOFBIRTH") == null || resultSet.getString("DATEOFBIRTH").isEmpty() || resultSet.getString("DATEOFBIRTH").equals("")) {
-                } else {
-                    // FOR DEPLOYMENT FORMAT DATE
-//                    result.setResult(utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(resultSet.getString("DATEOFBIRTH"))));
-                    //FOR MY LOCAL FORMAT DATE
-                    result.setResult(utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DATEOFBIRTH")));
-                    result.setSuccess(true);
-                    result.setMessage("OK");
+                Object dobValue = resultSet.getObject("DATEOFBIRTH");
+                String formattedDob = null;
+                if (dobValue instanceof java.sql.Timestamp) {
+                    formattedDob = utility.SimpleDateFormat("MM-dd-yyyy")
+                            .format((java.sql.Timestamp) dobValue);
+                } else if (dobValue instanceof String) {
+                    formattedDob = utility.SimpleDateFormat("MM-dd-yyyy")
+                            .format(
+                                    utility.SimpleDateFormat("MM/dd/yyyy")
+                                            .parse((String) dobValue)
+                            );
                 }
+                result.setResult(formattedDob);
+//                if (resultSet.getString("DATEOFBIRTH") == null || resultSet.getString("DATEOFBIRTH").isEmpty() || resultSet.getString("DATEOFBIRTH").equals("")) {
+//                } else {
+//                    // FOR DEPLOYMENT FORMAT DATE
+////                    result.setResult(utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(resultSet.getString("DATEOFBIRTH"))));
+//                    //FOR MY LOCAL FORMAT DATE
+////                    result.setResult(utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DATEOFBIRTH")));
+                result.setSuccess(true);
+                result.setMessage("OK");
+//                if (resultSet.getString("DATEOFBIRTH") == null || resultSet.getString("DATEOFBIRTH").isEmpty() || resultSet.getString("DATEOFBIRTH").equals("")) {
+//                } else {
+//                    // FOR DEPLOYMENT FORMAT DATE
+////                    result.setResult(utility.SimpleDateFormat("MM-dd-yyyy").format(utility.SimpleDateFormat("MM/dd/yyyy").parse(resultSet.getString("DATEOFBIRTH"))));
+//                    //FOR MY LOCAL FORMAT DATE
+//                    result.setResult(utility.SimpleDateFormat("MM-dd-yyyy").format(resultSet.getTimestamp("DATEOFBIRTH")));
+//                    result.setSuccess(true);
+//                    result.setMessage("OK");
+//                }
             }
         } catch (Exception ex) {
             result.setMessage("Something went wrong");

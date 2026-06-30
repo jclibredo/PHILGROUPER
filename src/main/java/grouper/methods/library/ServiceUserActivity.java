@@ -5,7 +5,7 @@
  */
 package grouper.methods.library;
 
-import drgseeker.utilities.SeekerMethods;
+import grouper.methods.validation.SeekerMethods;
 import grouper.structures.DRGWSResult;
 import grouper.structures.UserLogs;
 import grouper.utility.Utility;
@@ -38,6 +38,7 @@ public class ServiceUserActivity {
 
     public DRGWSResult CreateUserLogs(
             final DataSource dataSource,
+            final String SchemaName,
             final String username,
             final String module,
             final String action,
@@ -48,7 +49,7 @@ public class ServiceUserActivity {
         result.setSuccess(false);
         SeekerMethods seeker = new SeekerMethods();
         //GET USER FULLNAME
-        DRGWSResult getName = seeker.GetUserByUsername(dataSource, username);
+        DRGWSResult getName = seeker.GetUserByUsername(dataSource, SchemaName, username);
         try (Connection connection = dataSource.getConnection()) {
             CallableStatement getinsertresult = connection.prepareCall("call DRG_SHADOWBILLING.DRGSEEKER.INSERT_USER_LOGS(:Message,:Code,"
                     + ":u_username,:u_dateaction,:u_module,:u_action,:u_details)");

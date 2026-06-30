@@ -29,13 +29,18 @@ public class MajorORPRrocedure {
     private final Logger logger = (Logger) LogManager.getLogger(MajorORPRrocedure.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult MajorORPRrocedure(final DataSource datasource, final String icd9codes, final String mdcs, final String pdcs) {
+    public DRGWSResult MajorORPRrocedure(
+            final DataSource datasource,
+            final String SchemaName,
+            final String icd9codes,
+            final String mdcs,
+            final String pdcs) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetMajorORProc = connection.prepareCall("begin :major_or_proc := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_MAINCC_USED_ICD10(:icd9codes,:mdcs,:pdcs); end;");
+            CallableStatement GetMajorORProc = connection.prepareCall("begin :major_or_proc := " + SchemaName + ".DRGPKGFUNCTION.GET_MAINCC_USED_ICD10(:icd9codes,:mdcs,:pdcs); end;");
             GetMajorORProc.registerOutParameter("major_or_proc", OracleTypes.CURSOR);
             GetMajorORProc.setString("icd9codes", icd9codes);
             GetMajorORProc.setString("mdcs", mdcs);

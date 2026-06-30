@@ -29,13 +29,16 @@ public class GetICD10 {
     private final Logger logger = (Logger) LogManager.getLogger(GetICD10.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetICD10(final DataSource datasource, final String p_icd10_code) {
+    public DRGWSResult GetICD10(
+            final DataSource datasource,
+            final String SchemaName,
+            final String p_icd10_code) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :p_validcode := DRG_SHADOWBILLING.DRGPKGFUNCTION.get_valid_icd10(:p_icd10_code); end;");
+            CallableStatement statement = connection.prepareCall("begin :p_validcode := " + SchemaName + ".DRGPKGFUNCTION.get_valid_icd10(:p_icd10_code); end;");
             statement.registerOutParameter("p_validcode", OracleTypes.CURSOR);
             statement.setString("p_icd10_code", p_icd10_code);
             statement.execute();

@@ -29,13 +29,17 @@ public class GetDA {
     private final Logger logger = (Logger) LogManager.getLogger(GetDA.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetDA(final DataSource datasource, final String dagger, final String asterisk) {
+    public DRGWSResult GetDA(
+            final DataSource datasource,
+            final String SchemaName,
+            final String dagger,
+            final String asterisk) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setSuccess(false);
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement conn = connection.prepareCall("begin :DaggerAs := DRG_SHADOWBILLING.DRGPKGFUNCTION.get_da(:daggers,:ASterisks); end;");
+            CallableStatement conn = connection.prepareCall("begin :DaggerAs := " + SchemaName + ".DRGPKGFUNCTION.get_da(:daggers,:ASterisks); end;");
             conn.registerOutParameter("DaggerAs", OracleTypes.CURSOR);
             conn.setString("daggers", dagger.toUpperCase().trim());
             conn.setString("ASterisks", asterisk.toUpperCase().trim());

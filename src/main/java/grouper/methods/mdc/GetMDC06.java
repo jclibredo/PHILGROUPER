@@ -39,7 +39,11 @@ public class GetMDC06 {
     private final Logger logger = (Logger) LogManager.getLogger(GetMDC06.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC06(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetMDC06(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -62,24 +66,24 @@ public class GetMDC06 {
 //                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
 //                    CartSDx++;
 //                }
-                if (checkAX.AX(datasource, "99BX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
+                if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
                     CartSDx++;
                 }
 //                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
 //                    CaCRxSDx++;
 //                }
-                if (checkAX.AX(datasource, "99CX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
+                if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
                     CaCRxSDx++;
                 }
             }
 
             int MalignantCount = 0;
-            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "6A").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "6A").isSuccess()) {
                 MalignantCount++;
             }
             //Maj Dig Dis AX 6BX
             int Ax6BXCount = 0;
-            if (checkAX.AX(datasource, "6BX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "6BX", grouperparameter.getPdx()).isSuccess()) {
                 Ax6BXCount++;
             }
             //Inguinal or Femoral PDC 6PH
@@ -94,13 +98,14 @@ public class GetMDC06 {
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        SchemaName,
                         ProcedureList.get(y).trim(),
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
@@ -108,10 +113,10 @@ public class GetMDC06 {
                     }
                 }
                 //Inguinal or Femoral PDC 6PH
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "6PH", mdcWithoutZeros).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(y).trim(), "6PH", mdcWithoutZeros).isSuccess()) {
                     Counter6PH++;
                 }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, ProcedureList.get(y).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
@@ -120,35 +125,35 @@ public class GetMDC06 {
 //                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
 //                    PDXCounter99++;
 //                }
-                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
 //                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
 //                    PCXCounter99++;
 //                }
-                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
 //                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
 //                    CartProc++;
 //                }
-                if (checkAX.AX(datasource, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
 //                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
 //                    CaCRxProc++;
 //                }
-                if (checkAX.AX(datasource, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-                if (checkAX.AX(datasource, "6PBX", ProcedureList.get(y).trim()).isSuccess()) {//Dx Procedure
+                if (checkAX.AX(datasource, SchemaName, "6PBX", ProcedureList.get(y).trim()).isSuccess()) {//Dx Procedure
                     PBX6Proc++;
                 }
 //                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
 //                    PBX99Proc++;
 //                }
-                if (checkAX.AX(datasource, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {//Dx Procedure
+                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {//Dx Procedure
                     PBX99Proc++;
                 }
             }
@@ -236,7 +241,7 @@ public class GetMDC06 {
                                 drgResult.setDC("0629");
                                 break;
                             case "6PJ"://Appendectomy
-                                if (checkAX.AX(datasource, "6CX", grouperparameter.getPdx().trim()).isSuccess()) {
+                                if (checkAX.AX(datasource, SchemaName, "6CX", grouperparameter.getPdx().trim()).isSuccess()) {
 //                                if (utility.isValid6CX(grouperparameter.getPdx())) {
                                     drgResult.setDC("0632");
                                 } else {
@@ -487,7 +492,7 @@ public class GetMDC06 {
                         break;
                     case "6PJ"://Appendectomy
 //                        if (utility.isValid6CX(grouperparameter.getPdx())) {
-                        if (checkAX.AX(datasource, "6CX", grouperparameter.getPdx().trim()).isSuccess()) {
+                        if (checkAX.AX(datasource, SchemaName, "6CX", grouperparameter.getPdx().trim()).isSuccess()) {
                             drgResult.setDC("0632");
                         } else {
                             drgResult.setDC("0607");
@@ -652,7 +657,8 @@ public class GetMDC06 {
                         break;
                 }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

@@ -29,13 +29,17 @@ public class CheckExclusionList {
     private final Logger logger = (Logger) LogManager.getLogger(CheckExclusionList.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult CheckExclusionList(final DataSource datasource, final String sdx, final String pdx) {
+    public DRGWSResult CheckExclusionList(
+            final DataSource datasource,
+            final String SchemaName,
+            final String sdx,
+            final String pdx) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement exclusionlist = connection.prepareCall("begin :getexclusion := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_EXCLUSION(:secondary,:primarys); end;");
+            CallableStatement exclusionlist = connection.prepareCall("begin :getexclusion := " + SchemaName + ".DRGPKGFUNCTION.GET_EXCLUSION(:secondary,:primarys); end;");
             exclusionlist.registerOutParameter("getexclusion", OracleTypes.CURSOR);
             exclusionlist.setString("secondary", utility.CleanCode(sdx));
             exclusionlist.setString("primarys", utility.CleanCode(pdx));

@@ -38,7 +38,11 @@ public class GetMDC08 {
     private final Logger logger = (Logger) LogManager.getLogger(GetMDC08.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC08(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetMDC08(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -65,13 +69,13 @@ public class GetMDC08 {
 //                if (utility.isValid99BX(Secon.toUpperCase().trim())) {
 //                    CartSDx++;
 //                }
-                if (checkAX.AX(datasource, "99BX", Secon.trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99BX", Secon.trim()).isSuccess()) {
                     CartSDx++;
                 }
 //                if (utility.isValid99CX(Secon.toUpperCase().trim())) {
 //                    CaCRxSDx++;
 //                }
-                if (checkAX.AX(datasource, "99CX", Secon.trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99CX", Secon.trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
             }
@@ -85,29 +89,34 @@ public class GetMDC08 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, ProcedureList.get(y).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                        SchemaName,
                         ProcedureList.get(y).trim(),
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource,
+                            SchemaName,
+                            mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "8PH", mdcWithoutZeros).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource,
+                        SchemaName,
+                        ProcedureList.get(y).trim(), "8PH", mdcWithoutZeros).isSuccess()) {
                     Counter8PH++;
                 }
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(y).trim(), "8QA", mdcWithoutZeros).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(y).trim(), "8QA", mdcWithoutZeros).isSuccess()) {
                     Counter8QA++;
                 }
 
@@ -115,35 +124,35 @@ public class GetMDC08 {
 //                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
 //                    PDXCounter99++;
 //                }
-                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
 //                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
 //                    PCXCounter99++;
 //                }
-                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
 //                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
 //                    CartProc++;
 //                }
-                if (checkAX.AX(datasource, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
 //                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
 //                    CaCRxProc++;
 //                }
-                if (checkAX.AX(datasource, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
 //                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
 //                    PBX99Proc++;
 //                }
-                if (checkAX.AX(datasource, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
-                if (checkAX.AX(datasource, "8PFX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "8PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter8PFX++;
                 }
             }
@@ -613,7 +622,8 @@ public class GetMDC08 {
                         break;
                 }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

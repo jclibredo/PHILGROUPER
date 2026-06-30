@@ -41,7 +41,11 @@ public class GetMDC14 {
     private final Logger logger = (Logger) LogManager.getLogger(GetMDC14.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC14(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetMDC14(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
         List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -63,41 +67,41 @@ public class GetMDC14 {
             ArrayList<String> sdxfinder = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, ProcedureList.get(y).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
-                    DRGWSResult ResultUnralated = new UnralatedANDORProc().UnralatedANDORProc(datasource,
+                    DRGWSResult ResultUnralated = new UnralatedANDORProc().UnralatedANDORProc(datasource, SchemaName,
                             ProcedureList.get(y).trim(), drgResult.getMDC());
                     if (!ResultUnralated.isSuccess()) {
                         UnralatedORProcedure++;
                     }
                 }
-                if (checkAX.AX(datasource, "14PFX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter14PFX++;
                 }
-                if (checkAX.AX(datasource, "14PGX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14PGX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter14PGX++;
                 }
-                if (checkAX.AX(datasource, "14PJX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14PJX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter14PJX++;
                 }
-                if (checkAX.AX(datasource, "14PEX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter14PEX++;
                 }
-                if (checkAX.AX(datasource, "14PBX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter14PBX++;
                 }
-                if (checkAX.AX(datasource, "14PCX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter14PCX++;
                 }
-                if (checkAX.AX(datasource, "14PHX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14PHX", ProcedureList.get(y).trim()).isSuccess()) {
 //                DRGWSResult NonORProcedure =  new ORProcedure().ORProcedure(datasource, Result14PHX.getResult());
 //                if (NonORProcedure.isSuccess()) {
                     Counter14PHX++;
                     //}
                 }
-                DRGWSResult Result14PDX = checkAX.AX(datasource, "14PDX", ProcedureList.get(y).trim());
+                DRGWSResult Result14PDX = checkAX.AX(datasource, SchemaName, "14PDX", ProcedureList.get(y).trim());
                 if (Result14PDX.isSuccess()) {
                     Counter14PDX++;
                 }
@@ -114,36 +118,36 @@ public class GetMDC14 {
             int Counter14GX = 0;
             int Counter14JX = 0;
             int ICD10mdcCounter = 0;
-            if (checkAX.AX(datasource, "14KX", grouperparameter.getPdx().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "14KX", grouperparameter.getPdx().trim()).isSuccess()) {
                 Counter14KX++;
             }
 
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, "14EX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14EX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter14EX++;
                 }
-                if (checkAX.AX(datasource, "14DX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14DX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter14DX++;
                 }
-                if (checkAX.AX(datasource, "14CX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14CX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter14CX++;
                 }
-                if (checkAX.AX(datasource, "14BX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14BX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter14BX++;
                 }
-                if (checkAX.AX(datasource, "14HX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14HX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter14HX++;
                 }
-                if (checkAX.AX(datasource, "14FX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14FX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter14FX++;
                 }
-                if (new PDXandMDC().PDXandMDC(datasource, SecondaryList.get(a).trim(), drgResult.getMDC()).isSuccess()) {
+                if (new PDXandMDC().PDXandMDC(datasource, SchemaName, SecondaryList.get(a).trim(), drgResult.getMDC()).isSuccess()) {
                     ICD10mdcCounter++;
                 }
-                if (checkAX.AX(datasource, "14GX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14GX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter14GX++;
                 }
-                if (checkAX.AX(datasource, "14JX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "14JX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter14JX++;
                 }
 
@@ -157,26 +161,26 @@ public class GetMDC14 {
             int dxax14Jx = 0;
             int dxas14Fx = 0;
 
-            if (checkAX.AX(datasource, "14CX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "14CX", grouperparameter.getPdx()).isSuccess()) {
                 pdxax14cx++;
             }
-            if (checkAX.AX(datasource, "14DX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "14DX", grouperparameter.getPdx()).isSuccess()) {
                 pdxax14dx++;
             }
 
-            if (checkAX.AX(datasource, "14FX", grouperparameter.getPdx().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "14FX", grouperparameter.getPdx().trim()).isSuccess()) {
                 dxas14Fx++;
             }
-            if (checkAX.AX(datasource, "14BX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "14BX", grouperparameter.getPdx()).isSuccess()) {
                 pdxax14bx++;
             }
-            if (checkAX.AX(datasource, "14HX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "14HX", grouperparameter.getPdx()).isSuccess()) {
                 dxax14Hx++;
             }
-            if (checkAX.AX(datasource, "14GX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "14GX", grouperparameter.getPdx()).isSuccess()) {
                 dxax14Gx++;
             }
-            if (checkAX.AX(datasource, "14JX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "14JX", grouperparameter.getPdx()).isSuccess()) {
                 dxax14Jx++;
             }
             //PDC 14D
@@ -188,25 +192,25 @@ public class GetMDC14 {
             int L14Counter = 0;
             int J14Counter = 0;
 
-            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "14D").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "14D").isSuccess()) {
                 D14Counter++;
             }
-            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "14E").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "14E").isSuccess()) {
                 E14Counter++;
             }
-            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "14G").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "14G").isSuccess()) {
                 G14Counter++;
             }
-            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "14H").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "14H").isSuccess()) {
                 H14Counter++;
             }
-            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "14K").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "14K").isSuccess()) {
                 K14Counter++;
             }
-            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "14L").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "14L").isSuccess()) {
                 L14Counter++;
             }
-            if (new PDxMalignancy().PDxMalignancy(datasource, grouperparameter.getPdx(), "14J").isSuccess()) {
+            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "14J").isSuccess()) {
                 J14Counter++;
             }
             //----------------------------------------
@@ -346,7 +350,7 @@ public class GetMDC14 {
                                 }
                             }
                             for (int x = 0; x < SecondaryList.size(); x++) {
-                                DRGWSResult sdxfinderResult = checkAX.AX(datasource, "14BX", SecondaryList.get(x).trim());
+                                DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "14BX", SecondaryList.get(x).trim());
                                 if (sdxfinderResult.isSuccess()) {
                                     sdxfinder.add(SecondaryList.get(x));
                                 }
@@ -385,7 +389,7 @@ public class GetMDC14 {
                                 }
                             }
                             for (int x = 0; x < SecondaryList.size(); x++) {
-                                DRGWSResult sdxfinderResult = checkAX.AX(datasource, "14EX", SecondaryList.get(x));
+                                DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "14EX", SecondaryList.get(x));
                                 if (sdxfinderResult.isSuccess()) {
                                     sdxfinder.add(SecondaryList.get(x));
                                 }
@@ -452,7 +456,7 @@ public class GetMDC14 {
                         }
 
                         for (int x = 0; x < SecondaryList.size(); x++) {
-                            DRGWSResult sdxfinderResult = checkAX.AX(datasource, "14BX", SecondaryList.get(x));
+                            DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "14BX", SecondaryList.get(x));
                             if (sdxfinderResult.isSuccess()) {
                                 sdxfinder.add(SecondaryList.get(x));
                             }
@@ -517,7 +521,7 @@ public class GetMDC14 {
                             drgResult.setDRG("14069");
                             drgResult.setDC("1406");
                         } else {
-                            String PDxPDC = new GetPDCUsePDx().GetPDCUsePDx(datasource, grouperparameter.getPdx());
+                            String PDxPDC = new GetPDCUsePDx().GetPDCUsePDx(datasource, SchemaName, grouperparameter.getPdx());
                             switch (PDxPDC) {
                                 case "14H"://Uncomplicated abortion
                                     if (Counter14PEX > 0) {
@@ -574,21 +578,21 @@ public class GetMDC14 {
                         drgResult.setFinalpccl("9");
                     } else {
                         //  String sdxfinalList =  new GrouperMethod().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                        String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                        DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, drgResult, grouperparameter, sdxfinalList);
+                        String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, SchemaName, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
+                        DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, SchemaName, drgResult, grouperparameter, sdxfinalList);
                         if (getpcclvalue.isSuccess()) {
                             DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
                             drgResult.setPrepccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
                             drgResult.setFinalpccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
                             drgResult.setDRG(finaldrgresult.getDRG());
-                            if (checkDRG.DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
-                                drgResult.setDRGName(checkDRG.DRG(datasource, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
+                            if (checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
+                                drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
                             } else {
-                                DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, drgResult.getDC(), finaldrgresult.getDRG());
+                                DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG());
                                 if (drgvalues.isSuccess()) {
                                     String drgcode = drgResult.getDC() + drgvalues.getResult();
                                     drgResult.setDRG(drgcode);
-                                    DRGWSResult drgnames = checkDRG.DRG(datasource, drgResult.getDC(), drgcode);
+                                    DRGWSResult drgnames = checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgcode);
                                     if (drgnames.isSuccess()) {
                                         drgResult.setDRGName(drgnames.getMessage());
                                     }
@@ -633,7 +637,7 @@ public class GetMDC14 {
                         drgResult.setDC("2604");
                     }
                     // 3. Use a ternary operator or a simple if/else for the result
-                    DRGWSResult checkResult = checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
+                    DRGWSResult checkResult = checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG());
                     if (checkResult.isSuccess()) {
                         drgResult.setDRGName(checkResult.getMessage());
                     } else {
@@ -641,7 +645,7 @@ public class GetMDC14 {
                     }
                 }
             } else {
-                DRGWSResult checkResult = checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
+                DRGWSResult checkResult = checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG());
                 if (checkResult.isSuccess()) {
                     drgResult.setDRGName(checkResult.getMessage());
                 } else {

@@ -33,7 +33,10 @@ public class GET_CONVERTER {
     private final Logger logger = (Logger) LogManager.getLogger(GET_CONVERTER.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GET_CONVERTER(final DataSource datasource, final String rvs_code) {
+    public DRGWSResult GET_CONVERTER(
+            final DataSource datasource,
+            final String SchemaName,
+            final String rvs_code) {
         DRGWSResult result = utility.DRGWSResult();
         try (Connection connection = datasource.getConnection()) {
             result.setSuccess(false);
@@ -41,7 +44,7 @@ public class GET_CONVERTER {
             result.setResult("");
             String ProcListNew = "";
             List<String> FinalNewProcList = new ArrayList<>();
-            CallableStatement statement = connection.prepareCall("begin :converter := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_CONVERTER(:rvs_code); end;");
+            CallableStatement statement = connection.prepareCall("begin :converter := " + SchemaName + ".DRGPKGFUNCTION.GET_CONVERTER(:rvs_code); end;");
             statement.registerOutParameter("converter", OracleTypes.CURSOR);
             statement.setString("rvs_code", rvs_code);
             statement.execute();
@@ -67,13 +70,16 @@ public class GET_CONVERTER {
         return result;
     }
 
-    public DRGWSResult ValidateRVS(final DataSource datasource, final String rvs_code) {
+    public DRGWSResult ValidateRVS(
+            final DataSource datasource,
+            final String SchemaName,
+            final String rvs_code) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :converter := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_CONVERTER(:rvs_code); end;");
+            CallableStatement statement = connection.prepareCall("begin :converter := " + SchemaName + ".DRGPKGFUNCTION.GET_CONVERTER(:rvs_code); end;");
             statement.registerOutParameter("converter", OracleTypes.CURSOR);
             statement.setString("rvs_code", rvs_code.trim());
             statement.execute();

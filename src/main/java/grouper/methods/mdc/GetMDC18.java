@@ -32,7 +32,11 @@ public class GetMDC18 {
     private final Logger logger = (Logger) LogManager.getLogger(GetMDC18.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC18(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetMDC18(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -52,17 +56,17 @@ public class GetMDC18 {
 //                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
 //                    PDXCounter99++;
 //                }
-                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
+                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
 //                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
 //                    PCXCounter99++;
 //                }
-                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
+                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PCXCounter99++;
                 }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, ProcedureList.get(x).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
@@ -71,11 +75,11 @@ public class GetMDC18 {
             int CounterSDxBX18 = 0;
             int CounterPDxBX18 = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, "18BX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "18BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CounterSDxBX18++;
                 }
             }
-            if (checkAX.AX(datasource, "18BX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "18BX", grouperparameter.getPdx()).isSuccess()) {
                 CounterPDxBX18++;
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 16
@@ -140,7 +144,7 @@ public class GetMDC18 {
                                         drgResult.setDC("1871");
                                     }
                                     for (int x = 0; x < SecondaryList.size(); x++) {
-                                        if (checkAX.AX(datasource, "18BX", SecondaryList.get(x).trim()).isSuccess()) {
+                                        if (checkAX.AX(datasource, SchemaName, "18BX", SecondaryList.get(x).trim()).isSuccess()) {
                                             sdxfinder.add(SecondaryList.get(x));
                                         }
                                     }
@@ -269,7 +273,7 @@ public class GetMDC18 {
                             }
 
                             for (int x = 0; x < SecondaryList.size(); x++) {
-                                DRGWSResult sdxfinderResult = checkAX.AX(datasource, "18BX", SecondaryList.get(x).trim());
+                                DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "18BX", SecondaryList.get(x).trim());
                                 if (sdxfinderResult.isSuccess()) {
                                     sdxfinder.add(SecondaryList.get(x));
                                 }
@@ -329,7 +333,8 @@ public class GetMDC18 {
                         break;
                 }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

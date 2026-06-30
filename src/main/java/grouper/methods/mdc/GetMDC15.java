@@ -31,7 +31,11 @@ public class GetMDC15 {
     private final Logger logger = (Logger) LogManager.getLogger(GetMDC15.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC15(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetMDC15(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -62,40 +66,40 @@ public class GetMDC15 {
 //            int AXMainCC = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
-                if (checkAX.AX(datasource, "15PBX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "15PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter15PBX++;
                 }
                 //AX 99PDX Checking
-                if (checkAX.AX(datasource, "15PCX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "15PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter15PCX++;
                 }
                 //AX 15PEX
-                if (checkAX.AX(datasource, "15PEX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "15PEX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter15PEX++;
                 }
                 //AX 15PDX
-                if (checkAX.AX(datasource, "15PDX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "15PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter15PDX++;
                 }
             }
             for (int y = 0; y < SecondaryList.size(); y++) {
                 //AX SDx Main CC
-                if (checkAX.AX(datasource, "15BX", SecondaryList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "15BX", SecondaryList.get(y).trim()).isSuccess()) {
                     MainCCSDx++;
                 }
                 // THIS AREA IS FOR SDx15BX
-                if (checkAX.AX(datasource, "15BX", SecondaryList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "15BX", SecondaryList.get(y).trim()).isSuccess()) {
                     Counter15BX++;
                 }
-                if (checkAX.AX(datasource, "15CX", SecondaryList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "15CX", SecondaryList.get(y).trim()).isSuccess()) {
                     Counter15CX++;
                 }
             }
             int PDxCounter15CX = 0;
-            if (checkAX.AX(datasource, "15CX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "15CX", grouperparameter.getPdx()).isSuccess()) {
                 PDxCounter15CX++;
             }
-            if (checkAX.AX(datasource, "15BX", grouperparameter.getPdx()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "15BX", grouperparameter.getPdx()).isSuccess()) {
                 MainCCPDx++;
             }
 
@@ -255,7 +259,7 @@ public class GetMDC15 {
             }
             // FINAL RESULT IS HERE
             DRG checkDRG = new DRG();
-            DRGWSResult checkResult = checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG());
+            DRGWSResult checkResult = checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG());
             if (checkResult.isSuccess()) {
                 drgResult.setDRGName(checkResult.getMessage());
             } else {

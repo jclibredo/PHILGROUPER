@@ -29,13 +29,16 @@ public class COUNTBMDCICD10CODE {
     private final Logger logger = (Logger) LogManager.getLogger(COUNTBMDCICD10CODE.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult COUNTBMDCICD10CODE(final DataSource datasource, final String icd10code) {
+    public DRGWSResult COUNTBMDCICD10CODE(
+            final DataSource datasource,
+            final String SchemaName,
+            final String icd10code) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.COUNTBMDCICD10CODE(:icd10code); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := " + SchemaName + ".DRGPKGFUNCTION.COUNTBMDCICD10CODE(:icd10code); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.setString("icd10code", icd10code.trim());
             statement.execute();

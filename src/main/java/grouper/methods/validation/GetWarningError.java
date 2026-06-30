@@ -33,13 +33,16 @@ public class GetWarningError {
     private final Logger logger = (Logger) LogManager.getLogger(GetWarningError.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetWarningError(final DataSource datasource, final String claimsid) {
+    public DRGWSResult GetWarningError(
+            final DataSource datasource,
+            final String SchemaName,
+            final String claimsid) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement geterror = connection.prepareCall("begin :warningerror := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_WARNING_ERROR(:claimsid); end;");
+            CallableStatement geterror = connection.prepareCall("begin :warningerror := " + SchemaName + ".DRGPKGFUNCTION.GET_WARNING_ERROR(:claimsid); end;");
             geterror.registerOutParameter("warningerror", OracleTypes.CURSOR);
             geterror.setString("claimsid", claimsid);
             geterror.execute();

@@ -23,7 +23,11 @@ public class ValidatePCCL {
     private final Utility utility = new Utility();
 
     //Get Validate PCCL Value
-    public DRGWSResult ValidatePCCL(final DataSource datasource, final String dcs, final String drgs) {
+    public DRGWSResult ValidatePCCL(
+            final DataSource datasource,
+            final String SchemaName,
+            final String dcs,
+            final String drgs) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -33,9 +37,9 @@ public class ValidatePCCL {
             String cclval = drgs.substring(5 - 1, 5);
             switch (Integer.parseInt(cclval)) {
                 case 4: {
-                    DRGWSResult drgname3 = getDrg.DRG(datasource, dcs, dcs + "3");
-                    DRGWSResult drgname222 = getDrg.DRG(datasource, dcs, dcs + "2");
-                    DRGWSResult drgname111 = getDrg.DRG(datasource, dcs, dcs + "1");
+                    DRGWSResult drgname3 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "3");
+                    DRGWSResult drgname222 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "2");
+                    DRGWSResult drgname111 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "1");
                     if (drgname3.isSuccess()) {
                         result.setResult("3");
                     } else if (drgname222.isSuccess()) {
@@ -47,9 +51,9 @@ public class ValidatePCCL {
                     break;
                 }
                 case 3: {
-                    DRGWSResult drgname4 = getDrg.DRG(datasource, dcs, dcs + "4");
-                    DRGWSResult drgname2 = getDrg.DRG(datasource, dcs, dcs + "2");
-                    DRGWSResult drgname11 = getDrg.DRG(datasource, dcs, dcs + "1");
+                    DRGWSResult drgname4 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "4");
+                    DRGWSResult drgname2 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "2");
+                    DRGWSResult drgname11 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "1");
                     if (drgname4.isSuccess()) {
                         result.setResult("4");
                     } else if (drgname2.isSuccess()) {
@@ -61,9 +65,9 @@ public class ValidatePCCL {
                     break;
                 }
                 case 2: {
-                    DRGWSResult drgname333 = getDrg.DRG(datasource, dcs, dcs + "3");
-                    DRGWSResult drgname444 = getDrg.DRG(datasource, dcs, dcs + "4");
-                    DRGWSResult drgname1 = getDrg.DRG(datasource, dcs, dcs + "1");
+                    DRGWSResult drgname333 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "3");
+                    DRGWSResult drgname444 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "4");
+                    DRGWSResult drgname1 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "1");
                     if (drgname333.isSuccess()) {
                         result.setResult("3");
                     } else if (drgname444.isSuccess()) {
@@ -75,9 +79,9 @@ public class ValidatePCCL {
                     break;
                 }
                 case 1: {
-                    DRGWSResult drgname22 = getDrg.DRG(datasource, dcs, dcs + "2");
-                    DRGWSResult drgname33 = getDrg.DRG(datasource, dcs, dcs + "3");
-                    DRGWSResult drgname44 = getDrg.DRG(datasource, dcs, dcs + "4");
+                    DRGWSResult drgname22 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "2");
+                    DRGWSResult drgname33 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "3");
+                    DRGWSResult drgname44 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "4");
                     if (drgname22.isSuccess()) {
                         result.setResult("2");
                     } else if (drgname33.isSuccess()) {
@@ -89,7 +93,7 @@ public class ValidatePCCL {
                     break;
                 }
                 case 0: {
-                    DRGWSResult drgname0 = getDrg.DRG(datasource, dcs, dcs + "0");
+                    DRGWSResult drgname0 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "0");
                     if (drgname0.isSuccess()) {
                         result.setResult("0");
                     }

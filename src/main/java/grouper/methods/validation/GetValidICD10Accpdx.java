@@ -32,13 +32,16 @@ public class GetValidICD10Accpdx {
     private final Logger logger = (Logger) LogManager.getLogger(GetValidICD10Accpdx.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetValidICD10Accpdx(final DataSource datasource, final String p_pdx_code) {
+    public DRGWSResult GetValidICD10Accpdx(
+            final DataSource datasource,
+            final String SchemaName,
+            final String p_pdx_code) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getAccpdx = connection.prepareCall("begin :accpdxs := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ACCPDX_VALUE(:p_pdx_code); end;");
+            CallableStatement getAccpdx = connection.prepareCall("begin :accpdxs := " + SchemaName + ".DRGPKGFUNCTION.GET_ACCPDX_VALUE(:p_pdx_code); end;");
             getAccpdx.registerOutParameter("accpdxs", OracleTypes.CURSOR);
             getAccpdx.setString("p_pdx_code", p_pdx_code);
             getAccpdx.execute();

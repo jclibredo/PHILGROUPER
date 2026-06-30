@@ -31,13 +31,16 @@ public class GetDC {
     private final Logger logger = (Logger) LogManager.getLogger(GetDC.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetDC(final DataSource datasource, final String dcs) {
+    public DRGWSResult GetDC(
+            final DataSource datasource,
+            final String SchemaName,
+            final String dcs) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetDC = connection.prepareCall("begin :dcs_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DC(:dcs); end;");
+            CallableStatement GetDC = connection.prepareCall("begin :dcs_output := " + SchemaName + ".DRGPKGFUNCTION.GET_DC(:dcs); end;");
             GetDC.registerOutParameter("dcs_output", OracleTypes.CURSOR);
             GetDC.setString("dcs", dcs);
             GetDC.execute();

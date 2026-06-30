@@ -33,13 +33,14 @@ public class GetICD10PreMDC {
 
     public DRGWSResult GetICD10PreMDC(
             final DataSource datasource,
+            final String SchemaName,
             final String pdx) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :accpdxs := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD10PREMDC(:p_pdx_code); end;");
+            CallableStatement statement = connection.prepareCall("begin :accpdxs := " + SchemaName + ".DRGPKGFUNCTION.GET_ICD10PREMDC(:p_pdx_code); end;");
             statement.registerOutParameter("accpdxs", OracleTypes.CURSOR);
             statement.setString("p_pdx_code", utility.CleanCode(pdx).trim());
             statement.execute();
@@ -74,6 +75,7 @@ public class GetICD10PreMDC {
 
     public DRGWSResult GetICD10(
             final DataSource datasource,
+            final String SchemaName,
             final String p_pdx_code,
             final String Days,
             final String Years,
@@ -83,7 +85,7 @@ public class GetICD10PreMDC {
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :pdx_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD10_PREMDC(:p_pdx_code,:AgeDay,:AgeYear,:p_patient_sex); end;");
+            CallableStatement statement = connection.prepareCall("begin :pdx_validation := " + SchemaName + ".DRGPKGFUNCTION.GET_ICD10_PREMDC(:p_pdx_code,:AgeDay,:AgeYear,:p_patient_sex); end;");
             statement.registerOutParameter("pdx_validation", OracleTypes.CURSOR);
             statement.setString("p_pdx_code", utility.CleanCode(p_pdx_code).trim());
             statement.setString("AgeDay", Days);

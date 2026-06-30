@@ -31,13 +31,17 @@ public class DRG {
     private final Logger logger = (Logger) LogManager.getLogger(DRG.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult DRG(final DataSource datasource, final String dcs, final String drgs) {
+    public DRGWSResult DRG(
+            final DataSource datasource,
+            final String SchemaName,
+            final String dcs,
+            final String drgs) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement Getdrg = connection.prepareCall("begin :drg_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_DRG(:dcs,:drgs); end;");
+            CallableStatement Getdrg = connection.prepareCall("begin :drg_output := " + SchemaName + ".DRGPKGFUNCTION.GET_DRG(:dcs,:drgs); end;");
             Getdrg.registerOutParameter("drg_output", OracleTypes.CURSOR);
             Getdrg.setString("dcs", dcs);
             Getdrg.setString("drgs", drgs);

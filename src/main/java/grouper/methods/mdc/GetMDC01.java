@@ -38,7 +38,11 @@ public class GetMDC01 {
     private final Logger logger = (Logger) LogManager.getLogger(GetMDC01.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC01(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetMDC01(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -59,10 +63,10 @@ public class GetMDC01 {
             int PBX99Proc = 0;
             //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
                 }
-                if (checkAX.AX(datasource, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
             }
@@ -78,42 +82,42 @@ public class GetMDC01 {
             int Counter1PBX = 0;
             for (int a = 0; a < ProcedureList.size(); a++) {
                 //AX 99PDX Checking
-                if (checkAX.AX(datasource, "99PDX", ProcedureList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(a).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (checkAX.AX(datasource, "99PCX", ProcedureList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(a).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-                if (new Endovasc().Endovasc(datasource, ProcedureList.get(a).trim(), "1PJ", mdcWithoutZeros).isSuccess()) {
+                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(a).trim(), "1PJ", mdcWithoutZeros).isSuccess()) {
                     EndoCounter++;
                 }
-                if (checkAX.AX(datasource, "99PEX", ProcedureList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(a).trim()).isSuccess()) {
                     CartProc++;
                 }
-                if (checkAX.AX(datasource, "99PFX", ProcedureList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(a).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-                if (checkAX.AX(datasource, "99PBX", ProcedureList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(a).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, ProcedureList.get(a).trim(), mdcWithoutZeros, grouperparameter.getGender());
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName, ProcedureList.get(a).trim(), mdcWithoutZeros, grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                DRGWSResult getOrProc = new ORProcedure().ORProcedure(datasource, ProcedureList.get(a).trim());
+                DRGWSResult getOrProc = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(a).trim());
                 if (getOrProc.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(getOrProc.getResult()));
                 }
-                if (checkAX.AX(datasource, "1PBX", ProcedureList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "1PBX", ProcedureList.get(a).trim()).isSuccess()) {
                     Counter1PBX++;
                 }
             }
@@ -140,7 +144,7 @@ public class GetMDC01 {
                     drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                     switch (pdclist.get(hierarvalue.indexOf(min))) {
                         case "1PK":   // drgResult.setDC("0116");
-                            if (checkAX.AX(datasource, "1BX", grouperparameter.getPdx()).isSuccess()) {
+                            if (checkAX.AX(datasource, SchemaName, "1BX", grouperparameter.getPdx()).isSuccess()) {
                                 drgResult.setDC("0112");
                             } else {
                                 drgResult.setDC("0113");
@@ -153,7 +157,7 @@ public class GetMDC01 {
                             if (EndoCounter > 0) {  // RECODE THIS AREA TO DOUBLE CHECK
                                 drgResult.setDC("0110");
                             } else {
-                                if (checkAX.AX(datasource, "1CX", grouperparameter.getPdx()).isSuccess()) {
+                                if (checkAX.AX(datasource, SchemaName, "1CX", grouperparameter.getPdx()).isSuccess()) {
                                     drgResult.setDC("0108");
                                 } else {
                                     drgResult.setDC("0109");
@@ -164,7 +168,7 @@ public class GetMDC01 {
                             drgResult.setDC("0103");
                             break;
                         case "1PB":  //Craniotomy
-                            if (checkAX.AX(datasource, "1BX", grouperparameter.getPdx()).isSuccess()) {
+                            if (checkAX.AX(datasource, SchemaName, "1BX", grouperparameter.getPdx()).isSuccess()) {
                                 drgResult.setDC("0101");
                             } else {
                                 drgResult.setDC("0102");
@@ -314,7 +318,7 @@ public class GetMDC01 {
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 switch (pdclist.get(hierarvalue.indexOf(min))) {
                     case "1PK":   // drgResult.setDC("0116");
-                        if (checkAX.AX(datasource, "1BX", grouperparameter.getPdx()).isSuccess()) {
+                        if (checkAX.AX(datasource, SchemaName, "1BX", grouperparameter.getPdx()).isSuccess()) {
                             drgResult.setDC("0112");
                         } else {
                             drgResult.setDC("0113");
@@ -327,7 +331,7 @@ public class GetMDC01 {
                         if (EndoCounter > 0) {  // RECODE THIS AREA TO DOUBLE CHECK
                             drgResult.setDC("0110");
                         } else {
-                            if (checkAX.AX(datasource, "1CX", grouperparameter.getPdx()).isSuccess()) {
+                            if (checkAX.AX(datasource, SchemaName, "1CX", grouperparameter.getPdx()).isSuccess()) {
                                 drgResult.setDC("0108");
                             } else {
                                 drgResult.setDC("0109");
@@ -338,7 +342,7 @@ public class GetMDC01 {
                         drgResult.setDC("0103");
                         break;
                     case "1PB":  //Craniotomy
-                        if (checkAX.AX(datasource, "1BX", grouperparameter.getPdx()).isSuccess()) {
+                        if (checkAX.AX(datasource, SchemaName, "1BX", grouperparameter.getPdx()).isSuccess()) {
                             drgResult.setDC("0101");
                         } else {
                             drgResult.setDC("0102");
@@ -472,7 +476,8 @@ public class GetMDC01 {
                         break;
                 }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, drgResult, grouperparameter);
+            //DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

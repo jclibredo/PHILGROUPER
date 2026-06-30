@@ -30,7 +30,9 @@ public class GenderConfictValidation {
     private final Utility utility = new Utility();
 
     // GET GENDER VALIDATION THIS AREA
-    public DRGWSResult GenderConfictValidation(final DataSource datasource,
+    public DRGWSResult GenderConfictValidation(
+            final DataSource datasource,
+            final String SchemaName,
             final String p_pdx_code,
             final String gender) {
         DRGWSResult result = utility.DRGWSResult();
@@ -38,7 +40,7 @@ public class GenderConfictValidation {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :gender_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.VALIDATE_GENDER(:p_pdx_code,:gender); end;");
+            CallableStatement statement = connection.prepareCall("begin :gender_validation := " + SchemaName + ".DRGPKGFUNCTION.VALIDATE_GENDER(:p_pdx_code,:gender); end;");
             statement.registerOutParameter("gender_validation", OracleTypes.CURSOR);
             statement.setString("p_pdx_code", utility.CleanCode(p_pdx_code).trim());
             statement.setString("gender", gender.toUpperCase());

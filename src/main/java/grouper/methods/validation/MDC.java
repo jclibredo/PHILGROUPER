@@ -31,13 +31,16 @@ public class MDC {
     private final Logger logger = (Logger) LogManager.getLogger(MDC.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult MDC(final DataSource datasource, final String mdc) {
+    public DRGWSResult MDC(
+            final DataSource datasource,
+            final String SchemaName,
+            final String mdc) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :mdc_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_MDC(:mdcs); end;");
+            CallableStatement statement = connection.prepareCall("begin :mdc_output := " + SchemaName + ".DRGPKGFUNCTION.GET_MDC(:mdcs); end;");
             statement.registerOutParameter("mdc_output", OracleTypes.CURSOR);
             statement.setString("mdcs", mdc);
             statement.execute();

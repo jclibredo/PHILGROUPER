@@ -27,10 +27,13 @@ public class GetPDCUsePDx {
 
     private final Logger logger = (Logger) LogManager.getLogger(GetPDCUsePDx.class);
 
-    public String GetPDCUsePDx(final DataSource datasource, final String pdx) {
+    public String GetPDCUsePDx(
+            final DataSource datasource,
+            final String SchemaName,
+            final String pdx) {
         String result = "";
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement getPDCUsePDx = connection.prepareCall("begin :pdc_pdx := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PDC_USE_PDX(:primaryPDx); end;");
+            CallableStatement getPDCUsePDx = connection.prepareCall("begin :pdc_pdx := " + SchemaName + ".DRGPKGFUNCTION.GET_PDC_USE_PDX(:primaryPDx); end;");
             getPDCUsePDx.registerOutParameter("pdc_pdx", OracleTypes.CURSOR);
             getPDCUsePDx.setString("primaryPDx", pdx);
             getPDCUsePDx.execute();

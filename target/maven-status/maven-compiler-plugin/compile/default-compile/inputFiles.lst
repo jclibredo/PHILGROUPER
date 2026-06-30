@@ -1,4 +1,3 @@
-D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\cache\I10Cache.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetDA.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\FindMDC.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\premdc\ValidateFindMDC.java
@@ -14,7 +13,6 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\PCOM.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetValidCodeICD10.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\BMDCPreMDCResult.java
-D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\cache\GrouperCache.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\CCEX.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\AX.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\UserLogs.java
@@ -54,10 +52,10 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GenderConfictValidation.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\library\ServicesI10VX.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\MDC.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\SeekerMethods.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\Grouper.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC16.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\library\ServiceUserActivity.java
-D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\drgseeker\utilities\SeekerMethods.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetGrouper.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\GrouperParameter.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\ICD9PreMDCResult.java
@@ -98,7 +96,7 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\PDCHier
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC11.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\library\ServiceDashboard.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\MajorORPRrocedure.java
-D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\drgseeker\utilities\SeekerUser.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\SeekerUser.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\DRG.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\NClaimsData.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC18.java
@@ -118,7 +116,6 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerICD9cm.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\Endovasc.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\CombinationCode.java
-D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\drgseeker\utilities\DataWarehouse.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\MDCProcedure.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\PDxMalignancy.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\GrouperTesting.java

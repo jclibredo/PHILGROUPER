@@ -31,7 +31,12 @@ public class GetPCCL {
     private final Logger logger = (Logger) LogManager.getLogger(GetPCCL.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetPCCL(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter, final String sdxfinalList) {
+    public DRGWSResult GetPCCL(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter,
+            final String sdxfinalList) {
 //        logger.info("Executing GetPCCL - PDX: {}, SDX: {}", grouperparameter.getPdx(), sdxfinalList);
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -39,7 +44,7 @@ public class GetPCCL {
         result.setSuccess(false);
 //        System.out.println(sdxfinalList);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement ps = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:p_pdx,:p_sdx,:p_dc)");
+            CallableStatement ps = connection.prepareCall("call " + SchemaName + ".DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:p_pdx,:p_sdx,:p_dc)");
             ps.registerOutParameter("p_pccl", OracleTypes.NUMBER);
             ps.setString("p_pdx", grouperparameter.getPdx());
             ps.setString("p_sdx", sdxfinalList);

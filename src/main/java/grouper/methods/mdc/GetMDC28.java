@@ -36,7 +36,11 @@ public class GetMDC28 {
 
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetMDC28(final DataSource datasource, final DRGOutput drgResult, final GrouperParameter grouperparameter) {
+    public DRGWSResult GetMDC28(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -64,14 +68,14 @@ public class GetMDC28 {
             int Counter28BX = 0;
             int Counter28CX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName,
                         ProcedureList.get(x).trim(),
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
@@ -82,7 +86,7 @@ public class GetMDC28 {
 //                    CaCRxProc++;
 //                }
 
-                if (checkAX.AX(datasource, "99PFX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
+                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     CaCRxProc++;
                 }
             }
@@ -90,20 +94,20 @@ public class GetMDC28 {
 //                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
 //                    CaCRxSDx++;
 //                }
-                if (checkAX.AX(datasource, "99CX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
+                if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
                     CaCRxSDx++;
                 }
             }
             if (CaCRxSDx > 0 && CaCRxProc > 0) {
                 CaCRx++;
             }
-            if (checkAX.AX(datasource, "28EX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "28EX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
                 Counter28EX++;
             }
-            if (checkAX.AX(datasource, "28BX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "28BX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
                 Counter28BX++;
             }
-            if (checkAX.AX(datasource, "28CX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "28CX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
                 Counter28CX++;
             }
             // PROCESS BEGINS HERE
@@ -356,7 +360,7 @@ public class GetMDC28 {
                         drgResult.setDRG("28619");
                         drgResult.setDC("2861");
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 11) {
-                        if (checkAX.AX(datasource, "28PBX", grouperparameter.getPdx().trim()).isSuccess()) {
+                        if (checkAX.AX(datasource, SchemaName, "28PBX", grouperparameter.getPdx().trim()).isSuccess()) {
 //                            if (utility.isValid28PBX(grouperparameter.getPdx())) {
                             drgResult.setDRG("28019");
                             drgResult.setDC("2801");
@@ -366,7 +370,7 @@ public class GetMDC28 {
                         }
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 12
                             && utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) <= 65) {
-                        if (checkAX.AX(datasource, "28PBX", grouperparameter.getPdx().trim()).isSuccess()) {
+                        if (checkAX.AX(datasource, SchemaName, "28PBX", grouperparameter.getPdx().trim()).isSuccess()) {
                             drgResult.setDRG("28029");
                             drgResult.setDC("2802");
                         } else {
@@ -380,11 +384,11 @@ public class GetMDC28 {
                         } else if (Counter28CX > 0) {
                             drgResult.setDRG("28659");
                             drgResult.setDC("2865");
-                        } else if (checkAX.AX(datasource, "28DX", grouperparameter.getPdx().trim()).isSuccess()) {
+                        } else if (checkAX.AX(datasource, SchemaName, "28DX", grouperparameter.getPdx().trim()).isSuccess()) {
                             drgResult.setDRG("28669");
                             drgResult.setDC("2866");
                         } else {
-                            if (checkAX.AX(datasource, "28PBX", grouperparameter.getPdx().trim()).isSuccess()) {
+                            if (checkAX.AX(datasource, SchemaName, "28PBX", grouperparameter.getPdx().trim()).isSuccess()) {
                                 drgResult.setDRG("28039");
                                 drgResult.setDC("2803");
                             } else {
@@ -398,8 +402,8 @@ public class GetMDC28 {
             }
             DRG checkDRG = new DRG();
             if (drgResult.getDRG() != null) {
-                if (checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                    drgResult.setDRGName(checkDRG.DRG(datasource, drgResult.getDC(), drgResult.getDRG()).getMessage());
+                if (checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
+                    drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG()).getMessage());
                 } else {
                     drgResult.setDRGName("DRG code grouper provide not exist in the library");
                 }

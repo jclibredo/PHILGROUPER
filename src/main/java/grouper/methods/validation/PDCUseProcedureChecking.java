@@ -30,13 +30,17 @@ public class PDCUseProcedureChecking {
     private final Logger logger = (Logger) LogManager.getLogger(PDCUseProcedureChecking.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult PDCUseProcedureChecking(final DataSource datasource, String icd9code, final String pdcs) {
+    public DRGWSResult PDCUseProcedureChecking(
+            final DataSource datasource,
+            final String SchemaName,
+            final String icd9code,
+            final String pdcs) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement GetPDCProcedure = connection.prepareCall("begin :join_icd9_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PROC_PDC(:icd9code,:pdcs); end;");
+            CallableStatement GetPDCProcedure = connection.prepareCall("begin :join_icd9_output := " + SchemaName + ".DRGPKGFUNCTION.GET_PROC_PDC(:icd9code,:pdcs); end;");
             GetPDCProcedure.registerOutParameter("join_icd9_output", OracleTypes.CURSOR);
             GetPDCProcedure.setString("icd9code", icd9code);
             GetPDCProcedure.setString("pdcs", pdcs);

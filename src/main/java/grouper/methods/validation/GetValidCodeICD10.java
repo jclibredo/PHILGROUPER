@@ -32,13 +32,14 @@ public class GetValidCodeICD10 {
 
     public DRGWSResult GetValidCodeICD10(
             final DataSource datasource,
+            final String SchemaName,
             final String p_icd10_code) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("No ICD10 Record Found");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :p_validcode := DRG_SHADOWBILLING.DRGPKGFUNCTION.get_valid_icd10(:p_icd10_code); end;");
+            CallableStatement statement = connection.prepareCall("begin :p_validcode := " + SchemaName + ".DRGPKGFUNCTION.get_valid_icd10(:p_icd10_code); end;");
             statement.registerOutParameter("p_validcode", OracleTypes.CURSOR);
             statement.setString("p_icd10_code", utility.CleanCode(p_icd10_code));
             statement.execute();

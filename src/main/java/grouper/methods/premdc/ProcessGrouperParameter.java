@@ -41,6 +41,7 @@ public class ProcessGrouperParameter {
 
     public DRGWSResult ProcessGrouperParameter(
             final DataSource datasource,
+            final String SchemaName,
             final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         String[] sex = {"M", "F"};
@@ -79,7 +80,7 @@ public class ProcessGrouperParameter {
                     newprocList.add(procList.get(m));
                 }
                 for (int pro = 0; pro < procList.size(); pro++) {
-                    DRGWSResult sexvalidationresult = new GenderConfictValidationProc().GenderConfictValidationProc(datasource, procList.get(pro).trim(), grouperparameter.getGender());
+                    DRGWSResult sexvalidationresult = new GenderConfictValidationProc().GenderConfictValidationProc(datasource, SchemaName, procList.get(pro).trim(), grouperparameter.getGender());
                     if (!sexvalidationresult.isSuccess()) {
                         newprocList.remove(procList.get(pro).trim());
                     }
@@ -115,16 +116,16 @@ public class ProcessGrouperParameter {
                                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 0
                                             && utility.ComputeDay(grouperparameter.getBirthDate(),
                                                     grouperparameter.getAdmissionDate()) >= 0 && !sdxList.get(u).isEmpty()) {
-                                        DRGWSResult SDxResult = new GetICD10().GetICD10(datasource, sdxList.get(u).toUpperCase().trim());
+                                        DRGWSResult SDxResult = new GetICD10().GetICD10(datasource, SchemaName, sdxList.get(u).toUpperCase().trim());
                                         if (SDxResult.isSuccess()) {
                                             //CHECKING FOR AGE CONFLICT
-                                            DRGWSResult getAgeConfictResult = new AgeConfictValidation().AgeConfictValidation(datasource, sdxList.get(u).toUpperCase().trim(),
+                                            DRGWSResult getAgeConfictResult = new AgeConfictValidation().AgeConfictValidation(datasource, SchemaName, sdxList.get(u).toUpperCase().trim(),
                                                     String.valueOf(daysfinal), year);
                                             if (!getAgeConfictResult.isSuccess()) {
                                                 newsdxList.remove(sdxList.get(u));
                                             }
                                             //CHECKING FOR GENDER CONFLICT
-                                            DRGWSResult getSexConfictResult = new GenderConfictValidation().GenderConfictValidation(datasource, sdxList.get(u), grouperparameter.getGender());
+                                            DRGWSResult getSexConfictResult = new GenderConfictValidation().GenderConfictValidation(datasource, SchemaName, sdxList.get(u), grouperparameter.getGender());
                                             if (!getSexConfictResult.isSuccess()) {
                                                 newsdxList.remove(sdxList.get(u));
                                             }
@@ -145,7 +146,7 @@ public class ProcessGrouperParameter {
             grouper.setDischargeType(grouperparameter.getDischargeType());
             grouper.setAdmissionWeight(grouperparameter.getAdmissionWeight());
             //VALIDATION AREA
-            DRGWSResult geticd10Result = new GetICD10PreMDC().GetICD10PreMDC(datasource, grouper.getPdx());
+            DRGWSResult geticd10Result = new GetICD10PreMDC().GetICD10PreMDC(datasource, SchemaName, grouper.getPdx());
             if (grouper.getPdx().isEmpty()) {
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
@@ -274,6 +275,7 @@ public class ProcessGrouperParameter {
             }
             if (drgresult.getDRG() != null) {
                 DRGWSResult updatedrgresult = new UpdateDRGResult().UpdateDRGResult(datasource,
+                        SchemaName,
                         "ERR",
                         "ERR",
                         drgresult.getDC(),
@@ -288,10 +290,11 @@ public class ProcessGrouperParameter {
                 drgresult.setClaimseries(grouperparameter.getClaimseries());
                 result.setResult(utility.objectMapper().writeValueAsString(drgresult));
             } else {
-                DRGWSResult validateresult = new ValidateFindMDC().ValidateFindMDC(datasource, grouper);
+                DRGWSResult validateresult = new ValidateFindMDC().ValidateFindMDC(datasource, SchemaName, grouper);
                 if (validateresult.isSuccess()) {
                     DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
                     DRGWSResult updatedrgresult = new UpdateDRGResult().UpdateDRGResult(datasource,
+                            SchemaName,
                             drgResults.getMDC(),
                             drgResults.getPDC(),
                             drgResults.getDC(),
@@ -306,11 +309,11 @@ public class ProcessGrouperParameter {
                     result.setMessage(validateresult.getMessage());
 
                     //Grouper Auditrail
-                    DRGAuditTrail(datasource, grouper.getClaimseries(),
+                    DRGAuditTrail(datasource, SchemaName, grouper.getClaimseries(),
                             grouper.getIdseries(),
                             updatedrgresult.getMessage(), "SUCCESS");
                 } else {
-                    DRGAuditTrail(datasource, grouper.getClaimseries(), grouper.getIdseries(), validateresult.getMessage(), "FAILED");
+                    DRGAuditTrail(datasource, SchemaName, grouper.getClaimseries(), grouper.getIdseries(), validateresult.getMessage(), "FAILED");
                     result.setResult(utility.objectMapper().writeValueAsString(validateresult.getResult()));
                     result.setMessage(validateresult.getMessage());
                 }
@@ -346,8 +349,8 @@ public class ProcessGrouperParameter {
 //            Logger.getLogger(ProcessGrouperParameter.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //    }
-    public String DRGAuditTrail(final DataSource datasource, String claimsSeries, String idSeries, String deTails, String status) {
-        DRGWSResult grouperauditrail = new InsertGrouperAuditTrail().InsertGrouperAuditTrail(datasource, claimsSeries, idSeries, deTails, status);
+    public String DRGAuditTrail(final DataSource datasource, final String SchemaName, String claimsSeries, String idSeries, String deTails, String status) {
+        DRGWSResult grouperauditrail = new InsertGrouperAuditTrail().InsertGrouperAuditTrail(datasource, SchemaName, claimsSeries, idSeries, deTails, status);
         return grouperauditrail.getMessage();
     }
 

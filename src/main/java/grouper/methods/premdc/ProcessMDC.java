@@ -49,7 +49,11 @@ public class ProcessMDC {
     }
     private final Utility utility = new Utility();
 
-    public DRGWSResult ProcessMDC(final DataSource datasource, final DRGOutput mdcfinderoutput, final GrouperParameter grouperparameter) {
+    public DRGWSResult ProcessMDC(
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput mdcfinderoutput,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         int MDC = Integer.parseInt(mdcfinderoutput.getMDC());
         result.setMessage("");
@@ -57,107 +61,107 @@ public class ProcessMDC {
         result.setResult("");
         switch (MDC) {
             case 1: {
-                result = new GetMDC01().GetMDC01(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC01().GetMDC01(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 2: {
-                result = new GetMDC02().GetMDC02(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC02().GetMDC02(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 3: {
-                result = new GetMDC03().GetMDC03(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC03().GetMDC03(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 4: {
-                result = new GetMDC04().GetMDC04(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC04().GetMDC04(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 5: {
-                result = new GetMDC05().GetMDC05(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC05().GetMDC05(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 6: {
-                result = new GetMDC06().GetMDC06(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC06().GetMDC06(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 7: {
-                result = new GetMDC07().GetMDC07(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC07().GetMDC07(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 8: {
-                result = new GetMDC08().GetMDC08(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC08().GetMDC08(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 9: {
-                result = new GetMDC09().GetMDC09(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC09().GetMDC09(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 10: {
-                result = new GetMDC10().GetMDC10(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC10().GetMDC10(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 11: {
-                result = new GetMDC11().GetMDC11(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC11().GetMDC11(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 12: {
-                result = new GetMDC12().GetMDC12(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC12().GetMDC12(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 13: {
-                result = new GetMDC13().GetMDC13(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC13().GetMDC13(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 14: {
-                result = new GetMDC14().GetMDC14(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC14().GetMDC14(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 15: {
-                result = new GetMDC15().GetMDC15(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC15().GetMDC15(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 16: {
-                result = new GetMDC16().GetMDC16(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC16().GetMDC16(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 17: {
-                result = new GetMDC17().GetMDC17(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC17().GetMDC17(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 18: {
-                result = new GetMDC18().GetMDC18(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC18().GetMDC18(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 19: {
-                result = new GetMDC19().GetMDC19(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC19().GetMDC19(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 20: {
-                result = new GetMDC20().GetMDC20(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC20().GetMDC20(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 21: {
-                result = new GetMDC21().GetMDC21(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC21().GetMDC21(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 22: {
-                result = new GetMDC22().GetMDC22(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC22().GetMDC22(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 23: {
-                result = new GetMDC23().GetMDC23(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC23().GetMDC23(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 24: {
-                result = new GetMDC24().GetMDC24(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC24().GetMDC24(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 25: {
-                result = new GetMDC25().GetMDC25(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC25().GetMDC25(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 28: {
-                result = new GetMDC28().GetMDC28(datasource, mdcfinderoutput, grouperparameter);
+                result = new GetMDC28().GetMDC28(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             default: {

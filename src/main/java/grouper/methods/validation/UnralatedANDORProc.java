@@ -29,13 +29,17 @@ public class UnralatedANDORProc {
     private final Logger logger = (Logger) LogManager.getLogger(UnralatedANDORProc.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult UnralatedANDORProc(final DataSource datasource, final String icd9codes, final String mdccode) {
+    public DRGWSResult UnralatedANDORProc(
+            final DataSource datasource,
+            final String SchemaName,
+            final String icd9codes,
+            final String mdccode) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :unralated_or_proc := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_UNRALATED_PROC_ORPROC(:icd9code,:mdcs); end;");
+            CallableStatement statement = connection.prepareCall("begin :unralated_or_proc := " + SchemaName + ".DRGPKGFUNCTION.GET_UNRALATED_PROC_ORPROC(:icd9code,:mdcs); end;");
             statement.registerOutParameter("unralated_or_proc", OracleTypes.CURSOR);
             statement.setString("icd9code", icd9codes);
             statement.setString("mdcs", mdccode);

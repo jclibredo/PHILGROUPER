@@ -29,13 +29,16 @@ public class GET_ICD9 {
     private final Logger logger = (Logger) LogManager.getLogger(GET_ICD9.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetICD9cm(final DataSource datasource, final String procS) {
+    public DRGWSResult GetICD9cm(
+            final DataSource datasource,
+            final String SchemaName,
+            final String procS) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :icd9code_output := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_ICD9(:rvs); end;");
+            CallableStatement statement = connection.prepareCall("begin :icd9code_output := " + SchemaName + ".DRGPKGFUNCTION.GET_ICD9(:rvs); end;");
             statement.registerOutParameter("icd9code_output", OracleTypes.CURSOR);
             statement.setString("rvs", procS);
             statement.execute();

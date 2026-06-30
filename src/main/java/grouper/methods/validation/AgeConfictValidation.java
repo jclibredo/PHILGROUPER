@@ -31,6 +31,7 @@ public class AgeConfictValidation {
 
     public DRGWSResult AgeConfictValidation(
             final DataSource datasource,
+            final String SchemaName,
             final String p_pdx_code,
             final String age_day,
             final String age_min_year) {
@@ -39,7 +40,7 @@ public class AgeConfictValidation {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement stateA = connection.prepareCall("begin :age_validation := DRG_SHADOWBILLING.DRGPKGFUNCTION.VALIDATE_AGE(:p_pdx_code,:age_day,:age_min_year); end;");
+            CallableStatement stateA = connection.prepareCall("begin :age_validation := " + SchemaName + ".DRGPKGFUNCTION.VALIDATE_AGE(:p_pdx_code,:age_day,:age_min_year); end;");
             stateA.registerOutParameter("age_validation", OracleTypes.CURSOR);
             stateA.setString("p_pdx_code", utility.CleanCode(p_pdx_code).trim());
             stateA.setString("age_day", age_day);

@@ -28,7 +28,9 @@ public class UpdateDRGResult {
     private final Logger logger = (Logger) LogManager.getLogger(UpdateDRGResult.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult UpdateDRGResult(final DataSource datasource,
+    public DRGWSResult UpdateDRGResult(
+            final DataSource datasource,
+            final String SchemaName,
             final String mdcs,
             final String pdcs,
             final String dcs,
@@ -41,7 +43,7 @@ public class UpdateDRGResult {
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement updatedrgresult = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGPROCEDURE.UPDATE_DRG_RESULT(:Message,"
+            CallableStatement updatedrgresult = connection.prepareCall("call " + SchemaName + ".DRGPKGPROCEDURE.UPDATE_DRG_RESULT(:Message,"
                     + ":Code,:umdc,:updc,:udc,:uresultid,:useries,:utags,:udrg,:udrgdetails)");
             updatedrgresult.registerOutParameter("Message", OracleTypes.VARCHAR);
             updatedrgresult.registerOutParameter("Code", OracleTypes.INTEGER);
