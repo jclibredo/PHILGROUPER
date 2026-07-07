@@ -31,13 +31,15 @@ public class ServiceDashboard {
     private final Logger logger = (Logger) LogManager.getLogger(ServiceDashboard.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetDashboard(final DataSource datasource) {
+    public DRGWSResult GetDashboard(
+            final DataSource datasource,
+            final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.DRGPKGLIBRARY.GET_DASHBOARD(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := " + SchemaName + ".DRGPKGLIBRARY.GET_DASHBOARD(); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_result");

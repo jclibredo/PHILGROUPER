@@ -32,14 +32,16 @@ public class ServicesCCEX {
     private final Logger logger = (Logger) LogManager.getLogger(ServicesCCEX.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetCCEX(final DataSource datasource) {
+    public DRGWSResult GetCCEX(
+            final DataSource datasource,
+            final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         ArrayList<CCEX> ccexList = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGLIBRARY.GET_CCEX(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := " + SchemaName + ".DRGPKGLIBRARY.GET_CCEX(); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_results");
@@ -62,15 +64,18 @@ public class ServicesCCEX {
         return result;
     }
 
-    public DRGWSResult CreateCCEX(final DataSource datasource,
+    public DRGWSResult CreateCCEX(
+            final DataSource datasource,
+            final String SchemaName,
             final String sdx,
-            final String pdx) {
+            final String pdx
+    ) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.INSERT_CCEX(:Message,:Code,"
+            CallableStatement statement = connection.prepareCall("call " + SchemaName + ".DRGPKGLIBRARY.INSERT_CCEX(:Message,:Code,"
                     + ":u_sdx,:u_pdx)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
@@ -90,13 +95,15 @@ public class ServicesCCEX {
         return result;
     }
 
-    public DRGWSResult DeleteCCEX(final DataSource datasource) {
+    public DRGWSResult DeleteCCEX(
+            final DataSource datasource,
+            final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.DELETE_ALL_CCEX(:Message,:Code)");
+            CallableStatement statement = connection.prepareCall("call " + SchemaName + ".DRGPKGLIBRARY.DELETE_ALL_CCEX(:Message,:Code)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.execute();

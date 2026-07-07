@@ -33,14 +33,14 @@ public class SeekerDRG {
     private final Logger logger = (Logger) LogManager.getLogger(SeekerDRG.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult SeekerDRG(final DataSource datasource) {
+    public DRGWSResult SeekerDRG(final DataSource datasource, final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         ArrayList<DRGOutput> drgList = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.SeekerDRG(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := " + SchemaName + ".DRGPKGFUNCTION.SeekerDRG(); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_results");

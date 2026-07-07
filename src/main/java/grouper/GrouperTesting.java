@@ -21,7 +21,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.ParseException;
+//import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -192,12 +192,6 @@ public class GrouperTesting {
 
             if (rawProc != null && !rawProc.trim().isEmpty()) {
                 List<String> newprocList = new ArrayList<>();
-//                for (String proc : rawProc.split(",")) {
-//                    String trimmed = proc.trim();
-//                    if (!trimmed.isEmpty()) {
-//                        newprocList.add(trimmed);
-//                    }
-//                }
                 for (String proc : rawProc.split(",")) {
                     String trimmed = proc.trim();
                     if (!trimmed.isEmpty()) {
@@ -211,7 +205,8 @@ public class GrouperTesting {
                 for (int m = 0; m < newprocList.size(); m++) {
                     String currentProc = newprocList.get(m).replace(">1", "");
                     if (icd9cm.GetICD9cm(datasource, dynamicSchema.getResult(), currentProc).isSuccess()) {
-                        DRGWSResult sexvalidationresult = sexValidateProc.GenderConfictValidationProc(datasource, dynamicSchema.getResult(), currentProc, grouperparameter.getGender());
+                        DRGWSResult sexvalidationresult = sexValidateProc.GenderConfictValidationProc(datasource, dynamicSchema.getResult(), currentProc,
+                                grouper.getGender());
                         if (!sexvalidationresult.isSuccess()) {
                             warningerror.add("Proc " + currentProc + " sex conflict");
                             newprocList.remove(m);
@@ -261,10 +256,7 @@ public class GrouperTesting {
                     String daysStr = String.valueOf(daysfinal);
 
                     if (calcYear >= 0 && calcDay >= 0) {
-                        for (String currentSdx : newsdxList) {
-                            if (currentSdx.isEmpty()) {
-                                continue;
-                            }
+                        newsdxList.stream().filter((currentSdx) -> !(currentSdx.isEmpty())).forEachOrdered((currentSdx) -> {
                             String upperSdx = currentSdx.toUpperCase().trim();
                             DRGWSResult ageConflictResult = ageValidation.AgeConfictValidation(datasource, dynamicSchema.getResult(), upperSdx, daysStr, yearStr);
                             DRGWSResult sexConflictResult = sexValidation.GenderConfictValidation(datasource, dynamicSchema.getResult(), upperSdx, grouper.getGender());
@@ -282,7 +274,7 @@ public class GrouperTesting {
                             } else {
                                 finalSdx.add(currentSdx);
                             }
-                        }
+                        });
                     }
                 }
                 grouper.setSdx(String.join(",", finalSdx));
@@ -298,15 +290,14 @@ public class GrouperTesting {
 
             // UNGROUPABLE ENGINE RULE CHECKERS
             String checkedPdx = grouper.getPdx();
-            int finalAgeYears = utility.ComputeYear(grouper.getBirthDate(), grouper.getAdmissionDate());
-            int finalAgeDays = utility.ComputeDay(grouper.getBirthDate(), grouper.getAdmissionDate());
+//            int finalAgeYears = utility.ComputeYear(grouper.getBirthDate(), grouper.getAdmissionDate());
+//            int finalAgeDays = utility.ComputeDay(grouper.getBirthDate(), grouper.getAdmissionDate());
 
             if (checkedPdx.isEmpty()) {
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
                 drgresult.setDRGName("Invalid PDx");
             } else if (!getPreMDC.GetICD10PreMDC(datasource, dynamicSchema.getResult(), checkedPdx).isSuccess()) {
-                // Note: Cleaner duplicate step dropped here since it was validated at the top initialization step!
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
                 drgresult.setDRGName("Unacceptable PDx");
@@ -314,7 +305,7 @@ public class GrouperTesting {
                 drgresult.setDRG("26539");
                 drgresult.setDC("2653");
                 drgresult.setDRGName("Ungroupable, invalid age due to missing birthdate");
-            } else if (finalAgeYears > 124) {
+            } else if (utility.ComputeYear(grouper.getBirthDate(), grouper.getAdmissionDate()) > 124) {
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
                 drgresult.setDRGName("Ungroupable, invalid age more than 124 years old");
@@ -346,7 +337,8 @@ public class GrouperTesting {
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
                 drgresult.setDRGName("Disposition is invalid or missing");
-            } else if (finalAgeYears == 0 && finalAgeDays < 28) {
+            } else if (utility.ComputeYear(grouper.getBirthDate(), grouper.getAdmissionDate()) == 0 
+                    && utility.ComputeDay(grouper.getBirthDate(), grouper.getAdmissionDate()) < 28) {
                 String weight = grouper.getAdmissionWeight();
                 if (weight == null || weight.isEmpty()) {
                     drgresult.setDRG("26509");
@@ -359,15 +351,19 @@ public class GrouperTesting {
                 }
             } else {
                 // Check Length of Stay logic bounds safely
-                int losCalculated = utility.ComputeLOS(grouper.getAdmissionDate(), utility.Convert24to12(grouper.getTimeAdmission()), grouper.getDischargeDate(), utility.Convert24to12(grouper.getTimeDischarge()));
+                int losCalculated = utility.ComputeLOS(grouper.getAdmissionDate(), 
+                        utility.Convert24to12(grouper.getTimeAdmission()), 
+                        grouper.getDischargeDate(), 
+                        utility.Convert24to12(grouper.getTimeDischarge()));
                 if (losCalculated == 0) {
                     int oras = utility.ComputeTime(grouper.getAdmissionDate(), utility.Convert24to12(grouper.getTimeAdmission()), grouper.getDischargeDate(), utility.Convert24to12(grouper.getTimeDischarge()));
-                    if (finalAgeDays <= 0 && oras < 0) {
+                    if (utility.ComputeDay(grouper.getBirthDate(), grouper.getAdmissionDate()) <= 0 && oras < 0) {
                         drgresult.setDRG("26509");
                         drgresult.setDC("2650");
                         drgresult.setDRGName("Invalid LOS");
                     }
-                } else if (utility.ComputeYear(grouper.getAdmissionDate(), grouper.getDischargeDate()) <= 0 && finalAgeDays < 0) {
+                } else if (utility.ComputeYear(grouper.getAdmissionDate(), grouper.getDischargeDate()) <= 0 
+                        && utility.ComputeDay(grouper.getBirthDate(), grouper.getAdmissionDate()) < 0) {
                     drgresult.setDRG("26509");
                     drgresult.setDC("2650");
                     drgresult.setDRGName("Invalid LOS");
@@ -381,7 +377,7 @@ public class GrouperTesting {
                 result.setSuccess(true);
                 this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
             } else {
-                DRGWSResult validateresult = new ValidateFindMDC().ValidateFindMDC(datasource, dynamicSchema.getResult(), grouper);
+                DRGWSResult validateresult = new ValidateFindMDC().validateFindMDC(datasource, dynamicSchema.getResult(), grouper);
                 if (validateresult.isSuccess()) {
                     DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
                     this.FileWriter(Path, grouperparameter.getClaimseries(), drgResults.getDRG(), drgResults.getPDC(), drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
@@ -394,7 +390,7 @@ public class GrouperTesting {
 //                    System.out.println(validateresult.getMessage());
                 }
             }
-        } catch (IOException | NumberFormatException | ParseException ex) {
+        } catch (IOException | NumberFormatException ex) {
             result.setMessage("Something went wrong");
             logger.error("Error in ProcessData Method : {}", ex.getMessage(), ex);
 //            System.out.println(ex.toString());

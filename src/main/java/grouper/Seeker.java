@@ -47,9 +47,9 @@ public class Seeker {
     //-------------------------------------
     @Resource(lookup = "mail/acrgbmail")
     private Session session;
-    
+
     private final Utility utility = new Utility();
-    
+
     private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");
 
     @GET
@@ -206,7 +206,7 @@ public class Seeker {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
             if (dynamicSchema.isSuccess()) {
-                result = new SeekerRVS().SeekerRVS(dataSource);
+                result = new SeekerRVS().SeekerRVS(dataSource, dynamicSchema.getResult());
             }
         }
         return result;
@@ -224,7 +224,7 @@ public class Seeker {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
             if (dynamicSchema.isSuccess()) {
-                result = new SeekerICD9cm().SeekerICD9cm(dataSource);
+                result = new SeekerICD9cm().SeekerICD9cm(dataSource, dynamicSchema.getResult());
             }
         }
         return result;
@@ -242,7 +242,7 @@ public class Seeker {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
             if (dynamicSchema.isSuccess()) {
-                result = new SeekerDRG().SeekerDRG(dataSource);
+                result = new SeekerDRG().SeekerDRG(dataSource, dynamicSchema.getResult());
             }
         }
         return result;
@@ -260,7 +260,7 @@ public class Seeker {
             result.setMessage(utility.GetPayload(dataSource, token).getMessage());
         } else {
             if (dynamicSchema.isSuccess()) {
-                result = new SeekerICD10().SeekerICD10(dataSource);
+                result = new SeekerICD10().SeekerICD10(dataSource, dynamicSchema.getResult());
             }
         }
         return result;

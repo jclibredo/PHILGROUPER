@@ -32,14 +32,16 @@ public class ServicesI10 {
     private final Logger logger = (Logger) LogManager.getLogger(ServicesI10.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetIcd10PreMDC(final DataSource datasource) {
+    public DRGWSResult GetIcd10PreMDC(
+            final DataSource datasource,
+            final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         ArrayList<ICD10PreMDCResult> icd10List = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.DRGPKGLIBRARY.GET_ICD10_PREMDC(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := " + SchemaName + ".DRGPKGLIBRARY.GET_ICD10_PREMDC(); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_result");
@@ -75,6 +77,7 @@ public class ServicesI10 {
     }
 
     public DRGWSResult CreateIcd10PreMdc(final DataSource datasource,
+            final String SchemaName,
             final String code,
             final String mdc,
             final String pdc,
@@ -94,7 +97,7 @@ public class ServicesI10 {
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.INSERT_ICD10_PREMDC(:Message,:Code,"
+            CallableStatement statement = connection.prepareCall("call " + SchemaName + ".DRGPKGLIBRARY.INSERT_ICD10_PREMDC(:Message,:Code,"
                     + ":u_code,:u_mdc,:u_pdc,:u_cc,:u_maincc,:u_ccrow,:u_hiv_ax,:u_trauma,:u_sex,:u_accpdx,:u_ageduse,:u_agemin,:u_agemax,:u_agedmin)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
@@ -126,13 +129,15 @@ public class ServicesI10 {
         return result;
     }
 
-    public DRGWSResult DeleteIcd10PreMdc(final DataSource datasource) {
+    public DRGWSResult DeleteIcd10PreMdc(
+            final DataSource datasource,
+            final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.DELETE_ALL_ICD10_PREMDC(:Message,:Code)");
+            CallableStatement statement = connection.prepareCall("call " + SchemaName + ".DRGPKGLIBRARY.DELETE_ALL_ICD10_PREMDC(:Message,:Code)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
             statement.execute();

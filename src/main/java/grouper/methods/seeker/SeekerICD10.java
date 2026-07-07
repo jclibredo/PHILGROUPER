@@ -32,14 +32,14 @@ public class SeekerICD10 {
     private final Logger logger = (Logger) LogManager.getLogger(SeekerICD10.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult SeekerICD10(final DataSource datasource) {
+    public DRGWSResult SeekerICD10(final DataSource datasource, final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         ArrayList<PreMDC> icd10List = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.SeekerICD10(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := " + SchemaName + ".DRGPKGFUNCTION.SeekerICD10(); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_results");

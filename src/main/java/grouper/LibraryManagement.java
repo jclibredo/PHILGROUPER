@@ -49,7 +49,7 @@ public class LibraryManagement {
     private DataSource dataSource;
 
     private final Utility utility = new Utility();
-    
+
     private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");
 
     @POST
@@ -77,10 +77,10 @@ public class LibraryManagement {
                 ArrayList<String> errorList = new ArrayList<>();
                 switch (upperAction) {
                     case "CREATE": {
-                        DRGWSResult removeAx = axAction.DeleteAx(dataSource);
+                        DRGWSResult removeAx = axAction.DeleteAx(dataSource, dynamicSchema.getResult());
                         if (removeAx.isSuccess()) {
                             for (int x = 0; x < ax.size(); x++) {
-                                DRGWSResult create = axAction.CreateAx(dataSource, ax.get(x).getAx(), ax.get(x).getCodes());
+                                DRGWSResult create = axAction.CreateAx(dataSource, dynamicSchema.getResult(), ax.get(x).getAx(), ax.get(x).getCodes());
                                 if (create.isSuccess()) {
                                     succ++;
                                 } else {
@@ -101,7 +101,7 @@ public class LibraryManagement {
                         break;
                     }
                     case "READ": {
-                        result = axAction.GetAx(dataSource);
+                        result = axAction.GetAx(dataSource, dynamicSchema.getResult());
                         actions = "READ";
                         details = "Get all AX data";
                         break;
@@ -145,10 +145,11 @@ public class LibraryManagement {
                 ArrayList<String> errorList = new ArrayList<>();
                 switch (upperAction) {
                     case "CREATE": {
-                        DRGWSResult removeIcd10VX = serviceIcd10vx.DeleteIcd10(dataSource);
+                        DRGWSResult removeIcd10VX = serviceIcd10vx.DeleteIcd10(dataSource, dynamicSchema.getResult());
                         if (removeIcd10VX.isSuccess()) {
                             for (int x = 0; x < icd10vx.size(); x++) {
                                 DRGWSResult create = serviceIcd10vx.CreateIcd10(dataSource,
+                                        dynamicSchema.getResult(),
                                         icd10vx.get(x).getValidcode(),
                                         icd10vx.get(x).getDescription(),
                                         icd10vx.get(x).getCode());
@@ -172,7 +173,7 @@ public class LibraryManagement {
                         break;
                     }
                     case "READ": {
-                        result = serviceIcd10vx.GetIcd10(dataSource);
+                        result = serviceIcd10vx.GetIcd10(dataSource, dynamicSchema.getResult());
                         actions = "READ";
                         details = "Get all I10VX data";
                         break;
@@ -216,10 +217,11 @@ public class LibraryManagement {
                 ArrayList<String> errorList = new ArrayList<>();
                 switch (upperAction) {
                     case "CREATE": {
-                        DRGWSResult removeIcd10 = serviceIcd10.DeleteIcd10PreMdc(dataSource);
+                        DRGWSResult removeIcd10 = serviceIcd10.DeleteIcd10PreMdc(dataSource, dynamicSchema.getResult());
                         if (removeIcd10.isSuccess()) {
                             for (int x = 0; x < icd10.size(); x++) {
                                 DRGWSResult create = serviceIcd10.CreateIcd10PreMdc(dataSource,
+                                        dynamicSchema.getResult(),
                                         icd10.get(x).getCode(),
                                         icd10.get(x).getMDC(),
                                         icd10.get(x).getPDC(),
@@ -254,13 +256,13 @@ public class LibraryManagement {
                         break;
                     }
                     case "READ": {
-                        result = serviceIcd10.GetIcd10PreMDC(dataSource);
+                        result = serviceIcd10.GetIcd10PreMDC(dataSource, dynamicSchema.getResult());
                         actions = "READ";
                         details = "Get all I10 data";
                         break;
                     }
                     case "CODE": {
-                        result = serviceIcd10.GetIcd10PreMDC(dataSource);
+                        result = serviceIcd10.GetIcd10PreMDC(dataSource, dynamicSchema.getResult());
                         actions = "READ";
                         details = "Get all I10 data";
                         break;
@@ -320,10 +322,10 @@ public class LibraryManagement {
                 ArrayList<String> errorList = new ArrayList<>();
                 switch (upperAction) {
                     case "CREATE": {
-                        DRGWSResult removeCCEX = serviceCCEX.DeleteCCEX(dataSource);
+                        DRGWSResult removeCCEX = serviceCCEX.DeleteCCEX(dataSource, dynamicSchema.getResult());
                         if (removeCCEX.isSuccess()) {
                             for (int x = 0; x < ccex.size(); x++) {
-                                DRGWSResult create = serviceCCEX.CreateCCEX(dataSource, ccex.get(x).getSdx(), ccex.get(x).getPdx());
+                                DRGWSResult create = serviceCCEX.CreateCCEX(dataSource, dynamicSchema.getResult(), ccex.get(x).getSdx(), ccex.get(x).getPdx());
                                 if (create.isSuccess()) {
                                     succ++;
                                 } else {
@@ -344,7 +346,7 @@ public class LibraryManagement {
                         break;
                     }
                     case "READ": {
-                        result = serviceCCEX.GetCCEX(dataSource);
+                        result = serviceCCEX.GetCCEX(dataSource, dynamicSchema.getResult());
                         actions = "READ";
                         details = "Get all CCEX data";
                         break;
@@ -388,10 +390,11 @@ public class LibraryManagement {
                 ArrayList<String> errorList = new ArrayList<>();
                 switch (upperAction) {
                     case "CREATE": {
-                        DRGWSResult removeDRG = serviceDRG.DeleteDrg(dataSource);
+                        DRGWSResult removeDRG = serviceDRG.DeleteDrg(dataSource, dynamicSchema.getResult());
                         if (removeDRG.isSuccess()) {
                             for (int x = 0; x < drgOutput.size(); x++) {
                                 DRGWSResult create = serviceDRG.CreateDrg(dataSource,
+                                        dynamicSchema.getResult(),
                                         drgOutput.get(x).getRW(),
                                         drgOutput.get(x).getWTLOS(),
                                         drgOutput.get(x).getOT(),
@@ -420,7 +423,7 @@ public class LibraryManagement {
                         break;
                     }
                     case "READ": {
-                        result = serviceDRG.GetDrg(dataSource);
+                        result = serviceDRG.GetDrg(dataSource, dynamicSchema.getResult());
                         actions = "READ";
                         details = "Get all DRG data";
                         break;
@@ -498,7 +501,7 @@ public class LibraryManagement {
             return result;
         } else {
             if (dynamicSchema.isSuccess()) {
-                result = new ServiceDashboard().GetDashboard(dataSource);
+                result = new ServiceDashboard().GetDashboard(dataSource, dynamicSchema.getResult());
             }
         }
         return result;
@@ -515,7 +518,7 @@ public class LibraryManagement {
             result = authCheck;
         } else {
             if (dynamicSchema.isSuccess()) {
-                result = new ServiceUserActivity().GetUserLogs(dataSource);
+                result = new ServiceUserActivity().GetUserLogs(dataSource, dynamicSchema.getResult());
             }
         }
         return result;

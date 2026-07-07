@@ -86,8 +86,8 @@ public class ORProcedure {
 //    /**
 //     * Helper method to handle the DB execution
 //     */
-//    private boolean executeOrpQuery(final DataSource datasource, final String code, DRGWSResult result) {
-//        String sql = "begin :get_orp := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_PROC_ORP(:orpCode); end;";
+//    private boolean executeOrpQuery(final DataSource datasource, final String SchemaName, final String code, DRGWSResult result) {
+//        String sql = "begin :get_orp := " + SchemaName + ".DRGPKGFUNCTION.GET_PROC_ORP(:orpCode); end;";
 //
 //        try (Connection connection = datasource.getConnection();
 //                CallableStatement getORproce = connection.prepareCall(sql)) {

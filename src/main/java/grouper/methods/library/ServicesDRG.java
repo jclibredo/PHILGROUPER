@@ -32,14 +32,16 @@ public class ServicesDRG {
     private final Logger logger = (Logger) LogManager.getLogger(ServicesDRG.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetDrg(final DataSource datasource) {
+    public DRGWSResult GetDrg(
+            final DataSource datasource,
+            final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         ArrayList<DRGOutput> drgList = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.DRGPKGLIBRARY.GET_DRG(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := " + SchemaName + ".DRGPKGLIBRARY.GET_DRG(); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_result");
@@ -69,6 +71,7 @@ public class ServicesDRG {
     }
 
     public DRGWSResult CreateDrg(final DataSource datasource,
+            final String SchemaName,
             final String rw,
             final String wtlos,
             final String ot,
@@ -76,13 +79,14 @@ public class ServicesDRG {
             final String drgname,
             final String drg,
             final String mdc,
-            final String dc) {
+            final String dc
+    ) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.INSERT_DRG(:Message,:Code,"
+            CallableStatement auditrail = connection.prepareCall("call " + SchemaName + ".DRGPKGLIBRARY.INSERT_DRG(:Message,:Code,"
                     + ":u_rw,:u_wtlos,:u_ot,:u_mdf,:u_drgname,:u_drg,:u_mdc,:u_dc)");
             auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
             auditrail.registerOutParameter("Code", OracleTypes.INTEGER);
@@ -108,13 +112,15 @@ public class ServicesDRG {
         return result;
     }
 
-    public DRGWSResult DeleteDrg(final DataSource datasource) {
+    public DRGWSResult DeleteDrg(
+            final DataSource datasource,
+            final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.DELETE_ALL_DRG(:Message,:Code)");
+            CallableStatement auditrail = connection.prepareCall("call " + SchemaName + ".DRGPKGLIBRARY.DELETE_ALL_DRG(:Message,:Code)");
             auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
             auditrail.registerOutParameter("Code", OracleTypes.INTEGER);
             auditrail.execute();

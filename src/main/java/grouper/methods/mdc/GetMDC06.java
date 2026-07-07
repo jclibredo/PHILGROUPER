@@ -106,9 +106,10 @@ public class GetMDC06 {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
                     DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
-                    if (String.valueOf(pdcresult.isSuccess()).equals("true")) {
+                    if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
+
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
@@ -122,37 +123,22 @@ public class GetMDC06 {
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
-//                    PCXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-//                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
-//                    CartProc++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
-//                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
-//                    CaCRxProc++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
                 if (checkAX.AX(datasource, SchemaName, "6PBX", ProcedureList.get(y).trim()).isSuccess()) {//Dx Procedure
                     PBX6Proc++;
                 }
-//                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
-//                    PBX99Proc++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {//Dx Procedure
                     PBX99Proc++;
                 }
@@ -416,7 +402,7 @@ public class GetMDC06 {
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
-                //Loop through the array  
+//                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
                     //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
@@ -657,8 +643,8 @@ public class GetMDC06 {
                         break;
                 }
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

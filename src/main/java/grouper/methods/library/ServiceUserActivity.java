@@ -51,7 +51,7 @@ public class ServiceUserActivity {
         //GET USER FULLNAME
         DRGWSResult getName = seeker.GetUserByUsername(dataSource, SchemaName, username);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement getinsertresult = connection.prepareCall("call DRG_SHADOWBILLING.DRGSEEKER.INSERT_USER_LOGS(:Message,:Code,"
+            CallableStatement getinsertresult = connection.prepareCall("call " + SchemaName + ".DRGSEEKER.INSERT_USER_LOGS(:Message,:Code,"
                     + ":u_username,:u_dateaction,:u_module,:u_action,:u_details)");
             getinsertresult.registerOutParameter("Message", OracleTypes.VARCHAR);
             getinsertresult.registerOutParameter("Code", OracleTypes.INTEGER);
@@ -77,13 +77,14 @@ public class ServiceUserActivity {
 
     //GET ACTIVITY LOGS
     public DRGWSResult GetUserLogs(
-            final DataSource dataSource) {
+            final DataSource dataSource,
+            final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         try (Connection connection = dataSource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_result := DRG_SHADOWBILLING.DRGSEEKER.GETUSERLOGS(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_result := " + SchemaName + ".DRGSEEKER.GETUSERLOGS(); end;");
             statement.registerOutParameter("v_result", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_result");

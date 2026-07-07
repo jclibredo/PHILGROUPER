@@ -33,13 +33,13 @@ public class SeekerRVS {
     private final Logger logger = (Logger) LogManager.getLogger(SeekerRVS.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult SeekerRVS(final DataSource datasource) {
+    public DRGWSResult SeekerRVS(final DataSource datasource, final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.SeekerRVS(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := " + SchemaName + ".DRGPKGFUNCTION.SeekerRVS(); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ArrayList<RVS> rvsList = new ArrayList<>();

@@ -32,14 +32,16 @@ public class ServicesAX {
     private final Logger logger = (Logger) LogManager.getLogger(ServicesAX.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetAx(final DataSource datasource) {
+    public DRGWSResult GetAx(
+            final DataSource datasource,
+            final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         ArrayList<AX> axList = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :validate_ax := DRG_SHADOWBILLING.DRGPKGFUNCTION.GET_AX(); end;");
+            CallableStatement statement = connection.prepareCall("begin :validate_ax := " + SchemaName + ".DRGPKGFUNCTION.GET_AX(); end;");
             statement.registerOutParameter("validate_ax", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("validate_ax");
@@ -63,14 +65,16 @@ public class ServicesAX {
     }
 
     public DRGWSResult CreateAx(final DataSource datasource,
+            final String SchemaName,
             final String u_ax,
-            final String u_codes) {
+            final String u_codes
+    ) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.INSERT_AX(:Message,:Code,"
+            CallableStatement statement = connection.prepareCall("call " + SchemaName + ".DRGPKGLIBRARY.INSERT_AX(:Message,:Code,"
                     + ":u_ax,:u_codes)");
             statement.registerOutParameter("Message", OracleTypes.VARCHAR);
             statement.registerOutParameter("Code", OracleTypes.INTEGER);
@@ -90,13 +94,15 @@ public class ServicesAX {
         return result;
     }
 
-    public DRGWSResult DeleteAx(final DataSource datasource) {
+    public DRGWSResult DeleteAx(
+            final DataSource datasource,
+            final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.DELETE_ALL_AX(:Message,:Code)");
+            CallableStatement auditrail = connection.prepareCall("call " + SchemaName + ".DRGPKGLIBRARY.DELETE_ALL_AX(:Message,:Code)");
             auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
             auditrail.registerOutParameter("Code", OracleTypes.INTEGER);
             auditrail.execute();

@@ -32,14 +32,14 @@ public class ServicesI10VX {
     private final Logger logger = (Logger) LogManager.getLogger(ServicesI10VX.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult GetIcd10(final DataSource datasource) {
+    public DRGWSResult GetIcd10(final DataSource datasource, final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         ArrayList<ICD10> icd10List = new ArrayList<>();
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGLIBRARY.GET_ICD10(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := " + SchemaName + ".DRGPKGLIBRARY.GET_ICD10(); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ResultSet resultset = (ResultSet) statement.getObject("v_results");
@@ -64,6 +64,7 @@ public class ServicesI10VX {
     }
 
     public DRGWSResult CreateIcd10(final DataSource datasource,
+            final String SchemaName,
             final String validcode,
             final String description,
             final String code) {
@@ -72,7 +73,7 @@ public class ServicesI10VX {
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.INSERT_ICD10(:Message,:Code,"
+            CallableStatement auditrail = connection.prepareCall("call " + SchemaName + ".DRGPKGLIBRARY.INSERT_ICD10(:Message,:Code,"
                     + ":u_val,:u_desc,:u_code)");
             auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
             auditrail.registerOutParameter("Code", OracleTypes.INTEGER);
@@ -93,13 +94,13 @@ public class ServicesI10VX {
         return result;
     }
 
-    public DRGWSResult DeleteIcd10(final DataSource datasource) {
+    public DRGWSResult DeleteIcd10(final DataSource datasource,final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
         result.setSuccess(false);
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement auditrail = connection.prepareCall("call DRG_SHADOWBILLING.DRGPKGLIBRARY.DELETE_ALL_ICD10(:Message,:Code)");
+            CallableStatement auditrail = connection.prepareCall("call " + SchemaName + ".DRGPKGLIBRARY.DELETE_ALL_ICD10(:Message,:Code)");
             auditrail.registerOutParameter("Message", OracleTypes.VARCHAR);
             auditrail.registerOutParameter("Code", OracleTypes.INTEGER);
             auditrail.execute();

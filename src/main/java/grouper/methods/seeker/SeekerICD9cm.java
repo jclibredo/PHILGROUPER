@@ -33,13 +33,13 @@ public class SeekerICD9cm {
     private final Logger logger = (Logger) LogManager.getLogger(SeekerICD9cm.class);
     private final Utility utility = new Utility();
 
-    public DRGWSResult SeekerICD9cm(final DataSource datasource) {
+    public DRGWSResult SeekerICD9cm(final DataSource datasource, final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement statement = connection.prepareCall("begin :v_results := DRG_SHADOWBILLING.DRGPKGFUNCTION.SeekerICD9cm(); end;");
+            CallableStatement statement = connection.prepareCall("begin :v_results := " + SchemaName + ".DRGPKGFUNCTION.SeekerICD9cm(); end;");
             statement.registerOutParameter("v_results", OracleTypes.CURSOR);
             statement.execute();
             ArrayList<ICD9PreMDCResult> icd9List = new ArrayList<>();
