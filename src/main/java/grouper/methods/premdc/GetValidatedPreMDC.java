@@ -145,13 +145,16 @@ public class GetValidatedPreMDC {
                     if (checkProc.isSuccess()) {
                         procNewList.add(checkProc.getResult());
                     }
-                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PB", "00").isSuccess() || endoVasc.Endovasc(datasource, schemaName, proc, "0PB", "0").isSuccess()) {
+                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PB", "00").isSuccess() 
+                            || endoVasc.Endovasc(datasource, schemaName, proc, "0PB", "0").isSuccess()) {
                         pdc0PB++;
                     }
-                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PD", "00").isSuccess() || endoVasc.Endovasc(datasource, schemaName, proc, "0PD", "0").isSuccess()) {
+                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PD", "00").isSuccess() 
+                            || endoVasc.Endovasc(datasource, schemaName, proc, "0PD", "0").isSuccess()) {
                         pdc0PD++;
                     }
-                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PA", "00").isSuccess() || endoVasc.Endovasc(datasource, schemaName, proc, "0PA", "0").isSuccess()) {
+                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PA", "00").isSuccess() 
+                            || endoVasc.Endovasc(datasource, schemaName, proc, "0PA", "0").isSuccess()) {
                         pdc0PA++;
                     }
                 }
@@ -256,16 +259,13 @@ public class GetValidatedPreMDC {
                         drgResultsUnwrapped.setDRG(drgResult.getDRG());
                         drgResultsUnwrapped.setWarningerror(grouperParameter.getWarningerror());
                         drgResultsUnwrapped.setDRGName(drgResult.getDRGName());
-
                         int substringLen = drgResult.getPDC().length() > 2 ? 2 : 1;
                         drgResultsUnwrapped.setMDC(drgResult.getPDC().substring(0, substringLen));
-
                         drgResultsUnwrapped.setMDF(drgResult.getMDF());
                         drgResultsUnwrapped.setOT(drgResult.getOT());
                         drgResultsUnwrapped.setPDC(drgResult.getPDC());
                         drgResultsUnwrapped.setRW(drgResult.getRW());
                         drgResultsUnwrapped.setClaimseries(grouperParameter.getClaimseries());
-
                         result = getMDC.ProcessMDC(datasource, schemaName, drgResultsUnwrapped, grouperParameter);
                     }
                 } else {
