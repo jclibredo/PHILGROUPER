@@ -337,7 +337,7 @@ public class GrouperTesting {
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
                 drgresult.setDRGName("Disposition is invalid or missing");
-            } else if (utility.ComputeYear(grouper.getBirthDate(), grouper.getAdmissionDate()) == 0 
+            } else if (utility.ComputeYear(grouper.getBirthDate(), grouper.getAdmissionDate()) == 0
                     && utility.ComputeDay(grouper.getBirthDate(), grouper.getAdmissionDate()) < 28) {
                 String weight = grouper.getAdmissionWeight();
                 if (weight == null || weight.isEmpty()) {
@@ -351,9 +351,9 @@ public class GrouperTesting {
                 }
             } else {
                 // Check Length of Stay logic bounds safely
-                int losCalculated = utility.ComputeLOS(grouper.getAdmissionDate(), 
-                        utility.Convert24to12(grouper.getTimeAdmission()), 
-                        grouper.getDischargeDate(), 
+                int losCalculated = utility.ComputeLOS(grouper.getAdmissionDate(),
+                        utility.Convert24to12(grouper.getTimeAdmission()),
+                        grouper.getDischargeDate(),
                         utility.Convert24to12(grouper.getTimeDischarge()));
                 if (losCalculated == 0) {
                     int oras = utility.ComputeTime(grouper.getAdmissionDate(), utility.Convert24to12(grouper.getTimeAdmission()), grouper.getDischargeDate(), utility.Convert24to12(grouper.getTimeDischarge()));
@@ -362,7 +362,7 @@ public class GrouperTesting {
                         drgresult.setDC("2650");
                         drgresult.setDRGName("Invalid LOS");
                     }
-                } else if (utility.ComputeYear(grouper.getAdmissionDate(), grouper.getDischargeDate()) <= 0 
+                } else if (utility.ComputeYear(grouper.getAdmissionDate(), grouper.getDischargeDate()) <= 0
                         && utility.ComputeDay(grouper.getBirthDate(), grouper.getAdmissionDate()) < 0) {
                     drgresult.setDRG("26509");
                     drgresult.setDC("2650");
@@ -380,20 +380,19 @@ public class GrouperTesting {
                 DRGWSResult validateresult = new ValidateFindMDC().validateFindMDC(datasource, dynamicSchema.getResult(), grouper);
                 if (validateresult.isSuccess()) {
                     DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
-                    this.FileWriter(Path, grouperparameter.getClaimseries(), drgResults.getDRG(), drgResults.getPDC(), drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
+                    this.FileWriter(Path, grouperparameter.getClaimseries(),
+                            drgResults.getDRG(), drgResults.getPDC(),
+                            drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
 //                    result.setResult(validateresult.getResult());
                     result.setSuccess(true);
-//                    System.out.println(validateresult.getResult());
                 } else {
                     this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage(), "N/A", "N/A", "N/A");
                     result.setMessage(validateresult.getMessage());
-//                    System.out.println(validateresult.getMessage());
                 }
             }
         } catch (IOException | NumberFormatException ex) {
             result.setMessage("Something went wrong");
             logger.error("Error in ProcessData Method : {}", ex.getMessage(), ex);
-//            System.out.println(ex.toString());
             this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
         }
         return result;

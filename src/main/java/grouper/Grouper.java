@@ -5,7 +5,6 @@
  */
 package grouper;
 
-;
 import grouper.methods.premdc.ProcessGrouperParameter;
 import grouper.methods.validation.GetGrouper;
 import grouper.structures.DRGOutput;
@@ -14,9 +13,12 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
+//import java.io.BufferedReader;
 import java.io.File;
+//import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+//import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,8 +45,6 @@ import org.apache.logging.log4j.Logger;
  *
  * @author MINOSUN
  */
-
-
 @Path("Grouper")
 @RequestScoped
 public class Grouper {
@@ -136,6 +136,8 @@ public class Grouper {
         }
         return result;
     }
+
+    
 
     @POST
     @Path("DRGClaimsData")

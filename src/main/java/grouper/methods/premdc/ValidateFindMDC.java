@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +44,7 @@ public class ValidateFindMDC {
     public DRGWSResult validateFindMDC(
             final DataSource datasource,
             final String schemaName,
-            final GrouperParameter grouperParameter){
+            final GrouperParameter grouperParameter) {
 
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
@@ -58,12 +59,14 @@ public class ValidateFindMDC {
 
             List<String> procList = Arrays.stream(grouperParameter.getProc().split(","))
                     .collect(Collectors.toList());
+//            List<String> procList = Arrays.asList(grouperParameter.getProc().split(","));
 
             List<String> combiCode = new ArrayList<>();
             Set<Integer> negativeIndexSet = new LinkedHashSet<>();
 
             // 2. Optimized Cross-Join Combination Check
             GetPCOM pcomService = new GetPCOM();
+            System.out.println("Old Proc List " + procList);
             for (int y = 0; y < procList.size(); y++) {
                 String dataA = procList.get(y).replace(">1", "").trim();
                 for (int w = 0; w < procList.size(); w++) {
@@ -83,14 +86,11 @@ public class ValidateFindMDC {
                     }
                 }
             }
-
-            List<String> finalListComcode = negativeIndexSet.stream()
-                    .map(procList::get)
-                    .collect(Collectors.toList());
-
+//            List<String> finalListComcode = negativeIndexSet.stream()
+//                    .map(procList::get)
+//                    .collect(Collectors.toList());
             // Deduplicate combination list in O(N) using Sets
-            Set<String> cleanCombiCodeSet = new LinkedHashSet<>(combiCode);
-
+//            Set<String> cleanCombiCodeSet = new LinkedHashSet<>(combiCode);
             // 3. Process Asterisk / Diagnostic Alignment (DA) Mapping
             List<String> sDxList = Arrays.stream(grouperParameter.getSdx().split(","))
                     .map(String::trim)
@@ -98,17 +98,18 @@ public class ValidateFindMDC {
 
             List<Boolean> asteriskMask = new ArrayList<>();
             GetDA daService = new GetDA();
-            sDxList.stream().map((sdx) -> daService.GetDA(datasource, schemaName, grouperParameter.getPdx(), sdx)).forEachOrdered((gDAResult) -> {
+//            sDxList.stream().map((sdx) -> daService.GetDA(datasource, schemaName, grouperParameter.getPdx(), sdx)).forEachOrdered((gDAResult) -> {
+//                asteriskMask.add(gDAResult.isSuccess());
+//            });
+            for (String sdx : sDxList) {
+                DRGWSResult gDAResult = daService.GetDA(datasource, schemaName, grouperParameter.getPdx(), sdx);
                 asteriskMask.add(gDAResult.isSuccess());
-            });
-
+            }
             SDxPDx swapping = new SDxPDx();
             int indexNumber = asteriskMask.indexOf(true);
-
             if (indexNumber != -1) {
                 sDxList.set(indexNumber, grouperParameter.getPdx());
                 String newListSDx = sDxList.stream().collect(Collectors.joining(","));
-
                 swapping.setNewsdx(newListSDx);
                 List<String> newPrimary = Arrays.asList(grouperParameter.getSdx().split(","));
                 swapping.setNewpdx(newPrimary.get(indexNumber));
@@ -118,12 +119,20 @@ public class ValidateFindMDC {
                     swapping.setNewsdx(grouperParameter.getSdx());
                 }
             }
-
             // 4. Run Standard Clinical Validations
             DRGWSResult getIcd10Result = new GetICD10PreMDC().GetICD10PreMDC(datasource, schemaName, swapping.getNewpdx());
             DRGWSResult getSexConflictResult = new GenderConfictValidation().GenderConfictValidation(datasource, schemaName, swapping.getNewpdx(), grouperParameter.getGender());
             int calculatedAge = utility.ComputeYear(grouperParameter.getBirthDate(), grouperParameter.getAdmissionDate());
+//PROCESS PROC LIST
+            String newProcList = Stream.concat(
+                    combiCode.stream(),
+                    Arrays.stream(grouperParameter.getProc().split(","))
+            )
+                    .filter(s -> s != null && !s.trim().isEmpty()) // Optional: removes empty strings
+                    .distinct() // Keeps only unique values
+                    .collect(Collectors.joining(","));
 
+            GetValidatedPreMDC getPreMDC = new GetValidatedPreMDC();
             if (!getIcd10Result.isSuccess()) {
                 drgResult.setDRG("26509");
                 drgResult.setDC("2650");
@@ -159,20 +168,20 @@ public class ValidateFindMDC {
                     result.setSuccess(true);
                 } else {
                     newGrouperParam.setPdx(grouperParameter.getPdx());
-                    newGrouperParam.setProc(resolveProcedureList(negativeIndexSet, procList, cleanCombiCodeSet, finalListComcode));
+//                    newGrouperParam.setProc(resolveProcedureList(negativeIndexSet, procList, cleanCombiCodeSet, finalListComcode));
+                    newGrouperParam.setProc(newProcList);
                     newGrouperParam.setSdx(grouperParameter.getSdx());
 
-                    result = new GetValidatedPreMDC().getValidatedPreMDC(datasource, schemaName, newGrouperParam);
+                    result = getPreMDC.getValidatedPreMDC(datasource, schemaName, newGrouperParam);
                 }
             } else {
-                // Execute standard pre-MDC mapping sequence with swapped codes
+                // Execute standard pre-MDC mapping sequence with swapped codes  newProcList
                 newGrouperParam.setPdx(swapping.getNewpdx());
-                newGrouperParam.setProc(resolveProcedureList(negativeIndexSet, procList, cleanCombiCodeSet, finalListComcode));
+//                newGrouperParam.setProc(resolveProcedureList(negativeIndexSet, procList, cleanCombiCodeSet, finalListComcode));
+                newGrouperParam.setProc(newProcList);
                 newGrouperParam.setSdx(swapping.getNewsdx());
-
-                result = new GetValidatedPreMDC().getValidatedPreMDC(datasource, schemaName, newGrouperParam);
+                result = getPreMDC.getValidatedPreMDC(datasource, schemaName, newGrouperParam);
             }
-
         } catch (IOException ex) {
             result.setMessage("Something went wrong");
             logger.error("Error in Find MDC Method : {}", ex.getMessage(), ex);
@@ -181,16 +190,20 @@ public class ValidateFindMDC {
     }
 
     // Unifies duplicate procedure string manipulation block
-    private String resolveProcedureList(Set<Integer> negativeIndexSet, List<String> procList, Set<String> cleanCombiCode, List<String> finalListComcode) {
-        if (negativeIndexSet.isEmpty()) {
-            return String.join(",", procList);
-        }
-        CombinationCode combinationCode = new CombinationCode();
-        combinationCode.setComcode(String.join(",", cleanCombiCode));
-        combinationCode.setIndexlist(String.join(",", finalListComcode));
-        combinationCode.setProclist(String.join(",", procList));
-        return utility.ProcedureExecute(combinationCode);
-    }
+//    private String resolveProcedureList(
+//            Set<Integer> negativeIndexSet,
+//            List<String> procList,
+//            Set<String> cleanCombiCode,
+//            List<String> finalListComcode) {
+//        if (negativeIndexSet.isEmpty()) {
+//            return String.join(",", procList);
+//        }
+//        CombinationCode combinationCode = new CombinationCode();
+//        combinationCode.setComcode(String.join(",", cleanCombiCode));
+//        combinationCode.setIndexlist(String.join(",", finalListComcode));
+//        combinationCode.setProclist(String.join(",", procList));
+//        return utility.ProcedureExecute(combinationCode);
+//    }
 
     private GrouperParameter cloneGrouperParameter(GrouperParameter src) {
         GrouperParameter target = new GrouperParameter();

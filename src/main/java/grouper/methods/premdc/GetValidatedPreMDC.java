@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -74,15 +73,12 @@ public class GetValidatedPreMDC {
             DRGOutput drgResult = new DRGOutput();
             drgResult.setClaimseries(grouperParameter.getClaimseries());
             drgResult.setWarningerror(grouperParameter.getWarningerror());
-
             // Cache repeatedly calculated values
             int ageInYears = utility.ComputeYear(grouperParameter.getBirthDate(), grouperParameter.getAdmissionDate());
             int finalDays = (ageInYears > 0) ? (ageInYears * 365) : utility.ComputeDay(grouperParameter.getBirthDate(), grouperParameter.getAdmissionDate());
-
             // 2. Run Age Conflict Verification
             DRGWSResult getAgeConflictResult = new AgeConfictValidation().AgeConfictValidation(
                     datasource, schemaName, grouperParameter.getPdx(), String.valueOf(finalDays), String.valueOf(ageInYears));
-
             if (!getAgeConflictResult.isSuccess()) {
                 drgResult.setDRG("26509");
                 drgResult.setDC("2650");
@@ -92,7 +88,6 @@ public class GetValidatedPreMDC {
                 DRGWSResult icd10SortResult = new GetICD10PreMDC().GetICD10(
                         datasource, schemaName, grouperParameter.getPdx(), String.valueOf(finalDays), String.valueOf(ageInYears), grouperParameter.getGender());
                 ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(icd10SortResult.getResult(), ICD10PreMDCResult.class);
-
                 int traumaCounterPDX0 = 0;
                 int traumaCounterPDX1 = 0;
                 DRGWSResult validatePdx = checkTraumaICD10.TRAUMAICD10(datasource, schemaName, grouperParameter.getPdx());
@@ -105,7 +100,6 @@ public class GetValidatedPreMDC {
                         traumaCounterPDX0++;
                     }
                 }
-
                 // 4. Clean $O(N)$ Deduplication Strategy for SDX and Procedure Lists using Sets
                 Set<String> uniqueSdxElements = new HashSet<>();
                 Set<String> duplicateSdxIndices = new HashSet<>();
@@ -114,13 +108,11 @@ public class GetValidatedPreMDC {
                         .filter(res -> res.isSuccess() && !"0".equals(res.getResult()))
                         .map(DRGWSResult::getResult)
                         .collect(Collectors.toList());
-
                 for (int i = 0; i < sdxNewList.size(); i++) {
                     if (!uniqueSdxElements.add(sdxNewList.get(i))) {
                         duplicateSdxIndices.add(String.valueOf(i));
                     }
                 }
-
                 final List<String> finalSdxNewList = new java.util.ArrayList<>();
                 final List<String> sdxPdxNewList = new java.util.ArrayList<>();
                 for (int i = 0; i < sdxNewList.size(); i++) {
@@ -132,11 +124,9 @@ public class GetValidatedPreMDC {
                 if (!pdx.isEmpty()) {
                     sdxPdxNewList.remove(pdx);
                 }
-
                 // Process Procedures & Counter Accumulations
                 int pdc0PB = 0, pdc0PD = 0, pdc0PA = 0;
                 List<String> procNewList = new java.util.ArrayList<>();
-
                 String timeAdm = utility.Convert24to12(grouperParameter.getTimeAdmission());
                 String timeDis = utility.Convert24to12(grouperParameter.getTimeDischarge());
 
@@ -145,15 +135,15 @@ public class GetValidatedPreMDC {
                     if (checkProc.isSuccess()) {
                         procNewList.add(checkProc.getResult());
                     }
-                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PB", "00").isSuccess() 
+                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PB", "00").isSuccess()
                             || endoVasc.Endovasc(datasource, schemaName, proc, "0PB", "0").isSuccess()) {
                         pdc0PB++;
                     }
-                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PD", "00").isSuccess() 
+                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PD", "00").isSuccess()
                             || endoVasc.Endovasc(datasource, schemaName, proc, "0PD", "0").isSuccess()) {
                         pdc0PD++;
                     }
-                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PA", "00").isSuccess() 
+                    if (endoVasc.Endovasc(datasource, schemaName, proc, "0PA", "00").isSuccess()
                             || endoVasc.Endovasc(datasource, schemaName, proc, "0PA", "0").isSuccess()) {
                         pdc0PA++;
                     }
@@ -195,7 +185,7 @@ public class GetValidatedPreMDC {
                     int hoursLimit = isBmdcSuccess ? 2 : 6;
                     if (computedTime < hoursLimit) {
                         drgResult.setDRG("26549");
-                        drgResult.setDRGName("LOS("+computedTime+"), The required Length of Stay (LOS) is at least 24 hours");
+                        drgResult.setDRGName("LOS(" + computedTime + "), The required Length of Stay (LOS) is at least 24 hours");
                     } else {
                         drgResult.setMDC("28");
                     }
@@ -253,6 +243,7 @@ public class GetValidatedPreMDC {
                         result.setSuccess(true);
                         result.setMessage("Grouper Done in Pre-MDC level only");
                     } else {
+
                         DRGOutput drgResultsUnwrapped = new DRGOutput();
                         drgResultsUnwrapped.setCC(drgResult.getCC());
                         drgResultsUnwrapped.setDC(drgResult.getDC());
