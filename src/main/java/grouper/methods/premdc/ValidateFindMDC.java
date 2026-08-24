@@ -9,7 +9,7 @@ import grouper.methods.validation.GenderConfictValidation;
 import grouper.methods.validation.GetDA;
 import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.GetPCOM;
-import grouper.structures.CombinationCode;
+//import grouper.structures.CombinationCode;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
