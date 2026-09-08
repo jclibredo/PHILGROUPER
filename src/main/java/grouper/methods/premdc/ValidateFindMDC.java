@@ -66,7 +66,6 @@ public class ValidateFindMDC {
 
             // 2. Optimized Cross-Join Combination Check
             GetPCOM pcomService = new GetPCOM();
-            System.out.println("Old Proc List " + procList);
             for (int y = 0; y < procList.size(); y++) {
                 String dataA = procList.get(y).replace(">1", "").trim();
                 for (int w = 0; w < procList.size(); w++) {

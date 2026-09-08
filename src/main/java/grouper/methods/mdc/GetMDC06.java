@@ -115,6 +115,7 @@ public class GetMDC06 {
                 }
                 //Inguinal or Femoral PDC 6PH
                 if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(y).trim(), "6PH", mdcWithoutZeros).isSuccess()) {
+                    System.out.println("PROC " + ProcedureList.get(y).trim() + " PDC 6PH MDC" + mdcWithoutZeros);
                     Counter6PH++;
                 }
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());

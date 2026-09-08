@@ -6,17 +6,9 @@
 package grouper.methods.validation;
 
 import grouper.structures.DRGWSResult;
-import grouper.utility.Utility;
-//import java.io.IOException;
 import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
-//import java.util.List;
-//import java.util.logging.Level;
-//import java.util.List;
-//import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;

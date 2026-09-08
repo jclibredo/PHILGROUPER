@@ -37,21 +37,19 @@ public class GetPCCL {
             final DRGOutput drgResult,
             final GrouperParameter grouperparameter,
             final String sdxfinalList) {
-//        logger.info("Executing GetPCCL - PDX: {}, SDX: {}", grouperparameter.getPdx(), sdxfinalList);
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-//        System.out.println(sdxfinalList);
+        System.out.println("PDX "+grouperparameter.getPdx()+" SDX "+sdxfinalList+" DC "+drgResult.getDC());
         try (Connection connection = datasource.getConnection()) {
-            CallableStatement ps = connection.prepareCall("call " + SchemaName + ".DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:p_pdx,:p_sdx,:p_dc)");
+            CallableStatement ps = connection.prepareCall("call " + SchemaName + ".DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:p_pdx,:p_sdx,:p_dc)"); //0623
             ps.registerOutParameter("p_pccl", OracleTypes.NUMBER);
             ps.setString("p_pdx", grouperparameter.getPdx());
             ps.setString("p_sdx", sdxfinalList);
             ps.setString("p_dc", drgResult.getDC());
             ps.execute();
             drgResult.setDRG(drgResult.getDC() + "" + ps.getString("p_pccl"));
-//             System.out.println(ps.getString("p_pccl"));
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setSuccess(true);
         } catch (SQLException | IOException ex) {
