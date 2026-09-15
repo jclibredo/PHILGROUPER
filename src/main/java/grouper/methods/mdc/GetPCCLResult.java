@@ -57,10 +57,8 @@ public class GetPCCLResult {
                 } else {
                     String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, SchemaName, grouperparameter.getSdx(),
                             drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-//                    System.out.println(sdxfinalList);
                     DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, SchemaName, drgResult, grouperparameter, sdxfinalList);
                     if (getpcclvalue.isSuccess()) {
-//                        System.out.println(getpcclvalue.getResult());
                         DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
                         drgResult.setPrepccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
                         drgResult.setFinalpccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));

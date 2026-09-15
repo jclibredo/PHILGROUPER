@@ -41,7 +41,6 @@ public class GetPCCL {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        System.out.println("PDX "+grouperparameter.getPdx()+" SDX "+sdxfinalList+" DC "+drgResult.getDC());
         try (Connection connection = datasource.getConnection()) {
             CallableStatement ps = connection.prepareCall("call " + SchemaName + ".DRGPKGPROCEDURE.GET_PCCL(:p_pccl,:p_pdx,:p_sdx,:p_dc)"); //0623
             ps.registerOutParameter("p_pccl", OracleTypes.NUMBER);

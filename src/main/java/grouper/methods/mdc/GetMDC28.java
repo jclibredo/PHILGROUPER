@@ -48,7 +48,6 @@ public class GetMDC28 {
         int mdcAsInt = Integer.parseInt(drgResult.getMDC());
         String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
-
             AX checkAX = new AX();
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -82,18 +81,11 @@ public class GetMDC28 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-//                if (utility.isValid99PFX(ProcedureList.get(x).trim())) {
-//                    CaCRxProc++;
-//                }
-
                 if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     CaCRxProc++;
                 }
             }
             for (int a = 0; a < SecondaryList.size(); a++) {
-//                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
-//                    CaCRxSDx++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
                     CaCRxSDx++;
                 }
@@ -305,7 +297,6 @@ public class GetMDC28 {
                             drgResult.setDRG("28699");
                             drgResult.setDC("2869");
                         }
-                        //GO TO METHOD 1
                     }
                     break;
                 }
@@ -315,7 +306,8 @@ public class GetMDC28 {
                     if (finalage < 28) {
                         drgResult.setDRG("28519");
                         drgResult.setDC("2851");
-                    } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 11) {
+                    } else if (finalage >= 28
+                            && utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 11) {
                         drgResult.setDRG("28529");
                         drgResult.setDC("2852");
                     } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 12
@@ -359,9 +351,9 @@ public class GetMDC28 {
                     if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 28) {
                         drgResult.setDRG("28619");
                         drgResult.setDC("2861");
-                    } else if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) < 11) {
+                    } else if (finalage >= 28
+                            && utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) <= 11) {
                         if (checkAX.AX(datasource, SchemaName, "28PBX", grouperparameter.getPdx().trim()).isSuccess()) {
-//                            if (utility.isValid28PBX(grouperparameter.getPdx())) {
                             drgResult.setDRG("28019");
                             drgResult.setDC("2801");
                         } else {

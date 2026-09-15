@@ -101,6 +101,7 @@ public class GetMDC01 {
                 if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(a).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
+
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName, ProcedureList.get(a).trim(), mdcWithoutZeros, grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
@@ -121,12 +122,13 @@ public class GetMDC01 {
                     Counter1PBX++;
                 }
             }
+
             // THIS AREA WILL START STATEMENT TO FIND DC FOR MDC 1
             if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())) >= 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) > 21) {
                     if (PCXCounter99 > 0) {
                         drgResult.setDC("0115");
                     } else {

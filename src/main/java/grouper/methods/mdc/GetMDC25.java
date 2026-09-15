@@ -6,11 +6,16 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
+import grouper.methods.validation.GetPDC;
+import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCProcedure;
+import grouper.structures.PDC;
 import grouper.utility.Utility;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,22 +52,21 @@ public class GetMDC25 {
             AX checkAX = new AX();
             //CHECKING FOR TRAUMA CODES
             ArrayList<String> sdxfinder = new ArrayList<>();
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int ORProcedureCounter = 0;
+            int mdcprocedureCounter = 0;
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
-//                    PCXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PCXCounter99++;
                 }
@@ -71,6 +75,22 @@ public class GetMDC25 {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
+
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName,
+                        ProcedureList.get(x).trim(),
+                        mdcWithoutZeros,
+                        grouperparameter.getGender());
+                if (JoinResult.isSuccess()) {
+                    mdcprocedureCounter++;
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
+                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    if (pdcresult.isSuccess()) {
+                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
+                        hierarvalue.add(hiarresult.getHIERAR());
+                        pdclist.add(hiarresult.getPDC());
+                    }
+                }
+
             }
 
             int Counter25BXSDx = 0;
@@ -100,9 +120,11 @@ public class GetMDC25 {
                 Counter25DXPDx++;
             }
             if (PDXCounter99 > 0) {//Trache-ostomy
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
-                    if (ORProcedureCounter > 0) {
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), 
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), 
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                    if (mdcprocedureCounter > 0) {
                         switch (Collections.max(ORProcedureCounterList)) {
                             case 6://OR Proc Level 6
                                 drgResult.setDC("2506");
@@ -170,7 +192,7 @@ public class GetMDC25 {
                         drgResult.setDC("2509");
                     }
                 }
-            } else if (ORProcedureCounter > 0) {
+            } else if (mdcprocedureCounter > 0) {
                 switch (Collections.max(ORProcedureCounterList)) {
                     case 6://OR Proc Level 6
                         drgResult.setDC("2506");
@@ -242,6 +264,8 @@ public class GetMDC25 {
             }
         } catch (NumberFormatException ex) {
             result.setMessage("Something went wrong");
+            Logger.getLogger(GetMDC25.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(GetMDC25.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;

@@ -121,11 +121,14 @@ public class GetMDC04 {
                 if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
                 }
+                if (checkAX.AX(datasource, SchemaName, "4BX", SecondaryList.get(a).trim()).isSuccess()) {
+                    Counter4BX++;
+                }
                 if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
             }
-            if (checkAX.AX(datasource, SchemaName, "4PBX", grouperparameter.getPdx().trim()).isSuccess()) {
+            if (checkAX.AX(datasource, SchemaName, "4BX", grouperparameter.getPdx().trim()).isSuccess()) {
                 Counter4BX++;
             }
 
@@ -134,7 +137,7 @@ public class GetMDC04 {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())) >= 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) > 21) {
                     if (PCXCounter99 > 0) { //Procedures for upper airway obstruction
                         drgResult.setDC("0405");
                     } else {

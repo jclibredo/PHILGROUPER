@@ -197,12 +197,14 @@ public class GetMDC10 {
                                 drgResult.setDC("1053");
                                 break;
                             case "10D"://Inborn Errors of Metabolism
+
                                 drgResult.setDC("1054");
                                 break;
                             case "10E"://Endocrine Disorders
                                 drgResult.setDC("1055");
                                 break;
                             case "10F"://Diabetes without Complicated PDx PDC 10F
+                                System.out.println("YOU ARE HERE");
                                 drgResult.setDC("1056");
                                 break;
 

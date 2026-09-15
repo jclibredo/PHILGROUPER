@@ -66,15 +66,9 @@ public class GetMDC08 {
             int Counter8PFX = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
-//                if (utility.isValid99BX(Secon.toUpperCase().trim())) {
-//                    CartSDx++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99BX", Secon.trim()).isSuccess()) {
                     CartSDx++;
                 }
-//                if (utility.isValid99CX(Secon.toUpperCase().trim())) {
-//                    CaCRxSDx++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99CX", Secon.trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
@@ -89,6 +83,7 @@ public class GetMDC08 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
+//                System.out.println("PROC "+ProcedureList.get(y).trim());
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
@@ -100,6 +95,7 @@ public class GetMDC08 {
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
+//                    System.out.println("PROC "+ProcedureList.get(y));
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
                     DRGWSResult pdcresult = new GetPDC().GetPDC(datasource,
@@ -111,6 +107,7 @@ public class GetMDC08 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
+
                 if (new Endovasc().Endovasc(datasource,
                         SchemaName,
                         ProcedureList.get(y).trim(), "8PH", mdcWithoutZeros).isSuccess()) {
@@ -121,34 +118,19 @@ public class GetMDC08 {
                 }
 
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
-//                    PCXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-//                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
-//                    CartProc++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
-//                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
-//                    CaCRxProc++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-//                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
-//                    PBX99Proc++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
@@ -156,9 +138,12 @@ public class GetMDC08 {
                     Counter8PFX++;
                 }
             }
+
+//            System.out.println(hierarvalue);
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
@@ -179,10 +164,10 @@ public class GetMDC08 {
                                 drgResult.setDC("0836");
                                 break;
                             case "8QD":
-                            case "CounterPCX8CounterPDX8":
-                            case "CounterPCX8CounterPEX8":
-                            case "CounterPDX8CounterPEX8":
-                            case "PDC8ORPDX8":
+//                            case "CounterPCX8CounterPDX8":
+//                            case "CounterPCX8CounterPEX8":
+//                            case "CounterPDX8CounterPEX8":
+//                            case "PDC8ORPDX8":
                                 drgResult.setDC("0801");
                                 break;
                             case "8QB"://Multiple (2-4) Wound Debridement
@@ -229,7 +214,8 @@ public class GetMDC08 {
                                 drgResult.setDC("0808");
                                 break;
                             case "8PJ"://Hip and Femur Procedures Except Replacement
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
+                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
+                                        grouperparameter.getAdmissionDate()) > 17) {
                                     drgResult.setDC("0810");
                                 } else {
                                     drgResult.setDC("0811");
@@ -415,10 +401,6 @@ public class GetMDC08 {
                         drgResult.setDC("0836");
                         break;
                     case "8QD":
-                    case "CounterPCX8CounterPDX8":
-                    case "CounterPCX8CounterPEX8":
-                    case "CounterPDX8CounterPEX8":
-                    case "PDC8ORPDX8":
                         drgResult.setDC("0801");
                         break;
                     case "8QB"://Multiple (2-4) Wound Debridement

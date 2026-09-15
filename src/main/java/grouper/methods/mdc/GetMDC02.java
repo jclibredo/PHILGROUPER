@@ -134,7 +134,7 @@ public class GetMDC02 {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())) >= 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) > 21) {
                     if (PCXCounter99 > 0) {
                         drgResult.setDC("0214");
                     } else {

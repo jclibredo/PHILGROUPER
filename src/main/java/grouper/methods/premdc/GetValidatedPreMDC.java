@@ -91,7 +91,6 @@ public class GetValidatedPreMDC {
                 int traumaCounterPDX0 = 0;
                 int traumaCounterPDX1 = 0;
                 DRGWSResult validatePdx = checkTraumaICD10.TRAUMAICD10(datasource, schemaName, grouperParameter.getPdx());
-
                 if (validatePdx.isSuccess()) {
                     if (!"0".equals(validatePdx.getResult())) {
                         traumaCounterPDX1++;
@@ -173,15 +172,21 @@ public class GetValidatedPreMDC {
                 boolean isBmdcSuccess = getBmdcResult.isSuccess();
                 BMDCPreMDCResult bmdcResult = isBmdcSuccess ? utility.objectMapper().readValue(getBmdcResult.getResult(), BMDCPreMDCResult.class) : null;
 
-                int computedLos = utility.ComputeLOS(grouperParameter.getAdmissionDate(), timeAdm, grouperParameter.getDischargeDate(), timeDis);
-                int computedTime = utility.ComputeTime(grouperParameter.getAdmissionDate(), timeAdm, grouperParameter.getDischargeDate(), timeDis);
-                int minutesCompute = utility.MinutesCompute(grouperParameter.getAdmissionDate(), timeAdm, grouperParameter.getDischargeDate(), timeDis);
-//                System.out.println("LOS : " + computedLos + " TIME : " + computedTime);
+                int computedLos = utility.ComputeLOS(grouperParameter.getAdmissionDate(),
+                        timeAdm, grouperParameter.getDischargeDate(), timeDis);
+                int computedTime = utility.ComputeTime(grouperParameter.getAdmissionDate(),
+                        timeAdm, grouperParameter.getDischargeDate(), timeDis);
+                int minutesCompute = utility.MinutesCompute(grouperParameter.getAdmissionDate(),
+                        timeAdm, grouperParameter.getDischargeDate(), timeDis);
+                int computedYearLos = utility.ComputeYear(grouperParameter.getAdmissionDate(),
+                        grouperParameter.getDischargeDate());
                 if (ageInYears > 124) {
                     drgResult.setDRG("26509");
                     drgResult.setDC("2650");
                     drgResult.setDRGName("Invalid Age");
-                } else if (computedLos <= 0 && computedTime < 24) {
+                } else if (computedLos <= 0 
+                        && computedTime < 24 
+                        && computedYearLos <= 0) {
                     int hoursLimit = isBmdcSuccess ? 2 : 6;
                     if (computedTime < hoursLimit) {
                         drgResult.setDRG("26549");

@@ -118,11 +118,14 @@ public class GetMDC14 {
             int Counter14GX = 0;
             int Counter14JX = 0;
             int ICD10mdcCounter = 0;
-            if (checkAX.AX(datasource, SchemaName, "14KX", grouperparameter.getPdx().trim()).isSuccess()) {
-                Counter14KX++;
-            }
+//            if (checkAX.AX(datasource, SchemaName, "14KX", grouperparameter.getPdx().trim()).isSuccess()) {
+//                Counter14KX++;
+//            }
 
             for (int a = 0; a < SecondaryList.size(); a++) {
+                if (checkAX.AX(datasource, SchemaName, "14KX", SecondaryList.get(a).trim()).isSuccess()) {
+                    Counter14KX++;
+                }
                 if (checkAX.AX(datasource, SchemaName, "14EX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter14EX++;
                 }
@@ -516,7 +519,6 @@ public class GetMDC14 {
                     case "14H"://Abortion
                     case "14K":
                     case "14L":
-
                         if (Counter14PFX > 0) {
                             drgResult.setDRG("14069");
                             drgResult.setDC("1406");
@@ -608,7 +610,7 @@ public class GetMDC14 {
                     if (pdxax14cx > 0 || Counter14CX > 0) {
                         drgResult.setPrepccl("3");
                         drgResult.setFinalpccl("3");
-                        if (Counter14CX > 1) {
+                        if ((Counter14CX + pdxax14cx) > 1) {
                             drgResult.setDRG(drgResult.getDC() + "3");
                         } else {
                             if (pdxax14dx > 0 || Counter14DX > 0) {

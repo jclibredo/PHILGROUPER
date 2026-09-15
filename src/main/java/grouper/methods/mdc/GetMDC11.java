@@ -161,7 +161,8 @@ public class GetMDC11 {
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), 
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
@@ -269,7 +270,7 @@ public class GetMDC11 {
 
                             case "11A"://Chronic Renal Failure
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) >= 17
+                                        grouperparameter.getAdmissionDate()) > 17
                                         && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     drgResult.setDC("1150");
                                 } else {
@@ -278,7 +279,7 @@ public class GetMDC11 {
                                 break;
                             case "11J"://Acute Renal Failure
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) >= 17
+                                        grouperparameter.getAdmissionDate()) > 17
                                         && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                                     if (grouperparameter.getDischargeType().equals("4")) {
                                         drgResult.setDC("1167");
@@ -432,7 +433,7 @@ public class GetMDC11 {
                         }
                         break;
                     case "11A"://Chronic Renal Failure
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17
                                 && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             drgResult.setDC("1150");
                         } else {
@@ -440,7 +441,7 @@ public class GetMDC11 {
                         }
                         break;
                     case "11J"://Acute Renal Failure
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) >= 17
+                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17
                                 && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
                             if (grouperparameter.getDischargeType().equals("4")) {
                                 drgResult.setDC("1167");

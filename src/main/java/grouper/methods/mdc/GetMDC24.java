@@ -62,33 +62,25 @@ public class GetMDC24 {
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter24PBX = 0;
-            int ORProcedureCounter = 0;
+//            int ORProcedureCounter = 0;
+            int mdcprocedureCounter = 0;
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PDXCounter99++;
                 }
-                //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
-//                    PCXCounter99++;
-//                }
+                //AX 99PCX
                 if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PCXCounter99++;
                 }
-//                if (utility.isValid24PBX(ProcedureList.get(x).trim())) {
-//                    Counter24PBX++;
-//                    ORProcedureCounter++;
-//                }
+                //AX 24PBX
                 if (checkAX.AX(datasource, SchemaName, "24PBX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     Counter24PBX++;
-                    ORProcedureCounter++;
+//                    ORProcedureCounter++;
                 }
 
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName,
@@ -96,7 +88,7 @@ public class GetMDC24 {
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
-//                    mdcprocedureCounter++;
+                    mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
                     DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
@@ -106,9 +98,10 @@ public class GetMDC24 {
                     }
                 }
 
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource,
+                        SchemaName, ProcedureList.get(x).trim());
                 if (ORProcedureResult.isSuccess()) {
-                    ORProcedureCounter++;
+//                    ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                     switch (ORProcedureResult.getMessage()) {
                         case "A":
@@ -148,7 +141,8 @@ public class GetMDC24 {
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
                         utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
-                    if (ORProcedureCounter > 0) {
+//                    if (ORProcedureCounter > 0) {
+                    if (mdcprocedureCounter > 0) {
                         if (A > 0 && D > 0) {//Intracranial w Others Proc site A+D/E/G/H
                             drgResult.setDC("2401");
                         } else if (A > 0 && H > 0) {//Intracranial w Others Proc site A+D/E/G/H
@@ -191,7 +185,8 @@ public class GetMDC24 {
                     }
                 }
             } else {
-                if (ORProcedureCounter > 0) {
+//                if (ORProcedureCounter > 0) {
+                if (mdcprocedureCounter > 0) {
                     if (A > 0 && D > 0) {//Intracranial w Others Proc site A+D/E/G/H
                         drgResult.setDC("2401");
                     } else if (A > 0 && H > 0) {//Intracranial w Others Proc site A+D/E/G/H
