@@ -144,7 +144,6 @@ public class GetMDC06 {
                 }
             }
             //CONDITIONAL STATEMENT STARTS HERE FOR MDC 06
-
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
@@ -208,6 +207,8 @@ public class GetMDC06 {
                                 break;
                             case "6PG":
                             case "6PH":
+
+                                System.out.println("YOU ARE HERE");
                                 if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                         grouperparameter.getAdmissionDate()) > 14) {
                                     if (Counter6PH > 0) { //IF TRUE
@@ -459,6 +460,7 @@ public class GetMDC06 {
                         break;
                     case "6PG":
                     case "6PH":
+                        System.out.println("YOU ARE HERE B");
                         if (utility.ComputeYear(grouperparameter.getBirthDate(),
                                 grouperparameter.getAdmissionDate()) > 14) {
                             if (Counter6PH > 0) { //IF TRUE

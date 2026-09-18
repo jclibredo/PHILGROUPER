@@ -26,12 +26,12 @@ import org.apache.logging.log4j.Logger;
  */
 @RequestScoped
 public class GetPCCLResult {
-
+    
     public GetPCCLResult() {
     }
     private final Logger logger = (Logger) LogManager.getLogger(GetPCCLResult.class);
     private final Utility utility = new Utility();
-
+    
     public DRGWSResult GetPCCLResult(
             final DataSource datasource,
             final String SchemaName,
@@ -97,10 +97,10 @@ public class GetPCCLResult {
             logger.info("Executing GetPCCLResult Method");
             logger.error("Error in GetPCCLResult Method : {}", ex.getMessage(), ex);
         }
-
+        
         return result;
     }
-
+    
     public DRGWSResult GetPCCLJava(
             final DataSource datasource,
             final String SchemaName,
@@ -169,7 +169,7 @@ public class GetPCCLResult {
             logger.info("Executing GetPCCLResult Method");
             logger.error("Error in GetPCCLResult Method : {}", ex.getMessage(), ex);
         }
-
+        
         return result;
     }
 }

@@ -136,12 +136,15 @@ public class GetMDC24 {
                 }
 
             }
+
+           
             if (PDXCounter99 > 0) {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
                         utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
 //                    if (ORProcedureCounter > 0) {
+
                     if (mdcprocedureCounter > 0) {
                         if (A > 0 && D > 0) {//Intracranial w Others Proc site A+D/E/G/H
                             drgResult.setDC("2401");
@@ -151,6 +154,7 @@ public class GetMDC24 {
                             drgResult.setDC("2401");
                         } else if (A > 0 && E > 0) {//Intracranial w Others Proc site A+D/E/G/H
                             drgResult.setDC("2401");
+
                         } else if (E > 0 && D > 0) {//Spinal w Others
                             drgResult.setDC("2405");
                         } else if (E > 0 && H > 0) {//Spinal w Others

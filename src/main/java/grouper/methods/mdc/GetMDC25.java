@@ -119,6 +119,7 @@ public class GetMDC25 {
             if (checkAX.AX(datasource, SchemaName, "25DX", grouperparameter.getPdx()).isSuccess()) {
                 Counter25DXPDx++;
             }
+            
             if (PDXCounter99 > 0) {//Trache-ostomy
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), 
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
