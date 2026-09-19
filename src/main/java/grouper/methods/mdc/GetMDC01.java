@@ -127,6 +127,7 @@ public class GetMDC01 {
                         drgResult.setDC("0116");
                     }
                 } else if (mdcprocedureCounter > 0) { //MDC Procedure
+<<<<<<< Updated upstream
                     int min = hierarvalue.get(0);
                     //Loop through the array  
                     for (int i = 0; i < hierarvalue.size(); i++) {
