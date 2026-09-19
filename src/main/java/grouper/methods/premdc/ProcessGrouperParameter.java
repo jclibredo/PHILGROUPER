@@ -17,13 +17,21 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.GrouperMethod;
 import grouper.utility.Utility;
+<<<<<<< Updated upstream
+=======
+import java.io.BufferedReader;
+import java.io.FileReader;
+>>>>>>> Stashed changes
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+<<<<<<< Updated upstream
 import java.util.logging.Level;
 import java.util.logging.Logger;
+=======
+>>>>>>> Stashed changes
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -63,6 +71,41 @@ public class ProcessGrouperParameter {
             grouper.setGender(grouperparameter.getGender());
             grouper.setIdseries(grouperparameter.getIdseries());
             grouper.setPdx(grouperparameter.getPdx());
+<<<<<<< Updated upstream
+=======
+            String rawDischargeType = grouperparameter.getDischargeType().toUpperCase();
+            switch (rawDischargeType) {
+                case "E": {
+                    grouper.setDischargeType("8");
+                    break;
+                }
+                case "O": {
+                    grouper.setDischargeType("5");
+                    break;
+                }
+                case "I":
+                case "R": {
+                    grouper.setDischargeType("1");
+                    break;
+                }
+                case "A": {
+                    grouper.setDischargeType("3");
+                    break;
+                }
+                case "T": {
+                    grouper.setDischargeType("4");
+                    break;
+                }
+                case "H": {
+                    grouper.setDischargeType("2");
+                    break;
+                }
+                default: {
+                    grouper.setDischargeType(grouperparameter.getDischargeType());
+                    break;
+                }
+            }
+>>>>>>> Stashed changes
             grouper.setPrepccl("");
             grouper.setFinalpccl("");
             grouper.setWarningerror("");

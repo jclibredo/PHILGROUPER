@@ -47,7 +47,6 @@ public class GetMDC05 {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             //CHECKING FOR TRAUMA CODES
-            ArrayList<String> sdxfinder = new ArrayList<>();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
@@ -75,8 +74,12 @@ public class GetMDC05 {
                     Counter5DXSDx++;
                 }
             }
+<<<<<<< Updated upstream
 
             if (checkAX.AX(datasource, "5DX", grouperparameter.getPdx()).isSuccess()) {
+=======
+            if (checkAX.AX(datasource, SchemaName, "5DX", grouperparameter.getPdx()).isSuccess()) {
+>>>>>>> Stashed changes
                 Counter5DXPDx++;
             }
             //AX 5PEX
@@ -115,14 +118,21 @@ public class GetMDC05 {
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 //AX 99PDX Checking
+<<<<<<< Updated upstream
                 if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
                 if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
+=======
+                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
+                    PDXCounter99++;
+                }
+                //AX 99PCX Checking
+                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
+>>>>>>> Stashed changes
                     PCXCounter99++;
                 }
-
                 //AX 5PEX
                 if (checkAX.AX(datasource, "5PEX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PEX++;
@@ -139,21 +149,22 @@ public class GetMDC05 {
                 if (checkAX.AX(datasource, "5PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PDX++;
                 }
-
                 //AX 5PGX
                 if (checkAX.AX(datasource, "5PGX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PGX++;
                 }
-
                 //AX 5PHX
                 if (checkAX.AX(datasource, "5PHX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PHX++;
                 }
+<<<<<<< Updated upstream
 
                 if (checkAX.AX(datasource, "5PJX", ProcedureList.get(x).trim()).isSuccess()) {
+=======
+                if (checkAX.AX(datasource, SchemaName, "5PJX", ProcedureList.get(x).trim()).isSuccess()) {
+>>>>>>> Stashed changes
                     Counter5PJX++;
                 }
-
                 //Cardiac Cath PDC 5PT
                 if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "5PT", drgResult.getMDC()).isSuccess()) {
                     CardiacCount++;
@@ -162,8 +173,12 @@ public class GetMDC05 {
                 if (checkAX.AX(datasource, "5PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter5PBX++;
                 }
+<<<<<<< Updated upstream
 
                 if (new Endovasc().Endovasc(datasource, ProcedureList.get(x).trim(), "5PK", drgResult.getMDC()).isSuccess()) {
+=======
+                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "5PK", mdcWithoutZeros).isSuccess()) {
+>>>>>>> Stashed changes
                     PPCount++;
                 }
             }
@@ -180,6 +195,7 @@ public class GetMDC05 {
                         utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
 
                     if (AMICount > 0) {
+<<<<<<< Updated upstream
                         if (Counter5PEX > 0) {
                             if (Counter5PCX > 0) {
                                 drgResult.setDC("0525");
@@ -235,17 +251,46 @@ public class GetMDC05 {
                             } else {
                                 drgResult.setDC("0553");
                             }
+=======
+                        MDC5Proc getAMICount = this.pdxAMI(
+                                Counter5PEX,
+                                Counter5PCX,
+                                PPCount,
+                                Counter5PFX,
+                                Counter5PDX,
+                                Counter5PGX,
+                                Counter5PHX,
+                                Counter5CX,
+                                SecondaryList,
+                                datasource,
+                                SchemaName,
+                                grouperparameter.getDischargeType());
+                        drgResult.setDC(getAMICount.getDc());
+                        if (!getAMICount.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(getAMICount.getSdxfinder());
+>>>>>>> Stashed changes
                         }
-
                     } else if (mdcprocedureCounter > 0) {
-                        int min = hierarvalue.get(0);
-                        //Loop through the array  
-                        for (int i = 0; i < hierarvalue.size(); i++) {
-                            //Compare elements of array with min  
-                            if (hierarvalue.get(i) < min) {
-                                min = hierarvalue.get(i);
-                            }
+                        MDC5Proc getMDCProcedure = this.mdcProcedure(
+                                hierarvalue,
+                                pdclist,
+                                SecondaryList,
+                                datasource,
+                                SchemaName,
+                                Counter5PCX,
+                                CardiacCount,
+                                Counter5PBX,
+                                Counter5PDX,
+                                Counter5PJX,
+                                Counter5BX,
+                                Counter5DXPDx,
+                                Counter5DXSDx
+                        );
+                        drgResult.setDC("0522");
+                        if (!getMDCProcedure.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(getMDCProcedure.getSdxfinder());
                         }
+<<<<<<< Updated upstream
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                         switch (pdclist.get(hierarvalue.indexOf(min))) {
                             case "5PE"://Thoracoabdominal Procedures Combination
@@ -354,82 +399,16 @@ public class GetMDC05 {
                                 break;
                         }
 
+=======
+                        drgResult.setPDC(getMDCProcedure.getPdc());
+>>>>>>> Stashed changes
                     } else if (ORProcedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 1:
-                                drgResult.setDC("2601");
-                                break;
-                            case 2:
-                                drgResult.setDC("2602");
-                                break;
-                            case 3:
-                                drgResult.setDC("2603");
-                                break;
-                            case 4:
-                                drgResult.setDC("2604");
-                                break;
-                            case 5:
-                                drgResult.setDC("2605");
-                                break;
-                            case 6:
-                                drgResult.setDC("2606");
-                                break;
-                        }
-
+                        String dc = this.orProcedure(ORProcedureCounterList);
+                        drgResult.setDC(dc);
                     } else {
-                        switch (drgResult.getPDC()) {
-                            case "5B"://Infective Endocarditis
-                                drgResult.setDC("0554");
-                                break;
-                            case "5C"://Heart Failure and Shock
-                                drgResult.setDC("0555");
-                                break;
-                            case "5D"://Venous Thrombosis
-                                drgResult.setDC("0556");
-                                break;
-                            case "5E"://Skin Ulcer for Circulatory Disorders
-                                drgResult.setDC("0557");
-                                break;
-                            case "5F"://Peripheral Vascular
-                                if (grouperparameter.getDischargeType().equals("4")) {
-                                    drgResult.setDC("0570");
-                                } else {
-                                    drgResult.setDC("0558");
-                                }
-                                break;
-                            case "5G"://Coronary Atherosclerosis
-                                drgResult.setDC("0559");
-                                break;
-                            case "5H"://Hypertension
-                                drgResult.setDC("0560");
-                                break;
-                            case "5J"://Congenital Heart Disease
-                                drgResult.setDC("0561");
-                                break;
-                            case "5K"://Valvular Disorders
-                                drgResult.setDC("0562");
-                                break;
-                            case "5L"://Major Arrhythmia and Cardiac Arrest
-                                drgResult.setDC("0563");
-                                break;
-                            case "5M"://Non-major Arrhythmia and Conduction Disorders
-                                drgResult.setDC("0564");
-                                break;
-                            case "5N"://Unstable Angina
-                                drgResult.setDC("0565");
-                                break;
-                            case "5P"://Syncope and Collapse
-                                drgResult.setDC("0566");
-                                break;
-                            case "5Q"://Chest Pain
-                                drgResult.setDC("0567");
-                                break;
-                            case "5R"://Other Circulatory System Diagnoses PDC 5R
-                                drgResult.setDC("0568");
-                                break;
-                        }
+                        String dc = this.principalDaignosis(drgResult.getPDC(), grouperparameter.getDischargeType());
+                        drgResult.setDC(dc);
                     }
-
                 } else {
                     if (PCXCounter99 > 0) {
                         drgResult.setDC("0534");
@@ -437,8 +416,8 @@ public class GetMDC05 {
                         drgResult.setDC("0535");
                     }
                 }
-
             } else if (AMICount > 0) {
+<<<<<<< Updated upstream
                 if (Counter5PEX > 0) {
                     if (Counter5PCX > 0) {
                         drgResult.setDC("0525");
@@ -491,17 +470,45 @@ public class GetMDC05 {
                     } else {
                         drgResult.setDC("0553");
                     }
+=======
+                MDC5Proc getAMICount = this.pdxAMI(
+                        Counter5PEX,
+                        Counter5PCX,
+                        PPCount,
+                        Counter5PFX,
+                        Counter5PDX,
+                        Counter5PGX,
+                        Counter5PHX,
+                        Counter5CX,
+                        SecondaryList,
+                        datasource,
+                        SchemaName,
+                        grouperparameter.getDischargeType());
+                drgResult.setDC(getAMICount.getDc());
+                if (!getAMICount.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(getAMICount.getSdxfinder());
+>>>>>>> Stashed changes
                 }
-
             } else if (mdcprocedureCounter > 0) {
-                int min = hierarvalue.get(0);
-                //Loop through the array  
-                for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
-                    if (hierarvalue.get(i) < min) {
-                        min = hierarvalue.get(i);
-                    }
+                MDC5Proc getMDCProcedure = this.mdcProcedure(
+                        hierarvalue,
+                        pdclist,
+                        SecondaryList,
+                        datasource,
+                        SchemaName,
+                        Counter5PCX,
+                        CardiacCount,
+                        Counter5PBX,
+                        Counter5PDX,
+                        Counter5PJX,
+                        Counter5BX,
+                        Counter5DXPDx,
+                        Counter5DXSDx);
+                drgResult.setDC("0522");
+                if (!getMDCProcedure.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(getMDCProcedure.getSdxfinder());
                 }
+<<<<<<< Updated upstream
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 switch (pdclist.get(hierarvalue.indexOf(min))) {
                     case "5PE"://Thoracoabdominal Procedures Combination
@@ -610,80 +617,15 @@ public class GetMDC05 {
                         break;
                 }
 
+=======
+                drgResult.setPDC(getMDCProcedure.getPdc());
+>>>>>>> Stashed changes
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
-
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
             } else {
-                switch (drgResult.getPDC()) {
-                    case "5B"://Infective Endocarditis
-                        drgResult.setDC("0554");
-                        break;
-                    case "5C"://Heart Failure and Shock
-                        drgResult.setDC("0555");
-                        break;
-                    case "5D"://Venous Thrombosis
-                        drgResult.setDC("0556");
-                        break;
-                    case "5E"://Skin Ulcer for Circulatory Disorders
-                        drgResult.setDC("0557");
-                        break;
-                    case "5F"://Peripheral Vascular
-                        if (grouperparameter.getDischargeType().equals("4")) {
-                            drgResult.setDC("0570");
-                        } else {
-                            drgResult.setDC("0558");
-                        }
-                        break;
-                    case "5G"://Coronary Atherosclerosis
-                        drgResult.setDC("0559");
-                        break;
-                    case "5H"://Hypertension
-                        drgResult.setDC("0560");
-                        break;
-                    case "5J"://Congenital Heart Disease
-                        drgResult.setDC("0561");
-                        break;
-                    case "5K"://Valvular Disorders
-                        drgResult.setDC("0562");
-                        break;
-                    case "5L"://Major Arrhythmia and Cardiac Arrest
-                        drgResult.setDC("0563");
-                        break;
-                    case "5M"://Non-major Arrhythmia and Conduction Disorders
-                        drgResult.setDC("0564");
-                        break;
-                    case "5N"://Unstable Angina
-                        drgResult.setDC("0565");
-                        break;
-                    case "5P"://Syncope and Collapse
-                        drgResult.setDC("0566");
-                        break;
-                    case "5Q"://Chest Pain
-                        drgResult.setDC("0567");
-                        break;
-                    case "5R"://Other Circulatory System Diagnoses PDC 5R
-                        drgResult.setDC("0568");
-                        break;
-                }
+                String dc = this.principalDaignosis(drgResult.getPDC(), grouperparameter.getDischargeType());
+                drgResult.setDC(dc);
             }
 
 //            drgResult.setPrepccl("X");
@@ -748,6 +690,337 @@ public class GetMDC05 {
         }
 
         return result;
+    }
+
+    public MDC5Proc pdxAMI(
+            final Integer Counter5PEX,
+            final Integer Counter5PCX,
+            final Integer PPCount,
+            final Integer Counter5PFX,
+            final Integer Counter5PDX,
+            final Integer Counter5PGX,
+            final Integer Counter5PHX,
+            final Integer Counter5CX,
+            final List<String> SecondaryList,
+            final DataSource datasource,
+            final String SchemaName,
+            final String discharge) {
+        AX checkAX = new AX();
+        MDC5Proc result = new MDC5Proc();
+        result.setPdc("");
+        result.setDc("");
+        result.setSdxfinder("");
+        ArrayList<String> sdxfinder = new ArrayList<>();
+        if (Counter5PEX > 0) {
+            if (Counter5PCX > 0) {
+                result.setDc("0525");
+            } else {
+                result.setDc("0526");
+            }
+        } else if (PPCount > 0) {
+            result.setDc("0510");
+        } else if (Counter5PFX > 0) {
+            if (Counter5PDX > 0) {
+                result.setDc("0527");
+            } else {
+                result.setDc("0528");
+            }
+        } else if (Counter5PGX > 0) {
+            if (Counter5PDX > 0) {
+                result.setDc("0529");
+            } else {
+                result.setDc("0530");
+            }
+        } else if (Counter5PHX > 0) {
+            if (Counter5CX > 0) {
+                for (int x = 0; x < SecondaryList.size(); x++) {
+                    DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", SecondaryList.get(x));
+                    if (sdxfinderResult.isSuccess()) {
+                        sdxfinder.add(SecondaryList.get(x));
+                    }
+                }
+                if (!sdxfinder.isEmpty()) {
+                    result.setSdxfinder(String.join(",", sdxfinder));
+                }
+                result.setDc("0550");
+            } else {
+                result.setDc("0551");
+            }
+        } else if (discharge.equals("4")) {
+            result.setDc("0569");
+        } else {
+            if (Counter5CX > 0) {
+                for (int x = 0; x < SecondaryList.size(); x++) {
+                    DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", SecondaryList.get(x));
+                    if (sdxfinderResult.isSuccess()) {
+                        sdxfinder.add(SecondaryList.get(x));
+                    }
+                }
+                if (!sdxfinder.isEmpty()) {
+                    result.setSdxfinder(String.join(",", sdxfinder));
+                }
+                result.setDc("0552");
+            } else {
+                result.setDc("0553");
+            }
+        }
+
+        return result;
+    }
+
+    public MDC5Proc mdcProcedure(
+            final ArrayList<Integer> hierarvalue,
+            final ArrayList<String> pdclist,
+            final List<String> SecondaryList,
+            final DataSource datasource,
+            final String SchemaName,
+            final Integer Counter5PCX,
+            final Integer CardiacCount,
+            final Integer Counter5PBX,
+            final Integer Counter5PDX,
+            final Integer Counter5PJX,
+            final Integer Counter5BX,
+            final Integer Counter5DXPDx,
+            final Integer Counter5DXSDx) {
+        MDC5Proc result = new MDC5Proc();
+        result.setPdc("");
+        result.setDc("");
+        result.setSdxfinder("");
+        //CHECKING FOR TRAUMA CODES
+        AX checkAX = new AX();
+        ArrayList<String> sdxfinder = new ArrayList<>();
+        int min = hierarvalue.get(0);
+        //Loop through the array  
+        for (int i = 0; i < hierarvalue.size(); i++) {
+            //Compare elements of array with min  
+            if (hierarvalue.get(i) < min) {
+                min = hierarvalue.get(i);
+            }
+        }
+        result.setPdc(pdclist.get(hierarvalue.indexOf(min)));
+        switch (pdclist.get(hierarvalue.indexOf(min))) {
+            case "5PE"://Thoracoabdominal Procedures Combination
+                result.setDc("0507");
+                break;
+            case "5PC"://Coronary Bypass
+                if (Counter5PCX > 0) {
+                    result.setDc("0503");
+                } else {
+                    if (CardiacCount > 0) {//Cardiac Cath
+                        result.setDc("0504");
+                    } else {
+                        result.setDc("0505");
+                    }
+                }
+                break;
+            case "5PV"://Multiple Valve Procedures
+                if (Counter5PBX > 0) { //Cardiac Cath
+                    result.setDc("0532");
+                } else {
+                    result.setDc("0533");
+                }
+                break;
+            case "5PX"://Complex Cardiothoracic Procedures
+                result.setDc("0537");
+                break;
+            case "5PA"://Valve Replacement and Open Valvuloplasty
+                if (Counter5PBX > 0) {
+                    result.setDc("0501");
+                } else {
+                    result.setDc("0502");
+                }
+                break;
+            case "5PD"://Other Cardiothoracic Procedures
+                result.setDc("0506");
+                break;
+            case "5PF"://Major Cardiovascular Procedures
+                result.setDc("0508");
+                break;
+            case "5PU"://Simple Cardiothoracic Procedures
+                result.setDc("0513");
+                break;
+            case "5PH"://Cardiac Electrophysiologic Procedures
+                result.setDc("0514");
+                break;
+            case "5PG"://Percutaneous Cardiovascular Procedures
+                if (Counter5PDX > 0) {
+                    result.setDc("0523");
+                } else {
+                    result.setDc("0524");
+                }
+                break;
+            case "5PS"://Other Vascular Procedures
+                if (Counter5PJX > 0) {
+                    result.setDc("0531");
+                } else {
+                    result.setDc("0515");
+                }
+                break;
+            case "5PW"://Multiple Wound Debridement
+                result.setDc("0536");
+                break;
+            case "5PK"://Permanent Pacemaker
+                if (Counter5BX > 0) {
+                    result.setDc("0510");
+                } else {
+                    result.setDc("0511");
+                }
+                break;
+            case "5PJ"://Major Amputation
+                result.setDc("0509");
+                break;
+            case "5PM"://Automatic Cardioverter Procedures
+                result.setDc("0512");
+                break;
+            case "5PP"://Pacemaker Device Replacement
+                result.setDc("0518");
+                break;
+            case "5PN"://Pacemaker Revision
+                result.setDc("0517");
+                break;
+            case "5PR"://Other Circulatory System OR Procedures
+                result.setDc("0520");
+                break;
+            case "5PT"://Cardiac Cath
+                if (Counter5DXPDx > 0 || Counter5DXSDx > 0) {
+                    for (int x = 0; x < SecondaryList.size(); x++) {
+                        DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", SecondaryList.get(x));
+                        if (sdxfinderResult.isSuccess()) {
+                            sdxfinder.add(SecondaryList.get(x));
+                        }
+                    }
+                    if (!sdxfinder.isEmpty()) {
+                        result.setSdxfinder(String.join(",", sdxfinder));
+                    }
+                    result.setDc("0521");
+                } else {
+                    result.setDc("0522");
+                }
+                break;
+            case "5PL"://Minor Amputation
+                result.setDc("0516");
+                break;
+            default://Vein Ligation and Stripping
+                result.setDc("0519");
+                break;
+        }
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final String discharge) {
+        String dc = "";
+        switch (pdc) {
+            case "5B"://Infective Endocarditis
+                dc = "0554";
+                break;
+            case "5C"://Heart Failure and Shock
+                dc = "0555";
+                break;
+            case "5D"://Venous Thrombosis
+                dc = "0556";
+                break;
+            case "5E"://Skin Ulcer for Circulatory Disorders
+                dc = "0557";
+                break;
+            case "5F"://Peripheral Vascular
+                if (discharge.equals("4")) {
+                    dc = "0570";
+                } else {
+                    dc = "0558";
+                }
+                break;
+            case "5G"://Coronary Atherosclerosis
+                dc = "0559";
+                break;
+            case "5H"://Hypertension
+                dc = "0560";
+                break;
+            case "5J"://Congenital Heart Disease
+                dc = "0561";
+                break;
+            case "5K"://Valvular Disorders
+                dc = "0562";
+                break;
+            case "5L"://Major Arrhythmia and Cardiac Arrest
+                dc = "0563";
+                break;
+            case "5M"://Non-major Arrhythmia and Conduction Disorders
+                dc = "0564";
+                break;
+            case "5N"://Unstable Angina
+                dc = "0565";
+                break;
+            case "5P"://Syncope and Collapse
+                dc = "0566";
+                break;
+            case "5Q"://Chest Pain
+                dc = "0567";
+                break;
+            case "5R"://Other Circulatory System Diagnoses PDC 5R
+                dc = "0568";
+                break;
+        }
+        return dc;
+
+    }
+
+    public class MDC5Proc {
+
+        private String pdc;
+        private String dc;
+        private String sdxfinder;
+
+        public String getPdc() {
+            return pdc;
+        }
+
+        public void setPdc(String pdc) {
+            this.pdc = pdc;
+        }
+
+        public String getDc() {
+            return dc;
+        }
+
+        public void setDc(String dc) {
+            this.dc = dc;
+        }
+
+        public String getSdxfinder() {
+            return sdxfinder;
+        }
+
+        public void setSdxfinder(String sdxfinder) {
+            this.sdxfinder = sdxfinder;
+        }
+
     }
 
 }

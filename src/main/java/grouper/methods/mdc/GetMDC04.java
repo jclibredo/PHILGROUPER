@@ -130,262 +130,43 @@ public class GetMDC04 {
                     }
 
                 } else if (mdcprocedureCounter > 0) { //THIS AREA MDC PROCEDURE
-                    int min = hierarvalue.get(0);
-                    //Loop through the array  
-                    for (int i = 0; i < hierarvalue.size(); i++) {
-                        //Compare elements of array with min  
-                        if (hierarvalue.get(i) < min) {
-                            min = hierarvalue.get(i);
-                        }
-                    }
-
-                    drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    switch (pdclist.get(hierarvalue.indexOf(min))) {
-                        case "4PA"://Major Chest
-                            drgResult.setDC("0401");
-                            break;
-                        case "4PB"://Other Respiratory System Procedures
-                            drgResult.setDC("0402");
-                            break;
-                        case "4PD"://Ventilator Support
-                            drgResult.setDC("0403");
-                            break;
-                        case "4PE"://Noninvasive Ventilation 
-                            drgResult.setDC("0407");
-                            break;
-                        case "4PC"://Other Minor Respiratory System Procedures PDC 4PC
-                            drgResult.setDC("0408");
-                            break;
-
-                    }
-
+                    DRGWSResult getResult = this.mdcProcedure(hierarvalue, pdclist);
+                    drgResult.setPDC(getResult.getMessage());
+                    drgResult.setDC(getResult.getResult());
                 } else if (ORProcedureCounter > 0) {
-                    switch (Collections.max(ORProcedureCounterList)) {
-                        case 1:
-                            drgResult.setDC("2601");
-                            break;
-                        case 2:
-                            drgResult.setDC("2602");
-                            break;
-                        case 3:
-                            drgResult.setDC("2603");
-                            break;
-                        case 4:
-                            drgResult.setDC("2604");
-                            break;
-                        case 5:
-                            drgResult.setDC("2605");
-                            break;
-                        case 6:
-                            drgResult.setDC("2606");
-                            break;
-                    }
-
+                    String dc = this.orProcedure(ORProcedureCounterList);
+                    drgResult.setDC(dc);
                 } else {
-                    switch (drgResult.getPDC()) {
-                        case "4A"://Cystic Fibrosis
-                            drgResult.setDC("0450");
-                            break;
-                        case "4B"://Pulmonary Embolism
-                            drgResult.setDC("0451");
-                            break;
-                        case "4C"://Respiratory Infection/Inflammation
-                            drgResult.setDC("0452");
-                            break;
-                        case "4D"://Sleep Apnea
-                            drgResult.setDC("0453");
-                            break;
-
-                        case "4E"://Noninvasive Ventilation 
-                            if (grouperparameter.getDischargeType().equals("4")) {
-                                drgResult.setDC("0471");//Transfer
-                            } else {
-                                drgResult.setDC("0454");//Others
-                            }
-                            break;
-                        case "4F"://COPD
-                            drgResult.setDC("0455");
-                            break;
-                        case "4G"://Major Chest Trauma
-                            drgResult.setDC("0456");
-                            break;
-                        case "4H"://Respiratory Signs and Symptoms 
-                            drgResult.setDC("0457");
-                            break;
-                        case "4J"://Pneumothorax
-                            drgResult.setDC("0458");
-                            break;
-                        case "4K"://Bronchitis and Asthma
-                            drgResult.setDC("0459");
-                            break;
-                        case "4L"://Whooping Cough and Acute Bronchiolitis
-                            drgResult.setDC("0460");
-                            break;
-                        case "4M"://Respiratory Neoplasms
-                            //Radio+Chemotherapy
-                            if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("0465");
-                                //Chemotherapy
-                            } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("0466");
-                                //Radiotherapy
-                            } else if (CartSDx > 0 && CartProc > 0) {
-                                drgResult.setDC("0467");
-                            } else if (PCX4Proc > 0) { //##Dx Procedure
-                                drgResult.setDC("0468");
-                                //Radiotherapy
-                            } else if (PBX99Proc > 0) {//Blood Transfusion
-                                drgResult.setDC("0469");
-                            } else {
-                                drgResult.setDC("0461");
-                            }
-                            break;
-                        case "4R"://Pyothorax 
-                            drgResult.setDC("0470");
-                            break;
-                        case "4N"://Pleural Effusion
-                            if (grouperparameter.getDischargeType().equals("4")) {
-                                drgResult.setDC("0472");//Transfer
-                            } else {
-                                drgResult.setDC("0462");//Others
-                            }
-                            break;
-                        case "4P"://Interstitial Lung Diseases
-                            drgResult.setDC("0463");
-                            break;
-                        case "4Q"://Other Minor Respiratory System Diagnosis PDC 4Q
-                            drgResult.setDC("0464");
-                            break;
-                    }
+                    String dc = this.principalDaignosis(
+                            drgResult.getPDC(),
+                            grouperparameter.getDischargeType(),
+                            CartSDx,
+                            CaCRxSDx,
+                            CartProc,
+                            CaCRxProc,
+                            PCX4Proc,
+                            PBX99Proc);
+                    drgResult.setDC(dc);
                 }
-
             } else if (mdcprocedureCounter > 0) { //THIS AREA MDC PROCEDURE
-                int min = hierarvalue.get(0);
-                //Loop through the array  
-                for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
-                    if (hierarvalue.get(i) < min) {
-                        min = hierarvalue.get(i);
-                    }
-                }
-
-                drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "4PA"://Major Chest
-                        drgResult.setDC("0401");
-                        break;
-                    case "4PB"://Other Respiratory System Procedures
-                        drgResult.setDC("0402");
-                        break;
-                    case "4PD"://Ventilator Support
-                        drgResult.setDC("0403");
-                        break;
-                    case "4PE"://Noninvasive Ventilation 
-                        drgResult.setDC("0407");
-                        break;
-                    case "4PC"://Other Minor Respiratory System Procedures
-                        drgResult.setDC("0408");
-                        break;
-
-                }
+                DRGWSResult getResult = this.mdcProcedure(hierarvalue, pdclist);
+                drgResult.setPDC(getResult.getMessage());
+                drgResult.setDC(getResult.getResult());
 
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
             } else {
-                switch (drgResult.getPDC()) {
-                    case "4A"://Cystic Fibrosis
-                        drgResult.setDC("0450");
-                        break;
-                    case "4B"://Pulmonary Embolism
-                        drgResult.setDC("0451");
-                        break;
-                    case "4C"://Respiratory Infection/Inflammation
-                        drgResult.setDC("0452");
-                        break;
-                    case "4D"://Sleep Apnea
-                        drgResult.setDC("0453");
-                        break;
-
-                    case "4E"://Noninvasive Ventilation 
-                        if (grouperparameter.getDischargeType().equals("4")) {
-                            drgResult.setDC("0471");//Transfer
-                        } else {
-                            drgResult.setDC("0454");//Others
-                        }
-                        break;
-                    case "4F"://COPD
-                        drgResult.setDC("0455");
-                        break;
-                    case "4G"://Major Chest Trauma
-                        drgResult.setDC("0456");
-                        break;
-                    case "4H"://Respiratory Signs and Symptoms 
-                        drgResult.setDC("0457");
-                        break;
-                    case "4J"://Pneumothorax
-                        drgResult.setDC("0458");
-                        break;
-                    case "4K"://Bronchitis and Asthma
-                        drgResult.setDC("0459");
-                        break;
-                    case "4L"://Whooping Cough and Acute Bronchiolitis
-                        drgResult.setDC("0460");
-                        break;
-                    case "4M"://Respiratory Neoplasms
-                        //Radio+Chemotherapy
-                        if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("0465");
-                            //Chemotherapy
-                        } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("0466");
-                            //Radiotherapy
-                        } else if (CartSDx > 0 && CartProc > 0) {
-                            drgResult.setDC("0467");
-                        } else if (PCX4Proc > 0) { //##Dx Procedure
-                            drgResult.setDC("0468");
-                            //Radiotherapy
-                        } else if (PBX99Proc > 0) {//Blood Transfusion
-                            drgResult.setDC("0469");
-                        } else {
-                            drgResult.setDC("0461");
-                        }
-                        break;
-                    case "4R"://Pyothorax 
-                        drgResult.setDC("0470");
-                        break;
-                    case "4N"://Pleural Effusion
-                        if (grouperparameter.getDischargeType().equals("4")) {
-                            drgResult.setDC("0472");//Transfer
-                        } else {
-                            drgResult.setDC("0462");//Others
-                        }
-                        break;
-                    case "4P"://Interstitial Lung Diseases
-                        drgResult.setDC("0463");
-                        break;
-                    case "4Q"://Other Minor Respiratory System Diagnosis PDC 4Q
-                        drgResult.setDC("0464");
-                        break;
-                }
+                String dc = this.principalDaignosis(
+                        drgResult.getPDC(),
+                        grouperparameter.getDischargeType(),
+                        CartSDx,
+                        CaCRxSDx,
+                        CartProc,
+                        CaCRxProc,
+                        PCX4Proc,
+                        PBX99Proc);
+                drgResult.setDC(dc);
             }
 
 //            drgResult.setPrepccl("X");
@@ -448,5 +229,155 @@ public class GetMDC04 {
             Logger.getLogger(GetMDC04.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
+    }
+
+    public DRGWSResult mdcProcedure(
+            final ArrayList<Integer> hierarvalue,
+            final ArrayList<String> pdclist) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        int min = hierarvalue.get(0);
+        //Loop through the array  
+        for (int i = 0; i < hierarvalue.size(); i++) {
+            //Compare elements of array with min  
+            if (hierarvalue.get(i) < min) {
+                min = hierarvalue.get(i);
+            }
+        }
+        result.setMessage(pdclist.get(hierarvalue.indexOf(min)));
+        switch (pdclist.get(hierarvalue.indexOf(min))) {
+            case "4PA"://Major Chest
+                result.setResult("0401");
+                break;
+            case "4PB"://Other Respiratory System Procedures
+                result.setResult("0402");
+                break;
+            case "4PD"://Ventilator Support
+                result.setResult("0403");
+                break;
+            case "4PE"://Noninvasive Ventilation 
+                result.setResult("0407");
+                break;
+            case "4PC"://Other Minor Respiratory System Procedures PDC 4PC
+                result.setResult("0408");
+                break;
+
+        }
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final String discharge,
+            final Integer CartSDx,
+            final Integer CaCRxSDx,
+            final Integer CartProc,
+            final Integer CaCRxProc,
+            final Integer PCX4Proc,
+            final Integer PBX99Proc) {
+        String dc = "";
+        switch (pdc) {
+            case "4A"://Cystic Fibrosis
+                dc = "0450";
+                break;
+            case "4B"://Pulmonary Embolism
+                dc = "0451";
+                break;
+            case "4C"://Respiratory Infection/Inflammation
+                dc = "0452";
+                break;
+            case "4D"://Sleep Apnea
+                dc = "0453";
+                break;
+
+            case "4E"://Noninvasive Ventilation 
+                if (discharge.equals("4")) {
+                    dc = "0471";//Transfer
+                } else {
+                    dc = "0454";//Others
+                }
+                break;
+            case "4F"://COPD
+                dc = "0455";
+                break;
+            case "4G"://Major Chest Trauma
+                dc = "0456";
+                break;
+            case "4H"://Respiratory Signs and Symptoms 
+                dc = "0457";
+                break;
+            case "4J"://Pneumothorax
+                dc = "0458";
+                break;
+            case "4K"://Bronchitis and Asthma
+                dc = "0459";
+                break;
+            case "4L"://Whooping Cough and Acute Bronchiolitis
+                dc = "0460";
+                break;
+            case "4M"://Respiratory Neoplasms
+                //Radio+Chemotherapy
+                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
+                    dc = "0465";
+                    //Chemotherapy
+                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
+                    dc = "0466";
+                    //Radiotherapy
+                } else if (CartSDx > 0 && CartProc > 0) {
+                    dc = "0467";
+                } else if (PCX4Proc > 0) { //##Dx Procedure
+                    dc = "0468";
+                    //Radiotherapy
+                } else if (PBX99Proc > 0) {//Blood Transfusion
+                    dc = "0469";
+                } else {
+                    dc = "0461";
+                }
+                break;
+            case "4R"://Pyothorax 
+                dc = "0470";
+                break;
+            case "4N"://Pleural Effusion
+                if (discharge.equals("4")) {
+                    dc = "0472";//Transfer
+                } else {
+                    dc = "0462";//Others
+                }
+                break;
+            case "4P"://Interstitial Lung Diseases
+                dc = "0463";
+                break;
+            case "4Q"://Other Minor Respiratory System Diagnosis PDC 4Q
+                dc = "0464";
+                break;
+        }
+        return dc;
+
     }
 }

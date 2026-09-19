@@ -145,91 +145,98 @@ public class GetMDC02 {
                 } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
                     drgResult.setDC("0203");
                 } else if (mdcprocedureCounter > 0) { // MDC Procedure
-                    int min = hierarvalue.get(0);
-                    //Loop through the array  
-                    for (int i = 0; i < hierarvalue.size(); i++) {
-                        //Compare elements of array with min  
-                        if (hierarvalue.get(i) < min) {
-                            min = hierarvalue.get(i);
-                        }
-                    }
-                    drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    switch (pdclist.get(hierarvalue.indexOf(min))) {
-                        case "2PK": { //Multiple Major Lens
-                            drgResult.setDC("0211");
-                            break;
-                        }
-                        case "2PL": {//Multiple Other Lens
-                            drgResult.setDC("0212");
-                            break;
-                        }
-                        case "2PE": { //Major Lens
-                            drgResult.setDC("0206");
-                            break;
-                        }
-                        case "2PM": { //Major Procedures for Lacrimal System
-                            drgResult.setDC("0213");
-                            break;
-                        }
-                        case "2PD": { //Intraoc Procedures Except lens & Retina
-                            drgResult.setDC("0205");
-                            break;
-                        }
-                        case "2PF": {//Other Lens
-                            drgResult.setDC("0207");
-                            break;
-                        }
-                        case "2PG": {//Other Eye Procedures 2PG
-                            drgResult.setDC("0208");
-                            break;
-                        }
-                    }
+                    DRGWSResult getResult = this.mdcProcedure(hierarvalue, pdclist);
+                    drgResult.setPDC(getResult.getMessage());
+                    drgResult.setDC(getResult.getResult());
+//                    int min = hierarvalue.get(0);
+//                    //Loop through the array  
+//                    for (int i = 0; i < hierarvalue.size(); i++) {
+//                        //Compare elements of array with min  
+//                        if (hierarvalue.get(i) < min) {
+//                            min = hierarvalue.get(i);
+//                        }
+//                    }
+//                    drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
+//                    switch (pdclist.get(hierarvalue.indexOf(min))) {
+//                        case "2PK": { //Multiple Major Lens
+//                            drgResult.setDC("0211");
+//                            break;
+//                        }
+//                        case "2PL": {//Multiple Other Lens
+//                            drgResult.setDC("0212");
+//                            break;
+//                        }
+//                        case "2PE": { //Major Lens
+//                            drgResult.setDC("0206");
+//                            break;
+//                        }
+//                        case "2PM": { //Major Procedures for Lacrimal System
+//                            drgResult.setDC("0213");
+//                            break;
+//                        }
+//                        case "2PD": { //Intraoc Procedures Except lens & Retina
+//                            drgResult.setDC("0205");
+//                            break;
+//                        }
+//                        case "2PF": {//Other Lens
+//                            drgResult.setDC("0207");
+//                            break;
+//                        }
+//                        case "2PG": {//Other Eye Procedures 2PG
+//                            drgResult.setDC("0208");
+//                            break;
+//                        }
+//                    }
 
                 } else if (ORProcedureCounter > 0) { //Check if OR Procedure
-                    switch (Collections.max(ORProcedureCounterList)) {
-                        case 1:
-                            drgResult.setDC("2601");
-                            break;
-                        case 2:
-                            drgResult.setDC("2602");
-                            break;
-                        case 3:
-                            drgResult.setDC("2603");
-                            break;
-                        case 4:
-                            drgResult.setDC("2604");
-                            break;
-                        case 5:
-                            drgResult.setDC("2605");
-                            break;
-                        case 6:
-                            drgResult.setDC("2606");
-                            break;
-                    }
+                    String dc = this.orProcedure(ORProcedureCounterList);
+                    drgResult.setDC(dc);
+//                    switch (Collections.max(ORProcedureCounterList)) {
+//                        case 1:
+//                            drgResult.setDC("2601");
+//                            break;
+//                        case 2:
+//                            drgResult.setDC("2602");
+//                            break;
+//                        case 3:
+//                            drgResult.setDC("2603");
+//                            break;
+//                        case 4:
+//                            drgResult.setDC("2604");
+//                            break;
+//                        case 5:
+//                            drgResult.setDC("2605");
+//                            break;
+//                        case 6:
+//                            drgResult.setDC("2606");
+//                            break;
+//                    }
 
                 } else { //Principal Diagnosis
-                    switch (drgResult.getPDC()) {
-                        case "2C"://Hyphema and Trauma
-                            drgResult.setDC("0250");
-                            break;
-                        case "2A"://Acute Major Infections
-                            if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                    grouperparameter.getAdmissionDate()) > 54) {
-                                drgResult.setDC("0251");
-                            } else {
-                                drgResult.setDC("0252");
-                            }
-                            break;
-                        case "2E"://Malignancy
-                            drgResult.setDC("0255");
-                            break;
-                        case "2B"://Neurological & Vasc Disorders
-                            drgResult.setDC("0253");
-                            break;
-                        case "2D": //Other Disorders of the Eye PDC 2D
-                            drgResult.setDC("0254");
-                            break;
-                    }
+                    String dc = this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+                    drgResult.setDC(dc);
+//                    switch (drgResult.getPDC()) {
+//                        case "2C"://Hyphema and Trauma
+//                            drgResult.setDC("0250");
+//                            break;
+//                        case "2A"://Acute Major Infections
+//                            if (utility.ComputeYear(grouperparameter.getBirthDate(),
+//                                    grouperparameter.getAdmissionDate()) > 54) {
+//                                drgResult.setDC("0251");
+//                            } else {
+//                                drgResult.setDC("0252");
+//                            }
+//                            break;
+//                        case "2E"://Malignancy
+//                            drgResult.setDC("0255");
+//                            break;
+//                        case "2B"://Neurological & Vasc Disorders
+//                            drgResult.setDC("0253");
+//                            break;
+//                        case "2D": //Other Disorders of the Eye PDC 2D
+//                            drgResult.setDC("0254");
+//                            break;
+//                    }
                 }
 
                 //START HERE
@@ -254,84 +261,90 @@ public class GetMDC02 {
                 drgResult.setDC("0203");
 
             } else if (mdcprocedureCounter > 0) { // MDC Procedure
-                int min = hierarvalue.get(0);
-                //Loop through the array  
-                for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
-                    if (hierarvalue.get(i) < min) {
-                        min = hierarvalue.get(i);
-                    }
-                }
-                drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "2PK": //Multiple Major Lens
-                        drgResult.setDC("0211");
-                        break;
-                    case "2PL": //Multiple Other Lens
-                        drgResult.setDC("0212");
-                        break;
-                    case "2PE": //Major Lens
-                        drgResult.setDC("0206");
-                        break;
-                    case "2PM": //Major Procedures for Lacrimal System
-                        drgResult.setDC("0213");
-                        break;
-                    case "2PD": //Intraoc Procedures Except lens & Retina
-                        drgResult.setDC("0205");
-                        break;
-                    case "2PF": //Other Lens
-                        drgResult.setDC("0207");
-                        break;
-                    case "2PG": //Other Eye Procedures 2PG
-                        drgResult.setDC("0208");
-                        break;
-                }
+                DRGWSResult getResult = this.mdcProcedure(hierarvalue, pdclist);
+                drgResult.setPDC(getResult.getMessage());
+                drgResult.setDC(getResult.getResult());
+//                int min = hierarvalue.get(0);
+//                //Loop through the array  
+//                for (int i = 0; i < hierarvalue.size(); i++) {
+//                    //Compare elements of array with min  
+//                    if (hierarvalue.get(i) < min) {
+//                        min = hierarvalue.get(i);
+//                    }
+//                }
+//                drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
+//                switch (pdclist.get(hierarvalue.indexOf(min))) {
+//                    case "2PK": //Multiple Major Lens
+//                        drgResult.setDC("0211");
+//                        break;
+//                    case "2PL": //Multiple Other Lens
+//                        drgResult.setDC("0212");
+//                        break;
+//                    case "2PE": //Major Lens
+//                        drgResult.setDC("0206");
+//                        break;
+//                    case "2PM": //Major Procedures for Lacrimal System
+//                        drgResult.setDC("0213");
+//                        break;
+//                    case "2PD": //Intraoc Procedures Except lens & Retina
+//                        drgResult.setDC("0205");
+//                        break;
+//                    case "2PF": //Other Lens
+//                        drgResult.setDC("0207");
+//                        break;
+//                    case "2PG": //Other Eye Procedures 2PG
+//                        drgResult.setDC("0208");
+//                        break;
+//                }
 
             } else if (ORProcedureCounter > 0) { //Check if OR Procedure
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
+//                switch (Collections.max(ORProcedureCounterList)) {
+//                    case 1:
+//                        drgResult.setDC("2601");
+//                        break;
+//                    case 2:
+//                        drgResult.setDC("2602");
+//                        break;
+//                    case 3:
+//                        drgResult.setDC("2603");
+//                        break;
+//                    case 4:
+//                        drgResult.setDC("2604");
+//                        break;
+//                    case 5:
+//                        drgResult.setDC("2605");
+//                        break;
+//                    case 6:
+//                        drgResult.setDC("2606");
+//                        break;
+//                }
 
             } else { //Principal Diagnosis
-
-                switch (drgResult.getPDC()) {
-                    case "2C"://Hyphema and Trauma
-                        drgResult.setDC("0250");
-                        break;
-                    case "2A"://Acute Major Infections
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 54) {
-                            drgResult.setDC("0251");
-                        } else {
-                            drgResult.setDC("0252");
-                        }
-                        break;
-                    case "2E"://Malignancy
-                        drgResult.setDC("0255");
-                        break;
-                    case "2B"://Neurological & Vasc Disorders
-                        drgResult.setDC("0253");
-                        break;
-                    case "2D": //Other Disorders of the Eye PDC 2D
-                        drgResult.setDC("0254");
-                        break;
-                }
+                String dc = this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+                drgResult.setDC(dc);
+//                switch (drgResult.getPDC()) {
+//                    case "2C"://Hyphema and Trauma
+//                        drgResult.setDC("0250");
+//                        break;
+//                    case "2A"://Acute Major Infections
+//                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 54) {
+//                            drgResult.setDC("0251");
+//                        } else {
+//                            drgResult.setDC("0252");
+//                        }
+//                        break;
+//                    case "2E"://Malignancy
+//                        drgResult.setDC("0255");
+//                        break;
+//                    case "2B"://Neurological & Vasc Disorders
+//                        drgResult.setDC("0253");
+//                        break;
+//                    case "2D": //Other Disorders of the Eye PDC 2D
+//                        drgResult.setDC("0254");
+//                        break;
+//                }
 
             }
 
@@ -395,6 +408,111 @@ public class GetMDC02 {
             Logger.getLogger(GetMDC02.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
+
+    }
+
+    public DRGWSResult mdcProcedure(
+            final ArrayList<Integer> hierarvalue,
+            final ArrayList<String> pdclist) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+
+        int min = hierarvalue.get(0);
+        //Loop through the array  
+        for (int i = 0; i < hierarvalue.size(); i++) {
+            //Compare elements of array with min  
+            if (hierarvalue.get(i) < min) {
+                min = hierarvalue.get(i);
+            }
+        }
+        result.setMessage(pdclist.get(hierarvalue.indexOf(min)));
+        switch (pdclist.get(hierarvalue.indexOf(min))) {
+            case "2PK": { //Multiple Major Lens
+                result.setResult("0211");
+                break;
+            }
+            case "2PL": {//Multiple Other Lens
+                result.setResult("0212");
+                break;
+            }
+            case "2PE": { //Major Lens
+                result.setResult("0206");
+                break;
+            }
+            case "2PM": { //Major Procedures for Lacrimal System
+                result.setResult("0213");
+                break;
+            }
+            case "2PD": { //Intraoc Procedures Except lens & Retina
+                result.setResult("0205");
+                break;
+            }
+            case "2PF": {//Other Lens
+                result.setResult("0207");
+                break;
+            }
+            case "2PG": {//Other Eye Procedures 2PG
+                result.setResult("0208");
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final String dbate,
+            final String admission) {
+        String dc = "";
+        switch (pdc) {
+            case "2C"://Hyphema and Trauma
+                dc = "0250";
+                break;
+            case "2A"://Acute Major Infections
+                if (utility.ComputeYear(dbate, admission) > 54) {
+                    dc = "0251";
+                } else {
+                    dc = "0252";
+                }
+                break;
+            case "2E"://Malignancy
+                dc = "0255";
+                break;
+            case "2B"://Neurological & Vasc Disorders
+                dc = "0253";
+                break;
+            case "2D": //Other Disorders of the Eye PDC 2D
+                dc = "0254";
+                break;
+        }
+        return dc;
 
     }
 
