@@ -376,68 +376,6 @@ public class GetMDC01 {
                 }
 
             } else if (mdcprocedureCounter > 0) { //MDC Procedure
-<<<<<<< Updated upstream
-                int min = hierarvalue.get(0);
-                //Loop through the array  
-                for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
-                    if (hierarvalue.get(i) < min) {
-                        min = hierarvalue.get(i);
-                    }
-                }
-
-                drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "1PK":   // drgResult.setDC("0116");
-                        if (checkAX.AX(datasource, "1BX", grouperparameter.getPdx()).isSuccess()) {
-                            drgResult.setDC("0112");
-                        } else {
-                            drgResult.setDC("0113");
-                        }
-                        break;
-                    case "1PL"://Plasmapheresis 
-                        drgResult.setDC("0117");
-                        break;
-                    case "1PH"://Intacranial Vasc
-                        if (EndoCounter > 0) {  // RECODE THIS AREA TO DOUBLE CHECK
-                            drgResult.setDC("0110");
-                        } else {
-                            if (checkAX.AX(datasource, "1CX", grouperparameter.getPdx()).isSuccess()) {
-                                drgResult.setDC("0108");
-                            } else {
-                                drgResult.setDC("0109");
-                            }
-                        }
-                        break;
-                    case "1PC"://SPINAL PROCEDURES
-                        drgResult.setDC("0103");
-                        break;
-                    case "1PB":  //Craniotomy
-                        if (checkAX.AX(datasource, "1BX", grouperparameter.getPdx()).isSuccess()) {
-                            drgResult.setDC("0101");
-                        } else {
-                            drgResult.setDC("0102");
-                        }
-                        break;
-                    case "1PJ": //Endovasc Procedures
-                        drgResult.setDC("0114");
-                        break;
-                    case "1PD": //Extracranial Vascular Procedures
-                        drgResult.setDC("0105");
-                        break;
-                    case "1PA": //Ventricular Shunt Revision
-                        drgResult.setDC("0104");
-                        break;
-                    case "1PF":
-                    case "1PG":  //Peripheral & Cranial Nerve & Other Nervous System Procedures
-                        drgResult.setDC("0106");
-                        break;
-                    case "1PE": //Carpal Tunnel Release
-                        drgResult.setDC("0107");
-                        break;
-                }
-
-=======
                 DRGWSResult getResult = this.mdcProcedure(
                         hierarvalue, 
                         pdclist, 
@@ -506,7 +444,6 @@ public class GetMDC01 {
 //                        drgResult.setDC("0107");
 //                        break;
 //                }
->>>>>>> Stashed changes
             } else if (ORProcedureCounter > 0) {
                 String orProc = this.orProcedure(ORProcedureCounterList);
                 drgResult.setDC(orProc);
