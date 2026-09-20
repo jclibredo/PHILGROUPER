@@ -52,7 +52,6 @@ public class GetMDC09 {
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
-            ArrayList<String> sdxfinder = new ArrayList<>();
             AX checkAX = new AX();
             //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
@@ -72,20 +71,13 @@ public class GetMDC09 {
                 if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, SecondaryList.get(a).trim(), "9E").isSuccess()) {
                     SDxMalignantCount++;
                 }
-//                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
-//                    CartSDx++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
                 }
-//                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
-//                    CaCRxSDx++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
             }
-
             if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "9E").isSuccess()) {
                 PDxMalignantCount++;
             }
@@ -126,52 +118,32 @@ public class GetMDC09 {
                     }
                 }
 
-                //-------------------------
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(y).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(y).trim())) {
-//                    PCXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-//                if (utility.isValid99PEX(ProcedureList.get(y).trim())) {
-//                    CartProc++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
                     CartProc++;
                 }
-//                if (utility.isValid99PFX(ProcedureList.get(y).trim())) {
-//                    CaCRxProc++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-//                if (utility.isValid99PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
-//                    PBX99Proc++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
                 if (checkAX.AX(datasource, SchemaName, "9PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter9PCX++;
                 }
-//                if (utility.isValid9PBX(ProcedureList.get(y).trim())) { //Blood Transfusion AX 99PBX
-//                    Counter9PBX++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "9PBX(", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter9PBX++;
                 }
 
             }
             //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
-
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
@@ -186,153 +158,36 @@ public class GetMDC09 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        switch (pdclist.get(hierarvalue.indexOf(min))) {
-                            case "9PJ"://Pedicle Graft Plastic Procedures
-                                drgResult.setDC("0911");
-                                break;
-                            case "9PD"://Skin Graft and Debridement
-                                if (Counter9BX > 0) {
-                                    if (Counter9PBX > 0) {
-                                        drgResult.setDC("0910");
-                                    } else {
-                                        drgResult.setDC("0905");
-                                    }
-                                } else {
-                                    if (Counter9PBX > 0) {
-                                        drgResult.setDC("0915");
-                                    } else {
-                                        drgResult.setDC("0906");
-                                    }
-                                }
-                                break;
-                            case "9PA"://Total Mastectomy
-                                if (Counter9PDX > 0) {
-                                    drgResult.setDC("0914");
-                                } else {
-                                    if (SDxMalignantCount > 0 || PDxMalignantCount > 0) {
-                                        for (int a = 0; a < SecondaryList.size(); a++) {
-                                            String MalignantCodes = SecondaryList.get(a);
-                                            DRGWSResult MaligSDxResult = new PDxMalignancy().PDxMalignancy(datasource, SchemaName, MalignantCodes, "9E");
-                                            if (MaligSDxResult.isSuccess()) {
-                                                sdxfinder.add(SecondaryList.get(a));
-                                            }
-                                        }
-                                        if (!sdxfinder.isEmpty()) {
-                                            drgResult.setSDXFINDER(String.join(",", sdxfinder));
-                                        }
-                                        drgResult.setDC("0901");
-                                    } else {
-                                        drgResult.setDC("0903");
-                                    }
-                                }
-                                break;
-                            case "9PF"://Plastic
-                                drgResult.setDC("0908");
-                                break;
-                            case "9PC"://Subtotal Mastextomy, Biopsy and Local Excision of Breast
-                            case "9PB":
-                                if (SDxMalignantCount > 0 || PDxMalignantCount > 0) {
-                                    for (int a = 0; a < SecondaryList.size(); a++) {
-                                        String MalignantCodes = SecondaryList.get(a);
-                                        DRGWSResult MaligSDxResult = new PDxMalignancy().PDxMalignancy(datasource, SchemaName, MalignantCodes, "9E");
-                                        if (MaligSDxResult.isSuccess()) {
-                                            sdxfinder.add(SecondaryList.get(a));
-                                        }
-                                    }
-                                    if (!sdxfinder.isEmpty()) {
-                                        drgResult.setSDXFINDER(String.join(",", sdxfinder));
-                                    }
-                                    drgResult.setDC("0902");
-                                } else {
-                                    if (drgResult.getPDC().equals("9PB")) {
-                                        drgResult.setDC("0903");
-                                    } else {
-                                        drgResult.setDC("0904");
-                                    }
-                                }
-                                break;
-                            case "9PG"://Other Skin, Subcutaneous Tissue and Breast Procedures
-                            case "9PH":
-                                drgResult.setDC("0909");
-                                break;
-                            case "9PE"://Perianal and Pilonidal PDC 9PE
-                                drgResult.setDC("0907");
-                                break;
-
+                        MDC5Proc getMdcProc = this.mdcProcedure(
+                                drgResult.getPDC(),
+                                Counter9BX,
+                                Counter9PBX,
+                                Counter9PDX,
+                                SDxMalignantCount,
+                                PDxMalignantCount,
+                                SecondaryList,
+                                datasource,
+                                SchemaName
+                        );
+                        drgResult.setDC(getMdcProc.getDC());
+                        if (!getMdcProc.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(getMdcProc.getSdxfinder());
                         }
-
                     } else if (ORProcedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 1:
-                                drgResult.setDC("2601");
-                                break;
-                            case 2:
-                                drgResult.setDC("2602");
-                                break;
-                            case 3:
-                                drgResult.setDC("2603");
-                                break;
-                            case 4:
-                                drgResult.setDC("2604");
-                                break;
-                            case 5:
-                                drgResult.setDC("2605");
-                                break;
-                            case 6:
-                                drgResult.setDC("2606");
-                                break;
-                        }
-
+                        String dc = this.orProcedure(ORProcedureCounterList);
+                        drgResult.setDC(dc);
                     } else {
-                        switch (drgResult.getPDC()) {
-                            case "9A"://Skin Ulcer
-                                drgResult.setDC("0950");
-                                break;
-                            case "9B"://Severe Skin Disorders
-                                drgResult.setDC("0951");
-                                break;
-                            case "9C"://Moderate Skin Disorders
-                                drgResult.setDC("0952");
-                                break;
-                            case "9D"://Minor Skin Disorders
-                                drgResult.setDC("0953");
-                                break;
-                            case "9E"://Malignant Breast Disorders
-                                //Radio+Chemotherapy
-                                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("0960");
-                                    //Chemotherapy
-                                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("0961");
-                                    //Radiotherapy
-                                } else if (CartSDx > 0 && CartProc > 0) {
-                                    drgResult.setDC("0962");
-                                } else if (Counter9PCX > 0) { //Dx Procedure
-                                    drgResult.setDC("0963");
-                                } else if (PBX99Proc > 0) {//Blood Transfusion
-                                    drgResult.setDC("0964");
-                                } else {//Malignancy 
-                                    drgResult.setDC("0954");
-                                }
-                                break;
-                            case "9F"://Non-Malignant Breast Disorders
-                                drgResult.setDC("0955");
-                                break;
-                            case "9G"://Cellulites
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                                    drgResult.setDC("0956");
-                                } else {
-                                    drgResult.setDC("0957");
-                                }
-                                break;
-                            case "9H"://Trauma
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                                    drgResult.setDC("0958");
-                                } else {
-                                    drgResult.setDC("0959");
-                                }
-                                break;
-                        }
+                        String dc = this.principalDaignosis(
+                                drgResult.getPDC(),
+                                CartSDx,
+                                CaCRxSDx,
+                                CartProc,
+                                CaCRxProc,
+                                Counter9PCX,
+                                PBX99Proc,
+                                grouperparameter.getBirthDate(),
+                                grouperparameter.getAdmissionDate());
+                        drgResult.setDC(dc);
                     }
                 } else {
 
@@ -351,152 +206,37 @@ public class GetMDC09 {
                         min = hierarvalue.get(i);
                     }
                 }
-
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "9PJ"://Pedicle Graft Plastic Procedures
-                        drgResult.setDC("0911");
-                        break;
-                    case "9PD"://Skin Graft and Debridement
-                        if (Counter9BX > 0) {
-                            if (Counter9PBX > 0) {
-                                drgResult.setDC("0910");
-                            } else {
-                                drgResult.setDC("0905");
-                            }
-                        } else {
-                            if (Counter9PBX > 0) {
-                                drgResult.setDC("0915");
-                            } else {
-                                drgResult.setDC("0906");
-                            }
-                        }
-                        break;
-                    case "9PA"://Total Mastectomy
-                        if (Counter9PDX > 0) {
-                            drgResult.setDC("0914");
-                        } else {
-                            if (SDxMalignantCount > 0 || PDxMalignantCount > 0) {
-                                for (int a = 0; a < SecondaryList.size(); a++) {
-//                                    String MalignantCodes = SecondaryList.get(a);
-                                    DRGWSResult MaligSDxResult = new PDxMalignancy().PDxMalignancy(datasource, SchemaName, SecondaryList.get(a).trim(), "9E");
-                                    if (MaligSDxResult.isSuccess()) {
-                                        sdxfinder.add(SecondaryList.get(a).trim());
-                                    }
-                                }
-                                if (!sdxfinder.isEmpty()) {
-                                    drgResult.setSDXFINDER(String.join(",", sdxfinder));
-                                }
-                                drgResult.setDC("0901");
-                            } else {
-                                drgResult.setDC("0903");
-                            }
-                        }
-                        break;
-
-                    case "9PF"://Plastic
-                        drgResult.setDC("0908");
-                        break;
-                    case "9PC"://Subtotal Mastextomy, Biopsy and Local Excision of Breast
-                    case "9PB":
-                        if (SDxMalignantCount > 0 || PDxMalignantCount > 0) {
-                            for (int a = 0; a < SecondaryList.size(); a++) {
-                                DRGWSResult MaligSDxResult = new PDxMalignancy().PDxMalignancy(datasource, SchemaName, SecondaryList.get(a).trim(), "9E");
-                                if (MaligSDxResult.isSuccess()) {
-                                    sdxfinder.add(SecondaryList.get(a).trim());
-                                }
-                            }
-                            if (!sdxfinder.isEmpty()) {
-                                drgResult.setSDXFINDER(String.join(",", sdxfinder));
-                            }
-                            drgResult.setDC("0902");
-                        } else {
-                            if (drgResult.getPDC().equals("9PB")) {
-                                drgResult.setDC("0903");
-                            } else {
-                                drgResult.setDC("0904");
-                            }
-                        }
-                        break;
-                    case "9PG"://Other Skin, Subcutaneous Tissue and Breast Procedures
-                    case "9PH":
-                        drgResult.setDC("0909");
-                        break;
-                    case "9PE"://Perianal and Pilonidal PDC 9PE
-                        drgResult.setDC("0907");
-                        break;
+                MDC5Proc getMdcProc = this.mdcProcedure(
+                        drgResult.getPDC(),
+                        Counter9BX,
+                        Counter9PBX,
+                        Counter9PDX,
+                        SDxMalignantCount,
+                        PDxMalignantCount,
+                        SecondaryList,
+                        datasource,
+                        SchemaName
+                );
+                drgResult.setDC(getMdcProc.getDC());
+                if (!getMdcProc.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(getMdcProc.getSdxfinder());
                 }
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
             } else {
-                switch (drgResult.getPDC()) {
-                    case "9A"://Skin Ulcer
-                        drgResult.setDC("0950");
-                        break;
-                    case "9B"://Severe Skin Disorders
-                        drgResult.setDC("0951");
-                        break;
-                    case "9C"://Moderate Skin Disorders
-                        drgResult.setDC("0952");
-                        break;
-                    case "9D"://Minor Skin Disorders
-                        drgResult.setDC("0953");
-                        break;
-                    case "9E"://Malignant Breast Disorders
-                        //Radio+Chemotherapy
-                        if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("0960");
-                            //Chemotherapy
-                        } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("0961");
-                            //Radiotherapy
-                        } else if (CartSDx > 0 && CartProc > 0) {
-                            drgResult.setDC("0962");
-                        } else if (Counter9PCX > 0) { //Dx Procedure
-                            drgResult.setDC("0963");
-                        } else if (PBX99Proc > 0) {//Blood Transfusion
-                            drgResult.setDC("0964");
-                        } else {//Malignancy 
-                            drgResult.setDC("0954");
-                        }
-                        break;
-                    case "9F"://Non-Malignant Breast Disorders
-                        drgResult.setDC("0955");
-                        break;
-                    case "9G"://Cellulites
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                            drgResult.setDC("0956");
-                        } else {
-                            drgResult.setDC("0957");
-                        }
-                        break;
-                    case "9H"://Trauma
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                            drgResult.setDC("0958");
-                        } else {
-                            drgResult.setDC("0959");
-                        }
-                        break;
-                }
+                String dc = this.principalDaignosis(
+                        drgResult.getPDC(),
+                        CartSDx,
+                        CaCRxSDx,
+                        CartProc,
+                        CaCRxProc,
+                        Counter9PCX,
+                        PBX99Proc,
+                        grouperparameter.getBirthDate(),
+                        grouperparameter.getAdmissionDate());
+                drgResult.setDC(dc);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -513,6 +253,221 @@ public class GetMDC09 {
             logger.error("Error in MDC9 Method : {}", ex.getMessage(), ex);
         }
         return result;
+
+    }
+
+    public MDC5Proc mdcProcedure(
+            final String pdc,
+            final Integer Counter9BX,
+            final Integer Counter9PBX,
+            final Integer Counter9PDX,
+            final Integer SDxMalignantCount,
+            final Integer PDxMalignantCount,
+            final List<String> SecondaryList,
+            final DataSource datasource,
+            final String SchemaName) {
+        MDC5Proc result = new MDC5Proc();
+        result.setPDC("");
+        result.setDC("");
+        result.setSdxfinder("");
+        ArrayList<String> sdxfinder = new ArrayList<>();
+        PDxMalignancy malignant = new PDxMalignancy();
+        switch (pdc.toUpperCase()) {
+            case "9PJ"://Pedicle Graft Plastic Procedures
+                result.setDC("0911");
+                break;
+            case "9PD"://Skin Graft and Debridement
+                if (Counter9BX > 0) {
+                    if (Counter9PBX > 0) {
+                        result.setDC("0910");
+                    } else {
+                        result.setDC("0905");
+                    }
+                } else {
+                    if (Counter9PBX > 0) {
+                        result.setDC("0915");
+                    } else {
+                        result.setDC("0906");
+                    }
+                }
+                break;
+            case "9PA"://Total Mastectomy
+                if (Counter9PDX > 0) {
+                    result.setDC("0914");
+                } else {
+                    if (SDxMalignantCount > 0 || PDxMalignantCount > 0) {
+                        for (int a = 0; a < SecondaryList.size(); a++) {
+                            String MalignantCodes = SecondaryList.get(a);
+                            DRGWSResult MaligSDxResult = malignant.PDxMalignancy(datasource, SchemaName, MalignantCodes, "9E");
+                            if (MaligSDxResult.isSuccess()) {
+                                sdxfinder.add(SecondaryList.get(a));
+                            }
+                        }
+                        if (!sdxfinder.isEmpty()) {
+                            result.setSdxfinder(String.join(",", sdxfinder));
+                        }
+                        result.setDC("0901");
+                    } else {
+                        result.setDC("0903");
+                    }
+                }
+                break;
+            case "9PF"://Plastic
+                result.setDC("0908");
+                break;
+            case "9PC"://Subtotal Mastextomy, Biopsy and Local Excision of Breast
+            case "9PB":
+                if (SDxMalignantCount > 0 || PDxMalignantCount > 0) {
+                    for (int a = 0; a < SecondaryList.size(); a++) {
+                        String MalignantCodes = SecondaryList.get(a);
+                        DRGWSResult MaligSDxResult = malignant.PDxMalignancy(datasource, SchemaName, MalignantCodes, "9E");
+                        if (MaligSDxResult.isSuccess()) {
+                            sdxfinder.add(SecondaryList.get(a));
+                        }
+                    }
+                    if (!sdxfinder.isEmpty()) {
+                        result.setSdxfinder(String.join(",", sdxfinder));
+                    }
+                    result.setDC("0902");
+                } else {
+                    if (pdc.equals("9PB")) {
+                        result.setDC("0903");
+                    } else {
+                        result.setDC("0904");
+                    }
+                }
+                break;
+            case "9PG"://Other Skin, Subcutaneous Tissue and Breast Procedures
+            case "9PH":
+                result.setDC("0909");
+                break;
+            case "9PE"://Perianal and Pilonidal PDC 9PE
+                result.setDC("0907");
+                break;
+
+        }
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final Integer CartSDx,
+            final Integer CaCRxSDx,
+            final Integer CartProc,
+            final Integer CaCRxProc,
+            final Integer Counter9PCX,
+            final Integer PBX99Proc,
+            final String bdate,
+            final String admDate) {
+        String dc = "";
+        switch (pdc) {
+            case "9A"://Skin Ulcer
+                dc = "0950";
+//                drgResult.setDC("0950");
+                break;
+            case "9B"://Severe Skin Disorders
+                dc = "0951";
+                break;
+            case "9C"://Moderate Skin Disorders
+                dc = "0952";
+                break;
+            case "9D"://Minor Skin Disorders
+                dc = "0953";
+                break;
+            case "9E"://Malignant Breast Disorders
+                //Radio+Chemotherapy
+                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
+                    dc = "0960";
+                    //Chemotherapy
+                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
+                    dc = "0961";
+                    //Radiotherapy
+                } else if (CartSDx > 0 && CartProc > 0) {
+                    dc = "0962";
+                } else if (Counter9PCX > 0) { //Dx Procedure
+                    dc = "0963";
+                } else if (PBX99Proc > 0) {//Blood Transfusion
+                    dc = "0964";
+                } else {//Malignancy 
+                    dc = "0954";
+                }
+                break;
+            case "9F"://Non-Malignant Breast Disorders
+                dc = "0955";
+                break;
+            case "9G"://Cellulites
+                if (utility.ComputeYear(bdate, admDate) > 17) {
+                    dc = "0956";
+                } else {
+                    dc = "0957";
+                }
+                break;
+            case "9H"://Trauma
+                if (utility.ComputeYear(bdate, admDate) > 17) {
+                    dc = "0958";
+                } else {
+                    dc = "0959";
+                }
+                break;
+        }
+        return dc;
+
+    }
+
+    public class MDC5Proc {
+
+        private String PDC;
+        private String DC;
+        private String sdxfinder;
+
+        public String getPDC() {
+            return PDC;
+        }
+
+        public void setPDC(String PDC) {
+            this.PDC = PDC;
+        }
+
+        public String getDC() {
+            return DC;
+        }
+
+        public void setDC(String DC) {
+            this.DC = DC;
+        }
+
+        public String getSdxfinder() {
+            return sdxfinder;
+        }
+
+        public void setSdxfinder(String sdxfinder) {
+            this.sdxfinder = sdxfinder;
+        }
 
     }
 

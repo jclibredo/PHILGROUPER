@@ -83,7 +83,6 @@ public class GetMDC08 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
-//                System.out.println("PROC "+ProcedureList.get(y).trim());
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
@@ -95,7 +94,6 @@ public class GetMDC08 {
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
-//                    System.out.println("PROC "+ProcedureList.get(y));
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
                     DRGWSResult pdcresult = new GetPDC().GetPDC(datasource,
@@ -107,7 +105,6 @@ public class GetMDC08 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-
                 if (new Endovasc().Endovasc(datasource,
                         SchemaName,
                         ProcedureList.get(y).trim(), "8PH", mdcWithoutZeros).isSuccess()) {
@@ -116,7 +113,6 @@ public class GetMDC08 {
                 if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(y).trim(), "8QA", mdcWithoutZeros).isSuccess()) {
                     Counter8QA++;
                 }
-
                 //AX 99PDX Checking
                 if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
                     PDXCounter99++;
@@ -138,8 +134,6 @@ public class GetMDC08 {
                     Counter8PFX++;
                 }
             }
-
-//            System.out.println(hierarvalue);
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
@@ -154,227 +148,31 @@ public class GetMDC08 {
                                 min = hierarvalue.get(i);
                             }
                         }
-
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        switch (pdclist.get(hierarvalue.indexOf(min))) {
-                            case "8QE"://Plasmapheresis
-                                drgResult.setDC("0835");
-                                break;
-                            case "8QF"://Multiple (>4) Wound Debridement
-                                drgResult.setDC("0836");
-                                break;
-                            case "8QD":
-//                            case "CounterPCX8CounterPDX8":
-//                            case "CounterPCX8CounterPEX8":
-//                            case "CounterPDX8CounterPEX8":
-//                            case "PDC8ORPDX8":
-                                drgResult.setDC("0801");
-                                break;
-                            case "8QB"://Multiple (2-4) Wound Debridement
-                                if (Counter8PH > 0) {
-                                    drgResult.setDC("0828");
-                                } else {
-                                    drgResult.setDC("0830");
-                                }
-                                break;
-                            case "8PD"://Spinal Fusion
-                                drgResult.setDC("0805");
-                                break;
-                            case "8PW"://Total Hip Revision
-                                drgResult.setDC("0824");
-                                break;
-                            case "8PF"://Amputation for Musculoskeletal & Connective Tissue Disorders
-                                drgResult.setDC("0807");
-                                break;
-                            case "8PZ"://Partial Hip Revision
-                                drgResult.setDC("0827");
-                                break;
-                            case "8PX"://Total Knee Revision
-                                drgResult.setDC("0825");
-                                break;
-                            case "8PY"://Partial Knee Revision
-                                drgResult.setDC("0826");
-                                break;
-                            case "8PA"://Hip Replacement
-                                drgResult.setDC("0802");
-                                break;
-                            case "8PV"://Partial Hip Replacement
-                                drgResult.setDC("0823");
-                                break;
-                            case "8PE"://Back & Neck Procedure Except Spinal Fusion
-                                drgResult.setDC("0806");
-                                break;
-                            case "8PB"://Knee Replacement
-                                drgResult.setDC("0803");
-                                break;
-                            case "8PC"://Other Major Joint Replacement & Limb Reattach of Lower/Upper Extremities
-                                drgResult.setDC("0804");
-                                break;
-                            case "8PG"://Biopsies of Musculoskeletal & Connective Tissue Disorders
-                                drgResult.setDC("0808");
-                                break;
-                            case "8PJ"://Hip and Femur Procedures Except Replacement
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) > 17) {
-                                    drgResult.setDC("0810");
-                                } else {
-                                    drgResult.setDC("0811");
-                                }
-                                break;
-                            case "8PH"://Skin Graft Except Hand for MS&CT
-                                if (Counter8QA > 0) {
-                                    drgResult.setDC("0829");
-                                } else {
-                                    drgResult.setDC("0809");
-                                }
-                                break;
-                            case "8PK"://Knee Procedures Except Replacement
-                                drgResult.setDC("0812");
-                                break;
-                            case "8PU"://Other Musculoskeletal System and Connective Tissue OR Procedures
-                                drgResult.setDC("0822");
-                                break;
-                            case "8QA"://Wound Debridement for MS&CT
-                                drgResult.setDC("0831");
-                                break;
-                            case "8PT"://Arthroscopy
-                                drgResult.setDC("0821");
-                                break;
-                            case "8PL"://Shoulder, Elbow & Forearm Procedures Except Replacement
-                                drgResult.setDC("0813");
-                                break;
-                            case "8PM"://Humerus, Tibia, Fibula & Ankle Procedures Except Replacement
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) > 17) {
-                                    drgResult.setDC("0814");
-                                } else {
-                                    drgResult.setDC("0815");
-                                }
-                                break;
-                            case "8QC"://Reattachment of Finger
-                                drgResult.setDC("0832");
-                                break;
-                            case "8PS"://Soft Tissue Procedures
-                                drgResult.setDC("0820");
-                                break;
-                            case "8PQ"://Local Excision & Removal of Internal Fixation Devices of Hip & Femur
-                                drgResult.setDC("0818");
-                                break;
-                            case "8PP"://Foot Procedures
-                                drgResult.setDC("0817");
-                                break;
-                            case "8PR"://Local Excision & Removal of Internal Fixation Devices Exc Hip & Femur
-                                drgResult.setDC("0819");
-                                break;
-                            case "8PN"://Wrist & Hand Procedures Except Replacement PDC 8PN 
-                                drgResult.setDC("0816");
-                                break;
-
-                        }
-
+                        MDC5Proc getMdcProc = this.mdcProcedure(
+                                drgResult.getPDC(),
+                                Counter8PH,
+                                grouperparameter.getBirthDate(),
+                                grouperparameter.getAdmissionDate(),
+                                Counter8QA);
+                        drgResult.setDC(getMdcProc.getDC());
                     } else if (ORProcedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 1:
-                                drgResult.setDC("2601");
-                                break;
-                            case 2:
-                                drgResult.setDC("2602");
-                                break;
-                            case 3:
-                                drgResult.setDC("2603");
-                                break;
-                            case 4:
-                                drgResult.setDC("2604");
-                                break;
-                            case 5:
-                                drgResult.setDC("2605");
-                                break;
-                            case 6:
-                                drgResult.setDC("2606");
-                                break;
-                        }
-
+                        String dc = this.orProcedure(ORProcedureCounterList);
+                        drgResult.setDC(dc);
                     } else {
-                        switch (drgResult.getPDC()) {
-                            case "8E"://Pathological Fracture and Malignancy
-                                //Radio+Chemotherapy
-                                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("0868");
-                                    //Chemotherapy
-                                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("0869");
-                                    //Radiotherapy
-                                } else if (CartSDx > 0 && CartProc > 0) {
-                                    drgResult.setDC("0870");
-                                } else if (Counter8PFX > 0) { //##Dx Procedure
-                                    drgResult.setDC("0871");
-                                } else if (PBX99Proc > 0) {//Blood Transfusion
-                                    drgResult.setDC("0872");
-                                } else {//Malignancy 
-                                    drgResult.setDC("0854");
-                                }
-                                break;
-                            case "8A"://Fracture of Femur
-                                drgResult.setDC("0850");
-                                break;
-                            case "8B"://Fracture of Hip and Pelvis
-                                drgResult.setDC("0851");
-                                break;
-                            case "8C"://Sprain, Strain and Dislocation of Hip, Pelvis and Thigh
-                                drgResult.setDC("0852");
-                                break;
-                            case "8D"://Osteomyelitis
-                                drgResult.setDC("0853");
-                                break;
-                            case "8F"://Connective Tissue
-                                drgResult.setDC("0855");
-                                break;
-                            case "8G"://Septic Arthritis
-                                drgResult.setDC("0856");
-                                break;
-                            case "8H"://Medical Back Problems
-                                drgResult.setDC("0857");
-                                break;
-                            case "8J"://Bone Disease and Specific Arthropathies
-                                drgResult.setDC("0858");
-                                break;
-                            case "8K"://Nonspecific Arthropathies
-                                drgResult.setDC("0859");
-                                break;
-                            case "8L"://Signs and Symptoms
-                                drgResult.setDC("0860");
-                                break;
-                            case "8M"://Tendonitis, Myositis and Bursitis
-                                drgResult.setDC("0861");
-                                break;
-                            case "8N"://Aftercare
-                                drgResult.setDC("0862");
-                                break;
-                            case "8P"://Fracture, Sprain, Strain and Dislocation of Forearm, Hand and Foot
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) > 17) {
-                                    drgResult.setDC("0863");
-                                } else {
-                                    drgResult.setDC("0864");
-                                }
-                                break;
-                            case "8Q"://Fracture, Sprain, Strain and Dislocation of Forearm, Hand and Foot
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) > 17) {
-                                    drgResult.setDC("0865");
-                                } else {
-                                    drgResult.setDC("0866");
-                                }
-                                break;
-                            case "8R"://Other Musculoskeletal System and Connective Tissue Diagnoses
-                                drgResult.setDC("0867");
-                                break;
-                            case "8S"://Major Connective Tissue Dx PDC 8S
-                                drgResult.setDC("0873");
-                                break;
-                        }
+                        String dc = this.principalDaignosis(
+                                drgResult.getPDC(),
+                                CartSDx,
+                                CaCRxSDx,
+                                CartProc,
+                                CaCRxProc,
+                                Counter8PFX,
+                                PBX99Proc,
+                                grouperparameter.getDischargeType(),
+                                grouperparameter.getBirthDate(),
+                                grouperparameter.getAdmissionDate());
+                        drgResult.setDC(dc);
                     }
-
                 } else {
                     if (PCXCounter99 > 0) {
                         drgResult.setDC("0833");
@@ -391,218 +189,30 @@ public class GetMDC08 {
                         min = hierarvalue.get(i);
                     }
                 }
-
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "8QE"://Plasmapheresis
-                        drgResult.setDC("0835");
-                        break;
-                    case "8QF"://Multiple (>4) Wound Debridement
-                        drgResult.setDC("0836");
-                        break;
-                    case "8QD":
-                        drgResult.setDC("0801");
-                        break;
-                    case "8QB"://Multiple (2-4) Wound Debridement
-                        if (Counter8PH > 0) {
-                            drgResult.setDC("0828");
-                        } else {
-                            drgResult.setDC("0830");
-                        }
-                        break;
-                    case "8PD"://Spinal Fusion
-                        drgResult.setDC("0805");
-                        break;
-                    case "8PW"://Total Hip Revision
-                        drgResult.setDC("0824");
-                        break;
-                    case "8PF"://Amputation for Musculoskeletal & Connective Tissue Disorders
-                        drgResult.setDC("0807");
-                        break;
-                    case "8PZ"://Partial Hip Revision
-                        drgResult.setDC("0827");
-                        break;
-                    case "8PX"://Total Knee Revision
-                        drgResult.setDC("0825");
-                        break;
-                    case "8PY"://Partial Knee Revision
-                        drgResult.setDC("0826");
-                        break;
-                    case "8PA"://Hip Replacement
-                        drgResult.setDC("0802");
-                        break;
-                    case "8PV"://Partial Hip Replacement
-                        drgResult.setDC("0823");
-                        break;
-                    case "8PE"://Back & Neck Procedure Except Spinal Fusion
-                        drgResult.setDC("0806");
-                        break;
-                    case "8PB"://Knee Replacement
-                        drgResult.setDC("0803");
-                        break;
-                    case "8PC"://Other Major Joint Replacement & Limb Reattach of Lower/Upper Extremities
-                        drgResult.setDC("0804");
-                        break;
-                    case "8PG"://Biopsies of Musculoskeletal & Connective Tissue Disorders
-                        drgResult.setDC("0808");
-                        break;
-                    case "8PJ"://Hip and Femur Procedures Except Replacement
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                            drgResult.setDC("0810");
-                        } else {
-                            drgResult.setDC("0811");
-                        }
-                        break;
-                    case "8PH"://Skin Graft Except Hand for MS&CT
-                        if (Counter8QA > 0) {
-                            drgResult.setDC("0829");
-                        } else {
-                            drgResult.setDC("0809");
-                        }
-                        break;
-                    case "8PK"://Knee Procedures Except Replacement
-                        drgResult.setDC("0812");
-                        break;
-                    case "8PU"://Other Musculoskeletal System and Connective Tissue OR Procedures
-                        drgResult.setDC("0822");
-                        break;
-                    case "8QA"://Wound Debridement for MS&CT
-                        drgResult.setDC("0831");
-                        break;
-                    case "8PT"://Arthroscopy
-                        drgResult.setDC("0821");
-                        break;
-                    case "8PL"://Shoulder, Elbow & Forearm Procedures Except Replacement
-                        drgResult.setDC("0813");
-                        break;
-                    case "8PM"://Humerus, Tibia, Fibula & Ankle Procedures Except Replacement
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                            drgResult.setDC("0814");
-                        } else {
-                            drgResult.setDC("0815");
-                        }
-                        break;
-                    case "8QC"://Reattachment of Finger
-                        drgResult.setDC("0832");
-                        break;
-                    case "8PS"://Soft Tissue Procedures
-                        drgResult.setDC("0820");
-                        break;
-                    case "8PQ"://Local Excision & Removal of Internal Fixation Devices of Hip & Femur
-                        drgResult.setDC("0818");
-                        break;
-                    case "8PP"://Foot Procedures
-                        drgResult.setDC("0817");
-                        break;
-                    case "8PR"://Local Excision & Removal of Internal Fixation Devices Exc Hip & Femur
-                        drgResult.setDC("0819");
-                        break;
-                    case "8PN"://Wrist & Hand Procedures Except Replacement PDC 8PN 
-                        drgResult.setDC("0816");
-                        break;
-
-                }
-
+                MDC5Proc getMdcProc = this.mdcProcedure(
+                        drgResult.getPDC(),
+                        Counter8PH,
+                        grouperparameter.getBirthDate(),
+                        grouperparameter.getAdmissionDate(),
+                        Counter8QA);
+                drgResult.setDC(getMdcProc.getDC());
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
-
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
             } else {
-
-                switch (drgResult.getPDC()) {
-                    case "8E"://Pathological Fracture and Malignancy
-                        //Radio+Chemotherapy
-                        if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("0868");
-                            //Chemotherapy
-                        } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("0869");
-                            //Radiotherapy
-                        } else if (CartSDx > 0 && CartProc > 0) {
-                            drgResult.setDC("0870");
-                        } else if (Counter8PFX > 0) { //##Dx Procedure
-                            drgResult.setDC("0871");
-                        } else if (PBX99Proc > 0) {//Blood Transfusion
-                            drgResult.setDC("0872");
-                        } else {//Malignancy 
-                            drgResult.setDC("0854");
-                        }
-                        break;
-                    case "8A"://Fracture of Femur
-                        drgResult.setDC("0850");
-                        break;
-                    case "8B"://Fracture of Hip and Pelvis
-                        drgResult.setDC("0851");
-                        break;
-                    case "8C"://Sprain, Strain and Dislocation of Hip, Pelvis and Thigh
-                        drgResult.setDC("0852");
-                        break;
-                    case "8D"://Osteomyelitis
-                        drgResult.setDC("0853");
-                        break;
-                    case "8F"://Connective Tissue
-                        drgResult.setDC("0855");
-                        break;
-                    case "8G"://Septic Arthritis
-                        drgResult.setDC("0856");
-                        break;
-                    case "8H"://Medical Back Problems
-                        drgResult.setDC("0857");
-                        break;
-                    case "8J"://Bone Disease and Specific Arthropathies
-                        drgResult.setDC("0858");
-                        break;
-                    case "8K"://Nonspecific Arthropathies
-                        drgResult.setDC("0859");
-                        break;
-                    case "8L"://Signs and Symptoms
-                        drgResult.setDC("0860");
-                        break;
-                    case "8M"://Tendonitis, Myositis and Bursitis
-                        drgResult.setDC("0861");
-                        break;
-                    case "8N"://Aftercare
-                        drgResult.setDC("0862");
-                        break;
-                    case "8P"://Fracture, Sprain, Strain and Dislocation of Forearm, Hand and Foot
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                            drgResult.setDC("0863");
-                        } else {
-                            drgResult.setDC("0864");
-                        }
-                        break;
-                    case "8Q"://Fracture, Sprain, Strain and Dislocation of Forearm, Hand and Foot
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                            drgResult.setDC("0865");
-                        } else {
-                            drgResult.setDC("0866");
-                        }
-                        break;
-                    case "8R"://Other Musculoskeletal System and Connective Tissue Diagnoses
-                        drgResult.setDC("0867");
-                        break;
-                    case "8S"://Major Connective Tissue Dx PDC 8S
-                        drgResult.setDC("0873");
-                        break;
-                }
+                String dc = this.principalDaignosis(
+                        drgResult.getPDC(),
+                        CartSDx,
+                        CaCRxSDx,
+                        CartProc,
+                        CaCRxProc,
+                        Counter8PFX,
+                        PBX99Proc,
+                        grouperparameter.getDischargeType(),
+                        grouperparameter.getBirthDate(),
+                        grouperparameter.getAdmissionDate());
+                drgResult.setDC(dc);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -619,6 +229,280 @@ public class GetMDC08 {
             logger.error("Error in MDC8 Method : {}", ex.getMessage(), ex);
         }
         return result;
+
+    }
+
+    public MDC5Proc mdcProcedure(
+            final String pdc,
+            final Integer Counter8PH,
+            final String bdate,
+            final String admDate,
+            final Integer Counter8QA) {
+        MDC5Proc result = new MDC5Proc();
+        result.setPDC("");
+        result.setDC("");
+        result.setSdxfinder("");
+        //CHECKING FOR TRAUMA CODES
+        switch (pdc) {
+            case "8QE"://Plasmapheresis
+                result.setDC("0835");
+                break;
+            case "8QF"://Multiple (>4) Wound Debridement
+                result.setDC("0836");
+                break;
+            case "8QD":
+                result.setDC("0801");
+                break;
+            case "8QB"://Multiple (2-4) Wound Debridement
+                if (Counter8PH > 0) {
+                    result.setDC("0828");
+                } else {
+                    result.setDC("0830");
+                }
+                break;
+            case "8PD"://Spinal Fusion
+                result.setDC("0805");
+                break;
+            case "8PW"://Total Hip Revision
+                result.setDC("0824");
+                break;
+            case "8PF"://Amputation for Musculoskeletal & Connective Tissue Disorders
+                result.setDC("0807");
+                break;
+            case "8PZ"://Partial Hip Revision
+                result.setDC("0827");
+                break;
+            case "8PX"://Total Knee Revision
+                result.setDC("0825");
+                break;
+            case "8PY"://Partial Knee Revision
+                result.setDC("0826");
+                break;
+            case "8PA"://Hip Replacement
+                result.setDC("0802");
+                break;
+            case "8PV"://Partial Hip Replacement
+                result.setDC("0823");
+                break;
+            case "8PE"://Back & Neck Procedure Except Spinal Fusion
+                result.setDC("0806");
+                break;
+            case "8PB"://Knee Replacement
+                result.setDC("0803");
+                break;
+            case "8PC"://Other Major Joint Replacement & Limb Reattach of Lower/Upper Extremities
+                result.setDC("0804");
+                break;
+            case "8PG"://Biopsies of Musculoskeletal & Connective Tissue Disorders
+                result.setDC("0808");
+                break;
+            case "8PJ"://Hip and Femur Procedures Except Replacement
+                if (utility.ComputeYear(bdate, admDate) > 17) {
+                    result.setDC("0810");
+                } else {
+                    result.setDC("0811");
+                }
+                break;
+            case "8PH"://Skin Graft Except Hand for MS&CT
+                if (Counter8QA > 0) {
+                    result.setDC("0829");
+                } else {
+                    result.setDC("0809");
+                }
+                break;
+            case "8PK"://Knee Procedures Except Replacement
+                result.setDC("0812");
+                break;
+            case "8PU"://Other Musculoskeletal System and Connective Tissue OR Procedures
+                result.setDC("0822");
+                break;
+            case "8QA"://Wound Debridement for MS&CT
+                result.setDC("0831");
+                break;
+            case "8PT"://Arthroscopy
+                result.setDC("0821");
+                break;
+            case "8PL"://Shoulder, Elbow & Forearm Procedures Except Replacement
+                result.setDC("0813");
+                break;
+            case "8PM"://Humerus, Tibia, Fibula & Ankle Procedures Except Replacement
+                if (utility.ComputeYear(bdate, admDate) > 17) {
+                    result.setDC("0814");
+                } else {
+                    result.setDC("0815");
+                }
+                break;
+            case "8QC"://Reattachment of Finger
+                result.setDC("0832");
+                break;
+            case "8PS"://Soft Tissue Procedures
+                result.setDC("0820");
+                break;
+            case "8PQ"://Local Excision & Removal of Internal Fixation Devices of Hip & Femur
+                result.setDC("0818");
+                break;
+            case "8PP"://Foot Procedures
+                result.setDC("0817");
+                break;
+            case "8PR"://Local Excision & Removal of Internal Fixation Devices Exc Hip & Femur
+                result.setDC("0819");
+                break;
+            case "8PN"://Wrist & Hand Procedures Except Replacement PDC 8PN 
+                result.setDC("0816");
+                break;
+
+        }
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final Integer CartSDx,
+            final Integer CaCRxSDx,
+            final Integer CartProc,
+            final Integer CaCRxProc,
+            final Integer Counter8PFX,
+            final Integer PBX99Proc,
+            final String disChargeType,
+            final String bdate,
+            final String admDate) {
+        String dc = "";
+        switch (pdc) {
+            case "8E"://Pathological Fracture and Malignancy
+                //Radio+Chemotherapy
+                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
+                    dc = "0868";
+                    //Chemotherapy
+                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
+                    dc = "0869";
+                    //Radiotherapy
+                } else if (CartSDx > 0 && CartProc > 0) {
+                    dc = "0870";
+                } else if (Counter8PFX > 0) { //##Dx Procedure
+                    dc = "0871";
+                } else if (PBX99Proc > 0) {//Blood Transfusion
+                    dc = "0872";
+                } else {//Malignancy 
+                    dc = "0854";
+                }
+                break;
+            case "8A"://Fracture of Femur
+                dc = "0850";
+                break;
+            case "8B"://Fracture of Hip and Pelvis
+                dc = "0851";
+                break;
+            case "8C"://Sprain, Strain and Dislocation of Hip, Pelvis and Thigh
+                dc = "0852";
+                break;
+            case "8D"://Osteomyelitis
+                dc = "0853";
+                break;
+            case "8F"://Connective Tissue
+                dc = "0855";
+                break;
+            case "8G"://Septic Arthritis
+                dc = "0856";
+                break;
+            case "8H"://Medical Back Problems
+                dc = "0857";
+                break;
+            case "8J"://Bone Disease and Specific Arthropathies
+                dc = "0858";
+                break;
+            case "8K"://Nonspecific Arthropathies
+                dc = "0859";
+                break;
+            case "8L"://Signs and Symptoms
+                dc = "0860";
+                break;
+            case "8M"://Tendonitis, Myositis and Bursitis
+                dc = "0861";
+                break;
+            case "8N"://Aftercare
+                dc = "0862";
+                break;
+            case "8P"://Fracture, Sprain, Strain and Dislocation of Forearm, Hand and Foot
+                if (utility.ComputeYear(bdate,
+                        admDate) > 17) {
+                    dc = "0863";
+                } else {
+                    dc = "0864";
+                }
+                break;
+            case "8Q"://Fracture, Sprain, Strain and Dislocation of Forearm, Hand and Foot
+                if (utility.ComputeYear(bdate,
+                        admDate) > 17) {
+                    dc = "0865";
+                } else {
+                    dc = "0866";
+                }
+                break;
+            case "8R"://Other Musculoskeletal System and Connective Tissue Diagnoses
+                dc = "0867";
+                break;
+            case "8S"://Major Connective Tissue Dx PDC 8S
+                dc = "0873";
+                break;
+        }
+        return dc;
+
+    }
+
+    public class MDC5Proc {
+
+        private String PDC;
+        private String DC;
+        private String sdxfinder;
+
+        public String getPDC() {
+            return PDC;
+        }
+
+        public void setPDC(String PDC) {
+            this.PDC = PDC;
+        }
+
+        public String getDC() {
+            return DC;
+        }
+
+        public void setDC(String DC) {
+            this.DC = DC;
+        }
+
+        public String getSdxfinder() {
+            return sdxfinder;
+        }
+
+        public void setSdxfinder(String sdxfinder) {
+            this.sdxfinder = sdxfinder;
+        }
 
     }
 

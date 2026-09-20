@@ -101,7 +101,6 @@ public class GetMDC01 {
                 if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(a).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
-
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName, ProcedureList.get(a).trim(), mdcWithoutZeros, grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
@@ -122,7 +121,6 @@ public class GetMDC01 {
                     Counter1PBX++;
                 }
             }
-
             // THIS AREA WILL START STATEMENT TO FIND DC FOR MDC 1
             if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
@@ -144,339 +142,58 @@ public class GetMDC01 {
                         }
                     }
                     drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    switch (pdclist.get(hierarvalue.indexOf(min))) {
-                        case "1PK":   // drgResult.setDC("0116");
-                            if (checkAX.AX(datasource, SchemaName, "1BX", grouperparameter.getPdx()).isSuccess()) {
-                                drgResult.setDC("0112");
-                            } else {
-                                drgResult.setDC("0113");
-                            }
-                            break;
-                        case "1PL"://Plasmapheresis 
-                            drgResult.setDC("0117");
-                            break;
-                        case "1PH"://Intacranial Vasc
-                            if (EndoCounter > 0) {  // RECODE THIS AREA TO DOUBLE CHECK
-                                drgResult.setDC("0110");
-                            } else {
-                                if (checkAX.AX(datasource, SchemaName, "1CX", grouperparameter.getPdx()).isSuccess()) {
-                                    drgResult.setDC("0108");
-                                } else {
-                                    drgResult.setDC("0109");
-                                }
-                            }
-                            break;
-                        case "1PC"://SPINAL PROCEDURES
-                            drgResult.setDC("0103");
-                            break;
-                        case "1PB":  //Craniotomy
-                            if (checkAX.AX(datasource, SchemaName, "1BX", grouperparameter.getPdx()).isSuccess()) {
-                                drgResult.setDC("0101");
-                            } else {
-                                drgResult.setDC("0102");
-                            }
-                            break;
-                        case "1PJ": //Endovasc Procedures
-                            drgResult.setDC("0114");
-                            break;
-                        case "1PD": //Extracranial Vascular Procedures
-                            drgResult.setDC("0105");
-                            break;
-                        case "1PA": //Ventricular Shunt Revision
-                            drgResult.setDC("0104");
-                            break;
-                        case "1PF":
-                        case "1PG":  //Peripheral & Cranial Nerve & Other Nervous System Procedures
-                            drgResult.setDC("0106");
-                            break;
-                        case "1PE": //Carpal Tunnel Release
-                            drgResult.setDC("0107");
-                            break;
-                    }
-
+                    String getResult = this.mdcProcedure(
+                            drgResult.getPDC(),
+                            datasource,
+                            SchemaName,
+                            grouperparameter.getPdx(),
+                            EndoCounter);
+                    drgResult.setDC(getResult);
                 } else if (ORProcedureCounter > 0) {
-                    switch (Collections.max(ORProcedureCounterList)) {
-                        case 1:
-                            drgResult.setDC("2601");
-                            break;
-                        case 2:
-                            drgResult.setDC("2602");
-                            break;
-                        case 3:
-                            drgResult.setDC("2603");
-                            break;
-                        case 4:
-                            drgResult.setDC("2604");
-                            break;
-                        case 5:
-                            drgResult.setDC("2605");
-                            break;
-                        case 6:
-                            drgResult.setDC("2606");
-                            break;
-                    }
-
+                    String orProc = this.orProcedure(ORProcedureCounterList);
+                    drgResult.setDC(orProc);
                 } else {
-                    switch (drgResult.getPDC()) {
-                        case "1A"://Spinal Disorders and Injuries
-                            drgResult.setDC("0150");
-                            break;
-                        case "1B"://Cerebral Palsy
-                            drgResult.setDC("0151");
-                            break;
-                        case "1C":
-                            if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {//Radio+Chemotherapy
-                                drgResult.setDC("0170");
-                                //Chemotherapy
-                            } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("0171");
-                                //Radiotherapy
-                            } else if (CartSDx > 0 && CartProc > 0) {
-                                drgResult.setDC("0172");
-                            } else if (Counter1PBX > 0) { //##Dx Procedure
-                                drgResult.setDC("0173");
-                                //Radiotherapy
-                            } else if (PBX99Proc > 0) {//Blood Transfusion
-                                drgResult.setDC("0174");
-                            } else {
-                                drgResult.setDC("0152");
-                            }
-                            break;
-                        case "1D": {//Degenerative Disorders
-                            drgResult.setDC("0153");
-                            break;
-                        }
-                        case "1E": {//Multiple Sclerosis and Cerebellar Ataxia
-                            drgResult.setDC("0154");
-                            break;
-                        }
-                        case "1F"://Specific Cerebrovascular Disorders Except TIA
-                            if (grouperparameter.getDischargeType().equals("4")) {
-                                drgResult.setDC("0175");//Transfer
-                            } else {
-                                drgResult.setDC("0155");//Others
-                            }
-                            break;
-                        case "1G"://Transient Ischemic Attack and Precerebral Occlusions
-                            drgResult.setDC("0156");
-                            break;
-                        case "1H"://Nonspecific Cerebrovascular Diseases
-                            drgResult.setDC("0157");
-                            break;
-                        case "1J"://Cranial and Peripheral Nerve Disorders
-                            drgResult.setDC("0158");
-                            break;
-                        case "1K"://Infections Except Viral Meningitis 
-                            if (grouperparameter.getDischargeType().equals("4")) {
-                                drgResult.setDC("0176");
-                            } else {
-                                drgResult.setDC("0159");
-                            }
-                            break;
-                        case "1L"://Viral Meningitis
-                            drgResult.setDC("0160");
-                            break;
-                        case "1M"://Nontraumatic Stupor and Coma
-                            drgResult.setDC("0161");
-                            break;
-                        case "1N"://Febrile Convulsions
-                            drgResult.setDC("0162");
-                            break;
-                        case "1P"://Seizure Disorders
-                            drgResult.setDC("0163");
-                            break;
-                        case "1Q"://Headaches
-                            drgResult.setDC("0164");
-                            break;
-                        case "1R"://Intracranial Injury
-                            drgResult.setDC("0165");
-                            break;
-                        case "1S"://Skull Fractures
-                            drgResult.setDC("0166");
-                            break;
-                        case "1T"://Other Head Injury
-                            drgResult.setDC("0167");
-                            break;
-                        case "1U"://Other Disorders of Nervous System
-                            drgResult.setDC("0168");
-                            break;
-                        case "1V"://Guillain-Barre Syndrome 1V
-                            drgResult.setDC("0169");
-                            break;
-                    }
+                    String dc = this.principalDaignosis(
+                            drgResult.getPDC(),
+                            CartSDx,
+                            CaCRxSDx,
+                            CartProc,
+                            CaCRxProc,
+                            Counter1PBX,
+                            PBX99Proc,
+                            grouperparameter.getDischargeType());
+                    drgResult.setDC(dc);
 
                 }
-
             } else if (mdcprocedureCounter > 0) { //MDC Procedure
                 int min = hierarvalue.get(0);
-                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }
                 }
-
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "1PK":   // drgResult.setDC("0116");
-                        if (checkAX.AX(datasource, SchemaName, "1BX", grouperparameter.getPdx()).isSuccess()) {
-                            drgResult.setDC("0112");
-                        } else {
-                            drgResult.setDC("0113");
-                        }
-                        break;
-                    case "1PL"://Plasmapheresis 
-                        drgResult.setDC("0117");
-                        break;
-                    case "1PH"://Intacranial Vasc
-                        if (EndoCounter > 0) {  // RECODE THIS AREA TO DOUBLE CHECK
-                            drgResult.setDC("0110");
-                        } else {
-                            if (checkAX.AX(datasource, SchemaName, "1CX", grouperparameter.getPdx()).isSuccess()) {
-                                drgResult.setDC("0108");
-                            } else {
-                                drgResult.setDC("0109");
-                            }
-                        }
-                        break;
-                    case "1PC"://SPINAL PROCEDURES
-                        drgResult.setDC("0103");
-                        break;
-                    case "1PB":  //Craniotomy
-                        if (checkAX.AX(datasource, SchemaName, "1BX", grouperparameter.getPdx()).isSuccess()) {
-                            drgResult.setDC("0101");
-                        } else {
-                            drgResult.setDC("0102");
-                        }
-                        break;
-                    case "1PJ": //Endovasc Procedures
-                        drgResult.setDC("0114");
-                        break;
-                    case "1PD": //Extracranial Vascular Procedures
-                        drgResult.setDC("0105");
-                        break;
-                    case "1PA": //Ventricular Shunt Revision
-                        drgResult.setDC("0104");
-                        break;
-                    case "1PF":
-                    case "1PG":  //Peripheral & Cranial Nerve & Other Nervous System Procedures
-                        drgResult.setDC("0106");
-                        break;
-                    case "1PE": //Carpal Tunnel Release
-                        drgResult.setDC("0107");
-                        break;
-                }
-
+                String getResult = this.mdcProcedure(
+                        drgResult.getPDC(),
+                        datasource,
+                        SchemaName,
+                        grouperparameter.getPdx(),
+                        EndoCounter);
+                drgResult.setDC(getResult);
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
-
+                String orProc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(orProc);
             } else {
-                switch (drgResult.getPDC()) {
-                    case "1A":
-                        drgResult.setDC("0150");
-                        break;
-                    case "1B":
-                        drgResult.setDC("0151");
-                        break;
-                    case "1C":
-                        //Radio+Chemotherapy
-                        if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("0170");
-                            //Chemotherapy
-                        } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("0171");
-                            //Radiotherapy
-                        } else if (CartSDx > 0 && CartProc > 0) {
-                            drgResult.setDC("0172");
-                        } else if (Counter1PBX > 0) { //##Dx Procedure
-                            drgResult.setDC("0173");
-                            //Radiotherapy
-                        } else if (PBX99Proc > 0) {//Blood Transfusion
-                            drgResult.setDC("0174");
-                        } else {
-                            drgResult.setDC("0152");
-                        }
-                        break;
-                    case "1D"://Degenerative Disorders
-                        drgResult.setDC("0153");
-                        break;
-                    case "1E"://Multiple Sclerosis and Cerebellar Ataxia
-                        drgResult.setDC("0154");
-                        break;
-                    case "1F"://Specific Cerebrovascular Disorders Except TIA
-                        if (grouperparameter.getDischargeType().equals("4")) {
-                            drgResult.setDC("0175");//Transfer
-                        } else {
-                            drgResult.setDC("0155");//Others
-                        }
-                        break;
-                    case "1G"://Transient Ischemic Attack and Precerebral Occlusions
-                        drgResult.setDC("0156");
-                        break;
-                    case "1H"://Nonspecific Cerebrovascular Diseases
-                        drgResult.setDC("0157");
-                        break;
-                    case "1J"://Cranial and Peripheral Nerve Disorders
-                        drgResult.setDC("0158");
-                        break;
-                    case "1K"://Infections Except Viral Meningitis
-                        if (grouperparameter.getDischargeType().equals("4")) {
-                            drgResult.setDC("0176");
-                        } else {
-                            drgResult.setDC("0159");
-                        }
-                        break;
-                    case "1L"://Viral Meningitis
-                        drgResult.setDC("0160");
-                        break;
-                    case "1M"://Nontraumatic Stupor and Coma
-                        drgResult.setDC("0161");
-                        break;
-                    case "1N"://Febrile Convulsions
-                        drgResult.setDC("0162");
-                        break;
-                    case "1P"://Seizure Disorders
-                        drgResult.setDC("0163");
-                        break;
-                    case "1Q"://Headaches
-                        drgResult.setDC("0164");
-                        break;
-                    case "1R"://Intracranial Injury
-                        drgResult.setDC("0165");
-                        break;
-                    case "1S"://Skull Fractures
-                        drgResult.setDC("0166");
-                        break;
-                    case "1T"://Other Head Injury
-                        drgResult.setDC("0167");
-                        break;
-                    case "1U"://Other Disorders of Nervous System
-                        drgResult.setDC("0168");
-                        break;
-                    case "1V"://Guillain-Barre Syndrome 1V
-                        drgResult.setDC("0169");
-                        break;
-                }
+                String dc = this.principalDaignosis(
+                        drgResult.getPDC(),
+                        CartSDx,
+                        CaCRxSDx,
+                        CartProc,
+                        CaCRxProc,
+                        Counter1PBX,
+                        PBX99Proc,
+                        grouperparameter.getDischargeType());
+                drgResult.setDC(dc);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -493,7 +210,189 @@ public class GetMDC01 {
             logger.error("Error in MDC1 Method : {}", ex.getMessage(), ex);
         }
         return result;
-
     }
 
+    public String principalDaignosis(
+            final String pdc,
+            final Integer CartSDx,
+            final Integer CaCRxSDx,
+            final Integer CartProc,
+            final Integer CaCRxProc,
+            final Integer Counter1PBX,
+            final Integer PBX99Proc,
+            final String discharge) {
+        String dc = "";
+        switch (pdc) {
+            case "1A":
+                dc = "0150";
+                break;
+            case "1B":
+                dc = "0151";
+                break;
+            case "1C":
+                //Radio+Chemotherapy
+                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
+                    dc = "0170";
+                    //Chemotherapy
+                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
+                    dc = "0171";
+                    //Radiotherapy
+                } else if (CartSDx > 0 && CartProc > 0) {
+                    dc = "0172";
+                } else if (Counter1PBX > 0) { //##Dx Procedure
+                    dc = "0173";
+                    //Radiotherapy
+                } else if (PBX99Proc > 0) {//Blood Transfusion
+                    dc = "0174";
+                } else {
+                    dc = "0152";
+                }
+                break;
+            case "1D"://Degenerative Disorders
+                dc = "0153";
+                break;
+            case "1E"://Multiple Sclerosis and Cerebellar Ataxia
+                dc = "0154";
+                break;
+            case "1F"://Specific Cerebrovascular Disorders Except TIA
+                if (discharge.equals("4")) {
+                    dc = "0175";//Transfer
+                } else {
+                    dc = "0155";//Others
+                }
+                break;
+            case "1G"://Transient Ischemic Attack and Precerebral Occlusions
+                dc = "0156";
+                break;
+            case "1H"://Nonspecific Cerebrovascular Diseases
+                dc = "0157";
+                break;
+            case "1J"://Cranial and Peripheral Nerve Disorders
+                dc = "0158";
+                break;
+            case "1K"://Infections Except Viral Meningitis
+                if (discharge.equals("4")) {
+                    dc = "0176";
+                } else {
+                    dc = "0159";
+                }
+                break;
+            case "1L"://Viral Meningitis
+                dc = "0160";
+                break;
+            case "1M"://Nontraumatic Stupor and Coma
+                dc = "0161";
+                break;
+            case "1N"://Febrile Convulsions
+                dc = "0162";
+                break;
+            case "1P"://Seizure Disorders
+                dc = "0163";
+                break;
+            case "1Q"://Headaches
+                dc = "0164";
+                break;
+            case "1R"://Intracranial Injury
+                dc = "0165";
+                break;
+            case "1S"://Skull Fractures
+                dc = "0166";
+                break;
+            case "1T"://Other Head Injury
+                dc = "0167";
+                break;
+            case "1U"://Other Disorders of Nervous System
+                dc = "0168";
+                break;
+            case "1V"://Guillain-Barre Syndrome 1V
+                dc = "0169";
+                break;
+        }
+        return dc;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String mdcProcedure(
+            final String pdc,
+            final DataSource dataSource,
+            final String SchemaName,
+            final String pdx,
+            final Integer EndoCounter) {
+        String result = "";
+        AX checkAX = new AX();
+        switch (pdc) {
+            case "1PK":   // drgResult.setDC("0116");
+                if (checkAX.AX(dataSource, SchemaName, "1BX", pdx).isSuccess()) {
+                    result = "0112";
+                } else {
+                    result = "0113";
+                }
+                break;
+            case "1PL"://Plasmapheresis 
+                result = "0117";
+                break;
+            case "1PH"://Intacranial Vasc
+                if (EndoCounter > 0) {  // RECODE THIS AREA TO DOUBLE CHECK
+                    result = "0110";
+                } else {
+                    if (checkAX.AX(dataSource, SchemaName, "1CX", pdx).isSuccess()) {
+                        result = "0108";
+                    } else {
+                        result = "0109";;
+                    }
+                }
+                break;
+            case "1PC"://SPINAL PROCEDURES
+                result = "0103";
+                break;
+            case "1PB":  //Craniotomy
+                if (checkAX.AX(dataSource, SchemaName, "1BX", pdx).isSuccess()) {
+                    result = "0101";
+                } else {
+                    result = "0102";
+                }
+                break;
+            case "1PJ": //Endovasc Procedures
+                result = "0114";
+                break;
+            case "1PD": //Extracranial Vascular Procedures
+                result = "0105";
+                break;
+            case "1PA": //Ventricular Shunt Revision
+                result = "0104";
+                break;
+            case "1PF":
+            case "1PG":  //Peripheral & Cranial Nerve & Other Nervous System Procedures
+                result = "0106";
+                break;
+            case "1PE": //Carpal Tunnel Release
+                result = "0107";
+                break;
+        }
+        return result;
+    }
 }
