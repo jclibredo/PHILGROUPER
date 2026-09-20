@@ -63,7 +63,6 @@ public class GetMDC16 {
             AX getAx = new AX();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
-
                 //AX 16PBX Checking
                 if (getAx.AX(datasource, SchemaName, "16PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter16PBX++;
@@ -116,68 +115,14 @@ public class GetMDC16 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        switch (pdclist.get(hierarvalue.indexOf(min))) {
-                            case "16PA"://Splenectomy
-                                drgResult.setDC("1601");
-                                break;
-                            case "16PB"://Major OR Procedures for Blood and Blood Forming Organs Except Splenectomy
-                                drgResult.setDC("1602");
-                                break;
-                            case "16PC"://Minor OR Procedures PDC 16PC
-                                drgResult.setDC("1603");
-                                break;
-                        }
-
+                        String dc = this.mdcProcedure(drgResult.getPDC());
+                        drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 1:
-                                drgResult.setDC("2601");
-                                break;
-                            case 2:
-                                drgResult.setDC("2602");
-                                break;
-                            case 3:
-                                drgResult.setDC("2603");
-                                break;
-                            case 4:
-                                drgResult.setDC("2604");
-                                break;
-                            case 5:
-                                drgResult.setDC("2605");
-                                break;
-                            case 6:
-                                drgResult.setDC("2606");
-                                break;
-                        }
-
+                        String dc = this.orProcedure(ORProcedureCounterList);
+                        drgResult.setDC(dc);
                     } else {
-                        switch (drgResult.getPDC()) {
-                            case "16A"://Red Blood Cell Disorders
-                                if (PBXCounter99 > 0) {
-                                    drgResult.setDC("1653");
-                                } else {
-                                    drgResult.setDC("1650");
-                                }
-                                break;
-                            case "16B"://Coagulation Disorders
-                                if (Counter16PBX > 0) {
-                                    drgResult.setDC("1654");
-                                } else {
-                                    if (PBXCounter99 > 0) {
-                                        drgResult.setDC("1655");
-                                    } else {
-                                        drgResult.setDC("1651");
-                                    }
-                                }
-                                break;
-                            case "16C"://Reticuloendothelial and Immunity Disorders
-                                if (PBXCounter99 > 0) {
-                                    drgResult.setDC("1656");
-                                } else {
-                                    drgResult.setDC("1652");
-                                }
-                                break;
-                        }
+                        String dc = this.principalDaignosis(drgResult.getPDC(), PBXCounter99, Counter16PBX);
+                        drgResult.setDC(dc);
                     }
                 } else {
                     if (PCXCounter99 > 0) {
@@ -196,68 +141,14 @@ public class GetMDC16 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "16PA"://Splenectomy
-                        drgResult.setDC("1601");
-                        break;
-                    case "16PB"://Major OR Procedures for Blood and Blood Forming Organs Except Splenectomy
-                        drgResult.setDC("1602");
-                        break;
-                    case "16PC"://Minor OR Procedures PDC 16PC
-                        drgResult.setDC("1603");
-                        break;
-                }
-
+                String dc = this.mdcProcedure(drgResult.getPDC());
+                drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
             } else {
-                switch (drgResult.getPDC()) {
-                    case "16A"://Red Blood Cell Disorders
-                        if (PBXCounter99 > 0) {
-                            drgResult.setDC("1653");
-                        } else {
-                            drgResult.setDC("1650");
-                        }
-                        break;
-                    case "16B"://Coagulation Disorders
-                        if (Counter16PBX > 0) {
-                            drgResult.setDC("1654");
-                        } else {
-                            if (PBXCounter99 > 0) {
-                                drgResult.setDC("1655");
-                            } else {
-                                drgResult.setDC("1651");
-                            }
-                        }
-                        break;
-                    case "16C"://Reticuloendothelial and Immunity Disorders
-                        if (PBXCounter99 > 0) {
-                            drgResult.setDC("1656");
-                        } else {
-                            drgResult.setDC("1652");
-                        }
-                        break;
-                }
-
+                String dc = this.principalDaignosis(drgResult.getPDC(), PBXCounter99, Counter16PBX);
+                drgResult.setDC(dc);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -274,6 +165,84 @@ public class GetMDC16 {
             logger.error("Error in MDC16 Method : {}", ex.getMessage(), ex);
         }
         return result;
+
+    }
+
+    public String mdcProcedure(
+            final String pdc) {
+        String result = "";
+        switch (pdc.toUpperCase()) {
+            case "16PA"://Splenectomy
+                result = "1601";
+                break;
+            case "16PB"://Major OR Procedures for Blood and Blood Forming Organs Except Splenectomy
+                result = "1602";
+                break;
+            case "16PC"://Minor OR Procedures PDC 16PC
+                result = "1603";
+                break;
+        }
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final Integer PBXCounter99,
+            final Integer Counter16PBX) {
+        String dc = "";
+        switch (pdc.toUpperCase()) {
+            case "16A"://Red Blood Cell Disorders
+                if (PBXCounter99 > 0) {
+                    dc = "1653";
+                } else {
+                    dc = "1650";
+                }
+                break;
+            case "16B"://Coagulation Disorders
+                if (Counter16PBX > 0) {
+                    dc = "1654";
+                } else {
+                    if (PBXCounter99 > 0) {
+                        dc = "1655";
+                    } else {
+                        dc = "1651";;
+                    }
+                }
+                break;
+            case "16C"://Reticuloendothelial and Immunity Disorders
+                if (PBXCounter99 > 0) {
+                    dc = "1656";
+                } else {
+                    dc = "1652";
+                }
+                break;
+        }
+        return dc;
 
     }
 

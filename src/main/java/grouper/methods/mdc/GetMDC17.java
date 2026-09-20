@@ -19,6 +19,7 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
@@ -54,18 +55,14 @@ public class GetMDC17 {
             //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
-//            int PBXCounter99 = 0;
             int Counter17PBX = 0;
             int ORProcedureCounter = 0;
-//            int mdcprocedureCounter = 0;
             int CartSDx = 0;
             int CaCRxSDx = 0;
             int CartProc = 0;
             int CaCRxProc = 0;
             int PBX99Proc = 0;
             int Counter17PA = 0;
-//            String PBX17 = "17PBX";
-//            String PA17 = "17PA";
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
@@ -74,43 +71,21 @@ public class GetMDC17 {
                 if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "17PA", mdcWithoutZeros).isSuccess()) {
                     Counter17PA++;
                 }
-//                if (utility.isValid99PEX(ProcedureList.get(x).trim())) {
-//                    CartProc++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PEX", ProcedureList.get(x).trim()).isSuccess()) {
                     CartProc++;
                 }
-//                if (utility.isValid99PFX(ProcedureList.get(x).trim())) {
-//                    CaCRxProc++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PFX", ProcedureList.get(x).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-//                if (utility.isValid99PBX(ProcedureList.get(x).trim())) { //Blood Transfusion AX 99PBX
-//                    PBX99Proc++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
                 if (getAx.AX(datasource, SchemaName, "17PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter17PBX++;
                 }
-
-                //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
-                //AX 99PBX Checking
-//                if (utility.isValid99PBX(proc)) {
-//                    PBXCounter99++;
-//                }
-                //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
-//                    PCXCounter99++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
@@ -123,7 +98,6 @@ public class GetMDC17 {
                         ProcedureList.get(x).trim(),
                         mdcWithoutZeros,
                         grouperparameter.getGender()).isSuccess()) {
-//                    mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(mdcProcedureRes.MDCProcedure(datasource, SchemaName,
                             ProcedureList.get(x).trim(),
                             mdcWithoutZeros,
@@ -150,86 +124,17 @@ public class GetMDC17 {
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
-                    switch (drgResult.getPDC()) {
-                        case "17A"://Acute Leukemia
-                            if (ORProcedureCounter > 0) {
-                                if (Counter17PA > 0) {
-                                    drgResult.setDC("1701");
-                                } else {
-                                    drgResult.setDC("1703");
-                                }
-                            } else {
-                                //Radio+Chemotherapy
-                                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1756");
-                                    //Chemotherapy
-                                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1757");
-                                    //Radiotherapy
-                                } else if (CartSDx > 0 && CartProc > 0) {
-                                    drgResult.setDC("1758");
-                                } else if (Counter17PBX > 0) { //##Dx Procedure
-                                    drgResult.setDC("1759");
-                                } else if (PBX99Proc > 0) {//Blood Transfusion
-                                    drgResult.setDC("1760");
-                                } else {//Malignancy 
-                                    drgResult.setDC("1750");
-                                }
-                            }
-                            break;
-                        case "17B"://Lymphoma & Non-acute Leukemia
-                            if (ORProcedureCounter > 0) {
-                                if (Counter17PA > 0) {
-                                    drgResult.setDC("1701");
-                                } else {
-                                    drgResult.setDC("1703");
-                                }
-                            } else {
-                                //Radio+Chemotherapy
-                                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1761");
-                                    //Chemotherapy
-                                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1762");
-                                    //Radiotherapy
-                                } else if (CartSDx > 0 && CartProc > 0) {
-                                    drgResult.setDC("1763");
-                                } else if (Counter17PBX > 0) { //##Dx Procedure
-                                    drgResult.setDC("1764");
-                                } else if (PBX99Proc > 0) {//Blood Transfusion
-                                    drgResult.setDC("1765");
-                                } else {//Malignancy 
-                                    drgResult.setDC("1751");
-                                }
-                            }
-                            break;
-                        case "17C"://Other Neoplastic Disorders PDC 17C
-                            if (ORProcedureCounter > 0) {
-                                if (Counter17PA > 0) {
-                                    drgResult.setDC("1702");
-                                } else {
-                                    drgResult.setDC("1704");
-                                }
-                            } else {
-                                //Radio+Chemotherapy
-                                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1766");
-                                    //Chemotherapy
-                                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1767");
-                                    //Radiotherapy
-                                } else if (CartSDx > 0 && CartProc > 0) {
-                                    drgResult.setDC("1768");
-                                } else if (Counter17PBX > 0) { //##Dx Procedure
-                                    drgResult.setDC("1769");
-                                } else if (PBX99Proc > 0) {//Blood Transfusion
-                                    drgResult.setDC("1770");
-                                } else {//Malignancy 
-                                    drgResult.setDC("1752");
-                                }
-                            }
-                            break;
-                    }
+                    String dc = this.principalDaignosis(
+                            drgResult.getPDC(),
+                            ORProcedureCounter,
+                            Counter17PA,
+                            CartSDx,
+                            CaCRxSDx,
+                            CartProc,
+                            CaCRxProc,
+                            Counter17PBX,
+                            PBX99Proc);
+                    drgResult.setDC(dc);
                 } else {
                     if (PCXCounter99 > 0) {
                         drgResult.setDC("1705");
@@ -238,86 +143,17 @@ public class GetMDC17 {
                     }
                 }
             } else {
-                switch (drgResult.getPDC()) {
-                    case "17A"://Acute Leukemia
-                        if (ORProcedureCounter > 0) {
-                            if (Counter17PA > 0) {
-                                drgResult.setDC("1701");
-                            } else {
-                                drgResult.setDC("1703");
-                            }
-                        } else {
-                            //Radio+Chemotherapy
-                            if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1756");
-                                //Chemotherapy
-                            } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1757");
-                                //Radiotherapy
-                            } else if (CartSDx > 0 && CartProc > 0) {
-                                drgResult.setDC("1758");
-                            } else if (Counter17PBX > 0) { //##Dx Procedure
-                                drgResult.setDC("1759");
-                            } else if (PBX99Proc > 0) {//Blood Transfusion
-                                drgResult.setDC("1760");
-                            } else {//Malignancy 
-                                drgResult.setDC("1750");
-                            }
-                        }
-                        break;
-                    case "17B"://Lymphoma & Non-acute Leukemia
-                        if (ORProcedureCounter > 0) {
-                            if (Counter17PA > 0) {
-                                drgResult.setDC("1701");
-                            } else {
-                                drgResult.setDC("1703");
-                            }
-                        } else {
-                            //Radio+Chemotherapy
-                            if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1761");
-                                //Chemotherapy
-                            } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1762");
-                                //Radiotherapy
-                            } else if (CartSDx > 0 && CartProc > 0) {
-                                drgResult.setDC("1763");
-                            } else if (Counter17PBX > 0) { //##Dx Procedure
-                                drgResult.setDC("1764");
-                            } else if (PBX99Proc > 0) {//Blood Transfusion
-                                drgResult.setDC("1765");
-                            } else {//Malignancy 
-                                drgResult.setDC("1751");
-                            }
-                        }
-                        break;
-                    case "17C"://Other Neoplastic Disorders PDC 17C
-                        if (ORProcedureCounter > 0) {
-                            if (Counter17PA > 0) {
-                                drgResult.setDC("1702");
-                            } else {
-                                drgResult.setDC("1704");
-                            }
-                        } else {
-                            //Radio+Chemotherapy
-                            if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1766");
-                                //Chemotherapy
-                            } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1767");
-                                //Radiotherapy
-                            } else if (CartSDx > 0 && CartProc > 0) {
-                                drgResult.setDC("1768");
-                            } else if (Counter17PBX > 0) { //##Dx Procedure
-                                drgResult.setDC("1769");
-                            } else if (PBX99Proc > 0) {//Blood Transfusion
-                                drgResult.setDC("1770");
-                            } else {//Malignancy 
-                                drgResult.setDC("1752");
-                            }
-                        }
-                        break;
-                }
+                String dc = this.principalDaignosis(
+                        drgResult.getPDC(),
+                        ORProcedureCounter,
+                        Counter17PA,
+                        CartSDx,
+                        CaCRxSDx,
+                        CartProc,
+                        CaCRxProc,
+                        Counter17PBX,
+                        PBX99Proc);
+                drgResult.setDC(dc);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -334,6 +170,101 @@ public class GetMDC17 {
             logger.error("Error in MDC17 Method : {}", ex.getMessage(), ex);
         }
         return result;
+
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final Integer ORProcedureCounter,
+            final Integer Counter17PA,
+            final Integer CartSDx,
+            final Integer CaCRxSDx,
+            final Integer CartProc,
+            final Integer CaCRxProc,
+            final Integer Counter17PBX,
+            final Integer PBX99Proc) {
+        String dc = "";
+        switch (pdc.toUpperCase()) {
+            case "17A"://Acute Leukemia
+                if (ORProcedureCounter > 0) {
+                    if (Counter17PA > 0) {
+                        dc = "1701";
+                    } else {
+                        dc = "1703";
+                    }
+                } else {
+                    //Radio+Chemotherapy
+                    if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
+                        dc = "1756";
+                        //Chemotherapy
+                    } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
+                        dc = "1757";
+                        //Radiotherapy
+                    } else if (CartSDx > 0 && CartProc > 0) {
+                        dc = "1758";
+                    } else if (Counter17PBX > 0) { //##Dx Procedure
+                        dc = "1759";
+                    } else if (PBX99Proc > 0) {//Blood Transfusion
+                        dc = "1760";
+                    } else {//Malignancy 
+                        dc = "1750";
+                    }
+                }
+                break;
+            case "17B"://Lymphoma & Non-acute Leukemia
+                if (ORProcedureCounter > 0) {
+                    if (Counter17PA > 0) {
+                        dc = "1701";
+                    } else {
+                        dc = "1703";
+                    }
+                } else {
+                    //Radio+Chemotherapy
+                    if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
+                        dc = "1761";
+                        //Chemotherapy
+                    } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
+                        dc = "1762";
+                        //Radiotherapy
+                    } else if (CartSDx > 0 && CartProc > 0) {
+                        dc = "1763";
+                    } else if (Counter17PBX > 0) { //##Dx Procedure
+                        dc = "1764";
+                    } else if (PBX99Proc > 0) {//Blood Transfusion
+                        dc = "1765";
+                    } else {//Malignancy 
+                        dc = "1751";
+                    }
+                }
+                break;
+            case "17C"://Other Neoplastic Disorders PDC 17C
+                if (ORProcedureCounter > 0) {
+                    if (Counter17PA > 0) {
+                        dc = "1702";
+                    } else {
+                        dc = "1704";
+                    }
+                } else {
+                    //Radio+Chemotherapy
+                    if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
+                        dc = "1766";
+                        //Chemotherapy
+                    } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
+                        dc = "1767";
+                        //Radiotherapy
+                    } else if (CartSDx > 0 && CartProc > 0) {
+                        dc = "1768";
+                    } else if (Counter17PBX > 0) { //##Dx Procedure
+                        dc = "1769";
+                    } else if (PBX99Proc > 0) {//Blood Transfusion
+                        dc = "1770";
+                    } else {//Malignancy 
+                        dc = "1752";
+                    }
+                }
+                break;
+        }
+        return dc;
 
     }
 

@@ -37,11 +37,10 @@ public class GetMDC12 {
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC12(
-            final DataSource datasource, 
-            final String SchemaName, 
-            final DRGOutput drgResult, 
-            final GrouperParameter 
-                    grouperparameter) {
+            final DataSource datasource,
+            final String SchemaName,
+            final DRGOutput drgResult,
+            final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
@@ -102,58 +101,33 @@ public class GetMDC12 {
 
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y);
-//                if (utility.isValid99PDX(procS.trim())) {
-//                    PDXCounter99++;
-//                }
-                if (axRest.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99PDX", procS.trim()).isSuccess()) {
                     PDXCounter99++;
                 }
-
                 //AX 99PCX Checking
-//                if (utility.isValid99PCX(procS.trim())) {
-//                    PCXCounter99++;
-//                }
-                if (axRest.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99PCX", procS.trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-//                if (utility.isValid99PEX(procS.trim())) {
-//                    CartProc++;
-//                }
-                if (axRest.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99PEX", procS.trim()).isSuccess()) {
                     CartProc++;
                 }
-//                if (utility.isValid99PFX(procS.trim())) {
-//                    CaCRxProc++;
-//                }
-                if (axRest.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99PFX", procS.trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-
-                DRGWSResult Result12PBX = axRest.AX(datasource, SchemaName, "12PBX", ProcedureList.get(y).trim());
+                DRGWSResult Result12PBX = axRest.AX(datasource, SchemaName, "12PBX", procS.trim());
                 if (Result12PBX.isSuccess()) {
                     PBX12Proc++;
                 }
-
-//                if (utility.isValid99PBX(procS.trim())) {
-//                    PBX99Proc++;
-//                }
-                if (axRest.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99PBX", procS.trim()).isSuccess()) {
                     PBX99Proc++;
                 }
             }
-
             //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
-//                if (utility.isValid99BX(Secon.trim())) {
-//                    CartSDx++;
-//                }
                 if (axRest.AX(datasource, SchemaName, "99BX", Secon.trim()).isSuccess()) {
                     CartSDx++;
                 }
-//                if (utility.isValid99CX(Secon.trim())) {
-//                    CaCRxSDx++;
-//                }
                 if (axRest.AX(datasource, SchemaName, "99CX", Secon.trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
@@ -171,196 +145,51 @@ public class GetMDC12 {
 
                 } else if (mdcprocedureCounter > 0) { //MDC Procedure
                     int min = hierarvalue.get(0);
-                    //Loop through the array  
                     for (int i = 0; i < hierarvalue.size(); i++) {
-                        //Compare elements of array with min  
                         if (hierarvalue.get(i) < min) {
                             min = hierarvalue.get(i);
                         }
                     }
-
                     drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    switch (pdclist.get(hierarvalue.indexOf(min))) {
-                        case "12PA":   //1Major Male Pelvic Procedures
-                            drgResult.setDC("1201");
-                            break;
-                        case "12PB"://Transurethral Prostatectomy
-                            drgResult.setDC("1202");
-                            break;
-                        case "12PD"://Penis Procedures
-                            drgResult.setDC("1204");
-                            break;
-                        case "12PF"://Other Male Reproductive System OR Procedures
-                            if (MalignantCount > 0) {
-                                drgResult.setDC("1206");
-                            } else {
-                                drgResult.setDC("1207");
-                            }
-                            break;
-                        case "12PC":  //Testis Procedures
-                            drgResult.setDC("1203");
-                            break;
-                        case "12PG": //1Cystourethroscopy
-                            drgResult.setDC("1208");
-                            break;
-                        case "12PE"://Circumcision 12PE
-                            drgResult.setDC("1205");
-                            break;
-                    }
-
+                    String dc = this.mdcProcedure(pdc12A, MalignantCount);
+                    drgResult.setDC(dc);
                 } else if (ORProcedureCounter > 0) {
-                    switch (Collections.max(ORProcedureCounterList)) {
-                        case 1:
-                            drgResult.setDC("2601");
-                            break;
-                        case 2:
-                            drgResult.setDC("2602");
-                            break;
-                        case 3:
-                            drgResult.setDC("2603");
-                            break;
-                        case 4:
-                            drgResult.setDC("2604");
-                            break;
-                        case 5:
-                            drgResult.setDC("2605");
-                            break;
-                        case 6:
-                            drgResult.setDC("2606");
-                            break;
-                    }
-
+                    String dc = this.orProcedure(ORProcedureCounterList);
+                    drgResult.setDC(dc);
                 } else {
-                    switch (drgResult.getPDC()) {
-                        case "12A":
-                            //Radio+Chemotherapy
-                            if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1255");
-                                //Chemotherapy
-                            } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                drgResult.setDC("1256");
-                                //Radiotherapy
-                            } else if (CartSDx > 0 && CartProc > 0) {
-                                drgResult.setDC("1257");
-                            } else if (PBX12Proc > 0) { //##Dx Procedure
-                                drgResult.setDC("1258");
-                                //Radiotherapy
-                            } else if (PBX99Proc > 0) {//Blood Transfusion
-                                drgResult.setDC("1259");
-                            } else {
-                                drgResult.setDC("1250");
-                            }
-                            break;
-                        case "12B": //#Benign prostatic hypertrophy
-                            drgResult.setDC("1251");
-                            break;
-                        case "12C": //#Inflammation of male reproductive system
-                            drgResult.setDC("1252");
-                            break;
-                        case "12D": //#Inflammation of male reproductive system
-                            drgResult.setDC("1253");
-                            break;
-                        case "12E"://##Other male reproductive system diagnoses 12E
-                            drgResult.setDC("1254");
-                            break;
-                    }
-
+                    String dc = this.principalDaignosis(
+                            drgResult.getPDC(),
+                            CartSDx,
+                            CaCRxSDx,
+                            CartProc,
+                            CaCRxProc,
+                            PBX12Proc,
+                            PBX99Proc);
+                    drgResult.setDC(dc);
                 }
-
             } else if (mdcprocedureCounter > 0) { //MDC Procedure
                 int min = hierarvalue.get(0);
-                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "12PA":   //1Major Male Pelvic Procedures
-                        drgResult.setDC("1201");
-                        break;
-                    case "12PB"://Transurethral Prostatectomy
-                        drgResult.setDC("1202");
-                        break;
-                    case "12PD"://Penis Procedures
-                        drgResult.setDC("1204");
-                        break;
-                    case "12PF"://Other Male Reproductive System OR Procedures
-                        if (MalignantCount > 0) {
-                            drgResult.setDC("1206");
-                        } else {
-                            drgResult.setDC("1207");
-                        }
-                        break;
-                    case "12PC":  //Testis Procedures
-                        drgResult.setDC("1203");
-                        break;
-                    case "12PG": //1Cystourethroscopy
-                        drgResult.setDC("1208");
-                        break;
-                    case "12PE"://Circumcision 12PE
-                        drgResult.setDC("1205");
-                        break;
-                }
-
+                String dc = this.mdcProcedure(pdc12A, MalignantCount);
+                drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
-
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
             } else {
-                switch (drgResult.getPDC()) {
-                    case "12A":
-                        //Radio+Chemotherapy
-                        if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("1255");
-                            //Chemotherapy
-                        } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("1256");
-                            //Radiotherapy
-                        } else if (CartSDx > 0 && CartProc > 0) {
-                            drgResult.setDC("1257");
-                        } else if (PBX12Proc > 0) { //##Dx Procedure
-                            drgResult.setDC("1258");
-                            //Radiotherapy
-                        } else if (PBX99Proc > 0) {//Blood Transfusion
-                            drgResult.setDC("1259");
-                        } else {
-                            drgResult.setDC("1250");
-                        }
-                        break;
-                    case "12B": //#Benign prostatic hypertrophy
-                        drgResult.setDC("1251");
-                        break;
-                    case "12C": //#Inflammation of male reproductive system
-                        drgResult.setDC("1252");
-                        break;
-                    case "12D": //#Inflammation of male reproductive system
-                        drgResult.setDC("1253");
-                        break;
-                    case "12E"://##Other male reproductive system diagnoses 12E
-                        drgResult.setDC("1254");
-                        break;
-                }
+                String dc = this.principalDaignosis(
+                        drgResult.getPDC(),
+                        CartSDx,
+                        CaCRxSDx,
+                        CartProc,
+                        CaCRxProc,
+                        PBX12Proc,
+                        PBX99Proc);
+                drgResult.setDC(dc);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //  DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -377,6 +206,111 @@ public class GetMDC12 {
             logger.error("Error in MDC12 Method : {}", ex.getMessage(), ex);
         }
         return result;
+
+    }
+
+    public String mdcProcedure(
+            final String pdc,
+            final Integer MalignantCount) {
+        String result = "";
+        switch (pdc.toUpperCase()) {
+            case "12PA":   //1Major Male Pelvic Procedures
+                result = "1201";
+                break;
+            case "12PB"://Transurethral Prostatectomy
+                result = "1202";
+                break;
+            case "12PD"://Penis Procedures
+                result = "1204";
+                break;
+            case "12PF"://Other Male Reproductive System OR Procedures
+                if (MalignantCount > 0) {
+                    result = "1206";
+                } else {
+                    result = "1207";
+                }
+                break;
+            case "12PC":  //Testis Procedures
+                result = "1203";
+                break;
+            case "12PG": //1Cystourethroscopy
+                result = "1208";
+                break;
+            case "12PE"://Circumcision 12PE
+                result = "1205";
+                break;
+        }
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final Integer CartSDx,
+            final Integer CaCRxSDx,
+            final Integer CartProc,
+            final Integer CaCRxProc,
+            final Integer PBX12Proc,
+            final Integer PBX99Proc) {
+        String dc = "";
+        switch (pdc.toUpperCase()) {
+            case "12A":
+                //Radio+Chemotherapy
+                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
+                    dc = "1255";
+                    //Chemotherapy
+                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
+                    dc = "1256";
+                    //Radiotherapy
+                } else if (CartSDx > 0 && CartProc > 0) {
+                    dc = "1257";
+                } else if (PBX12Proc > 0) { //##Dx Procedure
+                    dc = "1258";
+                    //Radiotherapy
+                } else if (PBX99Proc > 0) {//Blood Transfusion
+                    dc = "1259";
+                } else {
+                    dc = "1250";
+                }
+                break;
+            case "12B": //#Benign prostatic hypertrophy
+                dc = "1251";
+                break;
+            case "12C": //#Inflammation of male reproductive system
+                dc = "1252";
+                break;
+            case "12D": //#Inflammation of male reproductive system
+                dc = "1253";
+                break;
+            case "12E"://##Other male reproductive system diagnoses 12E
+                dc = "1254";
+                break;
+        }
+        return dc;
 
     }
 

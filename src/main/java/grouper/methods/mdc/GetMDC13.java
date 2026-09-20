@@ -68,42 +68,30 @@ public class GetMDC13 {
             int CaCRxProc = 0;
             int PBX99Proc = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
-//                if (utility.isValid99PEX(ProcedureList.get(x).trim())) {
-//                    CartProc++;
-//                }
-                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(x).trim()).isSuccess()) {
+                String procS = ProcedureList.get(x);
+                if (checkAX.AX(datasource, SchemaName, "99PEX", procS.trim()).isSuccess()) {
                     CartProc++;
                 }
-//                if (utility.isValid99PFX(ProcedureList.get(x).trim())) {
-//                    CaCRxProc++;
-//                }
-                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PFX", procS.trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PBX", procS.trim()).isSuccess()) {
                     PBX99Proc++;
                 }
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
-//                    PDXCounter99++;
-//                }
-                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PDX", procS.trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
-//                    PCXCounter99++;
-//                }
-                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PCX", procS.trim()).isSuccess()) {
                     PCXCounter99++;
                 }
                 //AX 13PBX Checking
-                if (checkAX.AX(datasource, SchemaName, "13PBX", ProcedureList.get(x).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "13PBX", procS.trim()).isSuccess()) {
                     Counter13PBX++;
                 }
-
                 //THIS AREA IS FOR CHECKING OF OR PROCEDURE
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS.trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
@@ -111,7 +99,7 @@ public class GetMDC13 {
                 //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
                         SchemaName,
-                        ProcedureList.get(x).trim(),
+                        procS.trim(),
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
@@ -125,17 +113,10 @@ public class GetMDC13 {
                     }
                 }
             }
-
             for (int a = 0; a < SecondaryList.size(); a++) {
-//                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
-//                    CartSDx++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
                 }
-//                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
-//                    CaCRxSDx++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
@@ -149,142 +130,27 @@ public class GetMDC13 {
                     if (mdcprocedureCounter > 0) {
                         String PDxPDC = new GetPDCUsePDx().GetPDCUsePDx(datasource, SchemaName, grouperparameter.getPdx());
                         int min = hierarvalue.get(0);
-                        //Loop through the array  
                         for (int i = 0; i < hierarvalue.size(); i++) {
-                            //Compare elements of array with min  
                             if (hierarvalue.get(i) < min) {
                                 min = hierarvalue.get(i);
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        switch (pdclist.get(hierarvalue.indexOf(min))) {
-                            case "13PJ"://Pelvic Evisceration
-                                drgResult.setDC("1312");
-                                break;
-                            case "13PA"://Radical Hysterectomy and Radical Vulvectomy
-                                drgResult.setDC("1301");
-                                break;
-                            case "13PK": //Lap Uterine and Adnexal
-                                switch (PDxPDC) {
-                                    case "13A"://Other Malignancy
-                                        drgResult.setDC("1313");
-                                        break;
-                                    case "13B"://CA in situ
-                                        drgResult.setDC("1314");
-                                        break;
-                                    case "13C"://Ovarian and Adnexal Malignancy
-                                        drgResult.setDC("1315");
-                                        break;
-                                    default://Non- Malignancy
-                                        drgResult.setDC("1316");
-                                        break;
-                                }
-                                break;
-                            case "13PB": //Uterine and Adnexal
-                                switch (PDxPDC) {
-                                    case "13A"://Other Malignancy
-                                        drgResult.setDC("1302");
-                                        break;
-                                    case "13B": //CA in situ
-                                        drgResult.setDC("1303");
-                                        break;
-                                    case "13C": //Ovarian and Adnexal Malignancy
-                                        drgResult.setDC("1304");
-                                        break;
-                                    default://Non- Malignancy
-                                        drgResult.setDC("1305");
-                                        break;
-                                }
-                                break;
-                            case "13PH"://Other Female Reproductive System OR Procedures
-                                drgResult.setDC("1311");
-                                break;
-                            case "13PC"://Female Reproductive System Reconstructive Procedures
-                                drgResult.setDC("1308");
-                                break;
-                            case "13PF"://Endoscopic Tubal Interruption
-                                drgResult.setDC("1310");
-                                break;
-                            case "13PD"://Vagina, Cervix and Vulva Procedures
-                                drgResult.setDC("1307");
-                                break;
-                            case "13PE"://Incisional Tubal Interruption
-                                drgResult.setDC("1306");
-                                break;
-                            case "13PG"://D&C 13PG
-                                drgResult.setDC("1309");
-                                break;
-
-                        }
-
+                        String dc = this.mdcProcedure(drgResult.getPDC(), PDxPDC);
+                        drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 1:
-                                drgResult.setDC("2601");
-                                break;
-                            case 2:
-                                drgResult.setDC("2602");
-                                break;
-                            case 3:
-                                drgResult.setDC("2603");
-                                break;
-                            case 4:
-                                drgResult.setDC("2604");
-                                break;
-                            case 5:
-                                drgResult.setDC("2605");
-                                break;
-                            case 6:
-                                drgResult.setDC("2606");
-                                break;
-                        }
-
+                        String dc = this.orProcedure(ORProcedureCounterList);
+                        drgResult.setDC(dc);
                     } else {
-                        switch (drgResult.getPDC()) {
-                            //Radio+Chemotherapy
-                            case "13A"://Admit for Renal Dialysis
-                                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {  //Chemotherapy
-                                    drgResult.setDC("1356");
-                                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {  //Radiotherapy
-                                    drgResult.setDC("1357");
-                                } else if (CartSDx > 0 && CartProc > 0) {
-                                    drgResult.setDC("1358");
-                                } else if (Counter13PBX > 0) { //##Dx Procedure
-                                    drgResult.setDC("1359");
-                                } else if (PBX99Proc > 0) {//Blood Transfusion
-                                    drgResult.setDC("1360");
-                                } else {//Malignancy 
-                                    drgResult.setDC("1350");
-                                }
-                                break;
-                            case "13B"://Non Ovarian/Adnexal CA in situ
-                                drgResult.setDC("1351");
-                                break;
-                            case "13C"://Ovarian/Adnexal Malignancy
-                                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {  //Chemotherapy
-                                    drgResult.setDC("1361");
-                                } else if (CaCRxSDx > 0 && CaCRxProc > 0) { //Radiotherapy
-                                    drgResult.setDC("1362");
-                                } else if (CartSDx > 0 && CartProc > 0) {
-                                    drgResult.setDC("1363");
-                                } else if (Counter13PBX > 0) { //##Dx Procedure
-                                    drgResult.setDC("1364");
-                                } else if (PBX99Proc > 0) {//Blood Transfusion
-                                    drgResult.setDC("1365");
-                                } else {//Malignancy 
-                                    drgResult.setDC("1352");
-                                }
-                                break;
-                            case "13D"://Lower Genitourinary Tract Infection
-                                drgResult.setDC("1353");
-                                break;
-                            case "13E"://Female Pelvic Infection
-                                drgResult.setDC("1354");
-                                break;
-                            case "13F"://Menstrual and Other Female Reproductive System Disorders PDC 13F
-                                drgResult.setDC("1355");
-                                break;
-                        }
+                        String dc = this.principalDaignosis(
+                                drgResult.getPDC(),
+                                CartSDx,
+                                CaCRxSDx,
+                                CartProc,
+                                CaCRxProc,
+                                Counter13PBX,
+                                PBX99Proc);
+                        drgResult.setDC(dc);
                     }
                 } else {
                     if (PCXCounter99 > 0) {
@@ -297,146 +163,27 @@ public class GetMDC13 {
             } else if (mdcprocedureCounter > 0) {
                 String PDxPDC = new GetPDCUsePDx().GetPDCUsePDx(datasource, SchemaName, grouperparameter.getPdx());
                 int min = hierarvalue.get(0);
-                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }
                 }
-
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "13PJ"://Pelvic Evisceration
-                        drgResult.setDC("1312");
-                        break;
-                    case "13PA"://Radical Hysterectomy and Radical Vulvectomy
-                        drgResult.setDC("1301");
-                        break;
-                    case "13PK": //Lap Uterine and Adnexal
-                        switch (PDxPDC) {
-                            case "13A": //Other Malignancy
-                                drgResult.setDC("1313");
-                                break;
-                            case "13B":  //CA in situ
-                                drgResult.setDC("1314");
-                                break;
-                            case "13C": //Ovarian and Adnexal Malignancy
-                                drgResult.setDC("1315");
-                                break;
-                            default://Non- Malignancy
-                                drgResult.setDC("1316");
-                                break;
-                        }
-                        break;
-                    case "13PB": //Uterine and Adnexal
-                        switch (PDxPDC) {
-                            case "13A": //Other Malignancy
-                                drgResult.setDC("1302");
-                                break;
-                            case "13B":  //CA in situ
-                                drgResult.setDC("1303");
-                                break;
-                            case "13C": //Ovarian and Adnexal Malignancy
-                                drgResult.setDC("1304");
-                                break;
-                            default: //Non- Malignancy
-                                drgResult.setDC("1305");
-                                break;
-
-                        }
-                        break;
-                    case "13PH"://Other Female Reproductive System OR Procedures
-                        drgResult.setDC("1311");
-                        break;
-                    case "13PC"://Female Reproductive System Reconstructive Procedures
-                        drgResult.setDC("1308");
-                        break;
-                    case "13PF"://Endoscopic Tubal Interruption
-                        drgResult.setDC("1310");
-                        break;
-                    case "13PD"://Vagina, Cervix and Vulva Procedures
-                        drgResult.setDC("1307");
-                        break;
-                    case "13PE"://Incisional Tubal Interruption
-                        drgResult.setDC("1306");
-                        break;
-                    case "13PG"://D&C 13PG
-                        drgResult.setDC("1309");
-                        break;
-
-                }
-
+                String dc = this.mdcProcedure(drgResult.getPDC(), PDxPDC);
+                drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
-
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
             } else {
-                switch (drgResult.getPDC()) {
-                    //Radio+Chemotherapy
-                    case "13A"://Admit for Renal Dialysis
-                        if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("1356");
-                            //Chemotherapy
-                        } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("1357");
-                            //Radiotherapy
-                        } else if (CartSDx > 0 && CartProc > 0) {
-                            drgResult.setDC("1358");
-                        } else if (Counter13PBX > 0) { //##Dx Procedure
-                            drgResult.setDC("1359");
-                        } else if (PBX99Proc > 0) {//Blood Transfusion
-                            drgResult.setDC("1360");
-                        } else {//Malignancy 
-                            drgResult.setDC("1350");
-                        }
-                        break;
-                    case "13B"://Non Ovarian/Adnexal CA in situ
-                        drgResult.setDC("1351");
-                        break;
-                    case "13C"://Ovarian/Adnexal Malignancy
-                        if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {        //Chemotherapy
-                            drgResult.setDC("1361");
-                        } else if (CaCRxSDx > 0 && CaCRxProc > 0) { //Radiotherapy
-                            drgResult.setDC("1362");
-                        } else if (CartSDx > 0 && CartProc > 0) {
-                            drgResult.setDC("1363");
-                        } else if (Counter13PBX > 0) { //##Dx Procedure
-                            drgResult.setDC("1364");
-                        } else if (PBX99Proc > 0) {//Blood Transfusion
-                            drgResult.setDC("1365");
-                        } else {//Malignancy 
-                            drgResult.setDC("1352");
-                        }
-                        break;
-                    case "13D"://Lower Genitourinary Tract Infection
-                        drgResult.setDC("1353");
-                        break;
-                    case "13E"://Female Pelvic Infection
-                        drgResult.setDC("1354");
-                        break;
-                    case "13F"://Menstrual and Other Female Reproductive System Disorders PDC 13F
-                        drgResult.setDC("1355");
-                        break;
-                }
+                String dc = this.principalDaignosis(
+                        drgResult.getPDC(),
+                        CartSDx,
+                        CaCRxSDx,
+                        CartProc,
+                        CaCRxProc,
+                        Counter13PBX,
+                        PBX99Proc);
+                drgResult.setDC(dc);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -453,6 +200,156 @@ public class GetMDC13 {
             logger.error("Error in MDC13 Method : {}", ex.getMessage(), ex);
         }
         return result;
+
+    }
+
+    public String mdcProcedure(
+            final String pdc,
+            final String PDxPDC) {
+        String result = "";
+        switch (pdc.toUpperCase()) {
+            case "13PJ"://Pelvic Evisceration
+                result = "1312";
+                break;
+            case "13PA"://Radical Hysterectomy and Radical Vulvectomy
+                result = "1301";
+                break;
+            case "13PK": //Lap Uterine and Adnexal
+                switch (PDxPDC) {
+                    case "13A": //Other Malignancy
+                        result = "1313";
+                        break;
+                    case "13B":  //CA in situ
+                        result = "1314";
+                        break;
+                    case "13C": //Ovarian and Adnexal Malignancy
+                        result = "1315";
+                        break;
+                    default://Non- Malignancy
+                        result = "1316";
+                        break;
+                }
+                break;
+            case "13PB": //Uterine and Adnexal
+                switch (PDxPDC) {
+                    case "13A": //Other Malignancy
+                        result = "1302";
+                        break;
+                    case "13B":  //CA in situ
+                        result = "1303";
+                        break;
+                    case "13C": //Ovarian and Adnexal Malignancy
+                        result = "1304";
+                        break;
+                    default: //Non- Malignancy
+                        result = "1305";
+                        break;
+
+                }
+                break;
+            case "13PH"://Other Female Reproductive System OR Procedures
+                result = "1311";
+                break;
+            case "13PC"://Female Reproductive System Reconstructive Procedures
+                result = "1308";
+                break;
+            case "13PF"://Endoscopic Tubal Interruption
+                result = "1310";
+                break;
+            case "13PD"://Vagina, Cervix and Vulva Procedures
+                result = "1307";
+                break;
+            case "13PE"://Incisional Tubal Interruption
+                result = "1306";
+                break;
+            case "13PG"://D&C 13PG
+                result = "1309";
+                break;
+
+        }
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final Integer CartSDx,
+            final Integer CaCRxSDx,
+            final Integer CartProc,
+            final Integer CaCRxProc,
+            final Integer Counter13PBX,
+            final Integer PBX99Proc) {
+        String dc = "";
+        switch (pdc.toUpperCase()) {
+            //Radio+Chemotherapy
+            case "13A"://Admit for Renal Dialysis
+                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {  //Chemotherapy
+                    dc = "1356";
+                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {  //Radiotherapy
+                    dc = "1357";
+                } else if (CartSDx > 0 && CartProc > 0) {
+                    dc = "1358";
+                } else if (Counter13PBX > 0) { //##Dx Procedure
+                    dc = "1359";
+                } else if (PBX99Proc > 0) {//Blood Transfusion
+                    dc = "1360";
+                } else {//Malignancy 
+                    dc = "1350";
+                }
+                break;
+            case "13B"://Non Ovarian/Adnexal CA in situ
+                dc = "1351";
+                break;
+            case "13C"://Ovarian/Adnexal Malignancy
+                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {  //Chemotherapy
+                    dc = "1361";
+                } else if (CaCRxSDx > 0 && CaCRxProc > 0) { //Radiotherapy
+                    dc = "1362";
+                } else if (CartSDx > 0 && CartProc > 0) {
+                    dc = "1363";
+                } else if (Counter13PBX > 0) { //##Dx Procedure
+                    dc = "1364";
+                } else if (PBX99Proc > 0) {//Blood Transfusion
+                    dc = "1365";
+                } else {//Malignancy 
+                    dc = "1352";
+                }
+                break;
+            case "13D"://Lower Genitourinary Tract Infection
+                dc = "1353";
+                break;
+            case "13E"://Female Pelvic Infection
+                dc = "1354";
+                break;
+            case "13F"://Menstrual and Other Female Reproductive System Disorders PDC 13F
+                dc = "1355";
+                break;
+        }
+        return dc;
 
     }
 

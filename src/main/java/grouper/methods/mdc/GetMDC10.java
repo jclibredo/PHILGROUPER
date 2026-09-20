@@ -62,22 +62,13 @@ public class GetMDC10 {
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
-//                    PCXCounter99++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
-//                if (utility.isValid10PBX(ProcedureList.get(x).trim())) {
-//                    Counter10PBX++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "10PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter10PBX++;
                 }
@@ -110,108 +101,27 @@ public class GetMDC10 {
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
-                        //Loop through the array  
                         for (int i = 0; i < hierarvalue.size(); i++) {
-                            //Compare elements of array with min  
                             if (hierarvalue.get(i) < min) {
                                 min = hierarvalue.get(i);
                             }
                         }
-
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        switch (pdclist.get(hierarvalue.indexOf(min))) {
-                            case "10PB"://Pituitary
-                                drgResult.setDC("1001");
-                                break;
-                            case "10PC"://Amputation of Lower Limb
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 59) {
-                                    drgResult.setDC("1003");
-                                } else {
-                                    drgResult.setDC("1004");
-                                }
-                                break;
-                            case "10PE"://Procedure for Obesity
-                                drgResult.setDC("1005");
-                                break;
-                            case "10PA"://Adrenal
-                                drgResult.setDC("1002");
-                                break;
-                            case "10PF"://Parathyroid
-                                drgResult.setDC("1007");
-                                break;
-                            case "10PD"://Skin Grafts and Wound Debridement
-                                drgResult.setDC("1006");
-                                break;
-                            case "10PG"://Thyroid
-                                drgResult.setDC("1008");
-                                break;
-                            case "10PJ"://Other Endocrine, Nutritional & Metabolic OR Procedures
-                                drgResult.setDC("1010");
-                                break;
-                            case "10PH"://Thyroglossal PDC 10PH
-                                drgResult.setDC("1009");
-                                break;
-
-                        }
-
+                        String dc = this.mdcProcedure(drgResult.getPDC(),
+                                grouperparameter.getBirthDate(),
+                                grouperparameter.getAdmissionDate());
+                        drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 1:
-                                drgResult.setDC("2601");
-                                break;
-                            case 2:
-                                drgResult.setDC("2602");
-                                break;
-                            case 3:
-                                drgResult.setDC("2603");
-                                break;
-                            case 4:
-                                drgResult.setDC("2604");
-                                break;
-                            case 5:
-                                drgResult.setDC("2605");
-                                break;
-                            case 6:
-                                drgResult.setDC("2606");
-                                break;
-                        }
-
+                        String dc = this.orProcedure(ORProcedureCounterList);
+                        drgResult.setDC(dc);
                     } else {
-
-                        switch (drgResult.getPDC()) {
-                            case "10A"://Diabetes with Complicated PDx
-                                if (Counter10PBX > 0) {
-                                    drgResult.setDC("1057");
-                                } else {
-                                    drgResult.setDC("1050");
-                                }
-                                break;
-                            case "10B"://Severe Metabolic Disorders
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                                    drgResult.setDC("1051");
-                                } else {
-                                    drgResult.setDC("1052");
-                                }
-                                break;
-                            case "10C"://Nutritional and Misc. Metabolic Disorders
-                                drgResult.setDC("1053");
-                                break;
-                            case "10D"://Inborn Errors of Metabolism
-
-                                drgResult.setDC("1054");
-                                break;
-                            case "10E"://Endocrine Disorders
-                                drgResult.setDC("1055");
-                                break;
-                            case "10F"://Diabetes without Complicated PDx PDC 10F
-                                System.out.println("YOU ARE HERE");
-                                drgResult.setDC("1056");
-                                break;
-
-                        }
-
+                        String dc = this.principalDaignosis(
+                                drgResult.getPDC(),
+                                Counter10PBX,
+                                grouperparameter.getBirthDate(),
+                                grouperparameter.getAdmissionDate());
+                        drgResult.setDC(dc);
                     }
-
                 } else {
                     if (PCXCounter99 > 0) {
                         drgResult.setDC("1011");
@@ -221,101 +131,22 @@ public class GetMDC10 {
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
-                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }
                 }
-
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "10PB"://Pituitary
-                        drgResult.setDC("1001");
-                        break;
-                    case "10PC"://Amputation of Lower Limb
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 59) {
-                            drgResult.setDC("1003");
-                        } else {
-                            drgResult.setDC("1004");
-                        }
-                        break;
-                    case "10PE"://Procedure for Obesity
-                        drgResult.setDC("1005");
-                        break;
-                    case "10PA"://Adrenal
-                        drgResult.setDC("1002");
-                        break;
-                    case "10PF"://Parathyroid
-                        drgResult.setDC("1007");
-                        break;
-                    case "10PD"://Skin Grafts and Wound Debridement
-                        drgResult.setDC("1006");
-                        break;
-                    case "10PG"://Thyroid
-                        drgResult.setDC("1008");
-                        break;
-                    case "10PJ"://Other Endocrine, Nutritional & Metabolic OR Procedures
-                        drgResult.setDC("1010");
-                        break;
-                    case "10PH"://Thyroglossal PDC 10PH
-                        drgResult.setDC("1009");
-                        break;
-
-                }
-
+                String dc = this.mdcProcedure(drgResult.getPDC(),
+                        grouperparameter.getBirthDate(),
+                        grouperparameter.getAdmissionDate());
+                drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
-
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
             } else {
-                switch (drgResult.getPDC()) {
-                    case "10A"://Diabetes with Complicated PDx
-                        if (Counter10PBX > 0) {
-                            drgResult.setDC("1057");
-                        } else {
-                            drgResult.setDC("1050");
-                        }
-                        break;
-                    case "10B"://Severe Metabolic Disorders
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                            drgResult.setDC("1051");
-                        } else {
-                            drgResult.setDC("1052");
-                        }
-                        break;
-                    case "10C"://Nutritional and Misc. Metabolic Disorders
-                        drgResult.setDC("1053");
-                        break;
-                    case "10D"://Inborn Errors of Metabolism
-                        drgResult.setDC("1054");
-                        break;
-                    case "10E"://Endocrine Disorders
-                        drgResult.setDC("1055");
-                        break;
-                    case "10F"://Diabetes without Complicated PDx PDC 10F
-                        drgResult.setDC("1056");
-                        break;
-                }
+                String dc = this.principalDaignosis(drgResult.getPDC(), Counter10PBX, grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+                drgResult.setDC(dc);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //              DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -332,6 +163,111 @@ public class GetMDC10 {
             logger.error("Error in MDC10 Method : {}", ex.getMessage(), ex);
         }
         return result;
+
+    }
+
+    public String mdcProcedure(
+            final String pdc,
+            final String bdate,
+            final String admDate) {
+        String result = "";
+        switch (pdc.toUpperCase()) {
+            case "10PB"://Pituitary
+                result = "1001";
+                break;
+            case "10PC"://Amputation of Lower Limb
+                if (utility.ComputeYear(bdate, admDate) > 59) {
+                    result = "1003";
+                } else {
+                    result = "1004";
+                }
+                break;
+            case "10PE"://Procedure for Obesity
+                result = "1005";
+                break;
+            case "10PA"://Adrenal
+                result = "1002";
+                break;
+            case "10PF"://Parathyroid
+                result = "1007";
+                break;
+            case "10PD"://Skin Grafts and Wound Debridement
+                result = "1006";
+                break;
+            case "10PG"://Thyroid
+                result = "1008";
+                break;
+            case "10PJ"://Other Endocrine, Nutritional & Metabolic OR Procedures
+                result = "1010";
+                break;
+            case "10PH"://Thyroglossal PDC 10PH
+                result = "1009";
+                break;
+
+        }
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final Integer Counter10PBX,
+            final String bdate,
+            final String admDate) {
+        String dc = "";
+        switch (pdc) {
+            case "10A"://Diabetes with Complicated PDx
+                if (Counter10PBX > 0) {
+                    dc = "1057";
+                } else {
+                    dc = "1050";
+                }
+                break;
+            case "10B"://Severe Metabolic Disorders
+                if (utility.ComputeYear(bdate, admDate) > 17) {
+                    dc = "1051";
+                } else {
+                    dc = "1052";
+                }
+                break;
+            case "10C"://Nutritional and Misc. Metabolic Disorders
+                dc = "1053";
+                break;
+            case "10D"://Inborn Errors of Metabolism
+                dc = "1054";
+                break;
+            case "10E"://Endocrine Disorders
+                dc = "1055";
+                break;
+            case "10F"://Diabetes without Complicated PDx PDC 10F
+                dc = "1056";
+                break;
+        }
+        return dc;
 
     }
 

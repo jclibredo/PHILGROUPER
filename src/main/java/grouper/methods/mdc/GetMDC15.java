@@ -102,7 +102,6 @@ public class GetMDC15 {
             if (checkAX.AX(datasource, SchemaName, "15BX", grouperparameter.getPdx()).isSuccess()) {
                 MainCCPDx++;
             }
-
             if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                     utility.Convert24to12(grouperparameter.getTimeAdmission()),
                     grouperparameter.getDischargeDate(),

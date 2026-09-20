@@ -137,17 +137,9 @@ public class GetMDC11 {
             }
 
             for (int a = 0; a < SecondaryList.size(); a++) {
-//                if (utility.isValid99BX(SecondaryList.get(a).trim())) {
-//                    System.out.println("CART SDX : " + SecondaryList.get(a));
-//                    CartSDx++;
-//                }
-
                 if (getAx.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
                 }
-//                if (utility.isValid99CX(SecondaryList.get(a).trim())) {
-//                    CaCRxSDx++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
                     CaCRxSDx++;
                 }
@@ -161,7 +153,7 @@ public class GetMDC11 {
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), 
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
@@ -173,151 +165,29 @@ public class GetMDC11 {
                                 min = hierarvalue.get(i);
                             }
                         }
-
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        switch (pdclist.get(hierarvalue.indexOf(min))) {
-                            case "11PA"://Kidney Transplant
-                                drgResult.setDC("1101");
-                                break;
-                            case "11PL"://Plasmapheresis
-                                drgResult.setDC("1115");
-                                break;
-                            case "11PC"://Kidney, Ureter and Major Bladder Procedures
-                                if (Counter11C > 0) {
-                                    drgResult.setDC("1103");
-                                } else {
-                                    drgResult.setDC("1104");
-                                }
-                                break;
-                            case "11PB"://Operative Insertion of Peritoneal Catheter for Dialysis
-                                drgResult.setDC("1102");
-                                break;
-                            case "11PD"://Transurethral Prostatectomy
-                                drgResult.setDC("1105");
-                                break;
-                            case "11PH"://Other Kidney and Urinary Tract OR Procedures
-                                drgResult.setDC("1109");
-                                break;
-                            case "11PF"://Transurethral Procedures, Except Prostatectomy
-                                drgResult.setDC("1107");
-                                break;
-                            case "11PJ"://Ureteroscopy
-                                if (Counter11PBX > 0) {
-                                    drgResult.setDC("1116");
-                                } else {
-                                    drgResult.setDC("1110");
-                                }
-                                break;
-                            case "11PK"://Cystourethroscopy
-                                if (Counter11PBX > 0) {
-                                    drgResult.setDC("1116");
-                                } else {
-                                    drgResult.setDC("1111");
-                                }
-                                break;
-                            case "11PG"://Urethral Procedures
-                                drgResult.setDC("1108");
-                                break;
-                            case "11PE"://Minor Bladder Procedures 11PE
-                                drgResult.setDC("1106");
-                                break;
-
-                        }
-
+                        String dc = this.mdcProcedure(
+                                SchemaName,
+                                Counter11C,
+                                Counter11PBX);
+                        drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 1:
-                                drgResult.setDC("2601");
-                                break;
-                            case 2:
-                                drgResult.setDC("2602");
-                                break;
-                            case 3:
-                                drgResult.setDC("2603");
-                                break;
-                            case 4:
-                                drgResult.setDC("2604");
-                                break;
-                            case 5:
-                                drgResult.setDC("2605");
-                                break;
-                            case 6:
-                                drgResult.setDC("2606");
-                                break;
-                        }
-
+                        String dc = this.orProcedure(ORProcedureCounterList);
+                        drgResult.setDC(dc);
                     } else {
-
-                        switch (drgResult.getPDC()) {
-                            //Radio+Chemotherapy
-                            case "11C"://Admit for Renal Dialysis
-                                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1161");
-                                    //Chemotherapy
-                                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                                    drgResult.setDC("1162");
-                                    //Radiotherapy
-                                } else if (CartSDx > 0 && CartProc > 0) {
-                                    drgResult.setDC("1163");
-                                } else if (Counter11PCX > 0) { //##Dx Procedure
-                                    drgResult.setDC("1164");
-                                } else if (PBX99Proc > 0) {//Blood Transfusion
-                                    drgResult.setDC("1165");
-                                } else {//Malignancy 
-                                    drgResult.setDC("1153");
-                                }
-                                break;
-
-                            case "11A"://Chronic Renal Failure
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) > 17
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
-                                    drgResult.setDC("1150");
-                                } else {
-                                    drgResult.setDC("1151");
-                                }
-                                break;
-                            case "11J"://Acute Renal Failure
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(),
-                                        grouperparameter.getAdmissionDate()) > 17
-                                        && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
-                                    if (grouperparameter.getDischargeType().equals("4")) {
-                                        drgResult.setDC("1167");
-                                    } else {
-                                        drgResult.setDC("1159");
-                                    }
-                                } else {
-                                    drgResult.setDC("1160");
-                                }
-                                break;
-                            case "11B"://Admit for Renal Dialysis
-                                drgResult.setDC("1152");
-                                break;
-                            case "11D"://Kidney and Urinary Tract Infection
-                                drgResult.setDC("1154");
-                                break;
-                            case "11E"://Urinary Stone
-                                if (Counter11PBX > 0) {
-                                    drgResult.setDC("1112");
-                                } else {
-                                    drgResult.setDC("1155");
-                                }
-                                break;
-                            case "11F"://Kidney & Urinary Tract Signs & Symptoms
-                                drgResult.setDC("1156");
-                                break;
-                            case "11G"://Urethral Stricture
-                                drgResult.setDC("1157");
-                                break;
-                            case "11H"://Other Kidney and Urinary Tract Diagnoses
-                                drgResult.setDC("1158");
-                                break;
-                            case "11K"://Major Kidney Dx PDC 11K
-                                drgResult.setDC("1166");
-                                break;
-
-                        }
-
+                        String dc = this.principalDaignosis(
+                                drgResult.getPDC(),
+                                CartSDx,
+                                CaCRxSDx,
+                                CartProc,
+                                CaCRxProc,
+                                Counter11PCX,
+                                PBX99Proc,
+                                grouperparameter.getBirthDate(),
+                                grouperparameter.getAdmissionDate(),
+                                Counter11PBX,
+                                grouperparameter.getDischargeType());
+                        drgResult.setDC(dc);
                     }
                 } else {
                     if (PCXCounter99 > 0) {
@@ -335,149 +205,29 @@ public class GetMDC11 {
                         min = hierarvalue.get(i);
                     }
                 }
-
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "11PA"://Kidney Transplant
-                        drgResult.setDC("1101");
-                        break;
-                    case "11PL"://Plasmapheresis
-                        drgResult.setDC("1115");
-                        break;
-                    case "11PC"://Kidney, Ureter and Major Bladder Procedures
-                        if (Counter11C > 0) {
-                            drgResult.setDC("1103");
-                        } else {
-                            drgResult.setDC("1104");
-                        }
-                        break;
-                    case "11PB"://Operative Insertion of Peritoneal Catheter for Dialysis
-                        drgResult.setDC("1102");
-                        break;
-                    case "11PD"://Transurethral Prostatectomy
-                        drgResult.setDC("1105");
-                        break;
-                    case "11PH"://Other Kidney and Urinary Tract OR Procedures
-                        drgResult.setDC("1109");
-                        break;
-                    case "11PF"://Transurethral Procedures, Except Prostatectomy
-                        drgResult.setDC("1107");
-                        break;
-                    case "11PJ"://Ureteroscopy
-                        if (Counter11PBX > 0) {
-                            drgResult.setDC("1116");
-                        } else {
-                            drgResult.setDC("1110");
-                        }
-                        break;
-                    case "11PK"://Cystourethroscopy
-                        if (Counter11PBX > 0) {
-                            drgResult.setDC("1116");
-                        } else {
-                            drgResult.setDC("1111");
-                        }
-                        break;
-                    case "11PG"://Urethral Procedures
-                        drgResult.setDC("1108");
-                        break;
-                    case "11PE"://Minor Bladder Procedures 11PE
-                        drgResult.setDC("1106");
-                        break;
-
-                }
-
+                String dc = this.mdcProcedure(
+                        SchemaName,
+                        Counter11C,
+                        Counter11PBX);
+                drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 1:
-                        drgResult.setDC("2601");
-                        break;
-                    case 2:
-                        drgResult.setDC("2602");
-                        break;
-                    case 3:
-                        drgResult.setDC("2603");
-                        break;
-                    case 4:
-                        drgResult.setDC("2604");
-                        break;
-                    case 5:
-                        drgResult.setDC("2605");
-                        break;
-                    case 6:
-                        drgResult.setDC("2606");
-                        break;
-                }
-
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
             } else {
-
-                switch (drgResult.getPDC()) {
-                    //Radio+Chemotherapy
-                    case "11C"://Admit for Renal Dialysis
-                        if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("1161");
-                            //Chemotherapy
-                        } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                            drgResult.setDC("1162");
-                            //Radiotherapy
-                        } else if (CartSDx > 0 && CartProc > 0) {
-                            drgResult.setDC("1163");
-
-                        } else if (Counter11PCX > 0) { //##Dx Procedure
-                            drgResult.setDC("1164");
-
-                        } else if (PBX99Proc > 0) {                 ///HERE FOR THAI GROUPER
-                            drgResult.setDC("1165");
-
-                        } else {//Malignancy 
-                            drgResult.setDC("1153");    ///HERE FOR PHIL GROUPER
-                        }
-                        break;
-                    case "11A"://Chronic Renal Failure
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
-                            drgResult.setDC("1150");
-                        } else {
-                            drgResult.setDC("1151");
-                        }
-                        break;
-                    case "11J"://Acute Renal Failure
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17
-                                && utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 0) {
-                            if (grouperparameter.getDischargeType().equals("4")) {
-                                drgResult.setDC("1167");
-                            } else {
-                                drgResult.setDC("1159");
-                            }
-                        } else {
-                            drgResult.setDC("1160");
-                        }
-                        break;
-                    case "11B"://Admit for Renal Dialysis
-                        drgResult.setDC("1152");
-                        break;
-                    case "11D"://Kidney and Urinary Tract Infection
-                        drgResult.setDC("1154");
-                        break;
-                    case "11E"://Urinary Stone
-                        if (Counter11PBX > 0) {
-                            drgResult.setDC("1112");
-                        } else {
-                            drgResult.setDC("1155");
-                        }
-                        break;
-                    case "11F"://Kidney & Urinary Tract Signs & Symptoms
-                        drgResult.setDC("1156");
-                        break;
-                    case "11G"://Urethral Stricture
-                        drgResult.setDC("1157");
-                        break;
-                    case "11H"://Other Kidney and Urinary Tract Diagnoses
-                        drgResult.setDC("1158");
-                        break;
-                    case "11K"://Major Kidney Dx PDC 11K
-                        drgResult.setDC("1166");
-                        break;
-                }
+                String dc = this.principalDaignosis(
+                        drgResult.getPDC(),
+                        CartSDx,
+                        CaCRxSDx,
+                        CartProc,
+                        CaCRxProc,
+                        Counter11PCX,
+                        PBX99Proc,
+                        grouperparameter.getBirthDate(),
+                        grouperparameter.getAdmissionDate(),
+                        Counter11PBX,
+                        grouperparameter.getDischargeType());
+                drgResult.setDC(dc);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -493,6 +243,171 @@ public class GetMDC11 {
             Logger.getLogger(GetMDC11.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
+    }
+
+    public String mdcProcedure(
+            final String pdc,
+            final Integer Counter11C,
+            final Integer Counter11PBX) {
+        String result = "";
+        switch (pdc.toUpperCase()) {
+            case "11PA"://Kidney Transplant
+                result = "1101";
+                break;
+            case "11PL"://Plasmapheresis
+                result = "1115";
+                break;
+            case "11PC"://Kidney, Ureter and Major Bladder Procedures
+                if (Counter11C > 0) {
+                    result = "1103";
+                } else {
+                    result = "1104";
+                }
+                break;
+            case "11PB"://Operative Insertion of Peritoneal Catheter for Dialysis
+                result = "1102";
+                break;
+            case "11PD"://Transurethral Prostatectomy
+                result = "1105";
+                break;
+            case "11PH"://Other Kidney and Urinary Tract OR Procedures
+                result = "1109";
+                break;
+            case "11PF"://Transurethral Procedures, Except Prostatectomy
+                result = "1107";
+                break;
+            case "11PJ"://Ureteroscopy
+                if (Counter11PBX > 0) {
+                    result = "1116";
+                } else {
+                    result = "1110";
+                }
+                break;
+            case "11PK"://Cystourethroscopy
+                if (Counter11PBX > 0) {
+                    result = "1116";
+                } else {
+                    result = "1111";
+                }
+                break;
+            case "11PG"://Urethral Procedures
+                result = "1108";
+                break;
+            case "11PE"://Minor Bladder Procedures 11PE
+                result = "1106";
+                break;
+        }
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final Integer CartSDx,
+            final Integer CaCRxSDx,
+            final Integer CartProc,
+            final Integer CaCRxProc,
+            final Integer Counter11PCX,
+            final Integer PBX99Proc,
+            final String bdate,
+            final String admDate,
+            final Integer Counter11PBX,
+            final String dischargeType) {
+        String dc = "";
+        switch (pdc) {
+            //Radio+Chemotherapy
+            case "11C"://Admit for Renal Dialysis
+                if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
+                    dc = "1161";
+                    //Chemotherapy
+                } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
+                    dc = "1162";
+                    //Radiotherapy
+                } else if (CartSDx > 0 && CartProc > 0) {
+                    dc = "1163";
+                } else if (Counter11PCX > 0) { //##Dx Procedure
+                    dc = "1164";
+                } else if (PBX99Proc > 0) {//Blood Transfusion
+                    dc = "1165";
+                } else {//Malignancy 
+                    dc = "1153";
+                }
+                break;
+
+            case "11A"://Chronic Renal Failure
+                if (utility.ComputeYear(bdate,
+                        admDate) > 17
+                        && utility.ComputeDay(bdate, admDate) > 0) {
+                    dc = "1150";
+                } else {
+                    dc = "1151";
+                }
+                break;
+            case "11J"://Acute Renal Failure
+                if (utility.ComputeYear(bdate,
+                        admDate) > 17
+                        && utility.ComputeDay(bdate, admDate) > 0) {
+                    if (dischargeType.equals("4")) {
+                        dc = "1167";
+                    } else {
+                        dc = "1159";
+                    }
+                } else {
+                    dc = "1160";
+                }
+                break;
+            case "11B"://Admit for Renal Dialysis
+                dc = "1152";
+                break;
+            case "11D"://Kidney and Urinary Tract Infection
+                dc = "1154";
+                break;
+            case "11E"://Urinary Stone
+                if (Counter11PBX > 0) {
+                    dc = "1112";
+                } else {
+                    dc = "1155";
+                }
+                break;
+            case "11F"://Kidney & Urinary Tract Signs & Symptoms
+                dc = "1156";
+                break;
+            case "11G"://Urethral Stricture
+                dc = "1157";
+                break;
+            case "11H"://Other Kidney and Urinary Tract Diagnoses
+                dc = "1158";
+                break;
+            case "11K"://Major Kidney Dx PDC 11K
+                dc = "1166";
+                break;
+
+        }
+        return dc;
 
     }
 

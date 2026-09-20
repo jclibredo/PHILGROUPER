@@ -97,7 +97,7 @@ public class GetMDC18 {
                                 drgResult.setDC("1805");
                                 break;
                             case 4://OR Proc Level 4
-                                drgResult.setDC("1804");
+                                drgResult.setDC("1804")
                                 break;
                             case 3://OR Proc Level 3
                                 drgResult.setDC("1803");
@@ -215,28 +215,8 @@ public class GetMDC18 {
                 }
 
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 6://OR Proc Level 6
-                        drgResult.setDC("1806");
-                        break;
-                    case 5://OR Proc Level 5
-                        drgResult.setDC("1805");
-                        break;
-                    case 4://OR Proc Level 4
-                        drgResult.setDC("1804");
-                        break;
-                    case 3://OR Proc Level 3
-                        drgResult.setDC("1803");
-                        break;
-                    case 2://OR Proc Level 2
-                        drgResult.setDC("1802");
-                        break;
-                    case 1://OR Proc Level 1
-                        drgResult.setDC("1801");
-                        break;
-                }
-
-                //==================================================================               
+                String dc = this.orProcedure(ORProcedureCounterList);
+                drgResult.setDC(dc);
             } else {
                 switch (drgResult.getPDC()) {
                     case "18A"://Septicemia
@@ -348,6 +328,84 @@ public class GetMDC18 {
             logger.error("Error in MDC18 Method : {}", ex.getMessage(), ex);
         }
         return result;
+
+    }
+
+    public String mdcProcedure(
+            final String pdc) {
+        String result = "";
+        switch (pdc.toUpperCase()) {
+            case "16PA"://Splenectomy
+                result = "1601";
+                break;
+            case "16PB"://Major OR Procedures for Blood and Blood Forming Organs Except Splenectomy
+                result = "1602";
+                break;
+            case "16PC"://Minor OR Procedures PDC 16PC
+                result = "1603";
+                break;
+        }
+        return result;
+    }
+
+    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+        String dc = "";
+        switch (Collections.max(ORProcedureCounterList)) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    public String principalDaignosis(
+            final String pdc,
+            final Integer PBXCounter99,
+            final Integer Counter16PBX) {
+        String dc = "";
+        switch (pdc.toUpperCase()) {
+            case "16A"://Red Blood Cell Disorders
+                if (PBXCounter99 > 0) {
+                    dc = "1653";
+                } else {
+                    dc = "1650";
+                }
+                break;
+            case "16B"://Coagulation Disorders
+                if (Counter16PBX > 0) {
+                    dc = "1654";
+                } else {
+                    if (PBXCounter99 > 0) {
+                        dc = "1655";
+                    } else {
+                        dc = "1651";;
+                    }
+                }
+                break;
+            case "16C"://Reticuloendothelial and Immunity Disorders
+                if (PBXCounter99 > 0) {
+                    dc = "1656";
+                } else {
+                    dc = "1652";
+                }
+                break;
+        }
+        return dc;
 
     }
 
