@@ -89,26 +89,8 @@ public class GetMDC18 {
                         grouperparameter.getDischargeDate(),
                         utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (ORProcedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 6://OR Proc Level 6
-                                drgResult.setDC("1806");
-                                break;
-                            case 5://OR Proc Level 5
-                                drgResult.setDC("1805");
-                                break;
-                            case 4://OR Proc Level 4
-                                drgResult.setDC("1804")
-                                break;
-                            case 3://OR Proc Level 3
-                                drgResult.setDC("1803");
-                                break;
-                            case 2://OR Proc Level 2
-                                drgResult.setDC("1802");
-                                break;
-                            case 1://OR Proc Level 1
-                                drgResult.setDC("1801");
-                                break;
-                        }
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
+                        drgResult.setDC(dc);
                     } else {
                         switch (drgResult.getPDC()) {
                             case "18A"://Septicemia
@@ -215,103 +197,20 @@ public class GetMDC18 {
                 }
 
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else {
-                switch (drgResult.getPDC()) {
-                    case "18A"://Septicemia
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
-                            if (grouperparameter.getDischargeType().equals("4")) {
-                                drgResult.setDC("1872");
-                            } else {
-                                drgResult.setDC("1850");
-                            }
-                        } else {
-                            drgResult.setDC("1851");
-                        }
-                        break;
-                    case "18B"://Postop & Posttraumatic Infections
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 54) {
-                            drgResult.setDC("1852");
-                        } else {
-                            drgResult.setDC("1853");
-                        }
-                        break;
-                    case "18C"://Malaria
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
-                            drgResult.setDC("1854");
-                        } else {
-                            drgResult.setDC("1855");
-                        }
-                        break;
-                    case "18D"://CounterPDxBX18
-                        if (CounterSDxBX18 > 0 || CounterPDxBX18 > 0) {
-                            if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
-                                drgResult.setDC("1870");
-                            } else {
-                                drgResult.setDC("1871");
-                            }
-
-                            for (int x = 0; x < SecondaryList.size(); x++) {
-                                DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "18BX", SecondaryList.get(x).trim());
-                                if (sdxfinderResult.isSuccess()) {
-                                    sdxfinder.add(SecondaryList.get(x));
-                                }
-                            }
-                            if (!sdxfinder.isEmpty()) {
-                                drgResult.setSDXFINDER(String.join(",", sdxfinder));
-                            }
-                        } else {
-                            if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
-                                drgResult.setDC("1856");
-                            } else {
-                                drgResult.setDC("1857");
-                            }
-                        }
-                        break;
-                    case "18E"://Fever of Unknown Origin
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
-                            drgResult.setDC("1858");
-                        } else {
-                            drgResult.setDC("1859");
-                        }
-                        break;
-                    case "18F"://Viral Illness Except Dengue
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
-                            drgResult.setDC("1860");
-                        } else {
-                            drgResult.setDC("1861");
-                        }
-                        break;
-                    case "18G"://Fungal Diseases
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
-                            drgResult.setDC("1862");
-                        } else {
-                            drgResult.setDC("1863");
-                        }
-                        break;
-                    case "18H"://Other Infectious & Parasitic Diseases
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
-                            drgResult.setDC("1864");
-                        } else {
-                            drgResult.setDC("1865");
-                        }
-                        break;
-                    case "18J"://Melioidosis
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
-                            drgResult.setDC("1866");
-                        } else {
-                            drgResult.setDC("1867");
-                        }
-                        break;
-                    case "18K"://Leptospirosis
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 14) {
-                            drgResult.setDC("1868");
-                        } else {
-                            drgResult.setDC("1869");
-                        }
-                        break;
-                }
+//                public MDC5Proc principalDaignosis(
+//            final String pdc,
+//            final String bdate,
+//            final String admDate,
+//            final String dischargeType,
+//            final Integer CounterSDxBX18,
+//            final Integer CounterPDxBX18,
+//            final List<String> SecondaryList,
+//            final DataSource datasource,
+//            final String SchemaName)
+                MDC5Proc getMPrincipal = this.principalDaignosis(drgResult.getPDC(), SchemaName, SchemaName, SchemaName, CounterSDxBX18, CounterPDxBX18, SecondaryList, datasource, SchemaName);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -348,64 +247,173 @@ public class GetMDC18 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    public String orProcedure(final Integer maxCounter) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
-            case 1:
-                dc = "2601";
+        switch (maxCounter) {
+            case 6://OR Proc Level 6
+                dc = "1806";
                 break;
-            case 2:
-                dc = "2602";
+            case 5://OR Proc Level 5
+                dc = "1805";
                 break;
-            case 3:
-                dc = "2603";
+            case 4://OR Proc Level 4
+                dc = "1804";
                 break;
-            case 4:
-                dc = "2604";
+            case 3://OR Proc Level 3
+                dc = "1803";
                 break;
-            case 5:
-                dc = "2605";
+            case 2://OR Proc Level 2
+                dc = "1802";
                 break;
-            case 6:
-                dc = "2606";
+            case 1://OR Proc Level 1
+                dc = "1801";
                 break;
         }
         return dc;
     }
 
-    public String principalDaignosis(
+    public MDC5Proc principalDaignosis(
             final String pdc,
-            final Integer PBXCounter99,
-            final Integer Counter16PBX) {
-        String dc = "";
+            final String bdate,
+            final String admDate,
+            final String dischargeType,
+            final Integer CounterSDxBX18,
+            final Integer CounterPDxBX18,
+            final List<String> SecondaryList,
+            final DataSource datasource,
+            final String SchemaName) {
+        MDC5Proc result = new MDC5Proc();
+        result.setDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
+        ArrayList<String> sdxfinder = new ArrayList<>();
         switch (pdc.toUpperCase()) {
-            case "16A"://Red Blood Cell Disorders
-                if (PBXCounter99 > 0) {
-                    dc = "1653";
+            case "18A"://Septicemia
+                if (utility.ComputeYear(bdate, admDate) > 14) {
+                    if (dischargeType.equals("4")) {
+                        result.setDC("1872");
+                    } else {
+                        result.setDC("1850");
+                    }
                 } else {
-                    dc = "1650";
+                    result.setDC("1851");
                 }
                 break;
-            case "16B"://Coagulation Disorders
-                if (Counter16PBX > 0) {
-                    dc = "1654";
+            case "18B"://Postop & Posttraumatic Infections
+                if (utility.ComputeYear(bdate, admDate) > 54) {
+                    result.setDC("1852");
                 } else {
-                    if (PBXCounter99 > 0) {
-                        dc = "1655";
+                    result.setDC("1853");
+                }
+                break;
+            case "18C"://Malaria
+                if (utility.ComputeYear(bdate, admDate) > 14) {
+                    result.setDC("1854");
+                } else {
+                    result.setDC("1855");
+                }
+                break;
+            case "18D"://CounterPDxBX18
+                if (CounterSDxBX18 > 0 || CounterPDxBX18 > 0) {
+                    if (utility.ComputeYear(bdate, admDate) > 14) {
+                        result.setDC("1870");
                     } else {
-                        dc = "1651";;
+                        result.setDC("1871");
+                    }
+                    for (int x = 0; x < SecondaryList.size(); x++) {
+                        if (checkAX.AX(datasource, SchemaName, "18BX", SecondaryList.get(x).trim()).isSuccess()) {
+                            sdxfinder.add(SecondaryList.get(x));
+                        }
+                    }
+                    if (!sdxfinder.isEmpty()) {
+                        result.setSdxfinder(String.join(",", sdxfinder));
+                    }
+
+                } else {
+                    if (utility.ComputeYear(bdate, admDate) > 14) {
+                        result.setDC("1856");
+                    } else {
+                        result.setDC("1857");
                     }
                 }
                 break;
-            case "16C"://Reticuloendothelial and Immunity Disorders
-                if (PBXCounter99 > 0) {
-                    dc = "1656";
+
+            case "18E"://Fever of Unknown Origin
+                if (utility.ComputeYear(bdate, admDate) > 14) {
+                    result.setDC("1858");
                 } else {
-                    dc = "1652";
+                    result.setDC("1859");
+                }
+                break;
+            case "18F"://Viral Illness Except Dengue
+                if (utility.ComputeYear(bdate, admDate) > 14) {
+                    result.setDC("1860");
+                } else {
+                    result.setDC("1861");
+                }
+                break;
+            case "18G"://Fungal Diseases
+                if (utility.ComputeYear(bdate, admDate) > 14) {
+                    result.setDC("1862");
+                } else {
+                    result.setDC("1863");
+                }
+                break;
+            case "18H"://Other Infectious & Parasitic Diseases
+                if (utility.ComputeYear(bdate, admDate) > 14) {
+                    result.setDC("1864");
+                } else {
+                    result.setDC("1865");
+                }
+                break;
+            case "18J"://Melioidosis
+                if (utility.ComputeYear(bdate, admDate) > 14) {
+                    result.setDC("1866");
+                } else {
+                    result.setDC("1867");
+                }
+                break;
+            case "18K"://Leptospirosis
+                if (utility.ComputeYear(bdate, admDate) > 14) {
+                    result.setDC("1868");
+                } else {
+                    result.setDC("1869");
                 }
                 break;
         }
-        return dc;
+        return result;
+
+    }
+
+    public class MDC5Proc {
+
+        private String PDC;
+        private String DC;
+        private String sdxfinder;
+
+        public String getPDC() {
+            return PDC;
+        }
+
+        public void setPDC(String PDC) {
+            this.PDC = PDC;
+        }
+
+        public String getDC() {
+            return DC;
+        }
+
+        public void setDC(String DC) {
+            this.DC = DC;
+        }
+
+        public String getSdxfinder() {
+            return sdxfinder;
+        }
+
+        public void setSdxfinder(String sdxfinder) {
+            this.sdxfinder = sdxfinder;
+        }
 
     }
 
