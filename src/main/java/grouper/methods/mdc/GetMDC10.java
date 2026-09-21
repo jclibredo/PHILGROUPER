@@ -112,7 +112,7 @@ public class GetMDC10 {
                                 grouperparameter.getAdmissionDate());
                         drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(ORProcedureCounterList);
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                         drgResult.setDC(dc);
                     } else {
                         String dc = this.principalDaignosis(
@@ -142,7 +142,7 @@ public class GetMDC10 {
                         grouperparameter.getAdmissionDate());
                 drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else {
                 String dc = this.principalDaignosis(drgResult.getPDC(), Counter10PBX, grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
@@ -166,7 +166,7 @@ public class GetMDC10 {
 
     }
 
-    public String mdcProcedure(
+    private String mdcProcedure(
             final String pdc,
             final String bdate,
             final String admDate) {
@@ -208,9 +208,9 @@ public class GetMDC10 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1:
                 dc = "2601";
                 break;
@@ -233,7 +233,7 @@ public class GetMDC10 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final Integer Counter10PBX,
             final String bdate,

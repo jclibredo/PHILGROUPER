@@ -11,6 +11,7 @@ import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtBuilder;
@@ -452,125 +453,12 @@ public class Utility {
         return result;
     }
 
-//    public boolean isValid24PBX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(PBX24).contains(icd10);
-//        return result;
-//    }
-//
-//    public boolean isValid28DX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(DX28).contains(icd10);
-//        return result;
-//    }
-//
-//    public boolean isValid28PBX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(PBX28).contains(icd10);
-//        return result;
-//    }
-//
-//    public boolean isValid16PBX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(PBX16).contains(icd10);
-//        return result;
-//    }
-//
-//    public boolean isValid11PBX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(PBX11).contains(icd10);
-//        return result;
-//    }
-//
-//    public boolean isValid10PBX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(PBX10).contains(icd10);
-//        return result;
-//    }
-//
-//    public boolean isValid9PBX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(PBX9).contains(icd10);
-//        return result;
-//    }
-//
-//    public boolean isValid8PEX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(PEX8).contains(icd10);
-//        return result;
-//    }
-//
-//    public boolean isValid6CX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(CX6).contains(icd10);
-//        return result;
-//    }
-//
-//    public boolean isValidOPA(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(OPA).contains(icd10);
-//        return result;
-//
-//    }
-//
-//    public boolean isValidOPB(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(OPB).contains(icd10);
-//        return result;
-//    }
-//
-//    public boolean isValidOPD(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(OPD).contains(icd10);
-//        return result;
-//
-//    }
-//
-//    public boolean isValid99BX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(BX99).contains(icd10);
-//        return result;
-//
-//    }
-//
-//    public boolean isValid99CX(String icd10) {
-//        boolean result = false;
-//        result = Arrays.asList(CX99).contains(icd10);
-//        return result;
-//
-//    }
-//
-//    public boolean isValid99PBX(String icd9cm) {
-//        boolean result = false;
-//        result = Arrays.asList(PBX99).contains(icd9cm);
-//        return result;
-//    }
-//
-//    public boolean isValid99PCX(String icd9cm) {
-//        boolean result = false;
-//        result = Arrays.asList(PCX99).contains(icd9cm);
-//        return result;
-//    }
-//
-//    public boolean isValid99PDX(String icd9cm) {
-//        boolean result = false;
-//        result = Arrays.asList(PDX99).contains(icd9cm);
-//        return result;
-//    }
-//
-//    public boolean isValid99PEX(String icd9cm) {
-//        boolean result = false;
-//        result = Arrays.asList(PEX99).contains(icd9cm);
-//        return result;
-//    }
-//
-//    public boolean isValid99PFX(String icd9cm) {
-//        boolean result = false;
-//        result = Arrays.asList(PFX99).contains(icd9cm);
-//        return result;
-//    }
     public DRGWSResult DRGWSResult() {
         return new DRGWSResult();
+    }
+
+    public MDCCodeOptimize MDCCodeOptimize() {
+        return new MDCCodeOptimize();
     }
 
     public GrouperParameter GrouperParameter() {

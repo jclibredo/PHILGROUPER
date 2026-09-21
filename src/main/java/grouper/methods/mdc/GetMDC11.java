@@ -71,37 +71,22 @@ public class GetMDC11 {
             AX getAx = new AX();
             MDCProcedureMethod getMdcProced = new MDCProcedureMethod();
             for (int x = 0; x < ProcedureList.size(); x++) {
-//                if (utility.isValid99PEX(ProcedureList.get(x).trim())) {
-//                    CartProc++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PEX", ProcedureList.get(x).trim()).isSuccess()) {
                     CartProc++;
                 }
-//                if (utility.isValid99PFX(ProcedureList.get(x).trim())) {
-//                    CaCRxProc++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PFX", ProcedureList.get(x).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
 
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
-//                    PCXCounter99++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
                     PCXCounter99++;
                 }
                 //AX 11PBX Checking
-//                if (utility.isValid11PBX(ProcedureList.get(x).trim())) {
-//                    Counter11PBX++;
-//                }
                 if (getAx.AX(datasource, SchemaName, "11PBX", ProcedureList.get(x).trim()).isSuccess()) {
                     Counter11PBX++;
                 }
@@ -172,7 +157,7 @@ public class GetMDC11 {
                                 Counter11PBX);
                         drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(ORProcedureCounterList);
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                         drgResult.setDC(dc);
                     } else {
                         String dc = this.principalDaignosis(
@@ -212,7 +197,7 @@ public class GetMDC11 {
                         Counter11PBX);
                 drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else {
                 String dc = this.principalDaignosis(
@@ -245,7 +230,7 @@ public class GetMDC11 {
         return result;
     }
 
-    public String mdcProcedure(
+    private String mdcProcedure(
             final String pdc,
             final Integer Counter11C,
             final Integer Counter11PBX) {
@@ -300,9 +285,9 @@ public class GetMDC11 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1:
                 dc = "2601";
                 break;
@@ -325,7 +310,7 @@ public class GetMDC11 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,

@@ -139,7 +139,7 @@ public class GetMDC13 {
                         String dc = this.mdcProcedure(drgResult.getPDC(), PDxPDC);
                         drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(ORProcedureCounterList);
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                         drgResult.setDC(dc);
                     } else {
                         String dc = this.principalDaignosis(
@@ -172,7 +172,7 @@ public class GetMDC13 {
                 String dc = this.mdcProcedure(drgResult.getPDC(), PDxPDC);
                 drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else {
                 String dc = this.principalDaignosis(
@@ -203,7 +203,7 @@ public class GetMDC13 {
 
     }
 
-    public String mdcProcedure(
+    private String mdcProcedure(
             final String pdc,
             final String PDxPDC) {
         String result = "";
@@ -270,9 +270,9 @@ public class GetMDC13 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1:
                 dc = "2601";
                 break;
@@ -295,7 +295,7 @@ public class GetMDC13 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,

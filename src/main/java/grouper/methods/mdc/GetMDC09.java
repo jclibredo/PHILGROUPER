@@ -13,6 +13,7 @@ import grouper.methods.validation.PDxMalignancy;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -158,7 +159,7 @@ public class GetMDC09 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        MDC5Proc getMdcProc = this.mdcProcedure(
+                        MDCCodeOptimize getMdcProc = this.mdcProcedure(
                                 drgResult.getPDC(),
                                 Counter9BX,
                                 Counter9PBX,
@@ -174,7 +175,7 @@ public class GetMDC09 {
                             drgResult.setSDXFINDER(getMdcProc.getSdxfinder());
                         }
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(ORProcedureCounterList);
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                         drgResult.setDC(dc);
                     } else {
                         String dc = this.principalDaignosis(
@@ -207,7 +208,7 @@ public class GetMDC09 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                MDC5Proc getMdcProc = this.mdcProcedure(
+                MDCCodeOptimize getMdcProc = this.mdcProcedure(
                         drgResult.getPDC(),
                         Counter9BX,
                         Counter9PBX,
@@ -223,7 +224,7 @@ public class GetMDC09 {
                     drgResult.setSDXFINDER(getMdcProc.getSdxfinder());
                 }
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else {
                 String dc = this.principalDaignosis(
@@ -256,7 +257,7 @@ public class GetMDC09 {
 
     }
 
-    public MDC5Proc mdcProcedure(
+    private MDCCodeOptimize mdcProcedure(
             final String pdc,
             final Integer Counter9BX,
             final Integer Counter9PBX,
@@ -266,7 +267,7 @@ public class GetMDC09 {
             final List<String> SecondaryList,
             final DataSource datasource,
             final String SchemaName) {
-        MDC5Proc result = new MDC5Proc();
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
         result.setPDC("");
         result.setDC("");
         result.setSdxfinder("");
@@ -349,9 +350,9 @@ public class GetMDC09 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1:
                 dc = "2601";
                 break;
@@ -374,7 +375,7 @@ public class GetMDC09 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -438,37 +439,4 @@ public class GetMDC09 {
         return dc;
 
     }
-
-    public class MDC5Proc {
-
-        private String PDC;
-        private String DC;
-        private String sdxfinder;
-
-        public String getPDC() {
-            return PDC;
-        }
-
-        public void setPDC(String PDC) {
-            this.PDC = PDC;
-        }
-
-        public String getDC() {
-            return DC;
-        }
-
-        public void setDC(String DC) {
-            this.DC = DC;
-        }
-
-        public String getSdxfinder() {
-            return sdxfinder;
-        }
-
-        public void setSdxfinder(String sdxfinder) {
-            this.sdxfinder = sdxfinder;
-        }
-
-    }
-
 }

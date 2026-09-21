@@ -13,6 +13,7 @@ import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -149,7 +150,7 @@ public class GetMDC08 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        MDC5Proc getMdcProc = this.mdcProcedure(
+                        MDCCodeOptimize getMdcProc = this.mdcProcedure(
                                 drgResult.getPDC(),
                                 Counter8PH,
                                 grouperparameter.getBirthDate(),
@@ -157,7 +158,7 @@ public class GetMDC08 {
                                 Counter8QA);
                         drgResult.setDC(getMdcProc.getDC());
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(ORProcedureCounterList);
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                         drgResult.setDC(dc);
                     } else {
                         String dc = this.principalDaignosis(
@@ -168,7 +169,6 @@ public class GetMDC08 {
                                 CaCRxProc,
                                 Counter8PFX,
                                 PBX99Proc,
-                                grouperparameter.getDischargeType(),
                                 grouperparameter.getBirthDate(),
                                 grouperparameter.getAdmissionDate());
                         drgResult.setDC(dc);
@@ -190,7 +190,7 @@ public class GetMDC08 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                MDC5Proc getMdcProc = this.mdcProcedure(
+                MDCCodeOptimize getMdcProc = this.mdcProcedure(
                         drgResult.getPDC(),
                         Counter8PH,
                         grouperparameter.getBirthDate(),
@@ -198,7 +198,7 @@ public class GetMDC08 {
                         Counter8QA);
                 drgResult.setDC(getMdcProc.getDC());
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else {
                 String dc = this.principalDaignosis(
@@ -209,7 +209,6 @@ public class GetMDC08 {
                         CaCRxProc,
                         Counter8PFX,
                         PBX99Proc,
-                        grouperparameter.getDischargeType(),
                         grouperparameter.getBirthDate(),
                         grouperparameter.getAdmissionDate());
                 drgResult.setDC(dc);
@@ -232,13 +231,13 @@ public class GetMDC08 {
 
     }
 
-    public MDC5Proc mdcProcedure(
+    private MDCCodeOptimize mdcProcedure(
             final String pdc,
             final Integer Counter8PH,
             final String bdate,
             final String admDate,
             final Integer Counter8QA) {
-        MDC5Proc result = new MDC5Proc();
+        MDCCodeOptimize result =utility.MDCCodeOptimize();
         result.setPDC("");
         result.setDC("");
         result.setSdxfinder("");
@@ -355,9 +354,9 @@ public class GetMDC08 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1:
                 dc = "2601";
                 break;
@@ -380,7 +379,7 @@ public class GetMDC08 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -388,7 +387,6 @@ public class GetMDC08 {
             final Integer CaCRxProc,
             final Integer Counter8PFX,
             final Integer PBX99Proc,
-            final String disChargeType,
             final String bdate,
             final String admDate) {
         String dc = "";
@@ -471,38 +469,6 @@ public class GetMDC08 {
                 break;
         }
         return dc;
-
-    }
-
-    public class MDC5Proc {
-
-        private String PDC;
-        private String DC;
-        private String sdxfinder;
-
-        public String getPDC() {
-            return PDC;
-        }
-
-        public void setPDC(String PDC) {
-            this.PDC = PDC;
-        }
-
-        public String getDC() {
-            return DC;
-        }
-
-        public void setDC(String DC) {
-            this.DC = DC;
-        }
-
-        public String getSdxfinder() {
-            return sdxfinder;
-        }
-
-        public void setSdxfinder(String sdxfinder) {
-            this.sdxfinder = sdxfinder;
-        }
 
     }
 

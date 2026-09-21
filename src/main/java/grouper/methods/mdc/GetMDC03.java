@@ -143,7 +143,7 @@ public class GetMDC03 {
                 Counter3BX++;
             }
 
-//CONDITIONAL STATEMENT STARTS HERE
+            //CONDITIONAL STATEMENT STARTS HERE
             if (PDXCounter99 > 0) {
                 if (Counter3BX > 0) {
                     if (Counter3PDX > 0) { //Procedures for upper airway obstruction
@@ -174,7 +174,7 @@ public class GetMDC03 {
                         String dc = this.mdcProcedure(drgResult.getPDC(), Counter3PEX);
                         drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(ORProcedureCounterList);
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                         drgResult.setDC(dc);
                     } else {//PRINCIPAL DIAGNOSIS
                         String dc = this.principalDaignosis(
@@ -202,7 +202,7 @@ public class GetMDC03 {
                 String dc = this.mdcProcedure(drgResult.getPDC(), Counter3PEX);
                 drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else {//PRINCIPAL DIAGNOSIS
                 String dc = this.principalDaignosis(
@@ -233,11 +233,10 @@ public class GetMDC03 {
         return result;
     }
 
-    public String mdcProcedure(
+    private String mdcProcedure(
             final String pdc,
             final Integer Counter3PEX) {
         String result = "";
-
         switch (pdc) {
             case "3PT":   //Laryngectomy
                 result = "0320";
@@ -299,9 +298,9 @@ public class GetMDC03 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1:
                 dc = "2601";
                 break;
@@ -324,7 +323,7 @@ public class GetMDC03 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,

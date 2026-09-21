@@ -56,7 +56,7 @@ public class GetMDC25 {
             String mdcWithoutZeros = String.valueOf(mdcAsInt);
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
-            int ORProcedureCounter = 0;
+//            int ORProcedureCounter = 0;
             int mdcprocedureCounter = 0;
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             ArrayList<Integer> hierarvalue = new ArrayList<>();
@@ -72,10 +72,9 @@ public class GetMDC25 {
                 }
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
                 if (ORProcedureResult.isSuccess()) {
-                    ORProcedureCounter++;
+//                    ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName,
                         ProcedureList.get(x).trim(),
                         mdcWithoutZeros,
@@ -100,13 +99,14 @@ public class GetMDC25 {
             int Counter25DXPDx = 0;
             int Counter25CXPDx = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, SchemaName, "25BX", SecondaryList.get(a).trim()).isSuccess()) {
+                String sdxCode = SecondaryList.get(a);
+                if (checkAX.AX(datasource, SchemaName, "25BX", sdxCode.trim()).isSuccess()) {
                     Counter25BXSDx++;
                 }
-                if (checkAX.AX(datasource, SchemaName, "25CX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "25CX", sdxCode.trim()).isSuccess()) {
                     Counter25CXSDx++;
                 }
-                if (checkAX.AX(datasource, SchemaName, "25DX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "25DX", sdxCode.trim()).isSuccess()) {
                     Counter25DXSDx++;
                 }
             }
@@ -119,33 +119,15 @@ public class GetMDC25 {
             if (checkAX.AX(datasource, SchemaName, "25DX", grouperparameter.getPdx()).isSuccess()) {
                 Counter25DXPDx++;
             }
-            
+
             if (PDXCounter99 > 0) {//Trache-ostomy
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), 
+                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), 
+                        grouperparameter.getDischargeDate(),
                         utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 6://OR Proc Level 6
-                                drgResult.setDC("2506");
-                                break;
-                            case 5://OR Proc Level 5
-                                drgResult.setDC("2505");
-                                break;
-                            case 4://OR Proc Level 4
-                                drgResult.setDC("2504");
-                                break;
-                            case 3://OR Proc Level 3
-                                drgResult.setDC("2503");
-                                break;
-                            case 2://OR Proc Level 2
-                                drgResult.setDC("2502");
-                                break;
-                            case 1://OR Proc Level 1
-                                drgResult.setDC("2501");
-                                break;
-                        }
+                        String getDc = this.MDCProcedures(Collections.max(ORProcedureCounterList));
+                        drgResult.setDC(getDc);
                     } else if (Counter25BXSDx > 0 || Counter25BXPDx > 0) {//HIV-related CNS Diseases
                         for (int x = 0; x < SecondaryList.size(); x++) {
                             if (checkAX.AX(datasource, SchemaName, "25BX", SecondaryList.get(x).trim()).isSuccess()) {
@@ -167,7 +149,6 @@ public class GetMDC25 {
                         }
                         drgResult.setDC("2551");
                     } else {
-
                         if (Counter25DXSDx > 0 || Counter25DXPDx > 0) {//HIV-related Infection
                             if (grouperparameter.getDischargeType().equals("4")) {
                                 drgResult.setDC("2554");
@@ -194,26 +175,8 @@ public class GetMDC25 {
                     }
                 }
             } else if (mdcprocedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 6://OR Proc Level 6
-                        drgResult.setDC("2506");
-                        break;
-                    case 5://OR Proc Level 5
-                        drgResult.setDC("2505");
-                        break;
-                    case 4://OR Proc Level 4
-                        drgResult.setDC("2504");
-                        break;
-                    case 3://OR Proc Level 3
-                        drgResult.setDC("2503");
-                        break;
-                    case 2://OR Proc Level 2
-                        drgResult.setDC("2502");
-                        break;
-                    case 1://OR Proc Level 1
-                        drgResult.setDC("2501");
-                        break;
-                }
+                String getDc = this.MDCProcedures(Collections.max(ORProcedureCounterList));
+                drgResult.setDC(getDc);
             } else if (Counter25BXSDx > 0 || Counter25BXPDx > 0) {//HIV-related CNS Diseases
                 for (int x = 0; x < SecondaryList.size(); x++) {
                     if (checkAX.AX(datasource, SchemaName, "25BX", SecondaryList.get(x).trim()).isSuccess()) {
@@ -244,7 +207,6 @@ public class GetMDC25 {
                 } else {//Other HIV-related Condition
                     drgResult.setDC("2553");
                 }
-
                 for (int x = 0; x < SecondaryList.size(); x++) {
                     if (checkAX.AX(datasource, SchemaName, "25DX", SecondaryList.get(x).trim()).isSuccess()) {
                         sdxfinder.add(SecondaryList.get(x).trim());
@@ -271,6 +233,31 @@ public class GetMDC25 {
         }
         return result;
 
+    }
+
+    private String MDCProcedures(final Integer ORProcedureCounterList) {
+        String dc = "";
+        switch (ORProcedureCounterList) {
+            case 6://OR Proc Level 6
+                dc = "2506";
+                break;
+            case 5://OR Proc Level 5
+                dc = "2505";
+                break;
+            case 4://OR Proc Level 4
+                dc = "2504";
+                break;
+            case 3://OR Proc Level 3
+                dc = "2503";
+                break;
+            case 2://OR Proc Level 2
+                dc = "2502";
+                break;
+            case 1://OR Proc Level 1
+                dc = "2501";
+                break;
+        }
+        return dc;
     }
 
 }

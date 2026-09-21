@@ -12,6 +12,7 @@ import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -52,7 +53,6 @@ public class GetMDC23 {
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             AX checkAX = new AX();
             //CHECKING FOR TRAUMA CODES
-            ArrayList<String> sdxfinder = new ArrayList<>();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int ORProcedureCounter = 0;
@@ -62,16 +62,10 @@ public class GetMDC23 {
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
-//                    PCXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PCXCounter99++;
                 }
@@ -109,62 +103,23 @@ public class GetMDC23 {
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (ORProcedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 6://OR Proc Level 6 AND 5
-                            case 5:
-                                drgResult.setDC("2308");
-                                break;
-                            case 4://OR Proc Level 4
-                                drgResult.setDC("2307");
-                                break;
-                            case 3://OR Proc Level 3
-                                drgResult.setDC("2306");
-                                break;
-                            case 2://OR Proc Level 2
-                                drgResult.setDC("2305");
-                                break;
-                            case 1://OR Proc Level 1
-                                drgResult.setDC("2304");
-                                break;
-                        }
-
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
+                        drgResult.setDC(dc);
                     } else {
-                        switch (drgResult.getPDC()) {
-                            case "23A"://Rehabilitation
-                                if (Counter23BX > 0) {
-                                    for (int x = 0; x < SecondaryList.size(); x++) {
-                                        if (checkAX.AX(datasource, SchemaName, "23BX", SecondaryList.get(x).trim()).isSuccess()) {
-                                            sdxfinder.add(SecondaryList.get(x));
-                                        }
-                                    }
-                                    if (!sdxfinder.isEmpty()) {
-                                        drgResult.setSDXFINDER(String.join(",", sdxfinder));
-                                    }
-                                    drgResult.setDC("2355");
-                                } else {
-                                    drgResult.setDC("2350");
-                                }
-                                break;
-                            case "23B"://Signs, Symptoms and Other Abnormal Findings
-                                drgResult.setDC("2351");
-                                break;
-                            case "23C"://Drugs
-                                if (Counter23PBX > 0) {
-                                    drgResult.setDC("2303");
-                                } else {
-                                    drgResult.setDC("2352");
-                                }
-                                break;
-                            case "23D"://Other Factors Influencing Health Status PDC 23D
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 54) {
-                                    drgResult.setDC("2353");
-                                } else {
-                                    drgResult.setDC("2354");
-                                }
-                                break;
+                        MDCCodeOptimize getResult = this.principalDaignosis(
+                                drgResult.getPDC(),
+                                Counter23BX,
+                                SecondaryList,
+                                datasource,
+                                SchemaName,
+                                Counter23PBX,
+                                grouperparameter.getBirthDate(),
+                                grouperparameter.getAdmissionDate());
+                        if (!getResult.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(getResult.getSdxfinder());
                         }
+                        drgResult.setDC(getResult.getDC());
                     }
-
                 } else {
                     if (PCXCounter99 > 0) {
                         drgResult.setDC("2311");
@@ -174,62 +129,23 @@ public class GetMDC23 {
                 }
 
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 6://OR Proc Level 6 AND 5
-                    case 5:
-                        drgResult.setDC("2308");
-                        break;
-                    case 4://OR Proc Level 4
-                        drgResult.setDC("2307");
-                        break;
-                    case 3://OR Proc Level 3
-                        drgResult.setDC("2306");
-                        break;
-                    case 2://OR Proc Level 2
-                        drgResult.setDC("2305");
-                        break;
-                    case 1://OR Proc Level 1
-                        drgResult.setDC("2304");
-                        break;
-                }
-
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
+                drgResult.setDC(dc);
             } else {
-                switch (drgResult.getPDC()) {
-                    case "23A"://Rehabilitation
-                        if (Counter23BX > 0) {
-                            for (int x = 0; x < SecondaryList.size(); x++) {
-                                if (checkAX.AX(datasource, SchemaName, "23BX", SecondaryList.get(x).trim()).isSuccess()) {
-                                    sdxfinder.add(SecondaryList.get(x));
-                                }
-                            }
-                            if (!sdxfinder.isEmpty()) {
-                                drgResult.setSDXFINDER(String.join(",", sdxfinder));
-                            }
-                            drgResult.setDC("2355");
-                        } else {
-                            drgResult.setDC("2350");
-                        }
-                        break;
-                    case "23B"://Signs, Symptoms and Other Abnormal Findings
-                        drgResult.setDC("2351");
-                        break;
-                    case "23C"://Drugs
-                        if (Counter23PBX > 0) {
-                            drgResult.setDC("2303");
-                        } else {
-                            drgResult.setDC("2352");
-                        }
-                        break;
-                    case "23D"://Other Factors Influencing Health Status PDC 23D
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 54) {
-                            drgResult.setDC("2353");
-                        } else {
-                            drgResult.setDC("2354");
-                        }
-                        break;
+                MDCCodeOptimize getResult = this.principalDaignosis(
+                        drgResult.getPDC(),
+                        Counter23BX,
+                        SecondaryList,
+                        datasource,
+                        SchemaName,
+                        Counter23PBX,
+                        grouperparameter.getBirthDate(),
+                        grouperparameter.getAdmissionDate());
+                if (!getResult.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(getResult.getSdxfinder());
                 }
+                drgResult.setDC(getResult.getDC());
             }
-
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
@@ -242,6 +158,82 @@ public class GetMDC23 {
         } catch (IOException | NumberFormatException ex) {
             result.setMessage("Something went wrong");
             Logger.getLogger(GetMDC23.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+
+    }
+
+    private String orProcedure(final Integer ORProcedureCounterList) {
+        String dc = "";
+        switch (ORProcedureCounterList) {
+            case 6://OR Proc Level 6 AND 5
+            case 5:
+                dc = "2308";
+                break;
+            case 4://OR Proc Level 4
+                dc = "2307";
+                break;
+            case 3://OR Proc Level 3
+                dc = "2306";
+                break;
+            case 2://OR Proc Level 2
+                dc = "2305";
+                break;
+            case 1://OR Proc Level 1
+                dc = "2304";
+                break;
+        }
+        return dc;
+    }
+
+    private MDCCodeOptimize principalDaignosis(
+            final String pdc,
+            final Integer Counter23BX,
+            final List<String> SecondaryList,
+            final DataSource datasource,
+            final String SchemaName,
+            final Integer Counter23PBX,
+            final String bdate,
+            final String admDate) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setPDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
+        ArrayList<String> sdxfinder = new ArrayList<>();
+        switch (pdc.toUpperCase()) {
+            case "23A"://Rehabilitation
+                if (Counter23BX > 0) {
+                    for (int x = 0; x < SecondaryList.size(); x++) {
+                        if (checkAX.AX(datasource, SchemaName, "23BX", SecondaryList.get(x).trim()).isSuccess()) {
+                            sdxfinder.add(SecondaryList.get(x));
+                        }
+                    }
+                    if (!sdxfinder.isEmpty()) {
+                        result.setSdxfinder(String.join(",", sdxfinder));
+                    }
+                    result.setDC("2355");
+                } else {
+                    result.setDC("2350");
+                }
+                break;
+            case "23B"://Signs, Symptoms and Other Abnormal Findings
+                result.setDC("2351");
+                break;
+            case "23C"://Drugs
+                if (Counter23PBX > 0) {
+                    result.setDC("2303");
+                } else {
+                    result.setDC("2352");
+                }
+                break;
+            case "23D"://Other Factors Influencing Health Status PDC 23D
+                if (utility.ComputeYear(bdate, admDate) > 54) {
+                    result.setDC("2353");
+                } else {
+                    result.setDC("2354");
+                }
+                break;
         }
         return result;
 

@@ -14,6 +14,7 @@ import grouper.methods.validation.PDxMalignancy;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -70,7 +71,6 @@ public class GetMDC06 {
                     CaCRxSDx++;
                 }
             }
-
             int MalignantCount = 0;
             if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "6A").isSuccess()) {
                 MalignantCount++;
@@ -150,7 +150,7 @@ public class GetMDC06 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        MDC5Proc getResult = this.mdcProcedure(
+                        MDCCodeOptimize getResult = this.mdcProcedure(
                                 drgResult.getPDC(),
                                 MalignantCount,
                                 Ax6BXCount,
@@ -163,9 +163,9 @@ public class GetMDC06 {
                                 grouperparameter.getTimeAdmission(),
                                 grouperparameter.getDischargeDate(),
                                 grouperparameter.getTimeDischarge());
-                        drgResult.setDC(getResult.getDc());
-                        if (!getResult.getDrg().isEmpty()) {
-                            drgResult.setDRG(getResult.getDrg());
+                        drgResult.setDC(getResult.getDC());
+                        if (!getResult.getDRG().isEmpty()) {
+                            drgResult.setDRG(getResult.getDRG());
                         }
                     } else if (ORProcedureCounter > 0) {
                         String dc = this.orProcedure(ORProcedureCounterList);
@@ -201,7 +201,7 @@ public class GetMDC06 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                MDC5Proc getResult = this.mdcProcedure(
+                MDCCodeOptimize getResult = this.mdcProcedure(
                         drgResult.getPDC(),
                         MalignantCount,
                         Ax6BXCount,
@@ -214,9 +214,9 @@ public class GetMDC06 {
                         grouperparameter.getTimeAdmission(),
                         grouperparameter.getDischargeDate(),
                         grouperparameter.getTimeDischarge());
-                drgResult.setDC(getResult.getDc());
-                if (!getResult.getDrg().isEmpty()) {
-                    drgResult.setDRG(getResult.getDrg());
+                drgResult.setDC(getResult.getDC());
+                if (!getResult.getDRG().isEmpty()) {
+                    drgResult.setDRG(getResult.getDRG());
                 }
             } else if (ORProcedureCounter > 0) {
                 String dc = this.orProcedure(ORProcedureCounterList);
@@ -254,7 +254,7 @@ public class GetMDC06 {
         return result;
     }
 
-    public MDC5Proc mdcProcedure(
+    private MDCCodeOptimize mdcProcedure(
             final String pdc,
             final Integer MalignantCount,
             final Integer Ax6BXCount,
@@ -267,84 +267,84 @@ public class GetMDC06 {
             final String admTime,
             final String disDate,
             final String disTime) {
-        MDC5Proc result = new MDC5Proc();
-        result.setDc("");
-        result.setDrg("");
-        result.setPdc("");
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setDRG("");
+        result.setPDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
         switch (pdc.toUpperCase()) {
             case "6PS"://Lap Stomach, Eso & Duodenum
-                result.setDc("0627");
+                result.setDC("0627");
                 break;
             case "6PV"://Stomach ,Eso & Duodenum Resection
                 if (MalignantCount > 0) {
-                    result.setDc("0630");
+                    result.setDC("0630");
                 } else {
-                    result.setDc("0631");
+                    result.setDC("0631");
                 }
                 break;
             case "6PE"://Other Stomach ,Eso & Duodenum
                 if (MalignantCount > 0) {
-                    result.setDc("0601");
+                    result.setDC("0601");
                 } else {
-                    result.setDc("0602");
+                    result.setDC("0602");
                 }
                 break;
             case "6PA"://Rectal Resection
-                result.setDc("0604");
+                result.setDC("0604");
                 break;
             case "6PB"://Major Small and Large Bowel
-                result.setDc("0603");
+                result.setDC("0603");
                 break;
             case "6PT"://Lap Peritoneal Adhesiolysis
-                result.setDc("0628");
+                result.setDC("0628");
                 break;
             case "6PK"://Other Digestive System OR Procedures
                 if (MalignantCount > 0) {
-                    result.setDc("0613");
+                    result.setDC("0613");
                 } else {
-                    result.setDc("0614");
+                    result.setDC("0614");
                 }
                 break;
             case "6PM"://Complex Therapeutic Gastroscopy
                 if (Ax6BXCount > 0) {
-                    result.setDc("0616");
+                    result.setDC("0616");
                 } else {
-                    result.setDc("0617");
+                    result.setDC("0617");
                 }
                 break;
             case "6PD"://Minor Small and Large Bowel
-                result.setDc("0608");
+                result.setDC("0608");
                 break;
             case "6PC"://Peritoneal Adhesiolysis
-                result.setDc("0605");
+                result.setDC("0605");
                 break;
             case "6PG":
             case "6PH":
                 if (utility.ComputeYear(bdate,
                         admDate) > 14) {
                     if (Counter6PH > 0) { //IF TRUE
-                        result.setDc("0610");
+                        result.setDC("0610");
                     } else {
-                        result.setDc("0611");//IF FALSE
+                        result.setDC("0611");//IF FALSE
                     }
                 } else {
-                    result.setDc("0612");
+                    result.setDC("0612");
                 }
                 break;
 
             case "6PL"://Pyloromyotomy procedure
-                result.setDc("0615");
+                result.setDC("0615");
                 break;
             case "6PU"://Lap Appendectomy
-                result.setDc("0629");
+                result.setDC("0629");
                 break;
             case "6PJ"://Appendectomy
                 if (checkAX.AX(datasource, SchemaName, "6CX", pdx.trim()).isSuccess()) {
-                    result.setDc("0632");
+                    result.setDC("0632");
                 } else {
-                    result.setDc("0607");
+                    result.setDC("0607");
                 }
                 break;
             case "6PN"://Other Gastroscopy
@@ -353,49 +353,49 @@ public class GetMDC06 {
                             utility.Convert24to12(admTime),
                             disDate,
                             utility.Convert24to12(disTime)) > 0) {
-                        result.setDc("0619");
+                        result.setDC("0619");
                     } else {
-                        result.setDrg("06209");
-                        result.setDc("0620");
+                        result.setDRG("06209");
+                        result.setDC("0620");
                     }
                 } else {
                     if (utility.ComputeLOS(admDate,
                             utility.Convert24to12(admTime),
                             disDate,
                             utility.Convert24to12(disTime)) > 0) {
-                        result.setDc("0621");
+                        result.setDC("0621");
                     } else {
-                        result.setDrg("06229");
-                        result.setDc("0622");
+                        result.setDRG("06229");
+                        result.setDC("0622");
                     }
                 }
                 break;
             case "6PP"://Complex Therpeutic Colonoscopy
-                result.setDc("0623");
+                result.setDC("0623");
                 break;
             case "6PQ"://Other Colonoscopy
                 if (utility.ComputeLOS(admDate,
                         utility.Convert24to12(admTime),
                         disDate,
                         utility.Convert24to12(disTime)) > 0) {
-                    result.setDc("0624");
+                    result.setDC("0624");
                 } else {
-                    result.setDrg("06259");
-                    result.setDc("0625");
+                    result.setDRG("06259");
+                    result.setDC("0625");
                 }
                 break;
             case "6PF"://Anal and Stomal
-                result.setDc("0609");
+                result.setDC("0609");
                 break;
             case "6PR"://Dilatation of Intestine 6PR
-                result.setDrg("06269");
-                result.setDc("0626");
+                result.setDRG("06269");
+                result.setDC("0626");
                 break;
         }
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
         String dc = "";
         switch (Collections.max(ORProcedureCounterList)) {
             case 1:
@@ -420,7 +420,7 @@ public class GetMDC06 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -523,47 +523,6 @@ public class GetMDC06 {
                 break;
         }
         return dc;
-
-    }
-
-    public class MDC5Proc {
-
-        private String pdc;
-        private String dc;
-        private String sdxfinder;
-        private String drg;
-
-        public String getPdc() {
-            return pdc;
-        }
-
-        public void setPdc(String pdc) {
-            this.pdc = pdc;
-        }
-
-        public String getDc() {
-            return dc;
-        }
-
-        public void setDc(String dc) {
-            this.dc = dc;
-        }
-
-        public String getSdxfinder() {
-            return sdxfinder;
-        }
-
-        public void setSdxfinder(String sdxfinder) {
-            this.sdxfinder = sdxfinder;
-        }
-
-        public String getDrg() {
-            return drg;
-        }
-
-        public void setDrg(String drg) {
-            this.drg = drg;
-        }
 
     }
 

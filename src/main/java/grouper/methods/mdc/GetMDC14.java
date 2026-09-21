@@ -18,6 +18,7 @@ import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -96,10 +97,7 @@ public class GetMDC14 {
                     Counter14PCX++;
                 }
                 if (checkAX.AX(datasource, SchemaName, "14PHX", ProcedureList.get(y).trim()).isSuccess()) {
-//                DRGWSResult NonORProcedure =  new ORProcedure().ORProcedure(datasource, Result14PHX.getResult());
-//                if (NonORProcedure.isSuccess()) {
                     Counter14PHX++;
-                    //}
                 }
                 DRGWSResult Result14PDX = checkAX.AX(datasource, SchemaName, "14PDX", ProcedureList.get(y).trim());
                 if (Result14PDX.isSuccess()) {
@@ -118,10 +116,6 @@ public class GetMDC14 {
             int Counter14GX = 0;
             int Counter14JX = 0;
             int ICD10mdcCounter = 0;
-//            if (checkAX.AX(datasource, SchemaName, "14KX", grouperparameter.getPdx().trim()).isSuccess()) {
-//                Counter14KX++;
-//            }
-
             for (int a = 0; a < SecondaryList.size(); a++) {
                 if (checkAX.AX(datasource, SchemaName, "14KX", SecondaryList.get(a).trim()).isSuccess()) {
                     Counter14KX++;
@@ -274,84 +268,31 @@ public class GetMDC14 {
                 //11
             } else {
                 switch (drgResult.getPDC()) {
-                    case "14A"://Labour and Delivery
+                    case "14A": {//Labour and Delivery
                         //COTNINUE TO 1
-                        if (Counter14PBX > 0) {
-                            drgResult.setDC("1401");
-                        } else if (Counter14PCX > 0) {
-                            drgResult.setDC("1402");
-                        } else if (Counter14PGX > 0) {
-                            drgResult.setDC("1407");
-                        } else if (Counter14PJX > 0) {
-                            drgResult.setDC("1409");
-                        } else if (UnralatedORProcedure > 0) {
-                            switch (Collections.max(ORProcedureCounterList)) {// FIX HERE
-                                case 1:
-                                    drgResult.setDC("2601");
-                                    break;
-                                case 2:
-                                    drgResult.setDC("2602");
-                                    break;
-                                case 3:
-                                    drgResult.setDC("2603");
-                                    break;
-                                case 4:
-                                    drgResult.setDC("2604");
-                                    break;
-                                case 5:
-                                    drgResult.setDC("2605");
-                                    break;
-                                case 6:
-                                    drgResult.setDC("2606");
-                                    break;
-                            }
-                        } else {
-                            if (Counter14PHX > 0) {
-                                drgResult.setDC("1408");
-                            } else {
-                                drgResult.setDC("1450");
-                            }
-                        }
+                        String dc = this.processOne(
+                                Counter14PBX,
+                                Counter14PCX,
+                                Counter14PGX,
+                                Counter14PJX,
+                                UnralatedORProcedure,
+                                Counter14PHX,
+                                Collections.max(ORProcedureCounterList));
+                        drgResult.setDC(dc);
                         break;
-                    case "14B"://Pregnancy
+                    }
+                    case "14B": {//Pregnancy
                         if (Counter14BX > 0) {
                             //COTNINUE TO 1
-                            if (Counter14PBX > 0) {
-                                drgResult.setDC("1401");
-                            } else if (Counter14PCX > 0) {
-                                drgResult.setDC("1402");
-                            } else if (Counter14PGX > 0) {
-                                drgResult.setDC("1407");
-                            } else if (Counter14PJX > 0) {
-                                drgResult.setDC("1409");
-                            } else if (UnralatedORProcedure > 0) {
-                                switch (Collections.max(ORProcedureCounterList)) {
-                                    case 1:
-                                        drgResult.setDC("2601");
-                                        break;
-                                    case 2:
-                                        drgResult.setDC("2602");
-                                        break;
-                                    case 3:
-                                        drgResult.setDC("2603");
-                                        break;
-                                    case 4:
-                                        drgResult.setDC("2604");
-                                        break;
-                                    case 5:
-                                        drgResult.setDC("2605");
-                                        break;
-                                    case 6:
-                                        drgResult.setDC("2606");
-                                        break;
-                                }
-                            } else {
-                                if (Counter14PHX > 0) {
-                                    drgResult.setDC("1408");
-                                } else {
-                                    drgResult.setDC("1450");
-                                }
-                            }
+                            String dc = this.processOne(
+                                    Counter14PBX,
+                                    Counter14PCX,
+                                    Counter14PGX,
+                                    Counter14PJX,
+                                    UnralatedORProcedure,
+                                    Counter14PHX,
+                                    Collections.max(ORProcedureCounterList));
+                            drgResult.setDC(dc);
                             for (int x = 0; x < SecondaryList.size(); x++) {
                                 DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "14BX", SecondaryList.get(x).trim());
                                 if (sdxfinderResult.isSuccess()) {
@@ -364,32 +305,17 @@ public class GetMDC14 {
                         } else {
                             if (Counter14EX > 0) {
                                 //COTNINUE TO 2
-                                if (ORProcedureCounter > 0) {
-                                    if (Counter14PDX > 0) {
-                                        drgResult.setDRG("14049");
-                                        drgResult.setDC("1404");
-                                    } else {
-                                        drgResult.setDRG("14039");
-                                        drgResult.setDC("1403");
-                                    }
-                                } else {
-                                    drgResult.setDRG("14519");
-                                    drgResult.setDC("1451");
-                                }
+                                MDCCodeOptimize getResult = this.processTwo(ORProcedureCounter, Counter14PDX);
+                                drgResult.setDRG(getResult.getDRG());
+                                drgResult.setDC(getResult.getDC());
                             } else {
                                 //COTNINUE TO 3
-                                if (Counter14PDX > 0) {
-                                    drgResult.setDRG("14049");
-                                    drgResult.setDC("1404");
-                                } else {
-                                    if (dxas14Fx > 0 || Counter14FX > 0) {
-                                        drgResult.setDRG("14521");
-                                        drgResult.setDC("1452");
-                                    } else {
-                                        drgResult.setDRG("14520");
-                                        drgResult.setDC("1452");
-                                    }
-                                }
+                                MDCCodeOptimize getResult = this.processThree(
+                                        Counter14PDX,
+                                        dxas14Fx,
+                                        Counter14FX);
+                                drgResult.setDRG(getResult.getDRG());
+                                drgResult.setDC(getResult.getDC());
                             }
                             for (int x = 0; x < SecondaryList.size(); x++) {
                                 DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "14EX", SecondaryList.get(x));
@@ -402,60 +328,24 @@ public class GetMDC14 {
                             }
                         }
                         break;
-                    case "14C"://PP/Post Abort/Deli
+                    }
+                    case "14C": {//PP/Post Abort/Deli
                         if (Counter14BX > 0) {
                             //COTNINUE TO 1
-                            if (Counter14PBX > 0) {
-                                drgResult.setDC("1401");
-                            } else if (Counter14PCX > 0) {
-                                drgResult.setDC("1402");
-                            } else if (Counter14PGX > 0) {
-                                drgResult.setDC("1407");
-                            } else if (Counter14PJX > 0) {
-                                drgResult.setDC("1409");
-                            } else if (UnralatedORProcedure > 0) {
-                                switch (Collections.max(ORProcedureCounterList)) {
-                                    case 1:
-                                        drgResult.setDC("2601");
-                                        break;
-                                    case 2:
-                                        drgResult.setDC("2602");
-                                        break;
-                                    case 3:
-                                        drgResult.setDC("2603");
-                                        break;
-                                    case 4:
-                                        drgResult.setDC("2604");
-                                        break;
-                                    case 5:
-                                        drgResult.setDC("2605");
-                                        break;
-                                    case 6:
-                                        drgResult.setDC("2606");
-                                        break;
-                                }
-                            } else {
-                                if (Counter14PHX > 0) {
-                                    drgResult.setDC("1408");
-                                } else {
-                                    drgResult.setDC("1450");
-                                }
-
-                            }
+                            String dc = this.processOne(
+                                    Counter14PBX,
+                                    Counter14PCX,
+                                    Counter14PGX,
+                                    Counter14PJX,
+                                    UnralatedORProcedure,
+                                    Counter14PHX,
+                                    Collections.max(ORProcedureCounterList));
+                            drgResult.setDC(dc);
                         } else {
                             //COTNINUE TO 2
-                            if (ORProcedureCounter > 0) {
-                                if (Counter14PDX > 0) {
-                                    drgResult.setDRG("14049");
-                                    drgResult.setDC("1404");
-                                } else {
-                                    drgResult.setDRG("14039");
-                                    drgResult.setDC("1403");
-                                }
-                            } else {
-                                drgResult.setDRG("14519");
-                                drgResult.setDC("1451");
-                            }
+                            MDCCodeOptimize getResult = this.processTwo(ORProcedureCounter, Counter14PDX);
+                            drgResult.setDRG(getResult.getDRG());
+                            drgResult.setDC(getResult.getDC());
                         }
 
                         for (int x = 0; x < SecondaryList.size(); x++) {
@@ -468,37 +358,25 @@ public class GetMDC14 {
                             drgResult.setSDXFINDER(String.join(",", sdxfinder));
                         }
                         break;
-                    case "14D"://PP/Post Abortion
+                    }
+                    case "14D": {//PP/Post Abortion
                         //COTNINUE TO 2
-                        if (ORProcedureCounter > 0) {
-                            if (Counter14PDX > 0) {
-                                drgResult.setDRG("14049");
-                                drgResult.setDC("1404");
-                            } else {
-                                drgResult.setDRG("14039");
-                                drgResult.setDC("1403");
-                            }
-                        } else {
-                            drgResult.setDRG("14519");
-                            drgResult.setDC("1451");
-                        }
+                        MDCCodeOptimize getResult = this.processTwo(ORProcedureCounter, Counter14PDX);
+                        drgResult.setDRG(getResult.getDRG());
+                        drgResult.setDC(getResult.getDC());
                         break;
-                    case "14E"://Antenatal
+                    }
+                    case "14E": {//Antenatal
                         //COTNINUE TO 3
-                        if (Counter14PDX > 0) {
-                            drgResult.setDRG("14049");
-                            drgResult.setDC("1404");
-                        } else {
-                            if (dxas14Fx > 0 || Counter14FX > 0) {
-                                drgResult.setDRG("14521");
-                                drgResult.setDC("1452");
-                            } else {
-                                drgResult.setDRG("14520");
-                                drgResult.setDC("1452");
-                            }
-                        }
+                        MDCCodeOptimize getResult = this.processThree(
+                                Counter14PDX,
+                                dxas14Fx,
+                                Counter14FX);
+                        drgResult.setDRG(getResult.getDRG());
+                        drgResult.setDC(getResult.getDC());
                         break;
-                    case "14F"://Ectopic Pregnancy
+                    }
+                    case "14F": {//Ectopic Pregnancy
                         if (Counter14PDX > 0) {
                             if (Counter14KX > 0) {
                                 drgResult.setDRG("14121");
@@ -512,13 +390,15 @@ public class GetMDC14 {
                             drgResult.setDC("1453");
                         }
                         break;
-                    case "14G"://Threatened Abortion
+                    }
+                    case "14G": {//Threatened Abortion
                         drgResult.setDRG("14549");
                         drgResult.setDC("1454");
                         break;
+                    }
                     case "14H"://Abortion
                     case "14K":
-                    case "14L":
+                    case "14L": {
                         if (Counter14PFX > 0) {
                             drgResult.setDRG("14069");
                             drgResult.setDC("1406");
@@ -557,10 +437,12 @@ public class GetMDC14 {
 
                         }
                         break;
-                    case "14J"://False Labor 14J
+                    }
+                    case "14J": {//False Labor 14J
                         drgResult.setDRG("14569");
                         drgResult.setDC("1456");
                         break;
+                    }
                 }
             }
 
@@ -665,5 +547,105 @@ public class GetMDC14 {
 
         return result;
     }
-    
+
+    private MDCCodeOptimize processThree(
+            final Integer Counter14PDX,
+            final Integer dxas14Fx,
+            final Integer Counter14FX) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setDRG("");
+        if (Counter14PDX > 0) {
+            result.setDRG("14049");
+            result.setDC("1404");
+        } else {
+            if (dxas14Fx > 0 || Counter14FX > 0) {
+                result.setDRG("14521");
+                result.setDC("1452");
+            } else {
+                result.setDRG("14520");
+                result.setDC("1452");
+            }
+        }
+        return result;
+
+    }
+
+    private MDCCodeOptimize processTwo(
+            final Integer ORProcedureCounter,
+            final Integer Counter14PDX) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setDRG("");
+        if (ORProcedureCounter > 0) {
+            if (Counter14PDX > 0) {
+                result.setDRG("14049");
+                result.setDC("1404");
+            } else {
+                result.setDRG("14039");
+                result.setDC("1403");
+            }
+        } else {
+            result.setDRG("14519");
+            result.setDC("1451");
+        }
+        return result;
+
+    }
+
+    private String processOne(
+            final Integer Counter14PBX,
+            final Integer Counter14PCX,
+            final Integer Counter14PGX,
+            final Integer Counter14PJX,
+            final Integer UnralatedORProcedure,
+            final Integer Counter14PHX,
+            final Integer ORProcedureCounterList) {
+        String dc = "";
+        if (Counter14PBX > 0) {
+            dc = "1401";
+        } else if (Counter14PCX > 0) {
+            dc = "1402";
+        } else if (Counter14PGX > 0) {
+            dc = "1407";
+        } else if (Counter14PJX > 0) {
+            dc = "1409";
+        } else if (UnralatedORProcedure > 0) {
+            String getDc = this.orProcedure(ORProcedureCounterList);
+            dc = getDc;
+        } else {
+            if (Counter14PHX > 0) {
+                dc = "1408";
+            } else {
+                dc = "1450";
+            }
+        }
+        return dc;
+    }
+
+    private String orProcedure(final Integer ORProcedureCounterList) {
+        String dc = "";
+        switch (ORProcedureCounterList) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
 }

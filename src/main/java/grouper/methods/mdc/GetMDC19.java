@@ -50,57 +50,10 @@ public class GetMDC19 {
                     Counter19PBX++;
                 }
             }
-            switch (drgResult.getPDC()) {
-                case "19A"://Acute Psychotic Disorders
-                    if (Counter19PBX > 0) {
-                        drgResult.setDC("1901");
-                    } else {
-                        drgResult.setDC("1950");
-                    }
-                    break;
-                case "19B"://Chronic Psychotic Disorders
-                    if (Counter19PBX > 0) {
-
-                        drgResult.setDC("1902");
-                    } else {
-                        drgResult.setDC("1951");
-                    }
-                    break;
-                case "19C"://Major Affective Disorders
-                    if (Counter19PBX > 0) {
-                        drgResult.setDC("1903");
-                    } else {
-                        drgResult.setDC("1952");
-                    }
-                    break;
-                case "19D"://Other Affect and Somatoform Disorders
-                    drgResult.setDC("1953");
-                    break;
-                case "19E"://Acute Reaction and Psychosocial Dysfunction
-                    drgResult.setDC("1954");
-                    break;
-                case "19F"://Anxiety Disorders
-                    drgResult.setDC("1955");
-                    break;
-                case "19G"://Eating and Obsessive Compulsive Disorders
-                    drgResult.setDC("1956");
-                    break;
-                case "19H"://Personality and Impulse Control Disorders
-                    drgResult.setDC("1957");
-                    break;
-                case "19J"://Childhood Mental Disorders
-                    drgResult.setDC("1958");
-                    break;
-                case "19K"://Organic Disturbance and Mental Retardation
-                    drgResult.setDC("1959");
-                    break;
-                case "19L"://Other Mental Disorders
-                    drgResult.setDC("1960");
-                    break;
-                case "19M"://Sexual Dysfunction PDC 19M
-                    drgResult.setDC("1961");
-                    break;
-            }
+            //FINDING DC IS HERE
+            String getDc = this.principalDiag(drgResult.getPDC(), Counter19PBX);
+            drgResult.setDC(getDc);
+            //FINDING PCCL IS HERE
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
@@ -116,6 +69,63 @@ public class GetMDC19 {
         }
         return result;
 
+    }
+
+    private String principalDiag(
+            final String pdc,
+            final Integer Counter19PBX) {
+        String dc = "";
+        switch (pdc.toUpperCase()) {
+            case "19A"://Acute Psychotic Disorders
+                if (Counter19PBX > 0) {
+                    dc = "1901";
+                } else {
+                    dc = "1950";
+                }
+                break;
+            case "19B"://Chronic Psychotic Disorders
+                if (Counter19PBX > 0) {
+                    dc = "1902";
+                } else {
+                    dc = "1951";
+                }
+                break;
+            case "19C"://Major Affective Disorders
+                if (Counter19PBX > 0) {
+                    dc = "1903";
+                } else {
+                    dc = "1952";
+                }
+                break;
+            case "19D"://Other Affect and Somatoform Disorders
+                dc = "1953";
+                break;
+            case "19E"://Acute Reaction and Psychosocial Dysfunction
+                dc = "1954";
+                break;
+            case "19F"://Anxiety Disorders
+                dc = "1955";
+                break;
+            case "19G"://Eating and Obsessive Compulsive Disorders
+                dc = "1956";
+                break;
+            case "19H"://Personality and Impulse Control Disorders
+                dc = "1957";
+                break;
+            case "19J"://Childhood Mental Disorders
+                dc = "1958";
+                break;
+            case "19K"://Organic Disturbance and Mental Retardation
+                dc = "1959";
+                break;
+            case "19L"://Other Mental Disorders
+                dc = "1960";
+                break;
+            case "19M"://Sexual Dysfunction PDC 19M
+                dc = "1961";
+                break;
+        }
+        return dc;
     }
 
 }

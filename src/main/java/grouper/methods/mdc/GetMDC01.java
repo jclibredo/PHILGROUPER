@@ -150,7 +150,7 @@ public class GetMDC01 {
                             EndoCounter);
                     drgResult.setDC(getResult);
                 } else if (ORProcedureCounter > 0) {
-                    String orProc = this.orProcedure(ORProcedureCounterList);
+                    String orProc = this.orProcedure(Collections.max(ORProcedureCounterList));
                     drgResult.setDC(orProc);
                 } else {
                     String dc = this.principalDaignosis(
@@ -181,7 +181,7 @@ public class GetMDC01 {
                         EndoCounter);
                 drgResult.setDC(getResult);
             } else if (ORProcedureCounter > 0) {
-                String orProc = this.orProcedure(ORProcedureCounterList);
+                String orProc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(orProc);
             } else {
                 String dc = this.principalDaignosis(
@@ -212,7 +212,7 @@ public class GetMDC01 {
         return result;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -311,9 +311,9 @@ public class GetMDC01 {
         return dc;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1:
                 dc = "2601";
                 break;
@@ -336,7 +336,7 @@ public class GetMDC01 {
         return dc;
     }
 
-    public String mdcProcedure(
+    private String mdcProcedure(
             final String pdc,
             final DataSource dataSource,
             final String SchemaName,
@@ -362,7 +362,7 @@ public class GetMDC01 {
                     if (checkAX.AX(dataSource, SchemaName, "1CX", pdx).isSuccess()) {
                         result = "0108";
                     } else {
-                        result = "0109";;
+                        result = "0109";
                     }
                 }
                 break;

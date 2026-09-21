@@ -13,6 +13,7 @@ import grouper.methods.validation.PDxMalignancy;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -147,10 +148,10 @@ public class GetMDC07 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        MDC5Proc getMdcProc = this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX);
+                        MDCCodeOptimize getMdcProc = this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX);
                         drgResult.setDC(getMdcProc.getDC());
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(ORProcedureCounterList);
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                         drgResult.setDC(dc);
                     } else {
                         String dc = this.principalDaignosis(drgResult.getPDC(), CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter7PDX, PBX99Proc, grouperparameter.getDischargeType());
@@ -174,10 +175,10 @@ public class GetMDC07 {
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
 
-                MDC5Proc getMdcProc = this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX);
+                MDCCodeOptimize getMdcProc = this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX);
                 drgResult.setDC(getMdcProc.getDC());
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else {
                 String dc = this.principalDaignosis(drgResult.getPDC(), CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter7PDX, PBX99Proc, grouperparameter.getDischargeType());
@@ -202,11 +203,11 @@ public class GetMDC07 {
 
     }
 
-    public MDC5Proc mdcProcedure(
+    private MDCCodeOptimize mdcProcedure(
             final String pdc,
             final Integer B7Count,
             final Integer Counter7PBX) {
-        MDC5Proc result = new MDC5Proc();
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
         result.setPDC("");
         result.setDC("");
         result.setSdxfinder("");
@@ -253,9 +254,9 @@ public class GetMDC07 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1:
                 dc = "2601";
                 break;
@@ -278,7 +279,7 @@ public class GetMDC07 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -326,38 +327,6 @@ public class GetMDC07 {
                 break;
         }
         return dc;
-
-    }
-
-    public class MDC5Proc {
-
-        private String PDC;
-        private String DC;
-        private String sdxfinder;
-
-        public String getPDC() {
-            return PDC;
-        }
-
-        public void setPDC(String PDC) {
-            this.PDC = PDC;
-        }
-
-        public String getDC() {
-            return DC;
-        }
-
-        public void setDC(String DC) {
-            this.DC = DC;
-        }
-
-        public String getSdxfinder() {
-            return sdxfinder;
-        }
-
-        public void setSdxfinder(String sdxfinder) {
-            this.sdxfinder = sdxfinder;
-        }
 
     }
 

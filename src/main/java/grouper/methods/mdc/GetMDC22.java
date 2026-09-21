@@ -11,6 +11,7 @@ import grouper.methods.validation.PDxMalignancy;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.utility.Utility;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,16 +60,10 @@ public class GetMDC22 {
             int Counter22ASDx = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
-//                    PCXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PCXCounter99++;
                 }
@@ -108,23 +103,19 @@ public class GetMDC22 {
                             drgResult.setDC("2250");
                         }
                     } else {
-                        if (Counter22BSDx > 0 || Counter22BPDx > 0) {
-                            if (Counter22PA > 0 || Counter22BXPDx > 0 || Counter22BXSDx > 0) {
-                                for (int x = 0; x < SecondaryList.size(); x++) {
-                                    if (checkAX.AX(datasource, SchemaName, "22BX", SecondaryList.get(x).trim()).isSuccess()) {
-                                        sdxfinder.add(SecondaryList.get(x).trim());
-                                    }
-                                }
-                                if (!sdxfinder.isEmpty()) {
-                                    drgResult.setSDXFINDER(String.join(",", sdxfinder));
-                                }
-                                drgResult.setDC("2202");
-                            } else {
-                                drgResult.setDC("2251");
-                            }
-                        } else {
-                            drgResult.setDC("2252");
+                        MDCCodeOptimize getDC = this.processDc(
+                                Counter22BSDx,
+                                Counter22BPDx,
+                                Counter22PA,
+                                Counter22BXPDx,
+                                Counter22BXSDx,
+                                SecondaryList,
+                                datasource,
+                                SchemaName);
+                        if (!getDC.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(getDC.getSdxfinder());
                         }
+                        drgResult.setDC(getDC.getDC());
                     }
                 } else {
                     if (PCXCounter99 > 0) {
@@ -141,23 +132,19 @@ public class GetMDC22 {
                         drgResult.setDC("2250");
                     }
                 } else {
-                    if (Counter22BSDx > 0 || Counter22BPDx > 0) {
-                        if (Counter22PA > 0 || Counter22BXPDx > 0 || Counter22BXSDx > 0) {
-                            for (int x = 0; x < SecondaryList.size(); x++) {
-                                if (checkAX.AX(datasource, SchemaName, "22BX", SecondaryList.get(x).trim()).isSuccess()) {
-                                    sdxfinder.add(SecondaryList.get(x));
-                                }
-                            }
-                            if (!sdxfinder.isEmpty()) {
-                                drgResult.setSDXFINDER(String.join(",", sdxfinder));
-                            }
-                            drgResult.setDC("2202");
-                        } else {
-                            drgResult.setDC("2251");
-                        }
-                    } else {
-                        drgResult.setDC("2252");
+                    MDCCodeOptimize getDC = this.processDc(
+                            Counter22BSDx,
+                            Counter22BPDx,
+                            Counter22PA,
+                            Counter22BXPDx,
+                            Counter22BXSDx,
+                            SecondaryList,
+                            datasource,
+                            SchemaName);
+                    if (!getDC.getSdxfinder().isEmpty()) {
+                        drgResult.setSDXFINDER(getDC.getSdxfinder());
                     }
+                    drgResult.setDC(getDC.getDC());
                 }
             }
 
@@ -176,6 +163,40 @@ public class GetMDC22 {
         }
         return result;
 
+    }
+
+    private MDCCodeOptimize processDc(
+            final Integer Counter22BSDx,
+            final Integer Counter22BPDx,
+            final Integer Counter22PA,
+            final Integer Counter22BXPDx,
+            final Integer Counter22BXSDx,
+            final List<String> SecondaryList,
+            final DataSource datasource,
+            final String SchemaName) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
+        ArrayList<String> sdxfinder = new ArrayList<>();
+        if (Counter22BSDx > 0 || Counter22BPDx > 0) {
+            if (Counter22PA > 0 || Counter22BXPDx > 0 || Counter22BXSDx > 0) {
+                for (int x = 0; x < SecondaryList.size(); x++) {
+                    if (checkAX.AX(datasource, SchemaName, "22BX", SecondaryList.get(x).trim()).isSuccess()) {
+                        sdxfinder.add(SecondaryList.get(x));
+                    }
+                }
+                if (!sdxfinder.isEmpty()) {
+                    result.setSdxfinder(String.join(",", sdxfinder));
+                }
+                result.setDC("2202");
+            } else {
+                result.setDC("2251");
+            }
+        } else {
+            result.setDC("2252");
+        }
+        return result;
     }
 
 }

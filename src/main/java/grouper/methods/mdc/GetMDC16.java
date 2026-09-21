@@ -50,7 +50,6 @@ public class GetMDC16 {
         String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
-//            List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
@@ -118,7 +117,7 @@ public class GetMDC16 {
                         String dc = this.mdcProcedure(drgResult.getPDC());
                         drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(ORProcedureCounterList);
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                         drgResult.setDC(dc);
                     } else {
                         String dc = this.principalDaignosis(drgResult.getPDC(), PBXCounter99, Counter16PBX);
@@ -144,7 +143,7 @@ public class GetMDC16 {
                 String dc = this.mdcProcedure(drgResult.getPDC());
                 drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else {
                 String dc = this.principalDaignosis(drgResult.getPDC(), PBXCounter99, Counter16PBX);
@@ -168,7 +167,7 @@ public class GetMDC16 {
 
     }
 
-    public String mdcProcedure(
+    private String mdcProcedure(
             final String pdc) {
         String result = "";
         switch (pdc.toUpperCase()) {
@@ -185,9 +184,9 @@ public class GetMDC16 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORcounter) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORcounter) {
             case 1:
                 dc = "2601";
                 break;
@@ -210,7 +209,7 @@ public class GetMDC16 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final Integer PBXCounter99,
             final Integer Counter16PBX) {

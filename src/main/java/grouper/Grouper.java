@@ -148,11 +148,10 @@ public class Grouper {
         return result;
     }
 
-    @POST
-    @Path("PhilSeeker")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @GET
+    @Path("CodeConverter")
     @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult PhilSeeker(@HeaderParam("token") String token, final List<GrouperParameter> grouperparameter) {
+    public DRGWSResult GetConverter(@HeaderParam("token") String token, final List<GrouperParameter> grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
         if (dynamicSchema.isSuccess()) {
             ArrayList<DRGOutput> drgresultList = new ArrayList<>();

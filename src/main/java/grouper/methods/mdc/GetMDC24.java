@@ -82,7 +82,6 @@ public class GetMDC24 {
                     Counter24PBX++;
 //                    ORProcedureCounter++;
                 }
-
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName,
                         ProcedureList.get(x).trim(),
                         mdcWithoutZeros,
@@ -97,7 +96,6 @@ public class GetMDC24 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource,
                         SchemaName, ProcedureList.get(x).trim());
                 if (ORProcedureResult.isSuccess()) {
@@ -134,50 +132,16 @@ public class GetMDC24 {
                             break;
                     }
                 }
-
             }
-
-           
             if (PDXCounter99 > 0) {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
                         utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
 //                    if (ORProcedureCounter > 0) {
-
                     if (mdcprocedureCounter > 0) {
-                        if (A > 0 && D > 0) {//Intracranial w Others Proc site A+D/E/G/H
-                            drgResult.setDC("2401");
-                        } else if (A > 0 && H > 0) {//Intracranial w Others Proc site A+D/E/G/H
-                            drgResult.setDC("2401");
-                        } else if (A > 0 && G > 0) {//Intracranial w Others Proc site A+D/E/G/H
-                            drgResult.setDC("2401");
-                        } else if (A > 0 && E > 0) {//Intracranial w Others Proc site A+D/E/G/H
-                            drgResult.setDC("2401");
-
-                        } else if (E > 0 && D > 0) {//Spinal w Others
-                            drgResult.setDC("2405");
-                        } else if (E > 0 && H > 0) {//Spinal w Others
-                            drgResult.setDC("2405");
-                        } else if (E > 0 && G > 0) {//Spinal w Others
-                            drgResult.setDC("2405");
-                        } else if (Counter24PBX > 0) {//Multiple Wound Debridement
-                            drgResult.setDC("2417");
-                        } else if (D > 0 && G > 0) { //Abdominal w Lower Ext.
-                            drgResult.setDC("2410");
-                        } else if (E > 0) {//Spinal
-                            drgResult.setDC("2412");
-                        } else if (A > 0) {//Intracranial
-                            drgResult.setDC("2411");
-                        } else if (H > 0 && D > 0) {//Wound Debridement w Abdominal or Lower Ext.
-                            drgResult.setDC("2408");
-                        } else if (H > 0 && G > 0) {//Wound Debridement w Abdominal or Lower Ext.
-                            drgResult.setDC("2408");
-                        } else if (B > 0 || C > 0 || D > 0 || F > 0 || G > 0 || H > 0 || J > 0) {//Wound Debridement w Abdominal or Lower Ext.
-                            drgResult.setDC("2413");
-                        } else {//Other OR Procedure
-                            drgResult.setDC("2414");
-                        }
+                        String getDcResult = this.MDCProcedure(A, D, H, G, E, Counter24PBX, B, C, F, J);
+                        drgResult.setDC(getDcResult);
                     } else {
                         drgResult.setDC("2450");
                     }
@@ -191,37 +155,8 @@ public class GetMDC24 {
             } else {
 //                if (ORProcedureCounter > 0) {
                 if (mdcprocedureCounter > 0) {
-                    if (A > 0 && D > 0) {//Intracranial w Others Proc site A+D/E/G/H
-                        drgResult.setDC("2401");
-                    } else if (A > 0 && H > 0) {//Intracranial w Others Proc site A+D/E/G/H
-                        drgResult.setDC("2401");
-                    } else if (A > 0 && G > 0) {//Intracranial w Others Proc site A+D/E/G/H
-                        drgResult.setDC("2401");
-                    } else if (A > 0 && E > 0) {//Intracranial w Others Proc site A+D/E/G/H
-                        drgResult.setDC("2401");
-                    } else if (E > 0 && D > 0) {//Spinal w Others
-                        drgResult.setDC("2405");
-                    } else if (E > 0 && H > 0) {//Spinal w Others
-                        drgResult.setDC("2405");
-                    } else if (E > 0 && G > 0) {//Spinal w Others
-                        drgResult.setDC("2405");
-                    } else if (Counter24PBX > 0) {//Multiple Wound Debridement
-                        drgResult.setDC("2417");
-                    } else if (D > 0 && G > 0) { //Abdominal w Lower Ext.
-                        drgResult.setDC("2410");
-                    } else if (E > 0) {//Spinal
-                        drgResult.setDC("2412");
-                    } else if (A > 0) {//Intracranial
-                        drgResult.setDC("2411");
-                    } else if (H > 0 && D > 0) {//Wound Debridement w Abdominal or Lower Ext.
-                        drgResult.setDC("2408");
-                    } else if (H > 0 && G > 0) {//Wound Debridement w Abdominal or Lower Ext.
-                        drgResult.setDC("2408");
-                    } else if (B > 0 || C > 0 || D > 0 || F > 0 || G > 0 || H > 0 || J > 0) {//Wound Debridement w Abdominal or Lower Ext.
-                        drgResult.setDC("2413");
-                    } else {//Other OR Procedure
-                        drgResult.setDC("2414");
-                    }
+                    String getDcResult = this.MDCProcedure(A, D, H, G, E, Counter24PBX, B, C, F, J);
+                    drgResult.setDC(getDcResult);
                 } else {
                     drgResult.setDC("2450");
                 }
@@ -241,6 +176,52 @@ public class GetMDC24 {
             Logger.getLogger(GetMDC24.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
+    }
+
+    private String MDCProcedure(
+            final Integer A,
+            final Integer D,
+            final Integer H,
+            final Integer G,
+            final Integer E,
+            final Integer Counter24PBX,
+            final Integer B,
+            final Integer C,
+            final Integer F,
+            final Integer J) {
+        String dc = "";
+        if (A > 0 && D > 0) {//Intracranial w Others Proc site A+D/E/G/H
+            dc = "2401";
+        } else if (A > 0 && H > 0) {//Intracranial w Others Proc site A+D/E/G/H
+            dc = "2401";
+        } else if (A > 0 && G > 0) {//Intracranial w Others Proc site A+D/E/G/H
+            dc = "2401";
+        } else if (A > 0 && E > 0) {//Intracranial w Others Proc site A+D/E/G/H
+            dc = "2401";
+        } else if (E > 0 && D > 0) {//Spinal w Others
+            dc = "2405";
+        } else if (E > 0 && H > 0) {//Spinal w Others
+            dc = "2405";
+        } else if (E > 0 && G > 0) {//Spinal w Others
+            dc = "2405";
+        } else if (Counter24PBX > 0) {//Multiple Wound Debridement
+            dc = "2417";
+        } else if (D > 0 && G > 0) { //Abdominal w Lower Ext.
+            dc = "2410";
+        } else if (E > 0) {//Spinal
+            dc = "2412";
+        } else if (A > 0) {//Intracranial
+            dc = "2411";
+        } else if (H > 0 && D > 0) {//Wound Debridement w Abdominal or Lower Ext.
+            dc = "2408";
+        } else if (H > 0 && G > 0) {//Wound Debridement w Abdominal or Lower Ext.
+            dc = "2408";
+        } else if (B > 0 || C > 0 || D > 0 || F > 0 || G > 0 || H > 0 || J > 0) {//Wound Debridement w Abdominal or Lower Ext.
+            dc = "2413";
+        } else {//Other OR Procedure
+            dc = "2414";
+        }
+        return dc;
 
     }
 

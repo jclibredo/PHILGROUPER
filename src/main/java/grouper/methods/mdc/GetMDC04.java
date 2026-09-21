@@ -100,7 +100,6 @@ public class GetMDC04 {
                 if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
                     CaCRxProc++;
                 }
-
                 //AX 4PCX
                 if (checkAX.AX(datasource, SchemaName, "4PCX", ProcedureList.get(y).trim()).isSuccess()) {
                     PCX4Proc++;
@@ -108,7 +107,6 @@ public class GetMDC04 {
                 if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
                     PBX99Proc++;
                 }
-
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
@@ -155,7 +153,7 @@ public class GetMDC04 {
                     String dc = this.mdcProcedure(drgResult.getPDC());
                     drgResult.setDC(dc);
                 } else if (ORProcedureCounter > 0) {
-                    String dc = this.orProcedure(ORProcedureCounterList);
+                    String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                     drgResult.setDC(dc);
                 } else {
                     String dc = this.principalDaignosis(
@@ -180,7 +178,7 @@ public class GetMDC04 {
                 String dc = this.mdcProcedure(drgResult.getPDC());
                 drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else {
                 String dc = this.principalDaignosis(
@@ -211,7 +209,7 @@ public class GetMDC04 {
         return result;
     }
 
-    public String mdcProcedure(
+    private String mdcProcedure(
             final String pdc) {
         String result = "";
         switch (pdc.toUpperCase()) {
@@ -234,9 +232,9 @@ public class GetMDC04 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1:
                 dc = "2601";
                 break;
@@ -259,7 +257,7 @@ public class GetMDC04 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final String discharge,
             final Integer CartSDx,
@@ -270,45 +268,56 @@ public class GetMDC04 {
             final Integer PBX99Proc) {
         String dc = "";
         switch (pdc) {
-            case "4A"://Cystic Fibrosis
+            case "4A": {//Cystic Fibrosis
                 dc = "0450";
                 break;
-            case "4B"://Pulmonary Embolism
+            }
+            case "4B": {//Pulmonary Embolism
                 dc = "0451";
                 break;
-            case "4C"://Respiratory Infection/Inflammation
+            }
+            case "4C": {//Respiratory Infection/Inflammation
                 dc = "0452";
                 break;
-            case "4D"://Sleep Apnea
+            }
+            case "4D": {//Sleep Apnea
                 dc = "0453";
                 break;
+            }
 
-            case "4E"://Noninvasive Ventilation 
+            case "4E": {//Noninvasive Ventilation 
                 if (discharge.equals("4")) {
                     dc = "0471";//Transfer
                 } else {
                     dc = "0454";//Others
                 }
                 break;
-            case "4F"://COPD
+            }
+            case "4F": {//COPD
                 dc = "0455";
                 break;
-            case "4G"://Major Chest Trauma
+            }
+            case "4G": {//Major Chest Trauma
                 dc = "0456";
                 break;
-            case "4H"://Respiratory Signs and Symptoms 
+            }
+            case "4H": {//Respiratory Signs and Symptoms 
                 dc = "0457";
                 break;
-            case "4J"://Pneumothorax
+            }
+            case "4J": {//Pneumothorax
                 dc = "0458";
                 break;
-            case "4K"://Bronchitis and Asthma
+            }
+            case "4K": {//Bronchitis and Asthma
                 dc = "0459";
                 break;
-            case "4L"://Whooping Cough and Acute Bronchiolitis
+            }
+            case "4L": {//Whooping Cough and Acute Bronchiolitis
                 dc = "0460";
                 break;
-            case "4M"://Respiratory Neoplasms
+            }
+            case "4M": {//Respiratory Neoplasms
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
                     dc = "0465";
@@ -327,22 +336,27 @@ public class GetMDC04 {
                     dc = "0461";
                 }
                 break;
-            case "4R"://Pyothorax 
+            }
+            case "4R": {//Pyothorax 
                 dc = "0470";
                 break;
-            case "4N"://Pleural Effusion
+            }
+            case "4N": {//Pleural Effusion
                 if (discharge.equals("4")) {
                     dc = "0472";//Transfer
                 } else {
                     dc = "0462";//Others
                 }
                 break;
-            case "4P"://Interstitial Lung Diseases
+            }
+            case "4P": {//Interstitial Lung Diseases
                 dc = "0463";
                 break;
-            case "4Q"://Other Minor Respiratory System Diagnosis PDC 4Q
+            }
+            case "4Q": {//Other Minor Respiratory System Diagnosis PDC 4Q
                 dc = "0464";
                 break;
+            }
         }
         return dc;
 

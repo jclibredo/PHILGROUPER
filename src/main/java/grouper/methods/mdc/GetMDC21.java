@@ -61,16 +61,10 @@ public class GetMDC21 {
             AX checkAX = new AX();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
-//                if (utility.isValid99PDX(ProcedureList.get(x).trim())) {
-//                    PDXCounter99++;
-//                }
                 if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PDXCounter99++;
                 }
-                //AX 99PCX Checking
-//                if (utility.isValid99PCX(ProcedureList.get(x).trim())) {
-//                    PCXCounter99++;
-//                }
+                //AX 99PCX Checking  PCXCounter99++;
                 if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
                     PCXCounter99++;
                 }
@@ -109,76 +103,14 @@ public class GetMDC21 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        switch (pdclist.get(hierarvalue.indexOf(min))) {
-                            case "21PF"://Multiple Wound Debridement
-                                drgResult.setDC("2107");
-                                break;
-                            case "21PB"://Skin Graft
-                                drgResult.setDC("2102");
-                                break;
-                            case "21PD"://Other OR Procedures for Injuries
-                            case "21PE":
-                                drgResult.setDC("2104");
-                                break;
-                            case "21PC"://Hand procedures
-                                drgResult.setDC("2103");
-                                break;
-                            case "21PA"://Wound Debridement PDC 21PA
-                                drgResult.setDC("2101");
-                                break;
-                        }
+                        String getDc = this.mdcProcedure(drgResult.getPDC());
+                        drgResult.setDC(getDc);
                     } else if (ORProcedureCounter > 0) {
-                        switch (Collections.max(ORProcedureCounterList)) {
-                            case 6://OR Proc Level 6
-                                drgResult.setDC("2606");
-                                break;
-                            case 5://OR Proc Level 5
-                                drgResult.setDC("2605");
-                                break;
-                            case 4://OR Proc Level 4
-                                drgResult.setDC("2604");
-                                break;
-                            case 3://OR Proc Level 3
-                                drgResult.setDC("2603");
-                                break;
-                            case 2://OR Proc Level 2
-                                drgResult.setDC("2602");
-                                break;
-                            case 1://OR Proc Level 1
-                                drgResult.setDC("2601");
-                                break;
-                        }
-
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
+                        drgResult.setDC(dc);
                     } else {
-                        switch (drgResult.getPDC()) {
-                            case "21A"://Traumatic Injury
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                                    drgResult.setDC("2150");
-                                } else {
-                                    drgResult.setDC("2151");
-                                }
-                                break;
-                            case "21B"://Allergic Reaction
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                                    drgResult.setDC("2152");
-                                } else {
-                                    drgResult.setDC("2153");
-                                }
-                                break;
-                            case "21C"://Drugs
-                                if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                                    drgResult.setDC("2154");
-                                } else {
-                                    drgResult.setDC("2155");
-                                }
-                                break;
-                            case "21D"://Complications of Treatment
-                                drgResult.setDC("2156");
-                                break;
-                            case "21E"://Other Injury, Poisoning and Toxic Effects Diagnoses PDC 21E
-                                drgResult.setDC("2157");
-                                break;
-                        }
+                        String getDc = this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+                        drgResult.setDC(getDc);
                     }
                 } else {
                     if (PCXCounter99 > 0) {
@@ -198,77 +130,14 @@ public class GetMDC21 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                switch (pdclist.get(hierarvalue.indexOf(min))) {
-                    case "21PF"://Multiple Wound Debridement
-                        drgResult.setDC("2107");
-                        break;
-                    case "21PB"://Skin Graft
-                        drgResult.setDC("2102");
-                        break;
-                    case "21PD"://Other OR Procedures for Injuries
-                    case "21PE":
-                        drgResult.setDC("2104");
-                        break;
-                    case "21PC"://Hand procedures
-                        drgResult.setDC("2103");
-                        break;
-                    case "21PA"://Wound Debridement PDC 21PA
-                        drgResult.setDC("2101");
-                        break;
-                }
-
+                String getDc = this.mdcProcedure(drgResult.getPDC());
+                drgResult.setDC(getDc);
             } else if (ORProcedureCounter > 0) {
-                switch (Collections.max(ORProcedureCounterList)) {
-                    case 6://OR Proc Level 6
-                        drgResult.setDC("2606");
-                        break;
-                    case 5://OR Proc Level 5
-                        drgResult.setDC("2605");
-                        break;
-                    case 4://OR Proc Level 4
-                        drgResult.setDC("2604");
-                        break;
-                    case 3://OR Proc Level 3
-                        drgResult.setDC("2603");
-                        break;
-                    case 2://OR Proc Level 2
-                        drgResult.setDC("2602");
-                        break;
-                    case 1://OR Proc Level 1
-                        drgResult.setDC("2601");
-                        break;
-                }
-
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
+                drgResult.setDC(dc);
             } else {
-                switch (drgResult.getPDC()) {
-                    case "21A"://Traumatic Injury
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                            drgResult.setDC("2150");
-                        } else {
-                            drgResult.setDC("2151");
-                        }
-                        break;
-                    case "21B"://Allergic Reaction
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                            drgResult.setDC("2152");
-                        } else {
-                            drgResult.setDC("2153");
-                        }
-                        break;
-                    case "21C"://Drugs
-                        if (utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 17) {
-                            drgResult.setDC("2154");
-                        } else {
-                            drgResult.setDC("2155");
-                        }
-                        break;
-                    case "21D"://Complications of Treatment
-                        drgResult.setDC("2156");
-                        break;
-                    case "21E"://Other Injury, Poisoning and Toxic Effects Diagnoses PDC 21E
-                        drgResult.setDC("2157");
-                        break;
-                }
+                String getDc = this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+                drgResult.setDC(getDc);
             }
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -284,6 +153,93 @@ public class GetMDC21 {
             Logger.getLogger(GetMDC21.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
+
+    }
+
+    private String mdcProcedure(
+            final String pdc) {
+        String result = "";
+        switch (pdc.toUpperCase()) {
+            case "21PF"://Multiple Wound Debridement
+                result = "2107";
+                break;
+            case "21PB"://Skin Graft
+                result = "2102";
+                break;
+            case "21PD"://Other OR Procedures for Injuries
+            case "21PE":
+                result = "2104";
+                break;
+            case "21PC"://Hand procedures
+                result = "2103";
+                break;
+            case "21PA"://Wound Debridement PDC 21PA
+                result = "2101";
+                break;
+        }
+        return result;
+    }
+
+    private String orProcedure(final Integer ORProcedureCounterList) {
+        String dc = "";
+        switch (ORProcedureCounterList) {
+            case 1:
+                dc = "2601";
+                break;
+            case 2:
+                dc = "2602";
+                break;
+            case 3:
+                dc = "2603";
+                break;
+            case 4:
+                dc = "2604";
+                break;
+            case 5:
+                dc = "2605";
+                break;
+            case 6:
+                dc = "2606";
+                break;
+        }
+        return dc;
+    }
+
+    private String principalDaignosis(
+            final String pdc,
+            final String bdate,
+            final String admDate) {
+        String dc = "";
+        switch (pdc.toUpperCase()) {
+            case "21A"://Traumatic Injury
+                if (utility.ComputeYear(bdate, admDate) > 17) {
+                    dc = "2150";
+                } else {
+                    dc = "2151";
+                }
+                break;
+            case "21B"://Allergic Reaction
+                if (utility.ComputeYear(bdate, admDate) > 17) {
+                    dc = "2152";
+                } else {
+                    dc = "2153";
+                }
+                break;
+            case "21C"://Drugs
+                if (utility.ComputeYear(bdate, admDate) > 17) {
+                    dc = "2154";
+                } else {
+                    dc = "2155";
+                }
+                break;
+            case "21D"://Complications of Treatment
+                dc = "2156";
+                break;
+            case "21E"://Other Injury, Poisoning and Toxic Effects Diagnoses PDC 21E
+                dc = "2157";
+                break;
+        }
+        return dc;
 
     }
 

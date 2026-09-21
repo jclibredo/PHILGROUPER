@@ -172,7 +172,7 @@ public class GetMDC02 {
                     String getResult = this.mdcProcedure(drgResult.getPDC());
                     drgResult.setDC(getResult);
                 } else if (ORProcedureCounter > 0) { //Check if OR Procedure
-                    String dc = this.orProcedure(ORProcedureCounterList);
+                    String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                     drgResult.setDC(dc);
                 } else { //Principal Diagnosis
                     String dc = this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
@@ -210,7 +210,7 @@ public class GetMDC02 {
                 String getResult = this.mdcProcedure(drgResult.getPDC());
                 drgResult.setDC(getResult);
             } else if (ORProcedureCounter > 0) { //Check if OR Procedure
-                String dc = this.orProcedure(ORProcedureCounterList);
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
                 drgResult.setDC(dc);
             } else { //Principal Diagnosis
                 String dc = this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
@@ -234,7 +234,7 @@ public class GetMDC02 {
 
     }
 
-    public String mdcProcedure(
+    private String mdcProcedure(
             final String pdc) {
         String result = "";
         switch (pdc) {
@@ -271,9 +271,9 @@ public class GetMDC02 {
         return result;
     }
 
-    public String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1:
                 dc = "2601";
                 break;
@@ -296,7 +296,7 @@ public class GetMDC02 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final String dbate,
             final String admission) {

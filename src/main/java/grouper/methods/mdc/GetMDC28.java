@@ -12,6 +12,7 @@ import grouper.methods.validation.MDCProcedureMethod;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -122,177 +123,9 @@ public class GetMDC28 {
                                 }
                             }
                             drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                            switch (pdclist.get(hierarvalue.indexOf(min))) {
-                                case "28PB": {//KUB ESWL
-                                    drgResult.setDRG("28049");
-                                    drgResult.setDC("2804");
-                                    break;
-                                }
-                                case "28PC": {//Cadiac Cath & CAG
-                                    drgResult.setDRG("28059");
-                                    drgResult.setDC("2805");
-                                    break;
-                                }
-                                case "28PD": {//Cataract Proc
-                                    drgResult.setDRG("28069");
-                                    drgResult.setDC("2806");
-                                    break;
-                                }
-                                case "28PE": {//Radio-Implant
-                                    drgResult.setDRG("28079");
-                                    drgResult.setDC("2807");
-                                    break;
-                                }
-                                case "28PF": {//Dialysis AV Shunt
-                                    drgResult.setDRG("28089");
-                                    drgResult.setDC("2808");
-                                    break;
-                                }
-                                case "28PG": {//Closed reduction int fix
-                                    drgResult.setDRG("28099");
-                                    drgResult.setDC("2809");
-                                    break;
-                                }
-                                case "28PH": {//Hernia Repair
-                                    drgResult.setDRG("28109");
-                                    drgResult.setDC("2810");
-                                    break;
-                                }
-                                case "28PJ": {//Hydrocelectomy
-                                    drgResult.setDRG("28119");
-                                    drgResult.setDC("2811");
-                                    break;
-                                }
-                                case "28PK": {//Cystoscopy
-                                    drgResult.setDRG("28129");
-                                    drgResult.setDC("2812");
-                                    break;
-                                }
-                                case "28PL": {//Mouth & Tongue Proc
-                                    drgResult.setDRG("28139");
-                                    drgResult.setDC("2813");
-                                    break;
-                                }
-                                case "28PM": {//Tendon Proc
-                                    drgResult.setDRG("28149");
-                                    drgResult.setDC("2814");
-                                    break;
-                                }
-                                case "28PN": {//Esophageal Proc
-                                    drgResult.setDRG("28159");
-                                    drgResult.setDC("2815");
-                                    break;
-                                }
-                                case "28PP": {//Circumcision & oth Penile Proc
-                                    drgResult.setDRG("28169");
-                                    drgResult.setDC("2816");
-                                    break;
-                                }
-                                case "28PQ": {//Plastic Skin Proc
-                                    drgResult.setDRG("28179");
-                                    drgResult.setDC("2817");
-                                    break;
-                                }
-                                case "28PR": {//Remove Implant
-                                    drgResult.setDRG("28189");
-                                    drgResult.setDC("2818");
-                                    break;
-                                }
-                                case "28PS": {//D & C
-                                    drgResult.setDRG("28199");
-                                    drgResult.setDC("2819");
-                                    break;
-                                }
-                                case "28PT": {//Breast Proc
-                                    drgResult.setDRG("28209");
-                                    drgResult.setDC("2820");
-                                    break;
-                                }
-                                case "28PU": {//Female sterilization
-                                    drgResult.setDRG("28219");
-                                    drgResult.setDC("2821");
-                                    break;
-                                }
-                                case "28PV": {//Colonoscopy
-                                    drgResult.setDRG("28229");
-                                    drgResult.setDC("2822");
-                                    break;
-                                }
-                                case "28PW"://Amputation
-                                    drgResult.setDRG("28239");
-                                    drgResult.setDC("2823");
-                                    break;
-                                case "28PX": {//Ear, Nose, Pharynx Proc
-                                    drgResult.setDRG("28249");
-                                    drgResult.setDC("2824");
-                                    break;
-                                }
-                                case "28PY": {//Debride Open Fracture
-                                    drgResult.setDRG("28259");
-                                    drgResult.setDC("2825");
-                                    break;
-                                }
-                                case "28PZ": {//Gastroscopy
-                                    drgResult.setDRG("28269");
-                                    drgResult.setDC("2826");
-                                    break;
-                                }
-                                case "28QA": {//Skin & Nail Proc
-                                    drgResult.setDRG("28279");
-                                    drgResult.setDC("2827");
-                                    break;
-                                }
-                                case "28QB": {//Cervical Proc
-                                    drgResult.setDRG("28289");
-                                    drgResult.setDC("2828");
-                                    break;
-                                }
-                                case "28QC": {//Hemodialysis
-                                    drgResult.setDRG("28299");
-                                    drgResult.setDC("2829");
-                                    break;
-                                }
-                                case "28QD": {//Other Eye Proc
-                                    drgResult.setDRG("28309");
-                                    drgResult.setDC("2830");
-                                    break;
-                                }
-                                case "28QE": {//Carpal Tunnel Releas
-                                    drgResult.setDRG("28319");
-                                    drgResult.setDC("2831");
-                                    break;
-                                }
-                                case "28QF": {//Closed Reduction of Dislocation
-                                    drgResult.setDRG("28329");
-                                    drgResult.setDC("2832");
-                                    break;
-                                }
-                                case "28QG": {//Closed Reduction of Fracture
-                                    drgResult.setDRG("28339");
-                                    drgResult.setDC("2833");
-                                    break;
-                                }
-                                case "28QH": {//Vulvar & Vagina Proc
-                                    drgResult.setDRG("28349");
-                                    drgResult.setDC("2834");
-                                    break;
-                                }
-                                case "28QJ": {//Bartholin Gland Proc
-                                    drgResult.setDRG("28359");
-                                    drgResult.setDC("2835");
-                                    break;
-                                }
-                                case "28QK": {//Urethral Proc
-                                    drgResult.setDRG("28369");
-                                    drgResult.setDC("2836");
-                                    break;
-                                }
-                                default: {//Other OR Proc
-                                    drgResult.setDRG("28379");
-                                    drgResult.setDC("2837");
-                                    break;
-                                }
-                            }
+                            MDCCodeOptimize getDcResult = this.MDCProcedures(drgResult.getPDC());
+                            drgResult.setDRG(getDcResult.getDRG());
+                            drgResult.setDC(getDcResult.getDC());
                         } else {
                             drgResult.setDRG("28699");
                             drgResult.setDC("2869");
@@ -409,6 +242,184 @@ public class GetMDC28 {
         }
         return result;
 
+    }
+
+    private MDCCodeOptimize MDCProcedures(final String pdc) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setDRG("");
+        switch (pdc.toUpperCase()) {
+            case "28PB": {//KUB ESWL
+                result.setDRG("28049");
+                result.setDC("2804");
+                break;
+            }
+            case "28PC": {//Cadiac Cath & CAG
+                result.setDRG("28059");
+                result.setDC("2805");
+                break;
+            }
+            case "28PD": {//Cataract Proc
+                result.setDRG("28069");
+                result.setDC("2806");
+                break;
+            }
+            case "28PE": {//Radio-Implant
+                result.setDRG("28079");
+                result.setDC("2807");
+                break;
+            }
+            case "28PF": {//Dialysis AV Shunt
+                result.setDRG("28089");
+                result.setDC("2808");
+                break;
+            }
+            case "28PG": {//Closed reduction int fix
+                result.setDRG("28099");
+                result.setDC("2809");
+                break;
+            }
+            case "28PH": {//Hernia Repair
+                result.setDRG("28109");
+                result.setDC("2810");
+                break;
+            }
+            case "28PJ": {//Hydrocelectomy
+                result.setDRG("28119");
+                result.setDC("2811");
+                break;
+            }
+            case "28PK": {//Cystoscopy
+                result.setDRG("28129");
+                result.setDC("2812");
+                break;
+            }
+            case "28PL": {//Mouth & Tongue Proc
+                result.setDRG("28139");
+                result.setDC("2813");
+                break;
+            }
+            case "28PM": {//Tendon Proc
+                result.setDRG("28149");
+                result.setDC("2814");
+                break;
+            }
+            case "28PN": {//Esophageal Proc
+                result.setDRG("28159");
+                result.setDC("2815");
+                break;
+            }
+            case "28PP": {//Circumcision & oth Penile Proc
+                result.setDRG("28169");
+                result.setDC("2816");
+                break;
+            }
+            case "28PQ": {//Plastic Skin Proc
+                result.setDRG("28179");
+                result.setDC("2817");
+                break;
+            }
+            case "28PR": {//Remove Implant
+                result.setDRG("28189");
+                result.setDC("2818");
+                break;
+            }
+            case "28PS": {//D & C
+                result.setDRG("28199");
+                result.setDC("2819");
+                break;
+            }
+            case "28PT": {//Breast Proc
+                result.setDRG("28209");
+                result.setDC("2820");
+                break;
+            }
+            case "28PU": {//Female sterilization
+                result.setDRG("28219");
+                result.setDC("2821");
+                break;
+            }
+            case "28PV": {//Colonoscopy
+                result.setDRG("28229");
+                result.setDC("2822");
+                break;
+            }
+            case "28PW"://Amputation
+                result.setDRG("28239");
+                result.setDC("2823");
+                break;
+            case "28PX": {//Ear, Nose, Pharynx Proc
+                result.setDRG("28249");
+                result.setDC("2824");
+                break;
+            }
+            case "28PY": {//Debride Open Fracture
+                result.setDRG("28259");
+                result.setDC("2825");
+                break;
+            }
+            case "28PZ": {//Gastroscopy
+                result.setDRG("28269");
+                result.setDC("2826");
+                break;
+            }
+            case "28QA": {//Skin & Nail Proc
+                result.setDRG("28279");
+                result.setDC("2827");
+                break;
+            }
+            case "28QB": {//Cervical Proc
+                result.setDRG("28289");
+                result.setDC("2828");
+                break;
+            }
+            case "28QC": {//Hemodialysis
+                result.setDRG("28299");
+                result.setDC("2829");
+                break;
+            }
+            case "28QD": {//Other Eye Proc
+                result.setDRG("28309");
+                result.setDC("2830");
+                break;
+            }
+            case "28QE": {//Carpal Tunnel Releas
+                result.setDRG("28319");
+                result.setDC("2831");
+                break;
+            }
+            case "28QF": {//Closed Reduction of Dislocation
+                result.setDRG("28329");
+                result.setDC("2832");
+                break;
+            }
+            case "28QG": {//Closed Reduction of Fracture
+                result.setDRG("28339");
+                result.setDC("2833");
+                break;
+            }
+            case "28QH": {//Vulvar & Vagina Proc
+                result.setDRG("28349");
+                result.setDC("2834");
+                break;
+            }
+            case "28QJ": {//Bartholin Gland Proc
+                result.setDRG("28359");
+                result.setDC("2835");
+                break;
+            }
+            case "28QK": {//Urethral Proc
+                result.setDRG("28369");
+                result.setDC("2836");
+                break;
+            }
+            default: {//Other OR Proc
+                result.setDRG("28379");
+                result.setDC("2837");
+                break;
+            }
+        }
+        return result;
     }
 
 }
