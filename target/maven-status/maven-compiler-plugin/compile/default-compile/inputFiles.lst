@@ -21,6 +21,7 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GetPDCUsePDx.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\LibraryManagement.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\Seeker.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\DRGDetermination.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\COUNTBMDCICD10CODE.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\GET_ICD9.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC17.java
@@ -68,6 +69,7 @@ D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\validation\PDCUseProcedureChecking.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\premdc\ProcessGrouperParameter.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerICD10.java
+D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\MDCCodeOptimize.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\PDC.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\RVS.java
 D:\MyWorkRepository\JAVAAPP\PHILGROUPER\src\main\java\grouper\structures\CCL.java

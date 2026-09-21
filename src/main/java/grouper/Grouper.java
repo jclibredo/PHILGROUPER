@@ -134,8 +134,6 @@ public class Grouper {
         return result;
     }
 
-    
-
     @POST
     @Path("DRGClaimsData")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -148,8 +146,9 @@ public class Grouper {
         return result;
     }
 
-    @GET
-    @Path("CodeConverter")
+    @POST
+    @Path("PhilSeeker")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public DRGWSResult GetConverter(@HeaderParam("token") String token, final List<GrouperParameter> grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();

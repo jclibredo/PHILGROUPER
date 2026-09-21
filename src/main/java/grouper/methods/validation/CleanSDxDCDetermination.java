@@ -30,7 +30,6 @@ public class CleanSDxDCDetermination {
             final DataSource datasource,
             final String SchemaName,
             final String sdxoriglist,
-            //            final String sdxdcfinder,
             final String pdx,
             final String dcs) {
         String result = "";
@@ -82,7 +81,6 @@ public class CleanSDxDCDetermination {
                         }
                     }
                     //Arrange value from highest to lowest
-//                    System.out.println(valuelist);
                     Collections.sort(valuelist, Collections.reverseOrder());
                     //Assigning Variable area
                     double B, G, H, I, PCCL, sum = 0;

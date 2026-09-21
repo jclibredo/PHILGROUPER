@@ -59,6 +59,7 @@ grouper\methods\premdc\ProcessGrouperParameter.class
 grouper\utility\Cryptor.class
 grouper\methods\validation\SeekerMethods$2.class
 grouper\utility\NamedParameterStatement.class
+grouper\structures\MDCCodeOptimize.class
 grouper\methods\mdc\GetMDC24.class
 grouper\methods\validation\GetDC.class
 grouper\methods\validation\AgeConfictValidation.class
@@ -80,6 +81,7 @@ grouper\structures\CCEX.class
 grouper\methods\mdc\GetMDC02.class
 grouper\structures\RVS.class
 grouper\methods\mdc\GetMDC22.class
+grouper\methods\validation\DRGDetermination.class
 grouper\methods\library\ServicesDRG.class
 grouper\methods\validation\GetCCLValue.class
 grouper\structures\PDC.class
