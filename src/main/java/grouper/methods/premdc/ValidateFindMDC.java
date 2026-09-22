@@ -59,7 +59,6 @@ public class ValidateFindMDC {
             List<String> procList = Arrays.stream(grouperParameter.getProc().split(","))
                     .collect(Collectors.toList());
 //            List<String> procList = Arrays.asList(grouperParameter.getProc().split(","));
-
             List<String> combiCode = new ArrayList<>();
             Set<Integer> negativeIndexSet = new LinkedHashSet<>();
 
@@ -69,11 +68,9 @@ public class ValidateFindMDC {
                 String dataA = procList.get(y).replace(">1", "").trim();
                 for (int w = 0; w < procList.size(); w++) {
                     String dataB = procList.get(w).replace(">1", "").trim();
-
                     DRGWSResult pcomResult = pcomService.GetPCOM(datasource, schemaName, dataA, dataB);
                     if (pcomResult.isSuccess()) {
                         combiCode.add(pcomResult.getResult());
-
                         // Target exactly match entries efficiently
                         for (int i = 0; i < procList.size(); i++) {
                             String baseProc = procList.get(i).replace(">1", "").trim();
@@ -121,7 +118,7 @@ public class ValidateFindMDC {
             DRGWSResult getIcd10Result = new GetICD10PreMDC().GetICD10PreMDC(datasource, schemaName, swapping.getNewpdx());
             DRGWSResult getSexConflictResult = new GenderConfictValidation().GenderConfictValidation(datasource, schemaName, swapping.getNewpdx(), grouperParameter.getGender());
             int calculatedAge = utility.ComputeYear(grouperParameter.getBirthDate(), grouperParameter.getAdmissionDate());
-//PROCESS PROC LIST
+            //PROCESS PROC LIST
             String newProcList = Stream.concat(
                     combiCode.stream(),
                     Arrays.stream(grouperParameter.getProc().split(","))
@@ -202,7 +199,6 @@ public class ValidateFindMDC {
 //        combinationCode.setProclist(String.join(",", procList));
 //        return utility.ProcedureExecute(combinationCode);
 //    }
-
     private GrouperParameter cloneGrouperParameter(GrouperParameter src) {
         GrouperParameter target = new GrouperParameter();
         target.setAdmissionDate(src.getAdmissionDate());

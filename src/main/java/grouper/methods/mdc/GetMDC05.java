@@ -543,7 +543,7 @@ public class GetMDC05 {
         return dc;
     }
 
-    public String principalDaignosis(
+    private String principalDaignosis(
             final String pdc,
             final String discharge) {
         String dc = "";

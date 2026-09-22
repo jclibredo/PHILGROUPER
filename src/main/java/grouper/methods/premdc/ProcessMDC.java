@@ -105,9 +105,7 @@ public class ProcessMDC {
                 break;
             }
             case 12: {
-                result = new GetMDC12().GetMDC12(datasource,
-                        SchemaName, mdcfinderoutput,
-                        grouperparameter);
+                result = new GetMDC12().GetMDC12(datasource, SchemaName, mdcfinderoutput, grouperparameter);
                 break;
             }
             case 13: {

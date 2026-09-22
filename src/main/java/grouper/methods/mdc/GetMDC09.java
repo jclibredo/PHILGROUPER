@@ -389,7 +389,6 @@ public class GetMDC09 {
         switch (pdc) {
             case "9A"://Skin Ulcer
                 dc = "0950";
-//                drgResult.setDC("0950");
                 break;
             case "9B"://Severe Skin Disorders
                 dc = "0951";

@@ -6,15 +6,12 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
-import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCCodeOptimize;
-import grouper.structures.MDCProcedure;
-import grouper.structures.PDC;
 import grouper.utility.Utility;
 import java.util.ArrayList;
 import java.util.Arrays;

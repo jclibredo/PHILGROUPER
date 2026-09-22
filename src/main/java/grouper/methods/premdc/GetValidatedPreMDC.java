@@ -248,7 +248,6 @@ public class GetValidatedPreMDC {
                         result.setSuccess(true);
                         result.setMessage("Grouper Done in Pre-MDC level only");
                     } else {
-
                         DRGOutput drgResultsUnwrapped = new DRGOutput();
                         drgResultsUnwrapped.setCC(drgResult.getCC());
                         drgResultsUnwrapped.setDC(drgResult.getDC());

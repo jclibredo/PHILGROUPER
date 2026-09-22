@@ -17,6 +17,7 @@ grouper\methods\validation\CleanSDxDCDeterminationPLSQL.class
 grouper\methods\validation\COUNTBMDCICD10CODE.class
 grouper\methods\library\ServiceUserActivity.class
 grouper\methods\library\ServicesI10VX.class
+grouper\methods\validation\DRGDetermination$SdxItem.class
 grouper\methods\validation\SeekerMethods$1.class
 grouper\structures\PDCHierar.class
 grouper\methods\library\ServiceDashboard.class
