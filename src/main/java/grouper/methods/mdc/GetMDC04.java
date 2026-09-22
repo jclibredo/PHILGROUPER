@@ -68,6 +68,7 @@ public class GetMDC04 {
             int Counter4BX = 0;
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
+            
             for (int y = 0; y < ProcedureList.size(); y++) {
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
                         SchemaName,
@@ -129,7 +130,6 @@ public class GetMDC04 {
             if (checkAX.AX(datasource, SchemaName, "4BX", grouperparameter.getPdx().trim()).isSuccess()) {
                 Counter4BX++;
             }
-
             //THIS AREA START FOR CONDITIONAL STATEMENT TO FIND DC
             if (PDXCounter99 > 0 || Counter4BX > 0) {
                 if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),

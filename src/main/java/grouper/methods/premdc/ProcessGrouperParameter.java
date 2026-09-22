@@ -6,6 +6,7 @@
 package grouper.methods.premdc;
 
 import grouper.methods.validation.AgeConfictValidation;
+import grouper.methods.validation.CodeConverter;
 import grouper.methods.validation.GenderConfictValidation;
 import grouper.methods.validation.GetICD10;
 import grouper.methods.validation.GetICD10PreMDC;
@@ -69,7 +70,6 @@ public class ProcessGrouperParameter {
             grouper.setIdseries(grouperparameter.getIdseries());
             grouper.setPdx(grouperparameter.getPdx());
             String rawDischargeType = grouperparameter.getDischargeType().toUpperCase();
-
             switch (rawDischargeType) {
                 case "E": {
                     grouper.setDischargeType("8");
@@ -110,24 +110,12 @@ public class ProcessGrouperParameter {
             drgresult.setWarningerror("");
 
             //CLEANING PROC DATA
-//            GenderConfictValidationProc validateProc = new GenderConfictValidationProc();
-//            if (!grouperparameter.getProc().trim().isEmpty()) {
-//                LinkedList<String> newprocList = new LinkedList<>();
-//                List<String> procList = Arrays.asList(grouperparameter.getProc().split(","));
-//                for (int m = 0; m < procList.size(); m++) {
-//                    newprocList.add(procList.get(m));
-//                }
-//                for (int pro = 0; pro < procList.size(); pro++) {
-//                    DRGWSResult validateFirst = validateProc.GenderConfictValidationProc(datasource, SchemaName, procList.get(pro).trim(),
-//                            grouper.getGender());
-//                    if (!validateFirst.isSuccess()) {
-//                        newprocList.remove(procList.get(pro).trim());
-//                    }
-//                }
-//                grouper.setProc(String.join(",", newprocList));
-//            } else {
+            if (!grouperparameter.getProc().trim().isEmpty()) {
+                CodeConverter getConverter = new CodeConverter();
+                grouper.setProc(getConverter.formatICD9Result(grouperparameter.getProc()));
+            } else {
                 grouper.setProc(grouperparameter.getProc());
-//            }
+            }
             grouper.setResult_id(grouperparameter.getResult_id());
             //CLEANING SDX
             if (!grouperparameter.getSdx().isEmpty()) {

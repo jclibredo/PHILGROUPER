@@ -5,7 +5,6 @@
  */
 package grouper.methods.mdc;
 
-import grouper.methods.validation.CleanSDxDCDetermination;
 import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
 import grouper.methods.validation.DRG;
 import grouper.methods.validation.DRGDetermination;
@@ -104,7 +103,7 @@ public class GetPCCLResult {
 
     public DRGWSResult GetPCCLJava(
             final DataSource datasource,
-            final String SchemaName,
+            final String schemaName,
             final DRGOutput drgResult,
             final GrouperParameter grouperparameter) {
         DRGWSResult result = utility.DRGWSResult();
@@ -112,73 +111,90 @@ public class GetPCCLResult {
         result.setResult("");
         result.setSuccess(false);
         try {
+
             DRG checkDRG = new DRG();
-            if (drgResult.getDRG() == null) {
-                drgResult.setPrepccl("X");
-                drgResult.setFinalpccl("X");
+            String currentDrg = drgResult.getDRG();
+            String dc = drgResult.getDC();
+            String sdxdcfinder = drgResult.getSDXFINDER() != null ? drgResult.getSDXFINDER() : "";
+          
+            if (currentDrg == null) {
                 drgResult.setDRGName("Grouper Error");
-                drgResult.setDRG(drgResult.getDC() + "X");
-                if (utility.isValidDCList(drgResult.getDC())) {
-                    drgResult.setDRG(drgResult.getDC() + "9");
+                if (utility.isValidDCList(dc)) {
+                    String fallbackDrg = dc + "9";
+                    drgResult.setDRG(fallbackDrg);
                     drgResult.setPrepccl("9");
                     drgResult.setFinalpccl("9");
-                    drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, drgResult.getDC(),
-                            drgResult.getDC() + "9").getMessage());
-                } else {
-//                    String sdxfinalList = new CleanSDxDCDetermination().CleanSDxDCDetermination(
-//                            datasource,
-//                            SchemaName,
-//                            grouperparameter.getSdx(),
-//                            grouperparameter.getPdx(),
-//                            drgResult.getDC());
 
-                    String sdxfinalList = new DRGDetermination().CleanSDxDCDetermination(datasource,
-                            SchemaName,
+                    DRGWSResult drgCheckResult = checkDRG.DRG(datasource, schemaName, dc, fallbackDrg);
+                    drgResult.setDRGName(drgCheckResult.getMessage());
+                } else {
+                    DRGDetermination drgDetermination = new DRGDetermination();
+                    String sdxFinalList = drgDetermination.CleanSDxDCDetermination(
+                            datasource,
+                            schemaName,
                             grouperparameter.getSdx(),
+                            sdxdcfinder,
                             grouperparameter.getPdx(),
-                            drgResult.getDC());
-                    System.out.println("SDX USE DC " + drgResult.getSDXFINDER());
-                    System.out.println("YOU ARE HERE " + sdxfinalList);
-                    drgResult.setDRG(drgResult.getDC() + "" + sdxfinalList);
-                    drgResult.setPrepccl(drgResult.getDRG().substring(drgResult.getDRG().length() - 1));
-                    drgResult.setDRG(drgResult.getDRG());
-//                    if (checkDRG.DRG(datasource,
-//                            SchemaName,
-//                            drgResult.getDC(),
-//                            drgResult.getDRG()).isSuccess()) {
-//                        drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, drgResult.getDC(),
-//                                drgResult.getDRG()).getMessage());
-//                        drgResult.setFinalpccl(drgResult.getDRG().substring(drgResult.getDRG().length() - 1));
-//                    } else {
-                    DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG());
-                    if (drgvalues.isSuccess()) {
-                        String drgcode = drgResult.getDC() + drgvalues.getResult();
-                        drgResult.setDRG(drgcode);
-                        DRGWSResult drgnames = checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgcode);
-                        if (drgnames.isSuccess()) {
-                            drgResult.setDRGName(drgnames.getMessage());
-                        }
-                        drgResult.setFinalpccl(drgcode.substring(drgcode.length() - 1));
+                            dc);
+                    String constructedDrg = dc + sdxFinalList;
+                    drgResult.setDRG(constructedDrg);
+                    drgResult.setPrepccl(getLastChar(constructedDrg));
+                    // Execute query ONCE and store result
+                    DRGWSResult drgCheckResult = checkDRG.DRG(datasource, schemaName, dc, constructedDrg);
+                    if (drgCheckResult.isSuccess()) {
+                        drgResult.setDRGName(drgCheckResult.getMessage());
+                        drgResult.setFinalpccl(getLastChar(constructedDrg));
                     } else {
-                        drgResult.setDRGName("DRG code grouper provide not exist in the library");
+                        ValidatePCCL validatePCCL = new ValidatePCCL();
+                        DRGWSResult drgValues = validatePCCL.ValidatePCCL(datasource, schemaName, dc, constructedDrg);
+
+                        if (drgValues.isSuccess()) {
+                            String validDrgCode = dc + drgValues.getResult();
+                            drgResult.setDRG(validDrgCode);
+
+                            DRGWSResult drgNames = checkDRG.DRG(datasource, schemaName, dc, validDrgCode);
+                            if (drgNames.isSuccess()) {
+                                drgResult.setDRGName(drgNames.getMessage());
+                            }
+                            drgResult.setFinalpccl(getLastChar(validDrgCode));
+                        } else {
+                            drgResult.setPrepccl("X");
+                            drgResult.setFinalpccl("X");
+                            drgResult.setDRGName("DRG code grouper provide not exist in the library");
+                        }
                     }
-//                    }
                 }
             } else {
-                if (checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG()).isSuccess()) {
-                    drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG()).getMessage());
+                // Execute query ONCE and store result
+                DRGWSResult drgCheckResult = checkDRG.DRG(datasource, schemaName, dc, currentDrg);
+                if (drgCheckResult.isSuccess()) {
+                    drgResult.setDRGName(drgCheckResult.getMessage());
                 } else {
                     drgResult.setDRGName("DRG code grouper provide not exist in the library");
                 }
             }
+
             result.setSuccess(true);
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
-        } catch (IOException | NumberFormatException ex) {
+
+        } catch (IOException ex) {
+            logger.error("JSON serialization error in GetPCCLJava: {}", ex.getMessage(), ex);
+            result.setMessage("Serialization error occurred");
+        } catch (Exception ex) {
+            logger.error("Unexpected error in GetPCCLJava: {}", ex.getMessage(), ex);
             result.setMessage("Something went wrong");
-            logger.info("Executing GetPCCLResult Method");
-            logger.error("Error in GetPCCLResult Method : {}", ex.getMessage(), ex);
         }
 
         return result;
+    }
+
+    /**
+     * Safe helper to extract the last character of a string
+     */
+    private String getLastChar(String str) {
+        if (str == null || str.isEmpty()) {
+            return "";
+        }
+        return str.substring(str.length() - 1);
     }
 }

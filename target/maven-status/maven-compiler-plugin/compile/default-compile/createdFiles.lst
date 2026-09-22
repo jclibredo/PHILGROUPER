@@ -97,6 +97,7 @@ grouper\methods\library\ServicesCCEX.class
 grouper\structures\WarningError.class
 grouper\methods\mdc\GetMDC21.class
 grouper\methods\validation\GetDA.class
+grouper\methods\validation\CodeConverter.class
 grouper\methods\validation\UnralatedANDORProc.class
 grouper\structures\DC.class
 grouper\structures\BMDCPreMDCResult.class
