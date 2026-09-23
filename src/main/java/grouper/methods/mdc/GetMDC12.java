@@ -45,22 +45,31 @@ public class GetMDC12 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
-        List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
-        AX axRest = new AX();
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
-            // CHECKING ICD9 TO MDC START
-            int ORProcedureCounter = 0;
+            List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
+            List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            AX axRest = new AX();
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            int mdcprocedureCounter = 0;
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
+            int ORProcedureCounter = 0;
+            int mdcprocedureCounter = 0;
+            int PDXCounter99 = 0;
+            int PCXCounter99 = 0;
+            int CartSDx = 0;
+            int CaCRxSDx = 0;
+            int CartProc = 0;
+            int CaCRxProc = 0;
+            int PBX12Proc = 0;
+            int PBX99Proc = 0;
+            String pdc12A = "12A";
+            int MalignantCount = 0;
             for (int y = 0; y < ProcedureList.size(); y++) {
-                String proc = ProcedureList.get(y);
+                String procS = ProcedureList.get(y).trim();
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName,
-                        proc.trim(),
+                        procS.trim(),
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
@@ -73,76 +82,54 @@ public class GetMDC12 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, proc.trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS.trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-            }
-
-            //Malignant Counter for Primay Code (PDx)
-            String pdc12A = "12A";
-            int MalignantCount = 0;
-            DRGWSResult getMalignantResult = new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), pdc12A);
-            if (getMalignantResult.isSuccess()) {
-                MalignantCount++;
-            }
-            // CHECKING ICD9 TO MDC START
-            //int ICD9CMFindDC = 0;
-            int PDXCounter99 = 0;
-            int PCXCounter99 = 0;
-            int CartSDx = 0;
-            int CaCRxSDx = 0;
-            int CartProc = 0;
-            int CaCRxProc = 0;
-            int PBX12Proc = 0;
-            int PBX99Proc = 0;
-
-            for (int y = 0; y < ProcedureList.size(); y++) {
-                String procS = ProcedureList.get(y);
-                if (axRest.AX(datasource, SchemaName, "99PDX", procS.trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99PDX", procS).isSuccess()) {
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
-                if (axRest.AX(datasource, SchemaName, "99PCX", procS.trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99PCX", procS).isSuccess()) {
                     PCXCounter99++;
                 }
-                if (axRest.AX(datasource, SchemaName, "99PEX", procS.trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99PEX", procS).isSuccess()) {
                     CartProc++;
                 }
-                if (axRest.AX(datasource, SchemaName, "99PFX", procS.trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99PFX", procS).isSuccess()) {
                     CaCRxProc++;
                 }
-                DRGWSResult Result12PBX = axRest.AX(datasource, SchemaName, "12PBX", procS.trim());
-                if (Result12PBX.isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "12PBX", procS).isSuccess()) {
                     PBX12Proc++;
                 }
-                if (axRest.AX(datasource, SchemaName, "99PBX", procS.trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99PBX", procS).isSuccess()) {
                     PBX99Proc++;
                 }
             }
+
+            //Malignant Counter for Primay Code (PDx)
+            DRGWSResult getMalignantResult = new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "12A");
+            if (getMalignantResult.isSuccess()) {
+                MalignantCount++;
+            }
             //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
-                String Secon = SecondaryList.get(a);
-                if (axRest.AX(datasource, SchemaName, "99BX", Secon.trim()).isSuccess()) {
+                String Secon = SecondaryList.get(a).trim();
+                if (axRest.AX(datasource, SchemaName, "99BX", Secon).isSuccess()) {
                     CartSDx++;
                 }
-                if (axRest.AX(datasource, SchemaName, "99CX", Secon.trim()).isSuccess()) {
+                if (axRest.AX(datasource, SchemaName, "99CX", Secon).isSuccess()) {
                     CaCRxSDx++;
                 }
             }
 
             if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) > 21) {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("1209");
-                    } else {
-                        drgResult.setDC("1210");
-                    }
-
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
+                if (los > 21) {
+                    drgResult.setDC(PCXCounter99 > 0 ? "1209" : "1210");
                 } else if (mdcprocedureCounter > 0) { //MDC Procedure
                     int min = hierarvalue.get(0);
                     for (int i = 0; i < hierarvalue.size(); i++) {
@@ -151,11 +138,9 @@ public class GetMDC12 {
                         }
                     }
                     drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    String dc = this.mdcProcedure(pdc12A, MalignantCount);
-                    drgResult.setDC(dc);
+                    drgResult.setDC(this.mdcProcedure(pdc12A, MalignantCount));
                 } else if (ORProcedureCounter > 0) {
-                    String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                    drgResult.setDC(dc);
+                    drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                 } else {
                     String dc = this.principalDaignosis(
                             drgResult.getPDC(),
@@ -175,11 +160,9 @@ public class GetMDC12 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                String dc = this.mdcProcedure(pdc12A, MalignantCount);
-                drgResult.setDC(dc);
+                drgResult.setDC(this.mdcProcedure(pdc12A, MalignantCount));
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -191,8 +174,8 @@ public class GetMDC12 {
                         PBX99Proc);
                 drgResult.setDC(dc);
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//  DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());
@@ -214,31 +197,34 @@ public class GetMDC12 {
             final Integer MalignantCount) {
         String result = "";
         switch (pdc.toUpperCase()) {
-            case "12PA":   //1Major Male Pelvic Procedures
+            case "12PA": {  //1Major Male Pelvic Procedures
                 result = "1201";
                 break;
-            case "12PB"://Transurethral Prostatectomy
+            }
+            case "12PB": {//Transurethral Prostatectomy
                 result = "1202";
                 break;
-            case "12PD"://Penis Procedures
+            }
+            case "12PD": {//Penis Procedures
                 result = "1204";
                 break;
-            case "12PF"://Other Male Reproductive System OR Procedures
-                if (MalignantCount > 0) {
-                    result = "1206";
-                } else {
-                    result = "1207";
-                }
+            }
+            case "12PF": {//Other Male Reproductive System OR Procedures
+                result = MalignantCount > 0 ? "1206" : "1207";
                 break;
-            case "12PC":  //Testis Procedures
+            }
+            case "12PC": {  //Testis Procedures
                 result = "1203";
                 break;
-            case "12PG": //1Cystourethroscopy
+            }
+            case "12PG": { //1Cystourethroscopy
                 result = "1208";
                 break;
-            case "12PE"://Circumcision 12PE
+            }
+            case "12PE": {//Circumcision 12PE
                 result = "1205";
                 break;
+            }
         }
         return result;
     }
@@ -246,24 +232,30 @@ public class GetMDC12 {
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
-            case 1:
+            case 1: {
                 dc = "2601";
                 break;
-            case 2:
+            }
+            case 2: {
                 dc = "2602";
                 break;
-            case 3:
+            }
+            case 3: {
                 dc = "2603";
                 break;
-            case 4:
+            }
+            case 4: {
                 dc = "2604";
                 break;
-            case 5:
+            }
+            case 5: {
                 dc = "2605";
                 break;
-            case 6:
+            }
+            case 6: {
                 dc = "2606";
                 break;
+            }
         }
         return dc;
     }
@@ -278,7 +270,7 @@ public class GetMDC12 {
             final Integer PBX99Proc) {
         String dc = "";
         switch (pdc.toUpperCase()) {
-            case "12A":
+            case "12A": {
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
                     dc = "1255";
@@ -297,18 +289,23 @@ public class GetMDC12 {
                     dc = "1250";
                 }
                 break;
-            case "12B": //#Benign prostatic hypertrophy
+            }
+            case "12B": { //#Benign prostatic hypertrophy
                 dc = "1251";
                 break;
-            case "12C": //#Inflammation of male reproductive system
+            }
+            case "12C": { //#Inflammation of male reproductive system
                 dc = "1252";
                 break;
-            case "12D": //#Inflammation of male reproductive system
+            }
+            case "12D": { //#Inflammation of male reproductive system
                 dc = "1253";
                 break;
-            case "12E"://##Other male reproductive system diagnoses 12E
+            }
+            case "12E": {//##Other male reproductive system diagnoses 12E
                 dc = "1254";
                 break;
+            }
         }
         return dc;
 

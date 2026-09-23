@@ -131,32 +131,22 @@ public class GetMDC02 {
             }
             //Condition Start this area   
             if (PDXCounter99 > 0) {
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                long los = utility.ComputeLOS(
+                        grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())) > 21) {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("0214");
-                    } else {
-                        drgResult.setDC("0215");
-                    }
-
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())
+                );
+                if (los > 21) {
+                    drgResult.setDC(PCXCounter99 > 0 ? "0214" : "0215");
                 } else if (pdcprocedureCounter2PA > 0) {  //Retina Procedure
                     drgResult.setDC("0201");
                 } else if (pdcprocedureCounter2PJ > 0) {//Keratoplasty
                     drgResult.setDC("0209");
                 } else if (pdcprocedureCounter2PH > 0) { //Other mech Vitrectomy
-                    if (Counter2PDX > 0) { //Cataract Frag/Asp
-                        drgResult.setDC("0206");
-                    } else {
-                        drgResult.setDC("0201");
-                    }
+                    drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
                 } else if (pdcprocedureCounter2PB > 0) { //Enuc & Orbit Procedure
-                    if (MalignantCount > 0) { //PDx Malignancy (PDC 2E)
-                        drgResult.setDC("0210");
-                    } else {
-                        drgResult.setDC("0202");
-                    }
+                    drgResult.setDC(MalignantCount > 0 ? "0210" : "0202");
                 } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
                     drgResult.setDC("0203");
                 } else if (mdcprocedureCounter > 0) { // MDC Procedure
@@ -169,14 +159,11 @@ public class GetMDC02 {
                         }
                     }
                     drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    String getResult = this.mdcProcedure(drgResult.getPDC());
-                    drgResult.setDC(getResult);
+                    drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
                 } else if (ORProcedureCounter > 0) { //Check if OR Procedure
-                    String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                    drgResult.setDC(dc);
+                    drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                 } else { //Principal Diagnosis
-                    String dc = this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
-                    drgResult.setDC(dc);
+                    drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
                 }
                 //START HERE
             } else if (pdcprocedureCounter2PA > 0) {  //Retina Procedure
@@ -184,17 +171,10 @@ public class GetMDC02 {
             } else if (pdcprocedureCounter2PJ > 0) {//Keratoplasty
                 drgResult.setDC("0209");
             } else if (pdcprocedureCounter2PH > 0) { //Other mech Vitrectomy
-                if (Counter2PDX > 0) { //Cataract Frag/Asp
-                    drgResult.setDC("0206");
-                } else {
-                    drgResult.setDC("0201");
-                }
+                drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
             } else if (pdcprocedureCounter2PB > 0) { //Enuc & Orbit Procedure
-                if (MalignantCount > 0) { //PDx Malignancy (PDC 2E)
-                    drgResult.setDC("0210");
-                } else {
-                    drgResult.setDC("0202");
-                }
+                //PDx Malignancy (PDC 2E)
+                drgResult.setDC(MalignantCount > 0 ? "0210" : "0202");
             } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
                 drgResult.setDC("0203");
             } else if (mdcprocedureCounter > 0) { // MDC Procedure
@@ -207,14 +187,11 @@ public class GetMDC02 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                String getResult = this.mdcProcedure(drgResult.getPDC());
-                drgResult.setDC(getResult);
+                drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
             } else if (ORProcedureCounter > 0) { //Check if OR Procedure
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else { //Principal Diagnosis
-                String dc = this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
-                drgResult.setDC(dc);
+                drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -306,11 +283,7 @@ public class GetMDC02 {
                 dc = "0250";
                 break;
             case "2A"://Acute Major Infections
-                if (utility.ComputeYear(dbate, admission) > 54) {
-                    dc = "0251";
-                } else {
-                    dc = "0252";
-                }
+                dc = (utility.ComputeYear(dbate, admission) > 54) ? "0251" : "0252";
                 break;
             case "2E"://Malignancy
                 dc = "0255";

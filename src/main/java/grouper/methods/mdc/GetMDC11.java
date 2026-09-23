@@ -53,12 +53,13 @@ public class GetMDC11 {
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
-            //CHECKING FOR TRAUMA CODES
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter11PBX = 0;
             int Counter11PCX = 0;
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             int ORProcedureCounter = 0;
             int mdcprocedureCounter = 0;
             int CartSDx = 0;
@@ -66,8 +67,7 @@ public class GetMDC11 {
             int CartProc = 0;
             int CaCRxProc = 0;
             int PBX99Proc = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
+            int Counter11C = 0;
             AX getAx = new AX();
             MDCProcedureMethod getMdcProced = new MDCProcedureMethod();
             for (int x = 0; x < ProcedureList.size(); x++) {
@@ -120,7 +120,6 @@ public class GetMDC11 {
                     }
                 }
             }
-
             for (int a = 0; a < SecondaryList.size(); a++) {
                 if (getAx.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
@@ -129,18 +128,16 @@ public class GetMDC11 {
                     CaCRxSDx++;
                 }
             }
-
-            //CHECKING OF MALIGNAT PDC USING PRIMARY CODES 
-            int Counter11C = 0;
             DRGWSResult Result11C = new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "11C");
             if (Result11C.isSuccess()) {
                 Counter11C++;
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
+                if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -157,8 +154,7 @@ public class GetMDC11 {
                                 Counter11PBX);
                         drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {
                         String dc = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -175,11 +171,7 @@ public class GetMDC11 {
                         drgResult.setDC(dc);
                     }
                 } else {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("1113");
-                    } else {
-                        drgResult.setDC("1114");
-                    }
+                    drgResult.setDC(PCXCounter99 > 0 ? "1113" : "1114");
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
@@ -197,8 +189,7 @@ public class GetMDC11 {
                         Counter11PBX);
                 drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -214,8 +205,8 @@ public class GetMDC11 {
                         grouperparameter.getDischargeType());
                 drgResult.setDC(dc);
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());
@@ -236,51 +227,50 @@ public class GetMDC11 {
             final Integer Counter11PBX) {
         String result = "";
         switch (pdc.toUpperCase()) {
-            case "11PA"://Kidney Transplant
+            case "11PA": {//Kidney Transplant
                 result = "1101";
                 break;
-            case "11PL"://Plasmapheresis
+            }
+            case "11PL": {//Plasmapheresis
                 result = "1115";
                 break;
-            case "11PC"://Kidney, Ureter and Major Bladder Procedures
-                if (Counter11C > 0) {
-                    result = "1103";
-                } else {
-                    result = "1104";
-                }
+            }
+            case "11PC": {//Kidney, Ureter and Major Bladder Procedures
+                result = Counter11C > 0 ? "1103" : "1104";
                 break;
-            case "11PB"://Operative Insertion of Peritoneal Catheter for Dialysis
+            }
+            case "11PB": {//Operative Insertion of Peritoneal Catheter for Dialysis
                 result = "1102";
                 break;
-            case "11PD"://Transurethral Prostatectomy
+            }
+            case "11PD": {//Transurethral Prostatectomy
                 result = "1105";
                 break;
-            case "11PH"://Other Kidney and Urinary Tract OR Procedures
+            }
+            case "11PH": {//Other Kidney and Urinary Tract OR Procedures
                 result = "1109";
                 break;
-            case "11PF"://Transurethral Procedures, Except Prostatectomy
+            }
+            case "11PF": {//Transurethral Procedures, Except Prostatectomy
                 result = "1107";
                 break;
-            case "11PJ"://Ureteroscopy
-                if (Counter11PBX > 0) {
-                    result = "1116";
-                } else {
-                    result = "1110";
-                }
+            }
+            case "11PJ": {//Ureteroscopy
+                result = Counter11PBX > 0 ? "1116" : "1110";
                 break;
-            case "11PK"://Cystourethroscopy
-                if (Counter11PBX > 0) {
-                    result = "1116";
-                } else {
-                    result = "1111";
-                }
+            }
+            case "11PK": {//Cystourethroscopy
+                result = Counter11PBX > 0 ? "1116" : "1111";
                 break;
-            case "11PG"://Urethral Procedures
+            }
+            case "11PG": {//Urethral Procedures
                 result = "1108";
                 break;
-            case "11PE"://Minor Bladder Procedures 11PE
+            }
+            case "11PE": {//Minor Bladder Procedures 11PE
                 result = "1106";
                 break;
+            }
         }
         return result;
     }
@@ -288,24 +278,30 @@ public class GetMDC11 {
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
-            case 1:
+            case 1: {
                 dc = "2601";
                 break;
-            case 2:
+            }
+            case 2: {
                 dc = "2602";
                 break;
-            case 3:
+            }
+            case 3: {
                 dc = "2603";
                 break;
-            case 4:
+            }
+            case 4: {
                 dc = "2604";
                 break;
-            case 5:
+            }
+            case 5: {
                 dc = "2605";
                 break;
-            case 6:
+            }
+            case 6: {
                 dc = "2606";
                 break;
+            }
         }
         return dc;
     }
@@ -323,9 +319,11 @@ public class GetMDC11 {
             final Integer Counter11PBX,
             final String dischargeType) {
         String dc = "";
+        long age = utility.ComputeYear(bdate,
+                admDate);
         switch (pdc) {
             //Radio+Chemotherapy
-            case "11C"://Admit for Renal Dialysis
+            case "11C": {//Admit for Renal Dialysis
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
                     dc = "1161";
                     //Chemotherapy
@@ -342,54 +340,44 @@ public class GetMDC11 {
                     dc = "1153";
                 }
                 break;
+            }
 
-            case "11A"://Chronic Renal Failure
-                if (utility.ComputeYear(bdate,
-                        admDate) > 17
-                        && utility.ComputeDay(bdate, admDate) > 0) {
-                    dc = "1150";
-                } else {
-                    dc = "1151";
-                }
+            case "11A": {//Chronic Renal Failure
+                dc = age > 17 ? "1150" : "1151";
                 break;
-            case "11J"://Acute Renal Failure
-                if (utility.ComputeYear(bdate,
-                        admDate) > 17
-                        && utility.ComputeDay(bdate, admDate) > 0) {
-                    if (dischargeType.equals("4")) {
-                        dc = "1167";
-                    } else {
-                        dc = "1159";
-                    }
-                } else {
-                    dc = "1160";
-                }
+            }
+            case "11J": {//Acute Renal Failure
+                dc = (age > 17) ? ("4".equals(dischargeType) ? "1167" : "1159") : "1160";
                 break;
-            case "11B"://Admit for Renal Dialysis
+            }
+            case "11B": {//Admit for Renal Dialysis
                 dc = "1152";
                 break;
-            case "11D"://Kidney and Urinary Tract Infection
+            }
+            case "11D": {//Kidney and Urinary Tract Infection
                 dc = "1154";
                 break;
-            case "11E"://Urinary Stone
-                if (Counter11PBX > 0) {
-                    dc = "1112";
-                } else {
-                    dc = "1155";
-                }
+            }
+            case "11E": {//Urinary Stone
+                dc = Counter11PBX > 0 ? "1112" : "1155";
                 break;
-            case "11F"://Kidney & Urinary Tract Signs & Symptoms
+            }
+            case "11F": {//Kidney & Urinary Tract Signs & Symptoms
                 dc = "1156";
                 break;
-            case "11G"://Urethral Stricture
+            }
+            case "11G": {//Urethral Stricture
                 dc = "1157";
                 break;
-            case "11H"://Other Kidney and Urinary Tract Diagnoses
+            }
+            case "11H": {//Other Kidney and Urinary Tract Diagnoses
                 dc = "1158";
                 break;
-            case "11K"://Major Kidney Dx PDC 11K
+            }
+            case "11K": {//Major Kidney Dx PDC 11K
                 dc = "1166";
-                break;
+            }
+            break;
 
         }
         return dc;

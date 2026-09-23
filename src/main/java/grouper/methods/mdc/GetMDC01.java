@@ -123,15 +123,14 @@ public class GetMDC01 {
             }
             // THIS AREA WILL START STATEMENT TO FIND DC FOR MDC 1
             if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                long los = utility.ComputeLOS(
+                        grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())) > 21) {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("0115");
-                    } else {
-                        drgResult.setDC("0116");
-                    }
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())
+                );
+                if (los > 21) {
+                    drgResult.setDC(PCXCounter99 > 0 ? "0115" : "0116");
                 } else if (mdcprocedureCounter > 0) { //MDC Procedure
                     int min = hierarvalue.get(0);
                     //Loop through the array  
@@ -150,8 +149,7 @@ public class GetMDC01 {
                             EndoCounter);
                     drgResult.setDC(getResult);
                 } else if (ORProcedureCounter > 0) {
-                    String orProc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                    drgResult.setDC(orProc);
+                    drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                 } else {
                     String dc = this.principalDaignosis(
                             drgResult.getPDC(),
@@ -181,8 +179,7 @@ public class GetMDC01 {
                         EndoCounter);
                 drgResult.setDC(getResult);
             } else if (ORProcedureCounter > 0) {
-                String orProc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(orProc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -255,11 +252,7 @@ public class GetMDC01 {
                 dc = "0154";
                 break;
             case "1F"://Specific Cerebrovascular Disorders Except TIA
-                if (discharge.equals("4")) {
-                    dc = "0175";//Transfer
-                } else {
-                    dc = "0155";//Others
-                }
+                dc = "4".equals(discharge) ? "0175" : "0155";
                 break;
             case "1G"://Transient Ischemic Attack and Precerebral Occlusions
                 dc = "0156";
@@ -271,11 +264,7 @@ public class GetMDC01 {
                 dc = "0158";
                 break;
             case "1K"://Infections Except Viral Meningitis
-                if (discharge.equals("4")) {
-                    dc = "0176";
-                } else {
-                    dc = "0159";
-                }
+                dc = "4".equals(discharge) ? "0176" : "0159";
                 break;
             case "1L"://Viral Meningitis
                 dc = "0160";
@@ -345,53 +334,49 @@ public class GetMDC01 {
         String result = "";
         AX checkAX = new AX();
         switch (pdc) {
-            case "1PK":   // drgResult.setDC("0116");
-                if (checkAX.AX(dataSource, SchemaName, "1BX", pdx).isSuccess()) {
-                    result = "0112";
-                } else {
-                    result = "0113";
-                }
+            case "1PK": {
+                result = checkAX.AX(dataSource, SchemaName, "1BX", pdx).isSuccess() ? "0112" : "0113";
                 break;
-            case "1PL"://Plasmapheresis 
+            }
+            case "1PL": {//Plasmapheresis 
                 result = "0117";
                 break;
-            case "1PH"://Intacranial Vasc
-                if (EndoCounter > 0) {  // RECODE THIS AREA TO DOUBLE CHECK
-                    result = "0110";
-                } else {
-                    if (checkAX.AX(dataSource, SchemaName, "1CX", pdx).isSuccess()) {
-                        result = "0108";
-                    } else {
-                        result = "0109";
-                    }
-                }
+            }
+            case "1PH": {//Intacranial Vasc
+                result = (EndoCounter > 0)
+                        ? "0110"
+                        : (checkAX.AX(dataSource, SchemaName, "1CX", pdx).isSuccess() ? "0108" : "0109");
                 break;
-            case "1PC"://SPINAL PROCEDURES
+            }
+            case "1PC": {//SPINAL PROCEDURES
                 result = "0103";
                 break;
-            case "1PB":  //Craniotomy
-                if (checkAX.AX(dataSource, SchemaName, "1BX", pdx).isSuccess()) {
-                    result = "0101";
-                } else {
-                    result = "0102";
-                }
+            }
+            case "1PB": {  //Craniotomy
+                result = checkAX.AX(dataSource, SchemaName, "1BX", pdx).isSuccess() ? "0101" : "0102";
                 break;
-            case "1PJ": //Endovasc Procedures
+            }
+            case "1PJ": { //Endovasc Procedures
                 result = "0114";
                 break;
-            case "1PD": //Extracranial Vascular Procedures
+            }
+            case "1PD": { //Extracranial Vascular Procedures
                 result = "0105";
                 break;
-            case "1PA": //Ventricular Shunt Revision
+            }
+            case "1PA": { //Ventricular Shunt Revision
                 result = "0104";
                 break;
+            }
             case "1PF":
-            case "1PG":  //Peripheral & Cranial Nerve & Other Nervous System Procedures
+            case "1PG": {  //Peripheral & Cranial Nerve & Other Nervous System Procedures
                 result = "0106";
                 break;
-            case "1PE": //Carpal Tunnel Release
+            }
+            case "1PE": {//Carpal Tunnel Release
                 result = "0107";
                 break;
+            }
         }
         return result;
     }

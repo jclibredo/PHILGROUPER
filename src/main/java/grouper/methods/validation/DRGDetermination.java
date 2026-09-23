@@ -14,8 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
@@ -115,7 +113,6 @@ public class DRGDetermination {
             // 4. Initial Exclusion Check against Principal Diagnosis (PDX)
             sdxList.forEach((item) -> {
                 DRGWSResult exclCheck = getExclu.CheckExclusionList(datasource, SchemaName, item.mainCc, pdx);
-                System.out.println("EXCLUSION LIST SDX :" + item.code + " MAINCC :" + item.mainCc + " CCROW :" + item.ccRow + " CCL :" + item.ccl + " PDX :" + pdx);
                 if (exclCheck.isSuccess()) {
                     item.ccl = 0;
                 }

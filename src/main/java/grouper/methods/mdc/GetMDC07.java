@@ -48,21 +48,27 @@ public class GetMDC07 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
-            //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
-            //Checking SDx RadioTherapy and Chemotherapy
             int CartSDx = 0;
             int CaCRxSDx = 0;
             int CartProc = 0;
             int CaCRxProc = 0;
             int PBX99Proc = 0;
+            int B7Count = 0;
+            int Counter7PDX = 0;
+            int Counter7PBX = 0;
+            int ORProcedureCounter = 0;
+            int mdcprocedureCounter = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
                 if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
                     CartSDx++;
@@ -71,21 +77,9 @@ public class GetMDC07 {
                     CaCRxSDx++;
                 }
             }
-            //Maj Dig Dis AX 6BX
-            int B7Count = 0;
             if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "7B").isSuccess()) {
                 B7Count++;
             }
-            //Maj Dig Dis AX 7PDX
-            int Counter7PDX = 0;
-            int Counter7PBX = 0;
-            //THIS AREA IS FOR CHECKING OF OR PROCEDURE
-            int ORProcedureCounter = 0;
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
-            int mdcprocedureCounter = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
                         SchemaName,
@@ -134,10 +128,11 @@ public class GetMDC07 {
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge()));
+                if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -151,41 +146,30 @@ public class GetMDC07 {
                         MDCCodeOptimize getMdcProc = this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX);
                         drgResult.setDC(getMdcProc.getDC());
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {
-                        String dc = this.principalDaignosis(drgResult.getPDC(), CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter7PDX, PBX99Proc, grouperparameter.getDischargeType());
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter7PDX, PBX99Proc, grouperparameter.getDischargeType()));
                     }
                 } else {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("0712");
-                    } else {
-                        drgResult.setDC("0713");
-                    }
+                    drgResult.setDC(PCXCounter99 > 0 ? "0712" : "0713");
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
-                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-
                 MDCCodeOptimize getMdcProc = this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX);
                 drgResult.setDC(getMdcProc.getDC());
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
-                String dc = this.principalDaignosis(drgResult.getPDC(), CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter7PDX, PBX99Proc, grouperparameter.getDischargeType());
-                drgResult.setDC(dc);
+                drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter7PDX, PBX99Proc, grouperparameter.getDischargeType()));
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());
@@ -212,44 +196,39 @@ public class GetMDC07 {
         result.setDC("");
         result.setSdxfinder("");
         //CHECKING FOR TRAUMA CODES
-
         switch (pdc) {
-            case "7PA"://Pancreas, Liver Resection and Shunt Procedures
+            case "7PA": {//Pancreas, Liver Resection and Shunt Procedures
                 result.setDC("0701");
                 break;
-            case "7PB"://Biliary Tract Procedure
-                if (B7Count > 0) {
-                    result.setDC("0702");
-                } else {
-                    result.setDC("0703");
-                }
+            }
+            case "7PB": {//Biliary Tract Procedure
+                result.setDC(B7Count > 0 ? "0702" : "0703");
                 break;
-            case "7PG"://Pancreas and Liver Procedure Except Resection
+            }
+            case "7PG": {//Pancreas and Liver Procedure Except Resection
                 result.setDC("0711");
                 break;
-            case "7PF"://Laparoscopic Cholecystectomy
-                if (Counter7PBX > 0) {
-                    result.setDC("0709");
-                } else {
-                    result.setDC("0710");
-                }
+            }
+            case "7PF": {//Laparoscopic Cholecystectomy
+                result.setDC(Counter7PBX > 0 ? "0709" : "0710");
                 break;
-            case "7PC"://Cholecystectomy
-                if (Counter7PBX > 0) {
-                    result.setDC("0704");
-                } else {
-                    result.setDC("0705");
-                }
+            }
+            case "7PC": {//Cholecystectomy
+                result.setDC(Counter7PBX > 0 ? "0704" : "0705");
                 break;
-            case "7PD"://Hepatobiliary Diagnostic Procedures
+            }
+            case "7PD": {//Hepatobiliary Diagnostic Procedures
                 result.setDC("0706");
                 break;
-            case "7PE"://Other Hepatobiliary and Pancreas Procedures
+            }
+            case "7PE": {//Other Hepatobiliary and Pancreas Procedures
                 result.setDC("0707");
                 break;
-            case "7PH"://ERCP with Therapeutic Procedures 7PH
+            }
+            case "7PH": {//ERCP with Therapeutic Procedures 7PH
                 result.setDC("0708");
                 break;
+            }
         }
         return result;
     }
@@ -257,24 +236,30 @@ public class GetMDC07 {
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
-            case 1:
+            case 1: {
                 dc = "2601";
                 break;
-            case 2:
+            }
+            case 2: {
                 dc = "2602";
                 break;
-            case 3:
+            }
+            case 3: {
                 dc = "2603";
                 break;
-            case 4:
+            }
+            case 4: {
                 dc = "2604";
                 break;
-            case 5:
+            }
+            case 5: {
                 dc = "2605";
                 break;
-            case 6:
+            }
+            case 6: {
                 dc = "2606";
                 break;
+            }
         }
         return dc;
     }
@@ -290,7 +275,7 @@ public class GetMDC07 {
             final String disChargeType) {
         String dc = "";
         switch (pdc) {
-            case "7B"://Malignancy of Hepatobiliary or Pancreas
+            case "7B": {//Malignancy of Hepatobiliary or Pancreas
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
                     dc = "0756";
@@ -313,18 +298,23 @@ public class GetMDC07 {
                     }
                 }
                 break;
-            case "7A"://Cirrhosis and Alcoholic Hepatitis
+            }
+            case "7A": {//Cirrhosis and Alcoholic Hepatitis
                 dc = "0750";
                 break;
-            case "7C"://Disorder of Pancreas, Except Malignancy
+            }
+            case "7C": {//Disorder of Pancreas, Except Malignancy
                 dc = "0753";
                 break;
-            case "7D"://Disorder of Liver, Except Malignancy, Cirrhosis, Alcoholic Hepatitis
+            }
+            case "7D": {//Disorder of Liver, Except Malignancy, Cirrhosis, Alcoholic Hepatitis
                 dc = "0754";
                 break;
-            case "7E"://Disorder of Biliary Tract 7E
+            }
+            case "7E": {//Disorder of Biliary Tract 7E
                 dc = "0755";
                 break;
+            }
         }
         return dc;
 

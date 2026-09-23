@@ -146,21 +146,16 @@ public class GetMDC03 {
             //CONDITIONAL STATEMENT STARTS HERE
             if (PDXCounter99 > 0) {
                 if (Counter3BX > 0) {
-                    if (Counter3PDX > 0) { //Procedures for upper airway obstruction
-                        drgResult.setDC("0322");
-                    } else {
-                        drgResult.setDC("0323");
-                    }
+                    drgResult.setDC(Counter3PDX > 0 ? "0322" : "0323");//Procedures for upper airway obstruction
                 } else {
-                    if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                    long los = utility.ComputeLOS(
+                            grouperparameter.getAdmissionDate(),
                             utility.Convert24to12(grouperparameter.getTimeAdmission()),
                             grouperparameter.getDischargeDate(),
-                            utility.Convert24to12(grouperparameter.getTimeDischarge())) > 21) {
-                        if (PCXCounter99 > 0) {
-                            drgResult.setDC("0318");
-                        } else {
-                            drgResult.setDC("0319");
-                        }
+                            utility.Convert24to12(grouperparameter.getTimeDischarge())
+                    );
+                    if (los > 21) {
+                        drgResult.setDC(PCXCounter99 > 0 ? "0318" : "0319");
                     } else if (mdcprocedureCounter > 0) { //MDC Procedure
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -171,11 +166,9 @@ public class GetMDC03 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        String dc = this.mdcProcedure(drgResult.getPDC(), Counter3PEX);
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), Counter3PEX));
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {//PRINCIPAL DIAGNOSIS
                         String dc = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -199,11 +192,9 @@ public class GetMDC03 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                String dc = this.mdcProcedure(drgResult.getPDC(), Counter3PEX);
-                drgResult.setDC(dc);
+                drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), Counter3PEX));
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {//PRINCIPAL DIAGNOSIS
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -238,61 +229,74 @@ public class GetMDC03 {
             final Integer Counter3PEX) {
         String result = "";
         switch (pdc) {
-            case "3PT":   //Laryngectomy
+            case "3PT": {   //Laryngectomy
                 result = "0320";
                 break;
-            case "3PA":
-                if (Counter3PEX > 0) {
-                    result = "0321";
-                } else {
-                    result = "0301";
-                }
+            }
+            case "3PA": {
+                result = (Counter3PEX > 0) ? "0321" : "0301";
                 break;
-            case "3PR"://Major Sinus Procedures
+            }
+            case "3PR": {//Major Sinus Procedures
                 result = "0316";
                 break;
-            case "3PC"://Maxillo Surgery
+            }
+            case "3PC": {//Maxillo Surgery
                 result = "0303";
                 break;
-            case "3PQ"://Mastoidectomy & Inner Ear Procedures
+            }
+            case "3PQ": {//Mastoidectomy & Inner Ear Procedures
                 result = "0315";
                 break;
-            case "3PP"://Minor Head and Neck Procedures
+            }
+            case "3PP": {//Minor Head and Neck Procedures
                 result = "0314";
                 break;
-            case "3PD"://Salivary Procedures
+            }
+            case "3PD": {//Salivary Procedures
                 result = "0304";
                 break;
-            case "3PL"://Other Head and Neck Procedures
+            }
+            case "3PL": {//Other Head and Neck Procedures
                 result = "0310";
                 break;
-            case "3PE"://Minor Nose & Sinus Procedures
+            }
+            case "3PE": {//Minor Nose & Sinus Procedures
                 result = "0305";
                 break;
-            case "3PJ"://Rhinoplasty
+            }
+            case "3PJ": {//Rhinoplasty
                 result = "0308";
                 break;
-            case "3PN"://Pharyngeal & Laryngeal Procedures
+            }
+            case "3PN": {//Pharyngeal & Laryngeal Procedures
                 result = "0313";
                 break;
-            case "3PB"://Cleft Lip and Palate Repair
+            }
+            case "3PB": {//Cleft Lip and Palate Repair
                 result = "0302";
                 break;
-            case "3PH"://Miscellaneous Ear, Nose, Mouth and Throat Procedures
+            }
+            case "3PH": {//Miscellaneous Ear, Nose, Mouth and Throat Procedures
                 result = "0307";
                 break;
-            case "3PG"://Mouth Procedures
+            }
+            case "3PG": {//Mouth Procedures
                 result = "0306";
                 break;
-            case "3PK"://Tonsil and/or Adenoidectomy
+            }
+            case "3PK": {//Tonsil and/or Adenoidectomy
                 result = "0309";
                 break;
-            case "3PS"://Tympanoplasty & Other Ear Procedures
+            }
+            case "3PS": {//Tympanoplasty & Other Ear Procedures
                 result = "0317";
                 break;
-            case "3PM"://Myringotomy with Tube Insertion 3PM
+            }
+            case "3PM": {//Myringotomy with Tube Insertion 3PM
                 result = "0311";
                 break;
+            }
         }
 
         return result;
@@ -301,24 +305,30 @@ public class GetMDC03 {
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
-            case 1:
+            case 1: {
                 dc = "2601";
                 break;
-            case 2:
+            }
+            case 2: {
                 dc = "2602";
                 break;
-            case 3:
+            }
+            case 3: {
                 dc = "2603";
                 break;
-            case 4:
+            }
+            case 4: {
                 dc = "2604";
                 break;
-            case 5:
+            }
+            case 5: {
                 dc = "2605";
                 break;
-            case 6:
+            }
+            case 6: {
                 dc = "2606";
                 break;
+            }
         }
         return dc;
     }
@@ -334,7 +344,7 @@ public class GetMDC03 {
             final Integer Counter3PBX) {
         String dc = "";
         switch (pdc) {
-            case "3A":
+            case "3A": {
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
                     dc = "0358";
@@ -353,31 +363,35 @@ public class GetMDC03 {
                     dc = "0350";
                 }
                 break;
-            case "3B"://Dysequilibrium
+            }
+            case "3B": {//Dysequilibrium
                 dc = "0351";
                 break;
-            case "3C"://Epistaxis
+            }
+            case "3C": {//Epistaxis
                 dc = "0352";
                 break;
-            case "3D"://Otitis Media and Upper Respiratory Infection
+            }
+            case "3D": {//Otitis Media and Upper Respiratory Infection
                 dc = "0353";
                 break;
-            case "3E"://Epiglottitis and Cellulitis of Face-Neck
+            }
+            case "3E": {//Epiglottitis and Cellulitis of Face-Neck
                 dc = "0354";
                 break;
-            case "3F"://Nasal Trauma and Deformity
+            }
+            case "3F": {//Nasal Trauma and Deformity
                 dc = "0355";
                 break;
-            case "3G"://Other Ear, Noes, Mouth and Throat Diagnoses
+            }
+            case "3G": {//Other Ear, Noes, Mouth and Throat Diagnoses
                 dc = "0356";
                 break;
-            case "3H"://Dental and Oral 3H
-                if (Counter3PBX > 0) {//Extraction and Restoration
-                    dc = "0312";
-                } else {
-                    dc = "0357";
-                }
+            }
+            case "3H": {//Dental and Oral 3H
+                dc = (Counter3PBX > 0) ? "0312" : "0357";//Extraction and Restoration
                 break;
+            }
         }
         return dc;
 

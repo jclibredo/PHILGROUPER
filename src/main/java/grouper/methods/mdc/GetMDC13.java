@@ -52,14 +52,14 @@ public class GetMDC13 {
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
             //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter13PBX = 0;
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
             int ORProcedureCounter = 0;
             int mdcprocedureCounter = 0;
             int CartSDx = 0;
@@ -121,12 +121,12 @@ public class GetMDC13 {
                     CaCRxSDx++;
                 }
             }
-            //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
+            //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 13
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
+                if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         String PDxPDC = new GetPDCUsePDx().GetPDCUsePDx(datasource, SchemaName, grouperparameter.getPdx());
                         int min = hierarvalue.get(0);
@@ -136,11 +136,9 @@ public class GetMDC13 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        String dc = this.mdcProcedure(drgResult.getPDC(), PDxPDC);
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), PDxPDC));
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {
                         String dc = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -153,13 +151,8 @@ public class GetMDC13 {
                         drgResult.setDC(dc);
                     }
                 } else {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("1318");
-                    } else {
-                        drgResult.setDC("1319");
-                    }
+                    drgResult.setDC(PCXCounter99 > 0 ? "1318" : "1319");
                 }
-
             } else if (mdcprocedureCounter > 0) {
                 String PDxPDC = new GetPDCUsePDx().GetPDCUsePDx(datasource, SchemaName, grouperparameter.getPdx());
                 int min = hierarvalue.get(0);
@@ -169,11 +162,9 @@ public class GetMDC13 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                String dc = this.mdcProcedure(drgResult.getPDC(), PDxPDC);
-                drgResult.setDC(dc);
+                drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), PDxPDC));
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -185,8 +176,8 @@ public class GetMDC13 {
                         PBX99Proc);
                 drgResult.setDC(dc);
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());
@@ -208,14 +199,16 @@ public class GetMDC13 {
             final String PDxPDC) {
         String result = "";
         switch (pdc.toUpperCase()) {
-            case "13PJ"://Pelvic Evisceration
+            case "13PJ": {//Pelvic Evisceration
                 result = "1312";
                 break;
-            case "13PA"://Radical Hysterectomy and Radical Vulvectomy
+            }
+            case "13PA": {//Radical Hysterectomy and Radical Vulvectomy
                 result = "1301";
                 break;
-            case "13PK": //Lap Uterine and Adnexal
-                switch (PDxPDC) {
+            }
+            case "13PK": { //Lap Uterine and Adnexal
+                switch (PDxPDC.toUpperCase()) {
                     case "13A": //Other Malignancy
                         result = "1313";
                         break;
@@ -230,8 +223,9 @@ public class GetMDC13 {
                         break;
                 }
                 break;
-            case "13PB": //Uterine and Adnexal
-                switch (PDxPDC) {
+            }
+            case "13PB": { //Uterine and Adnexal
+                switch (PDxPDC.toUpperCase()) {
                     case "13A": //Other Malignancy
                         result = "1302";
                         break;
@@ -247,24 +241,31 @@ public class GetMDC13 {
 
                 }
                 break;
-            case "13PH"://Other Female Reproductive System OR Procedures
+            }
+            case "13PH": {//Other Female Reproductive System OR Procedures
                 result = "1311";
                 break;
-            case "13PC"://Female Reproductive System Reconstructive Procedures
+            }
+            case "13PC": {//Female Reproductive System Reconstructive Procedures
                 result = "1308";
                 break;
-            case "13PF"://Endoscopic Tubal Interruption
+            }
+            case "13PF": {//Endoscopic Tubal Interruption
                 result = "1310";
                 break;
-            case "13PD"://Vagina, Cervix and Vulva Procedures
+            }
+            case "13PD": {//Vagina, Cervix and Vulva Procedures
                 result = "1307";
                 break;
-            case "13PE"://Incisional Tubal Interruption
+            }
+            case "13PE": {//Incisional Tubal Interruption
                 result = "1306";
                 break;
-            case "13PG"://D&C 13PG
+            }
+            case "13PG": {//D&C 13PG
                 result = "1309";
                 break;
+            }
 
         }
         return result;
@@ -273,24 +274,30 @@ public class GetMDC13 {
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
-            case 1:
+            case 1: {
                 dc = "2601";
                 break;
-            case 2:
+            }
+            case 2: {
                 dc = "2602";
                 break;
-            case 3:
+            }
+            case 3: {
                 dc = "2603";
                 break;
-            case 4:
+            }
+            case 4: {
                 dc = "2604";
                 break;
-            case 5:
+            }
+            case 5: {
                 dc = "2605";
                 break;
-            case 6:
+            }
+            case 6: {
                 dc = "2606";
                 break;
+            }
         }
         return dc;
     }
@@ -306,7 +313,7 @@ public class GetMDC13 {
         String dc = "";
         switch (pdc.toUpperCase()) {
             //Radio+Chemotherapy
-            case "13A"://Admit for Renal Dialysis
+            case "13A": {//Admit for Renal Dialysis
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {  //Chemotherapy
                     dc = "1356";
                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {  //Radiotherapy
@@ -321,10 +328,12 @@ public class GetMDC13 {
                     dc = "1350";
                 }
                 break;
-            case "13B"://Non Ovarian/Adnexal CA in situ
+            }
+            case "13B": {//Non Ovarian/Adnexal CA in situ
                 dc = "1351";
                 break;
-            case "13C"://Ovarian/Adnexal Malignancy
+            }
+            case "13C": {//Ovarian/Adnexal Malignancy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {  //Chemotherapy
                     dc = "1361";
                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) { //Radiotherapy
@@ -339,15 +348,19 @@ public class GetMDC13 {
                     dc = "1352";
                 }
                 break;
-            case "13D"://Lower Genitourinary Tract Infection
+            }
+            case "13D": {//Lower Genitourinary Tract Infection
                 dc = "1353";
                 break;
-            case "13E"://Female Pelvic Infection
+            }
+            case "13E": {//Female Pelvic Infection
                 dc = "1354";
                 break;
-            case "13F"://Menstrual and Other Female Reproductive System Disorders PDC 13F
+            }
+            case "13F": {//Menstrual and Other Female Reproductive System Disorders PDC 13F
                 dc = "1355";
                 break;
+            }
         }
         return dc;
 

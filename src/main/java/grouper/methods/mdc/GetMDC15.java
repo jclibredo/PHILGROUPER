@@ -71,7 +71,7 @@ public class GetMDC15 {
                 }
                 //AX 99PDX Checking
                 if (checkAX.AX(datasource, SchemaName, "15PCX", ProcedureList.get(x).trim()).isSuccess()) {
-                    Counter15PCX++;
+                    Counter15PCX++
                 }
                 //AX 15PEX
                 if (checkAX.AX(datasource, SchemaName, "15PEX", ProcedureList.get(x).trim()).isSuccess()) {

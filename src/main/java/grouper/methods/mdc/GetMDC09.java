@@ -53,8 +53,10 @@ public class GetMDC09 {
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             AX checkAX = new AX();
-            //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int CartProc = 0;
@@ -62,12 +64,14 @@ public class GetMDC09 {
             int PBX99Proc = 0;
             int Counter9PCX = 0;
             int Counter9PBX = 0;
-
-            //Seach Malignant using ICD10 PDx and SDx
             int CartSDx = 0;
             int CaCRxSDx = 0;
             int SDxMalignantCount = 0;
             int PDxMalignantCount = 0;
+            int Counter9BX = 0;
+            int ORProcedureCounter = 0;
+            int Counter9PDX = 0;
+            int mdcprocedureCounter = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
                 if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, SecondaryList.get(a).trim(), "9E").isSuccess()) {
                     SDxMalignantCount++;
@@ -82,18 +86,10 @@ public class GetMDC09 {
             if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "9E").isSuccess()) {
                 PDxMalignantCount++;
             }
-            //PDX Skin Ulcer or Cellulitis  AX 9BX
-            int Counter9BX = 0;
             if (checkAX.AX(datasource, SchemaName, "9BX", grouperparameter.getPdx()).isSuccess()) {
                 Counter9BX++;
             }
             //THIS AREA IS FOR CHECKING OF OR PROCEDURE
-            int ORProcedureCounter = 0;
-            int Counter9PDX = 0;
-            int mdcprocedureCounter = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
                 if (ORProcedureResult.isSuccess()) {
@@ -142,13 +138,12 @@ public class GetMDC09 {
                 if (checkAX.AX(datasource, SchemaName, "9PBX(", ProcedureList.get(y).trim()).isSuccess()) {
                     Counter9PBX++;
                 }
-
             }
-            //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
+                if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         //Loop through the array  
@@ -175,8 +170,7 @@ public class GetMDC09 {
                             drgResult.setSDXFINDER(getMdcProc.getSdxfinder());
                         }
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {
                         String dc = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -191,12 +185,7 @@ public class GetMDC09 {
                         drgResult.setDC(dc);
                     }
                 } else {
-
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("0912");
-                    } else {
-                        drgResult.setDC("0913");
-                    }
+                    drgResult.setDC(PCXCounter99 > 0 ? "0912" : "0913");
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
@@ -224,8 +213,7 @@ public class GetMDC09 {
                     drgResult.setSDXFINDER(getMdcProc.getSdxfinder());
                 }
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -239,8 +227,8 @@ public class GetMDC09 {
                         grouperparameter.getAdmissionDate());
                 drgResult.setDC(dc);
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());
@@ -271,13 +259,13 @@ public class GetMDC09 {
         result.setPDC("");
         result.setDC("");
         result.setSdxfinder("");
-        ArrayList<String> sdxfinder = new ArrayList<>();
         PDxMalignancy malignant = new PDxMalignancy();
         switch (pdc.toUpperCase()) {
-            case "9PJ"://Pedicle Graft Plastic Procedures
+            case "9PJ": {//Pedicle Graft Plastic Procedures
                 result.setDC("0911");
                 break;
-            case "9PD"://Skin Graft and Debridement
+            }
+            case "9PD": {//Skin Graft and Debridement
                 if (Counter9BX > 0) {
                     if (Counter9PBX > 0) {
                         result.setDC("0910");
@@ -292,59 +280,52 @@ public class GetMDC09 {
                     }
                 }
                 break;
-            case "9PA"://Total Mastectomy
+            }
+            case "9PA": {//Total Mastectomy
                 if (Counter9PDX > 0) {
-                    result.setDC("0914");
+                    result.setDC("0914");    //SDxMalignantCount
                 } else {
-                    if (SDxMalignantCount > 0 || PDxMalignantCount > 0) {
-                        for (int a = 0; a < SecondaryList.size(); a++) {
-                            String MalignantCodes = SecondaryList.get(a);
-                            DRGWSResult MaligSDxResult = malignant.PDxMalignancy(datasource, SchemaName, MalignantCodes, "9E");
-                            if (MaligSDxResult.isSuccess()) {
-                                sdxfinder.add(SecondaryList.get(a));
-                            }
-                        }
-                        if (!sdxfinder.isEmpty()) {
-                            result.setSdxfinder(String.join(",", sdxfinder));
-                        }
+                    if (PDxMalignantCount == 0 && SDxMalignantCount > 0 && SecondaryList != null) {
+                        SecondaryList.stream()
+                                .map(String::trim)
+                                .filter(sdx -> malignant.PDxMalignancy(datasource, SchemaName, sdx, "9E").isSuccess())
+                                .findFirst()
+                                .ifPresent(result::setSdxfinder);
                         result.setDC("0901");
                     } else {
                         result.setDC("0903");
                     }
                 }
                 break;
-            case "9PF"://Plastic
+            }
+            case "9PF": {//Plastic
                 result.setDC("0908");
                 break;
+            }
             case "9PC"://Subtotal Mastextomy, Biopsy and Local Excision of Breast
-            case "9PB":
-                if (SDxMalignantCount > 0 || PDxMalignantCount > 0) {
-                    for (int a = 0; a < SecondaryList.size(); a++) {
-                        String MalignantCodes = SecondaryList.get(a);
-                        DRGWSResult MaligSDxResult = malignant.PDxMalignancy(datasource, SchemaName, MalignantCodes, "9E");
-                        if (MaligSDxResult.isSuccess()) {
-                            sdxfinder.add(SecondaryList.get(a));
+            case "9PB": {
+                result.setDC((SDxMalignantCount + PDxMalignantCount) > 0 ? "0902" : "9PB".equals(pdc) ? "0903" : "0904");
+                if (PDxMalignantCount == 0 && SDxMalignantCount > 0 && SecondaryList != null) {
+                    for (String sdx : SecondaryList) {
+                        String sdxTrimmed = sdx.trim();
+                        DRGWSResult maligSDxResult = malignant.PDxMalignancy(datasource, SchemaName, sdxTrimmed, "9E");
+                        if (maligSDxResult.isSuccess()) {
+                            result.setSdxfinder(sdxTrimmed);
+                            break;
                         }
-                    }
-                    if (!sdxfinder.isEmpty()) {
-                        result.setSdxfinder(String.join(",", sdxfinder));
-                    }
-                    result.setDC("0902");
-                } else {
-                    if (pdc.equals("9PB")) {
-                        result.setDC("0903");
-                    } else {
-                        result.setDC("0904");
                     }
                 }
                 break;
+            }
             case "9PG"://Other Skin, Subcutaneous Tissue and Breast Procedures
-            case "9PH":
+            case "9PH": {
                 result.setDC("0909");
                 break;
-            case "9PE"://Perianal and Pilonidal PDC 9PE
+            }
+            case "9PE": {//Perianal and Pilonidal PDC 9PE
                 result.setDC("0907");
                 break;
+            }
 
         }
         return result;
@@ -353,24 +334,31 @@ public class GetMDC09 {
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
-            case 1:
+            case 1: {
                 dc = "2601";
                 break;
-            case 2:
+            }
+            case 2: {
                 dc = "2602";
                 break;
-            case 3:
+            }
+            case 3: {
                 dc = "2603";
                 break;
-            case 4:
+            }
+            case 4: {
                 dc = "2604";
                 break;
-            case 5:
+            }
+            case 5: {
                 dc = "2605";
                 break;
-            case 6:
+            }
+            case 6: {
                 dc = "2606";
                 break;
+            }
+
         }
         return dc;
     }
@@ -386,20 +374,25 @@ public class GetMDC09 {
             final String bdate,
             final String admDate) {
         String dc = "";
+        long los = utility.ComputeYear(bdate, admDate);
         switch (pdc) {
-            case "9A"://Skin Ulcer
+            case "9A": {//Skin Ulcer
                 dc = "0950";
                 break;
-            case "9B"://Severe Skin Disorders
+            }
+            case "9B": {//Severe Skin Disorders
                 dc = "0951";
                 break;
-            case "9C"://Moderate Skin Disorders
+            }
+            case "9C": {//Moderate Skin Disorders
                 dc = "0952";
                 break;
-            case "9D"://Minor Skin Disorders
+            }
+            case "9D": {//Minor Skin Disorders
                 dc = "0953";
                 break;
-            case "9E"://Malignant Breast Disorders
+            }
+            case "9E": {//Malignant Breast Disorders
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
                     dc = "0960";
@@ -417,23 +410,19 @@ public class GetMDC09 {
                     dc = "0954";
                 }
                 break;
-            case "9F"://Non-Malignant Breast Disorders
+            }
+            case "9F": {//Non-Malignant Breast Disorders
                 dc = "0955";
                 break;
-            case "9G"://Cellulites
-                if (utility.ComputeYear(bdate, admDate) > 17) {
-                    dc = "0956";
-                } else {
-                    dc = "0957";
-                }
+            }
+            case "9G": {//Cellulites
+                dc = (los > 17) ? "0956" : "0957";
                 break;
-            case "9H"://Trauma
-                if (utility.ComputeYear(bdate, admDate) > 17) {
-                    dc = "0958";
-                } else {
-                    dc = "0959";
-                }
+            }
+            case "9H": {//Trauma
+                dc = (los > 17) ? "0958" : "0959";
                 break;
+            }
         }
         return dc;
 

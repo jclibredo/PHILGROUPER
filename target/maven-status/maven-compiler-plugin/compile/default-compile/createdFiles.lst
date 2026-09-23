@@ -44,6 +44,7 @@ grouper\methods\mdc\GetMDC18.class
 grouper\methods\validation\GETPATIENTBDAY.class
 grouper\GrouperTesting.class
 grouper\methods\validation\UpdateDRGResult.class
+grouper\structures\SdxDcHelper$SdxDcHelperBuilder.class
 grouper\methods\mdc\GetMDC19.class
 grouper\methods\premdc\ProcessMDC.class
 grouper\methods\validation\GetICD10PreMDC.class
@@ -97,6 +98,7 @@ grouper\methods\library\ServicesCCEX.class
 grouper\structures\WarningError.class
 grouper\methods\mdc\GetMDC21.class
 grouper\methods\validation\GetDA.class
+grouper\structures\SdxDcHelper.class
 grouper\methods\validation\CodeConverter.class
 grouper\methods\validation\UnralatedANDORProc.class
 grouper\structures\DC.class

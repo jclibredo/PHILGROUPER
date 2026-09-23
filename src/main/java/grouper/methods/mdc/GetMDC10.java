@@ -51,15 +51,15 @@ public class GetMDC10 {
         String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter10PBX = 0;
             int ORProcedureCounter = 0;
             int mdcprocedureCounter = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 //AX 99PDX Checking
                 if (getAx.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
@@ -97,8 +97,9 @@ public class GetMDC10 {
 
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
+                if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         for (int i = 0; i < hierarvalue.size(); i++) {
@@ -112,8 +113,7 @@ public class GetMDC10 {
                                 grouperparameter.getAdmissionDate());
                         drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {
                         String dc = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -123,11 +123,7 @@ public class GetMDC10 {
                         drgResult.setDC(dc);
                     }
                 } else {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("1011");
-                    } else {
-                        drgResult.setDC("1012");
-                    }
+                    drgResult.setDC(PCXCounter99 > 0 ? "1011" : "1012");
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
@@ -142,14 +138,12 @@ public class GetMDC10 {
                         grouperparameter.getAdmissionDate());
                 drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
-                String dc = this.principalDaignosis(drgResult.getPDC(), Counter10PBX, grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
-                drgResult.setDC(dc);
+                drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), Counter10PBX, grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//              DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());
@@ -171,38 +165,44 @@ public class GetMDC10 {
             final String bdate,
             final String admDate) {
         String result = "";
+        long age = utility.ComputeYear(bdate, admDate);
         switch (pdc.toUpperCase()) {
-            case "10PB"://Pituitary
+            case "10PB": {//Pituitary
                 result = "1001";
                 break;
-            case "10PC"://Amputation of Lower Limb
-                if (utility.ComputeYear(bdate, admDate) > 59) {
-                    result = "1003";
-                } else {
-                    result = "1004";
-                }
+            }
+            case "10PC": {//Amputation of Lower Limb
+                result = (age > 59) ? "1003" : "1004";
                 break;
-            case "10PE"://Procedure for Obesity
+            }
+            case "10PE": {//Procedure for Obesity
                 result = "1005";
                 break;
-            case "10PA"://Adrenal
+            }
+            case "10PA": {//Adrenal
                 result = "1002";
                 break;
-            case "10PF"://Parathyroid
+            }
+            case "10PF": {//Parathyroid
                 result = "1007";
                 break;
-            case "10PD"://Skin Grafts and Wound Debridement
+            }
+            case "10PD": {//Skin Grafts and Wound Debridement
                 result = "1006";
                 break;
-            case "10PG"://Thyroid
+            }
+            case "10PG": {//Thyroid
                 result = "1008";
                 break;
-            case "10PJ"://Other Endocrine, Nutritional & Metabolic OR Procedures
+            }
+            case "10PJ": {//Other Endocrine, Nutritional & Metabolic OR Procedures
                 result = "1010";
                 break;
-            case "10PH"://Thyroglossal PDC 10PH
+            }
+            case "10PH": {//Thyroglossal PDC 10PH
                 result = "1009";
                 break;
+            }
 
         }
         return result;
@@ -211,24 +211,30 @@ public class GetMDC10 {
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
-            case 1:
+            case 1: {
                 dc = "2601";
                 break;
-            case 2:
+            }
+            case 2: {
                 dc = "2602";
                 break;
-            case 3:
+            }
+            case 3: {
                 dc = "2603";
                 break;
-            case 4:
+            }
+            case 4: {
                 dc = "2604";
                 break;
-            case 5:
+            }
+            case 5: {
                 dc = "2605";
                 break;
-            case 6:
+            }
+            case 6: {
                 dc = "2606";
                 break;
+            }
         }
         return dc;
     }
@@ -239,33 +245,32 @@ public class GetMDC10 {
             final String bdate,
             final String admDate) {
         String dc = "";
+        long age = utility.ComputeYear(bdate, admDate);
         switch (pdc) {
-            case "10A"://Diabetes with Complicated PDx
-                if (Counter10PBX > 0) {
-                    dc = "1057";
-                } else {
-                    dc = "1050";
-                }
+            case "10A": {//Diabetes with Complicated PDx
+                dc = Counter10PBX > 0 ? "1057" : "1050";
                 break;
-            case "10B"://Severe Metabolic Disorders
-                if (utility.ComputeYear(bdate, admDate) > 17) {
-                    dc = "1051";
-                } else {
-                    dc = "1052";
-                }
+            }
+            case "10B": {//Severe Metabolic Disorders
+                dc = (age > 17) ? "1051" : "1052";
                 break;
-            case "10C"://Nutritional and Misc. Metabolic Disorders
+            }
+            case "10C": {//Nutritional and Misc. Metabolic Disorders
                 dc = "1053";
                 break;
-            case "10D"://Inborn Errors of Metabolism
+            }
+            case "10D": {//Inborn Errors of Metabolism
                 dc = "1054";
                 break;
-            case "10E"://Endocrine Disorders
+            }
+            case "10E": {//Endocrine Disorders
                 dc = "1055";
                 break;
-            case "10F"://Diabetes without Complicated PDx PDC 10F
+            }
+            case "10F": {//Diabetes without Complicated PDx PDC 10F
                 dc = "1056";
                 break;
+            }
         }
         return dc;
 

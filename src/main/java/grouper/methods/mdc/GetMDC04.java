@@ -14,6 +14,7 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
+import grouper.structures.SdxDcHelper;
 import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public class GetMDC04 {
         int mdcAsInt = Integer.parseInt(drgResult.getMDC());
         String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
+            ArrayList<SdxDcHelper> helperList = new ArrayList<>();
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             //THIS AREA IS FOR CHECKING OF OR PROCEDURE
@@ -66,10 +68,11 @@ public class GetMDC04 {
             int PCX4Proc = 0;
             int PBX99Proc = 0;
             int Counter4BX = 0;
+            int CounterPdx4BX = 0;
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
-            
             for (int y = 0; y < ProcedureList.size(); y++) {
+                String procS = ProcedureList.get(y).trim();
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
                         SchemaName,
                         ProcedureList.get(y).trim(),
@@ -88,24 +91,30 @@ public class GetMDC04 {
                     }
                 }
                 //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess()) {
+                    helperList.add(SdxDcHelper.builder().type("99PDX").tags("PROC").codes(procS).build());
                     PDXCounter99++;
                 }
                 //AX 99PCX Checking
                 if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
+                    helperList.add(SdxDcHelper.builder().type("99PCX").tags("PROC").codes(procS).build());
                     PCXCounter99++;
                 }
                 if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
+                    helperList.add(SdxDcHelper.builder().type("99PEX").tags("PROC").codes(procS).build());
                     CartProc++;
                 }
                 if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
+                    helperList.add(SdxDcHelper.builder().type("99PFX").tags("PROC").codes(procS).build());
                     CaCRxProc++;
                 }
                 //AX 4PCX
                 if (checkAX.AX(datasource, SchemaName, "4PCX", ProcedureList.get(y).trim()).isSuccess()) {
+                    helperList.add(SdxDcHelper.builder().type("4PCX").tags("PROC").codes(procS).build());
                     PCX4Proc++;
                 }
                 if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
+                    helperList.add(SdxDcHelper.builder().type("99PBX").tags("PROC").codes(procS).build());
                     PBX99Proc++;
                 }
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
@@ -117,31 +126,43 @@ public class GetMDC04 {
 
             //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
+                String sdxS = SecondaryList.get(a).trim();
+                if (checkAX.AX(datasource, SchemaName, "99BX", sdxS).isSuccess()) {
+                    helperList.add(SdxDcHelper.builder().type("99PBX").tags("SDX").codes(sdxS).build());
                     CartSDx++;
                 }
-                if (checkAX.AX(datasource, SchemaName, "4BX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "4BX", sdxS).isSuccess()) {
+                    helperList.add(SdxDcHelper.builder().type("4BX").tags("SDX").codes(sdxS).build());
                     Counter4BX++;
                 }
-                if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99CX", sdxS).isSuccess()) {
+                    helperList.add(SdxDcHelper.builder().type("99CX").tags("SDX").codes(sdxS).build());
                     CaCRxSDx++;
                 }
             }
             if (checkAX.AX(datasource, SchemaName, "4BX", grouperparameter.getPdx().trim()).isSuccess()) {
-                Counter4BX++;
+                helperList.add(SdxDcHelper.builder().type("4BX").tags("SDX").codes(grouperparameter.getPdx()).build());
+                CounterPdx4BX++;
             }
             //THIS AREA START FOR CONDITIONAL STATEMENT TO FIND DC
-            if (PDXCounter99 > 0 || Counter4BX > 0) {
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+            boolean hasQualifyingCondition = PDXCounter99 > 0 || Counter4BX > 0 || CounterPdx4BX > 0;
+            if (hasQualifyingCondition) {
+                long los = utility.ComputeLOS(
+                        grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())) > 21) {
-                    if (PCXCounter99 > 0) { //Procedures for upper airway obstruction
-                        drgResult.setDC("0405");
-                    } else {
-                        drgResult.setDC("0406");
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())
+                );
+                if (los > 21) {
+                    drgResult.setDC(PCXCounter99 > 0 ? "0405" : "0406");
+                    //IDENTIFY WHAT CODE USE TO DETERMINE DC
+                    if (PDXCounter99 == 0 && CounterPdx4BX == 0 && Counter4BX > 0) {
+                        helperList.stream()
+                                .filter(h -> "SDX".equalsIgnoreCase(h.getTags()))
+                                .map(SdxDcHelper::getCodes)
+                                .findFirst()
+                                .ifPresent(drgResult::setSDXFINDER);
                     }
-
                 } else if (mdcprocedureCounter > 0) { //THIS AREA MDC PROCEDURE
                     int min = hierarvalue.get(0);
                     for (int i = 0; i < hierarvalue.size(); i++) {
@@ -150,11 +171,9 @@ public class GetMDC04 {
                         }
                     }
                     drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    String dc = this.mdcProcedure(drgResult.getPDC());
-                    drgResult.setDC(dc);
+                    drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
                 } else if (ORProcedureCounter > 0) {
-                    String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                    drgResult.setDC(dc);
+                    drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                 } else {
                     String dc = this.principalDaignosis(
                             drgResult.getPDC(),
@@ -175,11 +194,9 @@ public class GetMDC04 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                String dc = this.mdcProcedure(drgResult.getPDC());
-                drgResult.setDC(dc);
+                drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
             } else if (ORProcedureCounter > 0) {
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -213,21 +230,26 @@ public class GetMDC04 {
             final String pdc) {
         String result = "";
         switch (pdc.toUpperCase()) {
-            case "4PA"://Major Chest
+            case "4PA": {//Major Chest
                 result = "0401";
                 break;
-            case "4PB"://Other Respiratory System Procedures
+            }
+            case "4PB": {//Other Respiratory System Procedures
                 result = "0402";
                 break;
-            case "4PD"://Ventilator Support
+            }
+            case "4PD": {//Ventilator Support
                 result = "0403";
                 break;
-            case "4PE"://Noninvasive Ventilation 
+            }
+            case "4PE": {//Noninvasive Ventilation 
                 result = "0407";
                 break;
-            case "4PC"://Other Minor Respiratory System Procedures PDC 4PC
+            }
+            case "4PC": {//Other Minor Respiratory System Procedures PDC 4PC
                 result = "0408";
                 break;
+            }
         }
         return result;
     }
@@ -235,24 +257,30 @@ public class GetMDC04 {
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
-            case 1:
+            case 1: {
                 dc = "2601";
                 break;
-            case 2:
+            }
+            case 2: {
                 dc = "2602";
                 break;
-            case 3:
+            }
+            case 3: {
                 dc = "2603";
                 break;
-            case 4:
+            }
+            case 4: {
                 dc = "2604";
                 break;
-            case 5:
+            }
+            case 5: {
                 dc = "2605";
                 break;
-            case 6:
+            }
+            case 6: {
                 dc = "2606";
                 break;
+            }
         }
         return dc;
     }
@@ -284,13 +312,8 @@ public class GetMDC04 {
                 dc = "0453";
                 break;
             }
-
             case "4E": {//Noninvasive Ventilation 
-                if (discharge.equals("4")) {
-                    dc = "0471";//Transfer
-                } else {
-                    dc = "0454";//Others
-                }
+                dc = "4".equals(discharge) ? "0471" : "0454";
                 break;
             }
             case "4F": {//COPD
@@ -342,11 +365,7 @@ public class GetMDC04 {
                 break;
             }
             case "4N": {//Pleural Effusion
-                if (discharge.equals("4")) {
-                    dc = "0472";//Transfer
-                } else {
-                    dc = "0462";//Others
-                }
+                dc = "4".equals(discharge) ? "0472" : "0462";
                 break;
             }
             case "4P": {//Interstitial Lung Diseases
