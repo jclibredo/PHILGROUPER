@@ -49,11 +49,12 @@ public class GetMDC18 {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             AX checkAX = new AX();
-            //CHECKING FOR TRAUMA CODES
             int mdcprocedureCounter = 0;
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
-            int ORProcedureCounter = 0;
+            int CounterSDxBX18 = 0;
+            int CounterPDxBX18 = 0;
+//            int ORProcedureCounter = 0;
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String procS = ProcedureList.get(x).trim();
@@ -61,7 +62,7 @@ public class GetMDC18 {
                 PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
-                    ORProcedureCounter++;
+//                    ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
@@ -73,13 +74,11 @@ public class GetMDC18 {
                     mdcprocedureCounter++;
                 }
             }
-            int CounterSDxBX18 = 0;
-            int CounterPDxBX18 = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
-                CounterSDxBX18 += checkAX.AX(datasource, SchemaName, "18BX", SecondaryList.get(a).trim()).isSuccess() ? 1 : 0;
+                String sdxCode = SecondaryList.get(a).trim();
+                CounterSDxBX18 += checkAX.AX(datasource, SchemaName, "18BX", sdxCode).isSuccess() ? 1 : 0;
             }
             CounterPDxBX18 += checkAX.AX(datasource, SchemaName, "18BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
-            //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 16
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
@@ -107,7 +106,6 @@ public class GetMDC18 {
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "1808" : "1809");
                 }
-
 //            } else if (ORProcedureCounter > 0) {
             } else if (mdcprocedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
@@ -126,8 +124,8 @@ public class GetMDC18 {
                     drgResult.setSDXFINDER(getMPrincipal.getSdxfinder());
                 }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());
@@ -190,100 +188,61 @@ public class GetMDC18 {
         result.setSdxfinder("");
         AX checkAX = new AX();
         long age = utility.ComputeYear(bdate, admDate);
-        ArrayList<String> sdxfinder = new ArrayList<>();
         switch (pdc.toUpperCase()) {
-            case "18A"://Septicemia
-                if (age > 14) {
-                    if (dischargeType.equals("4")) {
-                        result.setDC("1872");
-                    } else {
-                        result.setDC("1850");
-                    }
-                } else {
-                    result.setDC("1851");
-                }
+            case "18A": {//Septicemia
+                result.setDC(age > 14 ? ("4".equals(dischargeType) ? "1872" : "1850") : "1851");
                 break;
-            case "18B"://Postop & Posttraumatic Infections
-                if (age > 54) {
-                    result.setDC("1852");
-                } else {
-                    result.setDC("1853");
-                }
+            }
+            case "18B": {//Postop & Posttraumatic Infections
+                result.setDC(age > 54 ? "1852" : "1853");
                 break;
-            case "18C"://Malaria
-                if (age > 14) {
-                    result.setDC("1854");
-                } else {
-                    result.setDC("1855");
-                }
+            }
+            case "18C": {//Malaria
+                result.setDC(age > 14 ? "1854" : "1855");
                 break;
-            case "18D"://CounterPDxBX18
+            }
+            case "18D": {//CounterPDxBX18
                 if (CounterSDxBX18 > 0 || CounterPDxBX18 > 0) {
                     result.setDC(age > 14 ? "1870" : "1871");
-
-                    for (int x = 0; x < SecondaryList.size(); x++) {
-                        if (checkAX.AX(datasource, SchemaName, "18BX", SecondaryList.get(x).trim()).isSuccess()) {
-                            sdxfinder.add(SecondaryList.get(x));
+                    if (CounterPDxBX18 == 0 && CounterSDxBX18 > 0) {
+                        for (String sdx : SecondaryList) {
+                            if (checkAX.AX(datasource, SchemaName, "18BX", sdx.trim()).isSuccess()) {
+                                result.setSdxfinder(sdx.trim());
+                                break;
+                            }
                         }
                     }
-                    if (!sdxfinder.isEmpty()) {
-                        result.setSdxfinder(String.join(",", sdxfinder));
-                    }
-
                 } else {
-                    if (utility.ComputeYear(bdate, admDate) > 14) {
-                        result.setDC("1856");
-                    } else {
-                        result.setDC("1857");
-                    }
+                    result.setDC(age > 14 ? "1856" : "1857");
                 }
                 break;
-
-            case "18E"://Fever of Unknown Origin
-                if (utility.ComputeYear(bdate, admDate) > 14) {
-                    result.setDC("1858");
-                } else {
-                    result.setDC("1859");
-                }
+            }
+            case "18E": {//Fever of Unknown Origin
+                result.setDC(age > 14 ? "1858" : "1859");
                 break;
-            case "18F"://Viral Illness Except Dengue
-                if (utility.ComputeYear(bdate, admDate) > 14) {
-                    result.setDC("1860");
-                } else {
-                    result.setDC("1861");
-                }
+            }
+            case "18F": {//Viral Illness Except Dengue
+                result.setDC(age > 14 ? "1860" : "1861");
                 break;
-            case "18G"://Fungal Diseases
-                if (utility.ComputeYear(bdate, admDate) > 14) {
-                    result.setDC("1862");
-                } else {
-                    result.setDC("1863");
-                }
+            }
+            case "18G": {//Fungal Diseases
+                result.setDC(age > 14 ? "1862" : "1863");
                 break;
-            case "18H"://Other Infectious & Parasitic Diseases
-                if (utility.ComputeYear(bdate, admDate) > 14) {
-                    result.setDC("1864");
-                } else {
-                    result.setDC("1865");
-                }
+            }
+            case "18H": {//Other Infectious & Parasitic Diseases
+                result.setDC(age > 14 ? "1864" : "1865");
                 break;
-            case "18J"://Melioidosis
-                if (utility.ComputeYear(bdate, admDate) > 14) {
-                    result.setDC("1866");
-                } else {
-                    result.setDC("1867");
-                }
+            }
+            case "18J": {//Melioidosis
+                result.setDC(age > 14 ? "1866" : "1867");
                 break;
-            case "18K"://Leptospirosis
-                if (utility.ComputeYear(bdate, admDate) > 14) {
-                    result.setDC("1868");
-                } else {
-                    result.setDC("1869");
-                }
+            }
+            case "18K": {//Leptospirosis
+                result.setDC(age > 14 ? "1868" : "1869");
                 break;
+            }
         }
         return result;
-
     }
 
 }

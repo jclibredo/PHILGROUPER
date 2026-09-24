@@ -47,17 +47,17 @@ public class GetMDC04 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             ArrayList<SdxDcHelper> helperList = new ArrayList<>();
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
-            //THIS AREA IS FOR CHECKING OF OR PROCEDURE
-            int ORProcedureCounter = 0;
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
             AX checkAX = new AX();
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
+            int ORProcedureCounter = 0;
             int mdcprocedureCounter = 0;
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
@@ -69,8 +69,6 @@ public class GetMDC04 {
             int PBX99Proc = 0;
             int Counter4BX = 0;
             int CounterPdx4BX = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
@@ -90,41 +88,37 @@ public class GetMDC04 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                //AX 99PDX Checking
                 if (checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess()) {
                     helperList.add(SdxDcHelper.builder().type("99PDX").tags("PROC").codes(procS).build());
                     PDXCounter99++;
                 }
-                //AX 99PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess()) {
                     helperList.add(SdxDcHelper.builder().type("99PCX").tags("PROC").codes(procS).build());
                     PCXCounter99++;
                 }
-                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PEX", procS).isSuccess()) {
                     helperList.add(SdxDcHelper.builder().type("99PEX").tags("PROC").codes(procS).build());
                     CartProc++;
                 }
-                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PFX", procS).isSuccess()) {
                     helperList.add(SdxDcHelper.builder().type("99PFX").tags("PROC").codes(procS).build());
                     CaCRxProc++;
                 }
-                //AX 4PCX
-                if (checkAX.AX(datasource, SchemaName, "4PCX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "4PCX", procS).isSuccess()) {
                     helperList.add(SdxDcHelper.builder().type("4PCX").tags("PROC").codes(procS).build());
                     PCX4Proc++;
                 }
-                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
+                if (checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess()) {
                     helperList.add(SdxDcHelper.builder().type("99PBX").tags("PROC").codes(procS).build());
                     PBX99Proc++;
                 }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
             }
 
-            //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String sdxS = SecondaryList.get(a).trim();
                 if (checkAX.AX(datasource, SchemaName, "99BX", sdxS).isSuccess()) {
@@ -144,7 +138,6 @@ public class GetMDC04 {
                 helperList.add(SdxDcHelper.builder().type("4BX").tags("SDX").codes(grouperparameter.getPdx()).build());
                 CounterPdx4BX++;
             }
-            //THIS AREA START FOR CONDITIONAL STATEMENT TO FIND DC
             boolean hasQualifyingCondition = PDXCounter99 > 0 || Counter4BX > 0 || CounterPdx4BX > 0;
             if (hasQualifyingCondition) {
                 long los = utility.ComputeLOS(
@@ -155,7 +148,6 @@ public class GetMDC04 {
                 );
                 if (los > 21) {
                     drgResult.setDC(PCXCounter99 > 0 ? "0405" : "0406");
-                    //IDENTIFY WHAT CODE USE TO DETERMINE DC
                     if (PDXCounter99 == 0 && CounterPdx4BX == 0 && Counter4BX > 0) {
                         helperList.stream()
                                 .filter(h -> "SDX".equalsIgnoreCase(h.getTags()))
@@ -163,7 +155,7 @@ public class GetMDC04 {
                                 .findFirst()
                                 .ifPresent(drgResult::setSDXFINDER);
                     }
-                } else if (mdcprocedureCounter > 0) { //THIS AREA MDC PROCEDURE
+                } else if (mdcprocedureCounter > 0) {
                     int min = hierarvalue.get(0);
                     for (int i = 0; i < hierarvalue.size(); i++) {
                         if (hierarvalue.get(i) < min) {

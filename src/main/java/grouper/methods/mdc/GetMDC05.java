@@ -50,11 +50,18 @@ public class GetMDC05 {
         result.setResult("");
         result.setSuccess(false);
         try {
-            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
-            //CHECKING FOR TRAUMA CODES
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            AX checkAX = new AX();
+            ORProcedure orProc = new ORProcedure();
+            GetPDC getPdc = new GetPDC();
+            Endovasc endDovas = new Endovasc();
+            PDxMalignancy pdxMalig = new PDxMalignancy();
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter5CX = 0;
@@ -74,25 +81,10 @@ public class GetMDC05 {
             int PPCount = 0;
             int Counter5PBX = 0;
             int mdcprocedureCounter = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            AX checkAX = new AX();
-            //5BX USES PRIMARY CODES
-            if (checkAX.AX(datasource, SchemaName, "5BX", grouperparameter.getPdx()).isSuccess()) {
-                Counter5BX++;
-            }
             for (int x = 0; x < SecondaryList.size(); x++) {
                 String sdxS = SecondaryList.get(x).trim();
-                if (checkAX.AX(datasource, SchemaName, "5CX", sdxS).isSuccess()) {
-                    Counter5CX++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "5DX", sdxS).isSuccess()) {
-                    Counter5DXSDx++;
-                }
-            }
-            if (checkAX.AX(datasource, SchemaName, "5DX", grouperparameter.getPdx()).isSuccess()) {
-                Counter5DXPDx++;
+                Counter5CX += checkAX.AX(datasource, SchemaName, "5CX", sdxS).isSuccess() ? 1 : 0;
+                Counter5DXSDx += checkAX.AX(datasource, SchemaName, "5DX", sdxS).isSuccess() ? 1 : 0;
             }
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String procS = ProcedureList.get(x).trim();
@@ -104,66 +96,34 @@ public class GetMDC05 {
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                //AX 99PDX Checking
                 PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
-                //AX 99PCX Checking
                 PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
-                //AX 5PEX
-                if (checkAX.AX(datasource, SchemaName, "5PEX", procS).isSuccess()) {
-                    Counter5PEX++;
-                }
-                //AX 5PCX
-                if (checkAX.AX(datasource, SchemaName, "5PCX", procS).isSuccess()) {
-                    Counter5PCX++;
-                }
-                //AX 5PFX
-                if (checkAX.AX(datasource, SchemaName, "5PFX", procS).isSuccess()) {
-                    Counter5PFX++;
-                }
-                //AX 5PDX
-                if (checkAX.AX(datasource, SchemaName, "5PDX", procS).isSuccess()) {
-                    Counter5PDX++;
-                }
-                //AX 5PGX
-                if (checkAX.AX(datasource, SchemaName, "5PGX", procS).isSuccess()) {
-                    Counter5PGX++;
-                }
-                //AX 5PHX
-                if (checkAX.AX(datasource, SchemaName, "5PHX", procS).isSuccess()) {
-                    Counter5PHX++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "5PJX", procS).isSuccess()) {
-                    Counter5PJX++;
-                }
-                //Cardiac Cath PDC 5PT
-                if (new Endovasc().Endovasc(datasource, SchemaName, procS, "5PT", mdcWithoutZeros).isSuccess()) {
-                    CardiacCount++;
-                }
-                //AX 5PBX
-                if (checkAX.AX(datasource, SchemaName, "5PBX", procS).isSuccess()) {
-                    Counter5PBX++;
-                }
-                if (new Endovasc().Endovasc(datasource, SchemaName, procS, "5PK", mdcWithoutZeros).isSuccess()) {
-                    PPCount++;
-                }
+                Counter5PEX += checkAX.AX(datasource, SchemaName, "5PEX", procS).isSuccess() ? 1 : 0;
+                Counter5PCX += checkAX.AX(datasource, SchemaName, "5PCX", procS).isSuccess() ? 1 : 0;
+                Counter5PFX += checkAX.AX(datasource, SchemaName, "5PFX", procS).isSuccess() ? 1 : 0;
+                Counter5PDX += checkAX.AX(datasource, SchemaName, "5PDX", procS).isSuccess() ? 1 : 0;
+                Counter5PGX += checkAX.AX(datasource, SchemaName, "5PGX", procS).isSuccess() ? 1 : 0;
+                Counter5PHX += checkAX.AX(datasource, SchemaName, "5PHX", procS).isSuccess() ? 1 : 0;
+                Counter5PJX += checkAX.AX(datasource, SchemaName, "5PJX", procS).isSuccess() ? 1 : 0;
+                CardiacCount += endDovas.Endovasc(datasource, SchemaName, procS, "5PT", mdcWithoutZeros).isSuccess() ? 1 : 0;
+                Counter5PBX += checkAX.AX(datasource, SchemaName, "5PBX", procS).isSuccess() ? 1 : 0;
+                PPCount += endDovas.Endovasc(datasource, SchemaName, procS, "5PK", mdcWithoutZeros).isSuccess() ? 1 : 0;
             }
-
-            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "5A").isSuccess()) {
-                AMICount++;
-            }
-            // THIS AREA WILL START THE CONDITIONAL STATEMENT FOR THIS MDC
+            AMICount += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "5A").isSuccess() ? 1 : 0;
+            Counter5BX += checkAX.AX(datasource, SchemaName, "5BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
+            Counter5DXPDx += checkAX.AX(datasource, SchemaName, "5DX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(
                         grouperparameter.getAdmissionDate(),
@@ -224,7 +184,6 @@ public class GetMDC05 {
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "0534" : "0535");
                 }
-
             } else if (AMICount > 0) {
                 MDCCodeOptimize getAMICount = this.pdxAMI(
                         Counter5PEX,
@@ -324,8 +283,7 @@ public class GetMDC05 {
             result.setDC((Counter5CX > 0) ? "0550" : "0551");
             if (Counter5CX > 0) {
                 for (String sdx : SecondaryList) {
-                    DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", sdx.trim());
-                    if (sdxfinderResult.isSuccess()) {
+                    if (checkAX.AX(datasource, SchemaName, "5CX", sdx.trim()).isSuccess()) {
                         result.setSdxfinder(sdx.trim());
                         break;
                     }
@@ -337,8 +295,7 @@ public class GetMDC05 {
             result.setDC((Counter5CX > 0) ? "0552" : "0553");
             if (Counter5CX > 0) {
                 for (String sdx : SecondaryList) {
-                    DRGWSResult sdxfinderResult = checkAX.AX(datasource, SchemaName, "5CX", sdx.trim());
-                    if (sdxfinderResult.isSuccess()) {
+                    if (checkAX.AX(datasource, SchemaName, "5CX", sdx.trim()).isSuccess()) {
                         result.setSdxfinder(sdx.trim());
                         break;
                     }
@@ -365,7 +322,6 @@ public class GetMDC05 {
         result.setPDC("");
         result.setDC("");
         result.setSdxfinder("");
-        //CHECKING FOR TRAUMA CODES
         AX checkAX = new AX();
         switch (pdc) {
             case "5PE": {//Thoracoabdominal Procedures Combination
@@ -373,9 +329,7 @@ public class GetMDC05 {
                 break;
             }
             case "5PC": {//Coronary Bypass
-                result.setDC(Counter5PCX > 0 ? "0503"
-                        : CardiacCount > 0 ? "0504"
-                                : "0505");
+                result.setDC(Counter5PCX > 0 ? "0503" : CardiacCount > 0 ? "0504" : "0505");
                 break;
             }
             case "5PV": {//Multiple Valve Procedures

@@ -6,7 +6,6 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
-import grouper.methods.validation.CleanSDxDCDetermination;
 import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
 import grouper.methods.validation.DRG;
 import grouper.methods.validation.GetPCCL;
@@ -25,9 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -59,6 +56,7 @@ public class GetMDC14 {
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             AX checkAX = new AX();
+            PDXandMDC pdxMdc = new PDXandMDC();
             PDxMalignancy pdxMalignant = new PDxMalignancy();
             String PrimayDiag = grouperparameter.getPdx() != null ? grouperparameter.getPdx().trim() : "";
             //Procedure AX
@@ -100,12 +98,12 @@ public class GetMDC14 {
             int J14Counter = 0;
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                     DRGWSResult ResultUnralated = new UnralatedANDORProc().UnralatedANDORProc(datasource, SchemaName,
-                            ProcedureList.get(y).trim(), drgResult.getMDC());
+                            procS, drgResult.getMDC());
                     if (!ResultUnralated.isSuccess()) {
                         UnralatedORProcedure++;
                     }
@@ -118,7 +116,6 @@ public class GetMDC14 {
                 Counter14PCX += checkAX.AX(datasource, SchemaName, "14PCX", procS).isSuccess() ? 1 : 0;
                 Counter14PHX += checkAX.AX(datasource, SchemaName, "14PHX", procS).isSuccess() ? 1 : 0;
                 Counter14PDX += checkAX.AX(datasource, SchemaName, "14PDX", procS).isSuccess() ? 1 : 0;
-
             }
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String sdxCode = SecondaryList.get(a).trim();
@@ -129,11 +126,10 @@ public class GetMDC14 {
                 Counter14BX += checkAX.AX(datasource, SchemaName, "14BX", sdxCode).isSuccess() ? 1 : 0;
                 Counter14HX += checkAX.AX(datasource, SchemaName, "14HX", sdxCode).isSuccess() ? 1 : 0;
                 Counter14FX += checkAX.AX(datasource, SchemaName, "14FX", sdxCode).isSuccess() ? 1 : 0;
-                ICD10mdcCounter += new PDXandMDC().PDXandMDC(datasource, SchemaName, sdxCode, drgResult.getMDC()).isSuccess() ? 1 : 0;
+                ICD10mdcCounter += pdxMdc.PDXandMDC(datasource, SchemaName, sdxCode, drgResult.getMDC()).isSuccess() ? 1 : 0;
                 Counter14GX += checkAX.AX(datasource, SchemaName, "14GX", sdxCode).isSuccess() ? 1 : 0;
                 Counter14JX += checkAX.AX(datasource, SchemaName, "14JX", sdxCode).isSuccess() ? 1 : 0;
             }
-
             pdxax14cx += checkAX.AX(datasource, SchemaName, "14CX", PrimayDiag).isSuccess() ? 1 : 0;
             pdxax14dx += checkAX.AX(datasource, SchemaName, "14DX", PrimayDiag).isSuccess() ? 1 : 0;
             dxas14Fx += checkAX.AX(datasource, SchemaName, "14FX", PrimayDiag).isSuccess() ? 1 : 0;
@@ -148,16 +144,12 @@ public class GetMDC14 {
             K14Counter += pdxMalignant.PDxMalignancy(datasource, SchemaName, PrimayDiag, "14K").isSuccess() ? 1 : 0;
             L14Counter += pdxMalignant.PDxMalignancy(datasource, SchemaName, PrimayDiag, "14L").isSuccess() ? 1 : 0;
             J14Counter += pdxMalignant.PDxMalignancy(datasource, SchemaName, PrimayDiag, "14J").isSuccess() ? 1 : 0;
-//          
-            //----------------------------------------
             //AREA 3
             int area1 = dxax14Gx + Counter14GX;
             int area2 = dxax14Hx + Counter14HX;
             int area3 = Counter14JX + dxax14Jx;
-            //----------------------------------------
             //AREA 3
             int area4 = dxax14Hx + Counter14HX;
-            //----------------------------------------
             boolean isMatch = (pdxax14bx > 0 && ICD10mdcCounter > 0)
                     || (Counter14PBX > 0 && dxax14Hx == 0 && Counter14HX == 0)
                     || (area4 > 0 && Counter14PBX == 0)
@@ -324,7 +316,6 @@ public class GetMDC14 {
                     }
                 }
             }
-
             //PROCESS LAST DRG DIGIT
             DRG checkDRG = new DRG();
             // 2. Call the service ONCE and store the result
@@ -340,7 +331,7 @@ public class GetMDC14 {
                         drgResult.setPrepccl("9");
                         drgResult.setFinalpccl("9");
                     } else {
-//                        String sdxfinalList = new CleanSDxDCDetermination().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
+                        //String sdxfinalList = new CleanSDxDCDetermination().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
                         String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, SchemaName, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
                         DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, SchemaName, drgResult, grouperparameter, sdxfinalList);
                         if (getpcclvalue.isSuccess()) {
@@ -393,7 +384,6 @@ public class GetMDC14 {
                             drgResult.setFinalpccl("0");
                         }
                     }
-
                     // 1. Handle the specific edge case for "26041" first
                     if ("26041".equals(drgResult.getDRG())) {
                         drgResult.setDRG("26040");
@@ -507,14 +497,9 @@ public class GetMDC14 {
         } else if (Counter14PJX > 0) {
             dc = "1409";
         } else if (UnralatedORProcedure > 0) {
-            String getDc = this.orProcedure(ORProcedureCounterList);
-            dc = getDc;
+            dc = this.orProcedure(ORProcedureCounterList);
         } else {
-            if (Counter14PHX > 0) {
-                dc = "1408";
-            } else {
-                dc = "1450";
-            }
+            dc = Counter14PHX > 0 ? "1408" : "1450";
         }
         return dc;
     }
@@ -522,24 +507,30 @@ public class GetMDC14 {
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
-            case 1:
+            case 1: {
                 dc = "2601";
                 break;
-            case 2:
+            }
+            case 2: {
                 dc = "2602";
                 break;
-            case 3:
+            }
+            case 3: {
                 dc = "2603";
                 break;
-            case 4:
+            }
+            case 4: {
                 dc = "2604";
                 break;
-            case 5:
+            }
+            case 5: {
                 dc = "2605";
                 break;
-            case 6:
+            }
+            case 6: {
                 dc = "2606";
                 break;
+            }
         }
         return dc;
     }

@@ -66,7 +66,6 @@ public class GetMDC15 {
             int PDxCounter15CX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String procS = ProcedureList.get(x).trim();
-                //AX 99PDX Checking
                 Counter15PBX += checkAX.AX(datasource, SchemaName, "15PBX", procS).isSuccess() ? 1 : 0;
                 Counter15PCX += checkAX.AX(datasource, SchemaName, "15PCX", procS).isSuccess() ? 1 : 0;
                 Counter15PEX += checkAX.AX(datasource, SchemaName, "15PEX", procS).isSuccess() ? 1 : 0;
@@ -74,7 +73,6 @@ public class GetMDC15 {
             }
             for (int y = 0; y < SecondaryList.size(); y++) {
                 String sdxCode = SecondaryList.get(y).trim();
-                //AX SDx Main CC
                 MainCCSDx += checkAX.AX(datasource, SchemaName, "15BX", sdxCode).isSuccess() ? 1 : 0;
                 Counter15BX += checkAX.AX(datasource, SchemaName, "15BX", sdxCode).isSuccess() ? 1 : 0;
                 Counter15CX += checkAX.AX(datasource, SchemaName, "15CX", sdxCode).isSuccess() ? 1 : 0;
