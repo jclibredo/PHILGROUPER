@@ -46,11 +46,17 @@ public class GetMDC17 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            AX getAx = new AX();
+            Endovasc getEndo = new Endovasc();
+            ORProcedure orProcedure = new ORProcedure();
             //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
@@ -62,43 +68,26 @@ public class GetMDC17 {
             int CaCRxProc = 0;
             int PBX99Proc = 0;
             int Counter17PA = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            AX getAx = new AX();
             for (int x = 0; x < ProcedureList.size(); x++) {
-                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(x).trim(), "17PA", mdcWithoutZeros).isSuccess()) {
-                    Counter17PA++;
-                }
-                if (getAx.AX(datasource, SchemaName, "99PEX", ProcedureList.get(x).trim()).isSuccess()) {
-                    CartProc++;
-                }
-                if (getAx.AX(datasource, SchemaName, "99PFX", ProcedureList.get(x).trim()).isSuccess()) {
-                    CaCRxProc++;
-                }
-                if (getAx.AX(datasource, SchemaName, "99PBX", ProcedureList.get(x).trim()).isSuccess()) {
-                    PBX99Proc++;
-                }
-                if (getAx.AX(datasource, SchemaName, "17PBX", ProcedureList.get(x).trim()).isSuccess()) {
-                    Counter17PBX++;
-                }
-                if (getAx.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                if (getAx.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
-                if (new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim()).isSuccess()) {
+                String procS = ProcedureList.get(x).trim();
+                Counter17PA += getEndo.Endovasc(datasource, SchemaName, procS, "17PA", mdcWithoutZeros).isSuccess() ? 1 : 0;
+                CartProc += getAx.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
+                CaCRxProc += getAx.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
+                PBX99Proc += getAx.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
+                Counter17PBX += getAx.AX(datasource, SchemaName, "17PBX", procS).isSuccess() ? 1 : 0;
+                PDXCounter99 += getAx.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += getAx.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                if (orProcedure.ORProcedure(datasource, SchemaName, procS).isSuccess()) {
                     ORProcedureCounter++;
-                    ORProcedureCounterList.add(Integer.valueOf(new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim()).getResult()));
+                    ORProcedureCounterList.add(Integer.valueOf(orProcedure.ORProcedure(datasource, SchemaName, procS).getResult()));
                 }
                 MDCProcedureMethod mdcProcedureRes = new MDCProcedureMethod();
                 if (mdcProcedureRes.MDCProcedure(datasource, SchemaName,
-                        ProcedureList.get(x).trim(),
+                        procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender()).isSuccess()) {
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(mdcProcedureRes.MDCProcedure(datasource, SchemaName,
-                            ProcedureList.get(x).trim(),
+                            procS,
                             mdcWithoutZeros,
                             grouperparameter.getGender()).getResult(), MDCProcedure.class);
                     DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
@@ -111,18 +100,16 @@ public class GetMDC17 {
             }
 
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (getAx.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CartSDx++;
-                }
-                if (getAx.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CaCRxSDx++;
-                }
+                String sdxCode = SecondaryList.get(a).trim();
+                CartSDx += getAx.AX(datasource, SchemaName, "99BX", sdxCode).isSuccess() ? 1 : 0;
+                CaCRxSDx += getAx.AX(datasource, SchemaName, "99CX", sdxCode).isSuccess() ? 1 : 0;
             }
 
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 16
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
+                if (los < 21) {
                     String dc = this.principalDaignosis(
                             drgResult.getPDC(),
                             ORProcedureCounter,
@@ -135,11 +122,7 @@ public class GetMDC17 {
                             PBX99Proc);
                     drgResult.setDC(dc);
                 } else {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("1705");
-                    } else {
-                        drgResult.setDC("1706");
-                    }
+                    drgResult.setDC(PCXCounter99 > 0 ? "1705" : "1706");
                 }
             } else {
                 String dc = this.principalDaignosis(
@@ -154,8 +137,8 @@ public class GetMDC17 {
                         PBX99Proc);
                 drgResult.setDC(dc);
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());
@@ -186,11 +169,7 @@ public class GetMDC17 {
         switch (pdc.toUpperCase()) {
             case "17A"://Acute Leukemia
                 if (ORProcedureCounter > 0) {
-                    if (Counter17PA > 0) {
-                        dc = "1701";
-                    } else {
-                        dc = "1703";
-                    }
+                    dc = Counter17PA > 0 ? "1701" : "1703";
                 } else {
                     //Radio+Chemotherapy
                     if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
@@ -212,11 +191,7 @@ public class GetMDC17 {
                 break;
             case "17B"://Lymphoma & Non-acute Leukemia
                 if (ORProcedureCounter > 0) {
-                    if (Counter17PA > 0) {
-                        dc = "1701";
-                    } else {
-                        dc = "1703";
-                    }
+                    dc = Counter17PA > 0 ? "1701" : "1703";
                 } else {
                     //Radio+Chemotherapy
                     if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
@@ -238,11 +213,7 @@ public class GetMDC17 {
                 break;
             case "17C"://Other Neoplastic Disorders PDC 17C
                 if (ORProcedureCounter > 0) {
-                    if (Counter17PA > 0) {
-                        dc = "1702";
-                    } else {
-                        dc = "1704";
-                    }
+                    dc = Counter17PA > 0 ? "1702" : "1704";
                 } else {
                     //Radio+Chemotherapy
                     if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {

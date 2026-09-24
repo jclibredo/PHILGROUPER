@@ -63,50 +63,30 @@ public class GetMDC15 {
             int Counter15PDX = 0;
             int MainCCPDx = 0;
             int MainCCSDx = 0;
-//            int AXMainCC = 0;
+            int PDxCounter15CX = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
+                String procS = ProcedureList.get(x).trim();
                 //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "15PBX", ProcedureList.get(x).trim()).isSuccess()) {
-                    Counter15PBX++;
-                }
-                //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "15PCX", ProcedureList.get(x).trim()).isSuccess()) {
-                    Counter15PCX++
-                }
-                //AX 15PEX
-                if (checkAX.AX(datasource, SchemaName, "15PEX", ProcedureList.get(x).trim()).isSuccess()) {
-                    Counter15PEX++;
-                }
-                //AX 15PDX
-                if (checkAX.AX(datasource, SchemaName, "15PDX", ProcedureList.get(x).trim()).isSuccess()) {
-                    Counter15PDX++;
-                }
+                Counter15PBX += checkAX.AX(datasource, SchemaName, "15PBX", procS).isSuccess() ? 1 : 0;
+                Counter15PCX += checkAX.AX(datasource, SchemaName, "15PCX", procS).isSuccess() ? 1 : 0;
+                Counter15PEX += checkAX.AX(datasource, SchemaName, "15PEX", procS).isSuccess() ? 1 : 0;
+                Counter15PDX += checkAX.AX(datasource, SchemaName, "15PDX", procS).isSuccess() ? 1 : 0;
             }
             for (int y = 0; y < SecondaryList.size(); y++) {
+                String sdxCode = SecondaryList.get(y).trim();
                 //AX SDx Main CC
-                if (checkAX.AX(datasource, SchemaName, "15BX", SecondaryList.get(y).trim()).isSuccess()) {
-                    MainCCSDx++;
-                }
-                // THIS AREA IS FOR SDx15BX
-                if (checkAX.AX(datasource, SchemaName, "15BX", SecondaryList.get(y).trim()).isSuccess()) {
-                    Counter15BX++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "15CX", SecondaryList.get(y).trim()).isSuccess()) {
-                    Counter15CX++;
-                }
+                MainCCSDx += checkAX.AX(datasource, SchemaName, "15BX", sdxCode).isSuccess() ? 1 : 0;
+                Counter15BX += checkAX.AX(datasource, SchemaName, "15BX", sdxCode).isSuccess() ? 1 : 0;
+                Counter15CX += checkAX.AX(datasource, SchemaName, "15CX", sdxCode).isSuccess() ? 1 : 0;
             }
-            int PDxCounter15CX = 0;
-            if (checkAX.AX(datasource, SchemaName, "15CX", grouperparameter.getPdx()).isSuccess()) {
-                PDxCounter15CX++;
-            }
-            if (checkAX.AX(datasource, SchemaName, "15BX", grouperparameter.getPdx()).isSuccess()) {
-                MainCCPDx++;
-            }
-            if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+            PDxCounter15CX += checkAX.AX(datasource, SchemaName, "15CX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
+            MainCCPDx += checkAX.AX(datasource, SchemaName, "15BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
+            long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                     utility.Convert24to12(grouperparameter.getTimeAdmission()),
                     grouperparameter.getDischargeDate(),
-                    utility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
-                    && grouperparameter.getDischargeType().equals("4")) {
+                    utility.Convert24to12(grouperparameter.getTimeDischarge()));
+            String discharge = grouperparameter.getDischargeType();
+            if (los < 5 && discharge.equals("4")) {
                 if (Counter15PBX > 0) {
                     drgResult.setDC("1501");
                 } else if (Counter15PDX > 0) {
@@ -114,22 +94,11 @@ public class GetMDC15 {
                 } else if (Counter15PEX > 0) {
                     drgResult.setDC("1501");
                 } else {
-                    if (Counter15PCX > 0) {
-                        drgResult.setDC("1502");
-                    } else {
-                        if (grouperparameter.getDischargeType().equals("4")) {
-                            drgResult.setDC("1550");
-                        } else {
-                            drgResult.setDC("1555");
-                        }
-                    }
+                    drgResult.setDC(Counter15PCX > 0 ? "1502" : ("4".equals(discharge) ? "1550" : "1555"));
                 }
 
-            } else if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                    grouperparameter.getDischargeDate(),
-                    utility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
-                    && grouperparameter.getDischargeType().equals("8")) {
+            } else if (los < 5
+                    && discharge.equals("8")) {
                 if (Counter15PDX > 0) {
                     drgResult.setDC("1501");
                 } else if (Counter15PBX > 0) {
@@ -137,21 +106,9 @@ public class GetMDC15 {
                 } else if (Counter15PEX > 0) {
                     drgResult.setDC("1501");
                 } else {
-                    if (Counter15PCX > 0) {
-                        drgResult.setDC("1502");
-                    } else {
-                        if (grouperparameter.getDischargeType().equals("4")) {
-                            drgResult.setDC("1550");
-                        } else {
-                            drgResult.setDC("1555");
-                        }
-                    }
+                    drgResult.setDC(Counter15PCX > 0 ? "1502" : ("4".equals(discharge) ? "1550" : "1555"));
                 }
-            } else if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                    grouperparameter.getDischargeDate(),
-                    utility.Convert24to12(grouperparameter.getTimeDischarge())) < 5
-                    && grouperparameter.getDischargeType().equals("9")) {
+            } else if (los < 5 && discharge.equals("9")) {
                 if (Counter15PDX > 0) {
                     drgResult.setDC("1501");
                 } else if (Counter15PBX > 0) {
@@ -159,15 +116,7 @@ public class GetMDC15 {
                 } else if (Counter15PEX > 0) {
                     drgResult.setDC("1501");
                 } else {
-                    if (Counter15PCX > 0) {
-                        drgResult.setDC("1502");
-                    } else {
-                        if (grouperparameter.getDischargeType().equals("4")) {
-                            drgResult.setDC("1550");
-                        } else {
-                            drgResult.setDC("1555");
-                        }
-                    }
+                    drgResult.setDC(Counter15PCX > 0 ? "1502" : ("4".equals(discharge) ? "1550" : "1555"));
                 }
             } else if (Counter15PEX > 0) {
                 drgResult.setDRG("15129");
@@ -175,45 +124,13 @@ public class GetMDC15 {
             } else if (Counter15PDX > 0) {
                 drgResult.setDC("1511");
             } else if (AdmWTValues > 2499.0) {
-                if (Counter15PBX > 0) {
-                    drgResult.setDC("1509");
-                } else {
-                    if (Counter15PCX > 0) {
-                        drgResult.setDC("1510");
-                    } else {
-                        drgResult.setDC("1554");
-                    }
-                }
+                drgResult.setDC(Counter15PBX > 0 ? "1509" : (Counter15PCX > 0 ? "1510" : "1554"));
             } else if (finalage > 27 && AdmWTValues < 1.0) {
-                if (Counter15PBX > 0) {
-                    drgResult.setDC("1509");
-                } else {
-                    if (Counter15PCX > 0) {
-                        drgResult.setDC("1510");
-                    } else {
-                        drgResult.setDC("1554");
-                    }
-                }
+                drgResult.setDC(Counter15PBX > 0 ? "1509" : (Counter15PCX > 0 ? "1510" : "1554"));
             } else if (AdmWTValues > 1499.0) {
-                if (Counter15PBX > 0) { // YOUR HERE FOR CHECKING AREA
-                    drgResult.setDC("1507");
-                } else {
-                    if (Counter15PCX > 0) {
-                        drgResult.setDC("1508");
-                    } else {
-                        drgResult.setDC("1553");
-                    }
-                }
+                drgResult.setDC(Counter15PBX > 0 ? "1507" : Counter15PCX > 0 ? "1508" : "1553");
             } else if (AdmWTValues > 999.0) {
-                if (Counter15PBX > 0) {
-                    drgResult.setDC("1505");
-                } else {
-                    if (Counter15PCX > 0) {
-                        drgResult.setDC("1506");
-                    } else {
-                        drgResult.setDC("1552");
-                    }
-                }
+                drgResult.setDC(Counter15PBX > 0 ? "1505" : Counter15PCX > 0 ? "1506" : "1552");
             } else if (Counter15PBX > 0) {
                 if (MainCCSDx > 0 && MainCCPDx > 0) {
                     drgResult.setDRG("15033");
@@ -226,11 +143,7 @@ public class GetMDC15 {
                     drgResult.setDC("1503");
                 }
             } else {
-                if (Counter15PCX > 0) {
-                    drgResult.setDC("1504");
-                } else {
-                    drgResult.setDC("1551");
-                }
+                drgResult.setDC(Counter15PCX > 0 ? "1504" : "1551");
             }
             // FINDING FINAL DRG
             if (drgResult.getDRG() == null) {

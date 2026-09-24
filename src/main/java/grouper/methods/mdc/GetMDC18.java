@@ -56,24 +56,17 @@ public class GetMDC18 {
             int ORProcedureCounter = 0;
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
-                String procS = ProcedureList.get(x);
-                //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PDX", procS.trim()).isSuccess()) {//Dx Procedure
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PCX", procS.trim()).isSuccess()) {//Dx Procedure
-                    PCXCounter99++;
-                }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
+                String procS = ProcedureList.get(x).trim();
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
                         SchemaName,
-                        procS.trim(),
+                        procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
@@ -83,23 +76,19 @@ public class GetMDC18 {
             int CounterSDxBX18 = 0;
             int CounterPDxBX18 = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, SchemaName, "18BX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CounterSDxBX18++;
-                }
+                CounterSDxBX18 += checkAX.AX(datasource, SchemaName, "18BX", SecondaryList.get(a).trim()).isSuccess() ? 1 : 0;
             }
-            if (checkAX.AX(datasource, SchemaName, "18BX", grouperparameter.getPdx()).isSuccess()) {
-                CounterPDxBX18++;
-            }
+            CounterPDxBX18 += checkAX.AX(datasource, SchemaName, "18BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 16
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge()));
+                if (los < 21) {
 //                    if (ORProcedureCounter > 0) {
                     if (mdcprocedureCounter > 0) {
-                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {
                         MDCCodeOptimize getMPrincipal = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -116,17 +105,12 @@ public class GetMDC18 {
                         }
                     }
                 } else {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("1808");
-                    } else {
-                        drgResult.setDC("1809");
-                    }
+                    drgResult.setDC(PCXCounter99 > 0 ? "1808" : "1809");
                 }
 
 //            } else if (ORProcedureCounter > 0) {
             } else if (mdcprocedureCounter > 0) {
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
                 MDCCodeOptimize getMPrincipal = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -163,24 +147,30 @@ public class GetMDC18 {
     private String orProcedure(final Integer maxCounter) {
         String dc = "";
         switch (maxCounter) {
-            case 6://OR Proc Level 6
+            case 6: {//OR Proc Level 6
                 dc = "1806";
                 break;
-            case 5://OR Proc Level 5
+            }
+            case 5: {//OR Proc Level 5
                 dc = "1805";
                 break;
-            case 4://OR Proc Level 4
+            }
+            case 4: {//OR Proc Level 4
                 dc = "1804";
                 break;
-            case 3://OR Proc Level 3
+            }
+            case 3: {//OR Proc Level 3
                 dc = "1803";
                 break;
-            case 2://OR Proc Level 2
+            }
+            case 2: {//OR Proc Level 2
                 dc = "1802";
                 break;
-            case 1://OR Proc Level 1
+            }
+            case 1: {//OR Proc Level 1
                 dc = "1801";
                 break;
+            }
         }
         return dc;
     }
@@ -199,10 +189,11 @@ public class GetMDC18 {
         result.setDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
+        long age = utility.ComputeYear(bdate, admDate);
         ArrayList<String> sdxfinder = new ArrayList<>();
         switch (pdc.toUpperCase()) {
             case "18A"://Septicemia
-                if (utility.ComputeYear(bdate, admDate) > 14) {
+                if (age > 14) {
                     if (dischargeType.equals("4")) {
                         result.setDC("1872");
                     } else {
@@ -213,14 +204,14 @@ public class GetMDC18 {
                 }
                 break;
             case "18B"://Postop & Posttraumatic Infections
-                if (utility.ComputeYear(bdate, admDate) > 54) {
+                if (age > 54) {
                     result.setDC("1852");
                 } else {
                     result.setDC("1853");
                 }
                 break;
             case "18C"://Malaria
-                if (utility.ComputeYear(bdate, admDate) > 14) {
+                if (age > 14) {
                     result.setDC("1854");
                 } else {
                     result.setDC("1855");
@@ -228,11 +219,8 @@ public class GetMDC18 {
                 break;
             case "18D"://CounterPDxBX18
                 if (CounterSDxBX18 > 0 || CounterPDxBX18 > 0) {
-                    if (utility.ComputeYear(bdate, admDate) > 14) {
-                        result.setDC("1870");
-                    } else {
-                        result.setDC("1871");
-                    }
+                    result.setDC(age > 14 ? "1870" : "1871");
+
                     for (int x = 0; x < SecondaryList.size(); x++) {
                         if (checkAX.AX(datasource, SchemaName, "18BX", SecondaryList.get(x).trim()).isSuccess()) {
                             sdxfinder.add(SecondaryList.get(x));

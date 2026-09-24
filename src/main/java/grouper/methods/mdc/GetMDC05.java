@@ -117,13 +117,9 @@ public class GetMDC05 {
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess()) {
-                    PDXCounter99++;
-                }
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
                 //AX 99PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess()) {
-                    PCXCounter99++;
-                }
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
                 //AX 5PEX
                 if (checkAX.AX(datasource, SchemaName, "5PEX", procS).isSuccess()) {
                     Counter5PEX++;
