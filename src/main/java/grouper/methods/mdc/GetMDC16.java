@@ -46,9 +46,9 @@ public class GetMDC16 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
-            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             ArrayList<Integer> hierarvalue = new ArrayList<>();
@@ -63,6 +63,10 @@ public class GetMDC16 {
             int Counter16PBX = 0;
             int ORProcedureCounter = 0;
             int mdcprocedureCounter = 0;
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            AX getAx = new AX();
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String procS = ProcedureList.get(x).trim();
                 Counter16PBX += getAx.AX(datasource, SchemaName, "16PBX", procS).isSuccess() ? 1 : 0;
@@ -94,8 +98,7 @@ public class GetMDC16 {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge()));
-                if (los < 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         for (int i = 0; i < hierarvalue.size(); i++) {
@@ -104,14 +107,21 @@ public class GetMDC16 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
+                        String dc = this.mdcProcedure(drgResult.getPDC());
+                        drgResult.setDC(dc);
                     } else if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
+                        drgResult.setDC(dc);
                     } else {
-                        drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), PBXCounter99, Counter16PBX));
+                        String dc = this.principalDaignosis(drgResult.getPDC(), PBXCounter99, Counter16PBX);
+                        drgResult.setDC(dc);
                     }
                 } else {
-                    drgResult.setDC(PCXCounter99 > 0 ? "1604" : "1605");
+                    if (PCXCounter99 > 0) {
+                        drgResult.setDC("1604");
+                    } else {
+                        drgResult.setDC("1605");
+                    }
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
@@ -121,11 +131,14 @@ public class GetMDC16 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
+                String dc = this.mdcProcedure(drgResult.getPDC());
+                drgResult.setDC(dc);
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
+                drgResult.setDC(dc);
             } else {
-                drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), PBXCounter99, Counter16PBX));
+                String dc = this.principalDaignosis(drgResult.getPDC(), PBXCounter99, Counter16PBX);
+                drgResult.setDC(dc);
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
