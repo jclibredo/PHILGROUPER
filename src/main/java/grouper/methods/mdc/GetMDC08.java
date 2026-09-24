@@ -72,23 +72,20 @@ public class GetMDC08 {
             ArrayList<String> pdclist = new ArrayList<>();
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
-                if (checkAX.AX(datasource, SchemaName, "99BX", Secon.trim()).isSuccess()) {
-                    CartSDx++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99CX", Secon.trim()).isSuccess()) {
-                    CaCRxSDx++;
-                }
+                CartSDx += checkAX.AX(datasource, SchemaName, "99BX", Secon.trim()).isSuccess() ? 1 : 0;
+                CaCRxSDx += checkAX.AX(datasource, SchemaName, "99CX", Secon.trim()).isSuccess() ? 1 : 0;
             }
             //THIS AREA IS FOR CHECKING OF OR PROCEDURE
             for (int y = 0; y < ProcedureList.size(); y++) {
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
+                String procS = ProcedureList.get(y).trim();
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
                         SchemaName,
-                        ProcedureList.get(y).trim(),
+                        procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
@@ -103,32 +100,14 @@ public class GetMDC08 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                if (endO.Endovasc(datasource,
-                        SchemaName,
-                        ProcedureList.get(y).trim(), "8PH", mdcWithoutZeros).isSuccess()) {
-                    Counter8PH++;
-                }
-                if (endO.Endovasc(datasource, SchemaName, ProcedureList.get(y).trim(), "8QA", mdcWithoutZeros).isSuccess()) {
-                    Counter8QA++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
-                    CartProc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
-                    CaCRxProc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PBX99Proc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "8PFX", ProcedureList.get(y).trim()).isSuccess()) {
-                    Counter8PFX++;
-                }
+                Counter8PH += endO.Endovasc(datasource, SchemaName, procS, "8PH", mdcWithoutZeros).isSuccess() ? 1 : 0;
+                Counter8QA += endO.Endovasc(datasource, SchemaName, procS, "8QA", mdcWithoutZeros).isSuccess() ? 1 : 0;
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                CartProc += checkAX.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
+                CaCRxProc += checkAX.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
+                PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
+                Counter8PFX += checkAX.AX(datasource, SchemaName, "8PFX", procS).isSuccess() ? 1 : 0;
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 

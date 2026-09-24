@@ -69,44 +69,26 @@ public class GetMDC11 {
             int PBX99Proc = 0;
             int Counter11C = 0;
             AX getAx = new AX();
+            PDxMalignancy pdxMalig = new PDxMalignancy();
             MDCProcedureMethod getMdcProced = new MDCProcedureMethod();
             for (int x = 0; x < ProcedureList.size(); x++) {
-                if (getAx.AX(datasource, SchemaName, "99PEX", ProcedureList.get(x).trim()).isSuccess()) {
-                    CartProc++;
-                }
-                if (getAx.AX(datasource, SchemaName, "99PFX", ProcedureList.get(x).trim()).isSuccess()) {
-                    CaCRxProc++;
-                }
-
-                //AX 99PDX Checking
-                if (getAx.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (getAx.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
-                //AX 11PBX Checking
-                if (getAx.AX(datasource, SchemaName, "11PBX", ProcedureList.get(x).trim()).isSuccess()) {
-                    Counter11PBX++;
-                }
-
-                if (getAx.AX(datasource, SchemaName, "11PCX", ProcedureList.get(x).trim()).isSuccess()) {
-                    Counter11PCX++;
-                }
-
-                if (getAx.AX(datasource, SchemaName, "99PBX", ProcedureList.get(x).trim()).isSuccess()) {
-                    PBX99Proc++;
-                }
+                String procS = ProcedureList.get(x).trim();
+                CartProc += getAx.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
+                CaCRxProc += getAx.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
+                PDXCounter99 += getAx.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += getAx.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                Counter11PBX += getAx.AX(datasource, SchemaName, "11PBX", procS).isSuccess() ? 1 : 0;
+                Counter11PCX += getAx.AX(datasource, SchemaName, "11PCX", procS).isSuccess() ? 1 : 0;
+                PBX99Proc += getAx.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
                 //THIS AREA IS FOR CHECKING OF OR PROCEDURE
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
                 DRGWSResult JoinResult = getMdcProced.MDCProcedure(datasource, SchemaName,
-                        ProcedureList.get(x).trim(),
+                        procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
@@ -121,28 +103,19 @@ public class GetMDC11 {
                 }
             }
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (getAx.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CartSDx++;
-                }
-                if (getAx.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CaCRxSDx++;
-                }
+                String sdxCode = SecondaryList.get(a).trim();
+                CartSDx += getAx.AX(datasource, SchemaName, "99BX", sdxCode).isSuccess() ? 1 : 0;
+                CaCRxSDx += getAx.AX(datasource, SchemaName, "99CX", sdxCode).isSuccess() ? 1 : 0;
             }
-            DRGWSResult Result11C = new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "11C");
-            if (Result11C.isSuccess()) {
-                Counter11C++;
-            }
-            //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
-            if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
+            Counter11C += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "11C").isSuccess() ? 1 : 0;
+            if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
                 if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
-                        //Loop through the array  
                         for (int i = 0; i < hierarvalue.size(); i++) {
-                            //Compare elements of array with min  
                             if (hierarvalue.get(i) < min) {
                                 min = hierarvalue.get(i);
                             }

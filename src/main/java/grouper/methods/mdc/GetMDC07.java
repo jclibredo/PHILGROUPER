@@ -57,6 +57,7 @@ public class GetMDC07 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
+            PDxMalignancy pdxMalig = new PDxMalignancy();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int CartSDx = 0;
@@ -70,20 +71,16 @@ public class GetMDC07 {
             int ORProcedureCounter = 0;
             int mdcprocedureCounter = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CartSDx++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CaCRxSDx++;
-                }
+                String sdxCode = SecondaryList.get(a).trim();
+                CartSDx += checkAX.AX(datasource, SchemaName, "99BX", sdxCode).isSuccess() ? 1 : 0;
+                CaCRxSDx += checkAX.AX(datasource, SchemaName, "99CX", sdxCode).isSuccess() ? 1 : 0;
             }
-            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "7B").isSuccess()) {
-                B7Count++;
-            }
+            B7Count += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "7B").isSuccess() ? 1 : 0;
             for (int y = 0; y < ProcedureList.size(); y++) {
+                String procS = ProcedureList.get(y).trim();
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
                         SchemaName,
-                        ProcedureList.get(y),
+                        procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
@@ -96,37 +93,19 @@ public class GetMDC07 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
-                    CartProc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
-                    CaCRxProc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PBX99Proc++;
-                }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                CartProc += checkAX.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
+                CaCRxProc += checkAX.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
+                PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                if (checkAX.AX(datasource, SchemaName, "7PDX", ProcedureList.get(y).trim()).isSuccess()) {
-                    Counter7PDX++;
-                }
-                //Maj Dig Dis AX 7PBX
-                if (checkAX.AX(datasource, SchemaName, "7PBX", ProcedureList.get(y).trim()).isSuccess()) {
-                    Counter7PBX++;
-                }
+                Counter7PDX += checkAX.AX(datasource, SchemaName, "7PDX", procS).isSuccess() ? 1 : 0;
+                Counter7PBX += checkAX.AX(datasource, SchemaName, "7PBX", procS).isSuccess() ? 1 : 0;
             }
-            //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
@@ -195,7 +174,6 @@ public class GetMDC07 {
         result.setPDC("");
         result.setDC("");
         result.setSdxfinder("");
-        //CHECKING FOR TRAUMA CODES
         switch (pdc) {
             case "7PA": {//Pancreas, Liver Resection and Shunt Procedures
                 result.setDC("0701");
@@ -291,11 +269,7 @@ public class GetMDC07 {
                 } else if (PBX99Proc > 0) {//Blood Transfusion
                     dc = "0760";
                 } else {//Malignancy 
-                    if (disChargeType.equals("4")) {
-                        dc = "0761";
-                    } else {
-                        dc = "0751";
-                    }
+                    dc = "4".equals(disChargeType) ? "0761" : "0751";
                 }
                 break;
             }

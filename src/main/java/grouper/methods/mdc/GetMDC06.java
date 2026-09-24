@@ -55,7 +55,8 @@ public class GetMDC06 {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             AX checkAX = new AX();
-            //THIS AREA IS FOR CHECKING OF RADIO AND CHECMO
+            PDxMalignancy pdxMalig = new PDxMalignancy();
+            Endovasc enDov = new Endovasc();
             int CartSDx = 0;
             int CaCRxSDx = 0;
             int CartProc = 0;
@@ -72,26 +73,18 @@ public class GetMDC06 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            //Checking SDx RadioTherapy and Chemotherapy
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
-                    CartSDx++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {//Dx Procedure
-                    CaCRxSDx++;
-                }
+                String sdxCode = SecondaryList.get(a).trim();
+                CartSDx += checkAX.AX(datasource, SchemaName, "99BX", sdxCode).isSuccess() ? 1 : 0;
+                CaCRxSDx += checkAX.AX(datasource, SchemaName, "99CX", sdxCode).isSuccess() ? 1 : 0;
             }
-            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "6A").isSuccess()) {
-                MalignantCount++;
-            }
-            //Maj Dig Dis AX 6BX
-            if (checkAX.AX(datasource, SchemaName, "6BX", grouperparameter.getPdx()).isSuccess()) {
-                Ax6BXCount++;
-            }
+            MalignantCount += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "6A").isSuccess() ? 1 : 0;
+            Ax6BXCount += checkAX.AX(datasource, SchemaName, "6BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
             for (int y = 0; y < ProcedureList.size(); y++) {
+                String procS = ProcedureList.get(y).trim();
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
                         SchemaName,
-                        ProcedureList.get(y).trim(),
+                        procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
@@ -105,34 +98,18 @@ public class GetMDC06 {
                     }
                 }
                 //Inguinal or Femoral PDC 6PH
-                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(y).trim(), "6PH", mdcWithoutZeros).isSuccess()) {
-                    Counter6PH++;
-                }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
+                Counter6PH += enDov.Endovasc(datasource, SchemaName, procS, "6PH", mdcWithoutZeros).isSuccess() ? 1 : 0;
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
-                    CartProc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
-                    CaCRxProc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "6PBX", ProcedureList.get(y).trim()).isSuccess()) {//Dx Procedure
-                    PBX6Proc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {//Dx Procedure
-                    PBX99Proc++;
-                }
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                CartProc += checkAX.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
+                CaCRxProc += checkAX.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
+                PBX6Proc += checkAX.AX(datasource, SchemaName, "6PBX", procS).isSuccess() ? 1 : 0;
+                PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
             }
             //CONDITIONAL STATEMENT STARTS HERE FOR MDC 06
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
@@ -334,19 +311,15 @@ public class GetMDC06 {
             }
             case "6PN": {//Other Gastroscopy
                 if (Ax6BXCount > 0) {
-                    if (los > 0) {
-                        result.setDC("0619");
-                    } else {
+                    if (los <= 0) {
                         result.setDRG("06209");
-                        result.setDC("0620");
                     }
+                    result.setDC(los > 0 ? "0619" : "0620");
                 } else {
-                    if (los > 0) {
-                        result.setDC("0621");
-                    } else {
+                    if (los <= 0) {
                         result.setDRG("06229");
-                        result.setDC("0622");
                     }
+                    result.setDC(los > 0 ? "0621" : "0622");
                 }
                 break;
             }
@@ -355,12 +328,10 @@ public class GetMDC06 {
                 break;
             }
             case "6PQ": {//Other Colonoscopy
-                if (los > 0) {
-                    result.setDC("0624");
-                } else {
+                if (los <= 0) {
                     result.setDRG("06259");
-                    result.setDC("0625");
                 }
+                result.setDC(los > 0 ? "0624" : "0625");
                 break;
             }
             case "6PF": {//Anal and Stomal
@@ -441,7 +412,6 @@ public class GetMDC06 {
                 }
                 break;
             }
-
             case "6B": {//G.I. Hemorrhage
                 dc = (age > 64 ? "0651" : "0652");
                 break;

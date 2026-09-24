@@ -54,6 +54,9 @@ public class GetMDC16 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             AX getAx = new AX();
+            MDCProcedureMethod mdcProce = new MDCProcedureMethod();
+            ORProcedure orProc = new ORProcedure();
+            GetPDC getPdc = new GetPDC();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int PBXCounter99 = 0;
@@ -66,19 +69,19 @@ public class GetMDC16 {
                 PDXCounter99 += getAx.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
                 PBXCounter99 += getAx.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
                 PCXCounter99 += getAx.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName,
+                DRGWSResult JoinResult = mdcProce.MDCProcedure(datasource, SchemaName,
                         procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
@@ -87,7 +90,7 @@ public class GetMDC16 {
                 }
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 16
-            if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
+            if (PDXCounter99 > 0) { 
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
@@ -95,9 +98,7 @@ public class GetMDC16 {
                 if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
-                        //Loop through the array  
                         for (int i = 0; i < hierarvalue.size(); i++) {
-                            //Compare elements of array with min  
                             if (hierarvalue.get(i) < min) {
                                 min = hierarvalue.get(i);
                             }
@@ -114,9 +115,7 @@ public class GetMDC16 {
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
-                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }

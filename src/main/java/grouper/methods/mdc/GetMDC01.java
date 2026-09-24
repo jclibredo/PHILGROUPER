@@ -52,8 +52,11 @@ public class GetMDC01 {
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             AX checkAX = new AX();
-            // THIS AREA IS FOR CHECKING OF TRACHEOSTOMY AND CONT. MECH VENT
+            Endovasc enDov = new Endovasc();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int CartSDx = 0;
@@ -61,47 +64,24 @@ public class GetMDC01 {
             int CartProc = 0;
             int CaCRxProc = 0;
             int PBX99Proc = 0;
-            //Checking SDx RadioTherapy and Chemotherapy
-            for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CartSDx++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CaCRxSDx++;
-                }
-            }
-            // CHECLING FOR ENDOVASC 
             int EndoCounter = 0;
             int mdcprocedureCounter = 0;
             int ORProcedureCounter = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-//            String Pdcs = "1PJ";
-            //Checking Procedure RadioTherapy and Chemotherapy
             int Counter1PBX = 0;
+            for (int a = 0; a < SecondaryList.size(); a++) {
+                String sdxCode = SecondaryList.get(a).trim();
+                CartSDx += checkAX.AX(datasource, SchemaName, "99BX", sdxCode).isSuccess() ? 1 : 0;
+                CaCRxSDx += checkAX.AX(datasource, SchemaName, "99CX", sdxCode).isSuccess() ? 1 : 0;
+            }
             for (int a = 0; a < ProcedureList.size(); a++) {
-                //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(a).trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(a).trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
-                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(a).trim(), "1PJ", mdcWithoutZeros).isSuccess()) {
-                    EndoCounter++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(a).trim()).isSuccess()) {
-                    CartProc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(a).trim()).isSuccess()) {
-                    CaCRxProc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(a).trim()).isSuccess()) {
-                    PBX99Proc++;
-                }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName, ProcedureList.get(a).trim(), mdcWithoutZeros, grouperparameter.getGender());
+                String procS = ProcedureList.get(a).trim();
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                EndoCounter += enDov.Endovasc(datasource, SchemaName, procS, "1PJ", mdcWithoutZeros).isSuccess() ? 1 : 0;
+                CartProc += checkAX.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
+                CaCRxProc += checkAX.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
+                PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
+                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName, procS, mdcWithoutZeros, grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
@@ -112,14 +92,12 @@ public class GetMDC01 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                DRGWSResult getOrProc = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(a).trim());
+                DRGWSResult getOrProc = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (getOrProc.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(getOrProc.getResult()));
                 }
-                if (checkAX.AX(datasource, SchemaName, "1PBX", ProcedureList.get(a).trim()).isSuccess()) {
-                    Counter1PBX++;
-                }
+                Counter1PBX += checkAX.AX(datasource, SchemaName, "1PBX", procS).isSuccess() ? 1 : 0;
             }
             // THIS AREA WILL START STATEMENT TO FIND DC FOR MDC 1
             if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
@@ -343,9 +321,7 @@ public class GetMDC01 {
                 break;
             }
             case "1PH": {//Intacranial Vasc
-                result = (EndoCounter > 0)
-                        ? "0110"
-                        : (checkAX.AX(dataSource, SchemaName, "1CX", pdx).isSuccess() ? "0108" : "0109");
+                result = (EndoCounter > 0) ? "0110" : (checkAX.AX(dataSource, SchemaName, "1CX", pdx).isSuccess() ? "0108" : "0109");
                 break;
             }
             case "1PC": {//SPINAL PROCEDURES

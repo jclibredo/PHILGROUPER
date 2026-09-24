@@ -55,6 +55,7 @@ public class GetMDC17 {
             ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             AX getAx = new AX();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
             Endovasc getEndo = new Endovasc();
             ORProcedure orProcedure = new ORProcedure();
             //CHECKING FOR TRAUMA CODES
@@ -81,12 +82,11 @@ public class GetMDC17 {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(orProcedure.ORProcedure(datasource, SchemaName, procS).getResult()));
                 }
-                MDCProcedureMethod mdcProcedureRes = new MDCProcedureMethod();
-                if (mdcProcedureRes.MDCProcedure(datasource, SchemaName,
+                if (mdcProc.MDCProcedure(datasource, SchemaName,
                         procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender()).isSuccess()) {
-                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(mdcProcedureRes.MDCProcedure(datasource, SchemaName,
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(mdcProc.MDCProcedure(datasource, SchemaName,
                             procS,
                             mdcWithoutZeros,
                             grouperparameter.getGender()).getResult(), MDCProcedure.class);
@@ -104,8 +104,6 @@ public class GetMDC17 {
                 CartSDx += getAx.AX(datasource, SchemaName, "99BX", sdxCode).isSuccess() ? 1 : 0;
                 CaCRxSDx += getAx.AX(datasource, SchemaName, "99CX", sdxCode).isSuccess() ? 1 : 0;
             }
-
-            //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 16
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));

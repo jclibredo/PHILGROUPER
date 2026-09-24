@@ -48,87 +48,64 @@ public class GetMDC02 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
-            int ORProcedureCounter = 0;
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
-            //CHECK AGE YEAR
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
+            Endovasc enDova = new Endovasc();
+            int ORProcedureCounter = 0;
             int MalignantCount = 0;
-            //Malignant Counter for Primay Code (PDx)
             int Counter2PCX = 0;
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
-            // THIS AREA IS FOR PDC CHECK PROCEDURE COUNTER 2PA
             int mdcprocedureCounter = 0;
             int pdcprocedureCounter2PA = 0;
             int pdcprocedureCounter2PJ = 0;
             int pdcprocedureCounter2PH = 0;
             int pdcprocedureCounter2PB = 0;
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
             int Counter2PDX = 0;
-
+            int CounterPDx2BX = 0;
+            GetPDC getPdc = new GetPDC();
             MDCProcedureMethod mdcProcess = new MDCProcedureMethod();
+            PDxMalignancy pdxMalig = new PDxMalignancy();
             for (int y = 0; y < ProcedureList.size(); y++) {
+                String procS = ProcedureList.get(y).trim();
                 if (mdcProcess.MDCProcedure(datasource,
                         SchemaName,
-                        ProcedureList.get(y).trim(), mdcWithoutZeros, grouperparameter.getGender()).isSuccess()) {
+                        procS, mdcWithoutZeros, grouperparameter.getGender()).isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(mdcProcess.MDCProcedure(datasource,
                             SchemaName,
-                            ProcedureList.get(y).trim(),
+                            procS,
                             mdcWithoutZeros,
                             grouperparameter.getGender()).getResult(), MDCProcedure.class);
-//                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, mdcProcedure.getA_PDC().trim(), drgResult.getMDC());
-                    if (new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC().trim(), drgResult.getMDC()).isSuccess()) {
-                        PDC hiarresult = utility.objectMapper().readValue(new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC().trim(), drgResult.getMDC()).getResult(), PDC.class);
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC().trim(), drgResult.getMDC());
+                    if (pdcresult.isSuccess()) {
+                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-
-                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(y).trim(), "2PA".trim(), mdcWithoutZeros).isSuccess()) {
-                    pdcprocedureCounter2PA++;
-                }
-                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(y).trim(), "2PJ".trim(), mdcWithoutZeros).isSuccess()) {
-                    pdcprocedureCounter2PJ++;
-                }
-                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(y).trim(), "2PH".trim(), mdcWithoutZeros).isSuccess()) {
-                    pdcprocedureCounter2PH++;
-                }
-                if (new Endovasc().Endovasc(datasource, SchemaName, ProcedureList.get(y), "2PB".trim(), mdcWithoutZeros).isSuccess()) {
-                    pdcprocedureCounter2PB++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "2PDX", ProcedureList.get(y).trim()).isSuccess()) {
-                    Counter2PDX++;
-                }
-                //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "2PCX", ProcedureList.get(y).trim()).isSuccess()) {
-                    Counter2PCX++;
-                }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
+                pdcprocedureCounter2PA += enDova.Endovasc(datasource, SchemaName, procS, "2PA".trim(), mdcWithoutZeros).isSuccess() ? 1 : 0;
+                pdcprocedureCounter2PJ += enDova.Endovasc(datasource, SchemaName, procS, "2PJ".trim(), mdcWithoutZeros).isSuccess() ? 1 : 0;
+                pdcprocedureCounter2PH += enDova.Endovasc(datasource, SchemaName, procS, "2PH".trim(), mdcWithoutZeros).isSuccess() ? 1 : 0;
+                pdcprocedureCounter2PB += enDova.Endovasc(datasource, SchemaName, procS, "2PB".trim(), mdcWithoutZeros).isSuccess() ? 1 : 0;
+                Counter2PDX += checkAX.AX(datasource, SchemaName, "2PDX", procS).isSuccess() ? 1 : 0;
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                Counter2PCX += checkAX.AX(datasource, SchemaName, "2PCX", procS).isSuccess() ? 1 : 0;
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
             }
-            int CounterPDx2BX = 0;
-            if (checkAX.AX(datasource, SchemaName, "2BX", grouperparameter.getPdx()).isSuccess()) {
-                CounterPDx2BX++;
-            }
-            if (new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "2E".trim()).isSuccess()) {
-                MalignantCount++;
-            }
+            CounterPDx2BX += checkAX.AX(datasource, SchemaName, "2BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
+            MalignantCount += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "2E".trim()).isSuccess() ? 1 : 0;
             //Condition Start this area   
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(

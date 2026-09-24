@@ -51,8 +51,10 @@ public class GetMDC03 {
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
-            //CHECKING FOR 3PDX USING PROC
             int Counter3PDX = 0;
             int Counter3PBX = 0;
             int CartSDx = 0;
@@ -63,28 +65,19 @@ public class GetMDC03 {
             int PBX99Proc = 0;
             int Counter3PEX = 0;
             int Counter3BX = 0;
-            //Checking SDx RadioTherapy and Chemotherapy
-            for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CartSDx++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CaCRxSDx++;
-                }
-
-            }
-            //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
             int mdcprocedureCounter = 0;
             int ORProcedureCounter = 0;
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
+            for (int a = 0; a < SecondaryList.size(); a++) {
+                CartSDx += checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess() ? 1 : 0;
+                CaCRxSDx += checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess() ? 1 : 0;
+            }
             for (int y = 0; y < ProcedureList.size(); y++) {
+                String procS = ProcedureList.get(y).trim();
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
                         SchemaName,
-                        ProcedureList.get(y).trim(),
+                        procS,
                         mdcWithoutZeros, grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
@@ -98,55 +91,25 @@ public class GetMDC03 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                //AX 3PBX Checking
-                if (checkAX.AX(datasource, SchemaName, "3PBX", ProcedureList.get(y).trim()).isSuccess()) {
-                    Counter3PBX++;
-                }
-                //AX 3PEX Checking
-                if (checkAX.AX(datasource, SchemaName, "3PEX", ProcedureList.get(y).trim()).isSuccess()) {
-                    Counter3PEX++;
-                }
-                //AX 99PEX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PEX", ProcedureList.get(y).trim()).isSuccess()) {
-                    CartProc++;
-                }
-                //AX 99PFX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PFX", ProcedureList.get(y).trim()).isSuccess()) {
-                    CaCRxProc++;
-                }
-                //AX 3PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "3PCX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PCX3Proc++;
-                }
-                //AX 99PBX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PBX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PBX99Proc++;
-                }
-                //AX 3PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "3PDX", ProcedureList.get(y).trim()).isSuccess()) {
-                    Counter3PDX++;
-                }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(y).trim());
+                Counter3PBX += checkAX.AX(datasource, SchemaName, "3PBX", procS).isSuccess() ? 1 : 0;
+                Counter3PEX += checkAX.AX(datasource, SchemaName, "3PEX", procS).isSuccess() ? 1 : 0;
+                CartProc += checkAX.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
+                CaCRxProc += checkAX.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
+                PCX3Proc += checkAX.AX(datasource, SchemaName, "3PCX", procS).isSuccess() ? 1 : 0;
+                PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
+                Counter3PDX += checkAX.AX(datasource, SchemaName, "3PDX", procS).isSuccess() ? 1 : 0;
+                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(y).trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
             }
-            if (checkAX.AX(datasource, SchemaName, "3BX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess()) {
-                Counter3BX++;
-            }
-
-            //CONDITIONAL STATEMENT STARTS HERE
+            Counter3BX += checkAX.AX(datasource, SchemaName, "3BX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess() ? 1 : 0;
             if (PDXCounter99 > 0) {
                 if (Counter3BX > 0) {
-                    drgResult.setDC(Counter3PDX > 0 ? "0322" : "0323");//Procedures for upper airway obstruction
+                    drgResult.setDC(Counter3PDX > 0 ? "0322" : "0323");
                 } else {
                     long los = utility.ComputeLOS(
                             grouperparameter.getAdmissionDate(),
@@ -156,11 +119,9 @@ public class GetMDC03 {
                     );
                     if (los > 21) {
                         drgResult.setDC(PCXCounter99 > 0 ? "0318" : "0319");
-                    } else if (mdcprocedureCounter > 0) { //MDC Procedure
+                    } else if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
-                        //Loop through the array  
                         for (int i = 0; i < hierarvalue.size(); i++) {
-                            //Compare elements of array with min  
                             if (hierarvalue.get(i) < min) {
                                 min = hierarvalue.get(i);
                             }
@@ -169,7 +130,7 @@ public class GetMDC03 {
                         drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), Counter3PEX));
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
-                    } else {//PRINCIPAL DIAGNOSIS
+                    } else {
                         String dc = this.principalDaignosis(
                                 drgResult.getPDC(),
                                 CartSDx,
@@ -182,11 +143,9 @@ public class GetMDC03 {
                         drgResult.setDC(dc);
                     }
                 }
-            } else if (mdcprocedureCounter > 0) { //MDC Procedure
+            } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
-                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }
@@ -195,7 +154,7 @@ public class GetMDC03 {
                 drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), Counter3PEX));
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
-            } else {//PRINCIPAL DIAGNOSIS
+            } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
                         CartSDx,

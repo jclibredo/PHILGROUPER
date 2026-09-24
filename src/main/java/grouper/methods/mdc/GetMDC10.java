@@ -46,56 +46,49 @@ public class GetMDC10 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        AX getAx = new AX();
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter10PBX = 0;
             int ORProcedureCounter = 0;
             int mdcprocedureCounter = 0;
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
+            AX getAx = new AX();
+            GetPDC getPdc = new GetPDC();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
+            ORProcedure orProc = new ORProcedure();
             for (int x = 0; x < ProcedureList.size(); x++) {
-                //AX 99PDX Checking
-                if (getAx.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (getAx.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
-                if (getAx.AX(datasource, SchemaName, "10PBX", ProcedureList.get(x).trim()).isSuccess()) {
-                    Counter10PBX++;
-                }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                String sdxCode = ProcedureList.get(x).trim();
+                PDXCounter99 += getAx.AX(datasource, SchemaName, "99PDX", sdxCode).isSuccess() ? 1 : 0;
+                PCXCounter99 += getAx.AX(datasource, SchemaName, "99PCX", sdxCode).isSuccess() ? 1 : 0;
+                Counter10PBX += getAx.AX(datasource, SchemaName, "10PBX", sdxCode).isSuccess() ? 1 : 0;
+                DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource,
                         SchemaName,
-                        ProcedureList.get(x).trim(),
+                        sdxCode,
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, sdxCode);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
             }
 
-            //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));

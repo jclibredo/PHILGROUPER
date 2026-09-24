@@ -56,7 +56,6 @@ public class GetMDC13 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
-            //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter13PBX = 0;
@@ -69,28 +68,12 @@ public class GetMDC13 {
             int PBX99Proc = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String procS = ProcedureList.get(x);
-                if (checkAX.AX(datasource, SchemaName, "99PEX", procS.trim()).isSuccess()) {
-                    CartProc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PFX", procS.trim()).isSuccess()) {
-                    CaCRxProc++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99PBX", procS.trim()).isSuccess()) {
-                    PBX99Proc++;
-                }
-                //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PDX", procS.trim()).isSuccess()) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PCX", procS.trim()).isSuccess()) {
-                    PCXCounter99++;
-                }
-                //AX 13PBX Checking
-                if (checkAX.AX(datasource, SchemaName, "13PBX", procS.trim()).isSuccess()) {
-                    Counter13PBX++;
-                }
-                //THIS AREA IS FOR CHECKING OF OR PROCEDURE
+                CartProc += checkAX.AX(datasource, SchemaName, "99PEX", procS.trim()).isSuccess() ? 1 : 0;
+                CaCRxProc += checkAX.AX(datasource, SchemaName, "99PFX", procS.trim()).isSuccess() ? 1 : 0;
+                PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS.trim()).isSuccess() ? 1 : 0;
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS.trim()).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS.trim()).isSuccess() ? 1 : 0;
+                Counter13PBX += checkAX.AX(datasource, SchemaName, "13PBX", procS.trim()).isSuccess() ? 1 : 0;
                 DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS.trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
@@ -114,12 +97,9 @@ public class GetMDC13 {
                 }
             }
             for (int a = 0; a < SecondaryList.size(); a++) {
-                if (checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CartSDx++;
-                }
-                if (checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess()) {
-                    CaCRxSDx++;
-                }
+                String sdxCode = SecondaryList.get(a).trim();
+                CartSDx += checkAX.AX(datasource, SchemaName, "99BX", sdxCode).isSuccess() ? 1 : 0;
+                CaCRxSDx += checkAX.AX(datasource, SchemaName, "99CX", sdxCode).isSuccess() ? 1 : 0;
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 13
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 

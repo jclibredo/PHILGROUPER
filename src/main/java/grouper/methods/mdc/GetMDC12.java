@@ -48,12 +48,16 @@ public class GetMDC12 {
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
-            AX axRest = new AX();
-            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
+            AX axRest = new AX();
+            MDCProcedureMethod mdcProce = new MDCProcedureMethod();
+            GetPDC getPdc = new GetPDC();
+            ORProcedure orProce = new ORProcedure();
+            PDxMalignancy pdxMalig = new PDxMalignancy();
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             int ORProcedureCounter = 0;
             int mdcprocedureCounter = 0;
             int PDXCounter99 = 0;
@@ -68,69 +72,45 @@ public class GetMDC12 {
             int MalignantCount = 0;
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName,
-                        procS.trim(),
+                DRGWSResult JoinResult = mdcProce.MDCProcedure(datasource, SchemaName,
+                        procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS.trim());
+                DRGWSResult ORProcedureResult = orProce.ORProcedure(datasource, SchemaName, procS.trim());
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                if (axRest.AX(datasource, SchemaName, "99PDX", procS).isSuccess()) {
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (axRest.AX(datasource, SchemaName, "99PCX", procS).isSuccess()) {
-                    PCXCounter99++;
-                }
-                if (axRest.AX(datasource, SchemaName, "99PEX", procS).isSuccess()) {
-                    CartProc++;
-                }
-                if (axRest.AX(datasource, SchemaName, "99PFX", procS).isSuccess()) {
-                    CaCRxProc++;
-                }
-                if (axRest.AX(datasource, SchemaName, "12PBX", procS).isSuccess()) {
-                    PBX12Proc++;
-                }
-                if (axRest.AX(datasource, SchemaName, "99PBX", procS).isSuccess()) {
-                    PBX99Proc++;
-                }
+                PDXCounter99 += axRest.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += axRest.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                CartProc += axRest.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
+                CaCRxProc += axRest.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
+                PBX12Proc += axRest.AX(datasource, SchemaName, "12PBX", procS).isSuccess() ? 1 : 0;
+                PBX99Proc += axRest.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
             }
-
-            //Malignant Counter for Primay Code (PDx)
-            DRGWSResult getMalignantResult = new PDxMalignancy().PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "12A");
-            if (getMalignantResult.isSuccess()) {
-                MalignantCount++;
-            }
-            //Checking SDx RadioTherapy and Chemotherapy
+            MalignantCount += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "12A").isSuccess() ? 1 : 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a).trim();
-                if (axRest.AX(datasource, SchemaName, "99BX", Secon).isSuccess()) {
-                    CartSDx++;
-                }
-                if (axRest.AX(datasource, SchemaName, "99CX", Secon).isSuccess()) {
-                    CaCRxSDx++;
-                }
+                CartSDx += axRest.AX(datasource, SchemaName, "99BX", Secon).isSuccess() ? 1 : 0;
+                CaCRxSDx += axRest.AX(datasource, SchemaName, "99CX", Secon).isSuccess() ? 1 : 0;
             }
-
-            if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
+            if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
                 if (los > 21) {
                     drgResult.setDC(PCXCounter99 > 0 ? "1209" : "1210");
-                } else if (mdcprocedureCounter > 0) { //MDC Procedure
+                } else if (mdcprocedureCounter > 0) {
                     int min = hierarvalue.get(0);
                     for (int i = 0; i < hierarvalue.size(); i++) {
                         if (hierarvalue.get(i) < min) {
