@@ -282,24 +282,22 @@ public class GetMDC05 {
         } else if (Counter5PHX > 0) {
             result.setDC((Counter5CX > 0) ? "0550" : "0551");
             if (Counter5CX > 0) {
-                for (String sdx : SecondaryList) {
-                    if (checkAX.AX(datasource, SchemaName, "5CX", sdx.trim()).isSuccess()) {
-                        result.setSdxfinder(sdx.trim());
-                        break;
-                    }
-                }
+                SecondaryList.stream()
+                        .map(String::trim)
+                        .filter(sdx -> checkAX.AX(datasource, SchemaName, "5CX", sdx).isSuccess())
+                        .findFirst()
+                        .ifPresent(result::setSdxfinder);
             }
         } else if (discharge.equals("4")) {
             result.setDC("0569");
         } else {
             result.setDC((Counter5CX > 0) ? "0552" : "0553");
             if (Counter5CX > 0) {
-                for (String sdx : SecondaryList) {
-                    if (checkAX.AX(datasource, SchemaName, "5CX", sdx.trim()).isSuccess()) {
-                        result.setSdxfinder(sdx.trim());
-                        break;
-                    }
-                }
+                SecondaryList.stream()
+                        .map(String::trim)
+                        .filter(sdx -> checkAX.AX(datasource, SchemaName, "5CX", sdx).isSuccess())
+                        .findFirst()
+                        .ifPresent(result::setSdxfinder);
             }
         }
         return result;
@@ -399,12 +397,11 @@ public class GetMDC05 {
             case "5PT": {//Cardiac Cath
                 result.setDC((Counter5DXPDx > 0 || Counter5DXSDx > 0) ? "0521" : "0522");
                 if (Counter5DXPDx == 0 && Counter5DXSDx > 0) {
-                    for (String sdx : SecondaryList) {
-                        if (checkAX.AX(datasource, SchemaName, "5DX", sdx.trim()).isSuccess()) {
-                            result.setSdxfinder(sdx.trim());
-                            break;
-                        }
-                    }
+                    SecondaryList.stream()
+                            .map(String::trim)
+                            .filter(sdx -> checkAX.AX(datasource, SchemaName, "5DX", sdx).isSuccess())
+                            .findFirst()
+                            .ifPresent(result::setSdxfinder);
                 }
                 break;
             }

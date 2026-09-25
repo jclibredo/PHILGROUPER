@@ -30,12 +30,10 @@ public class DRGDetermination {
     // Internal data structure to bind SDx attributes together during calculations
 
     private static class SdxItem {
-
         String code;
         String mainCc;
         int ccRow;
         int ccl;
-
         public SdxItem(String code) {
             this.code = code;
             this.mainCc = "";
@@ -51,12 +49,10 @@ public class DRGDetermination {
             final String sdxdc,
             final String pdx,
             final String dcs) {
-
         GetICD10PreMDC getI10 = new GetICD10PreMDC();
         GetCCLValue getCCLVal = new GetCCLValue();
         CheckExclusionList getExclu = new CheckExclusionList();
         GetDC getDC = new GetDC();
-
         try {
             String sdxoriglist = "";
             String sdxdcsfinder = Optional.ofNullable(sdxdc).orElse("");
@@ -87,9 +83,9 @@ public class DRGDetermination {
                 }
             }
             // Cap list size to 12 items as specified in the Stata logic
-//            if (sdxList.size() > 12) {
-//                sdxList = sdxList.subList(0, 12);
-//            }
+            if (sdxList.size() > 12) {
+                sdxList = sdxList.subList(0, 12);
+            }
             // If no SDX codes exist, return PCCL = 0
             if (sdxList.isEmpty()) {
                 return "0";

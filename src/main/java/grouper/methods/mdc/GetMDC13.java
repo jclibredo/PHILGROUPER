@@ -47,8 +47,6 @@ public class GetMDC13 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -56,6 +54,11 @@ public class GetMDC13 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
+            GetPDC getPdc = new GetPDC();
+            ORProcedure orProcs = new ORProcedure();
+            MDCProcedureMethod mdcProcs = new MDCProcedureMethod();
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter13PBX = 0;
@@ -67,28 +70,28 @@ public class GetMDC13 {
             int CaCRxProc = 0;
             int PBX99Proc = 0;
             for (int x = 0; x < ProcedureList.size(); x++) {
-                String procS = ProcedureList.get(x);
-                CartProc += checkAX.AX(datasource, SchemaName, "99PEX", procS.trim()).isSuccess() ? 1 : 0;
-                CaCRxProc += checkAX.AX(datasource, SchemaName, "99PFX", procS.trim()).isSuccess() ? 1 : 0;
-                PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS.trim()).isSuccess() ? 1 : 0;
-                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS.trim()).isSuccess() ? 1 : 0;
-                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS.trim()).isSuccess() ? 1 : 0;
-                Counter13PBX += checkAX.AX(datasource, SchemaName, "13PBX", procS.trim()).isSuccess() ? 1 : 0;
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS.trim());
+                String procS = ProcedureList.get(x).trim();
+                CartProc += checkAX.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
+                CaCRxProc += checkAX.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
+                PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                Counter13PBX += checkAX.AX(datasource, SchemaName, "13PBX", procS).isSuccess() ? 1 : 0;
+                DRGWSResult ORProcedureResult = orProcs.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 //THIS AREA IS FOR CHECKING OF MDC PROCEDURE
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                DRGWSResult JoinResult = mdcProcs.MDCProcedure(datasource,
                         SchemaName,
-                        procS.trim(),
+                        procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());

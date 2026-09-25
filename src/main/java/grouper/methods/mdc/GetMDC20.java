@@ -37,27 +37,33 @@ public class GetMDC20 {
         result.setSuccess(false);
         try {
             switch (drgResult.getPDC()) {
-                case "20A"://Alcohol Intoxication and Withdrawal
+                case "20A": {//Alcohol Intoxication and Withdrawal
                     drgResult.setDC("2050");
                     break;
-                case "20B"://Drug Use Disorders and Withdrawal
+                }
+                case "20B": {//Drug Use Disorders and Withdrawal
                     drgResult.setDC("2051");
                     break;
-                case "20C"://Alcohol Use Disorders and Dependence
+                }
+                case "20C": {//Alcohol Use Disorders and Dependence
                     drgResult.setDC("2052");
                     break;
-                case "20D"://Opioid Use Disorders and Dependence
+                }
+                case "20D": {//Opioid Use Disorders and Dependence
                     drgResult.setDC("2053");
                     break;
-                case "20E"://Psychostimulant Use Disorders and Dependence
+                }
+                case "20E": {//Psychostimulant Use Disorders and Dependence
                     drgResult.setDC("2054");
                     break;
-                case "20F"://Other Drug Use Disorders and Intoxication PDC 20F
+                }
+                case "20F": {//Other Drug Use Disorders and Intoxication PDC 20F
                     drgResult.setDC("2055");
                     break;
+                }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

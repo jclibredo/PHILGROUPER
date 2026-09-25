@@ -48,14 +48,19 @@ public class GetMDC11 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
+            AX getAx = new AX();
+            GetPDC getPdc = new GetPDC();
+            PDxMalignancy pdxMalig = new PDxMalignancy();
+            MDCProcedureMethod getMdcProced = new MDCProcedureMethod();
+            ORProcedure orProc = new ORProcedure();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter11PBX = 0;
@@ -68,9 +73,7 @@ public class GetMDC11 {
             int CaCRxProc = 0;
             int PBX99Proc = 0;
             int Counter11C = 0;
-            AX getAx = new AX();
-            PDxMalignancy pdxMalig = new PDxMalignancy();
-            MDCProcedureMethod getMdcProced = new MDCProcedureMethod();
+            long age = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String procS = ProcedureList.get(x).trim();
                 CartProc += getAx.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
@@ -81,7 +84,7 @@ public class GetMDC11 {
                 Counter11PCX += getAx.AX(datasource, SchemaName, "11PCX", procS).isSuccess() ? 1 : 0;
                 PBX99Proc += getAx.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
                 //THIS AREA IS FOR CHECKING OF OR PROCEDURE
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
@@ -94,7 +97,7 @@ public class GetMDC11 {
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
@@ -121,11 +124,7 @@ public class GetMDC11 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        String dc = this.mdcProcedure(
-                                SchemaName,
-                                Counter11C,
-                                Counter11PBX);
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.mdcProcedure(SchemaName, Counter11C, Counter11PBX));
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {
@@ -137,8 +136,7 @@ public class GetMDC11 {
                                 CaCRxProc,
                                 Counter11PCX,
                                 PBX99Proc,
-                                grouperparameter.getBirthDate(),
-                                grouperparameter.getAdmissionDate(),
+                                age,
                                 Counter11PBX,
                                 grouperparameter.getDischargeType());
                         drgResult.setDC(dc);
@@ -148,19 +146,13 @@ public class GetMDC11 {
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
-                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                String dc = this.mdcProcedure(
-                        SchemaName,
-                        Counter11C,
-                        Counter11PBX);
-                drgResult.setDC(dc);
+                drgResult.setDC(this.mdcProcedure(SchemaName, Counter11C, Counter11PBX));
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
@@ -172,8 +164,7 @@ public class GetMDC11 {
                         CaCRxProc,
                         Counter11PCX,
                         PBX99Proc,
-                        grouperparameter.getBirthDate(),
-                        grouperparameter.getAdmissionDate(),
+                        age,
                         Counter11PBX,
                         grouperparameter.getDischargeType());
                 drgResult.setDC(dc);
@@ -287,13 +278,10 @@ public class GetMDC11 {
             final Integer CaCRxProc,
             final Integer Counter11PCX,
             final Integer PBX99Proc,
-            final String bdate,
-            final String admDate,
+            final Long age,
             final Integer Counter11PBX,
             final String dischargeType) {
         String dc = "";
-        long age = utility.ComputeYear(bdate,
-                admDate);
         switch (pdc) {
             //Radio+Chemotherapy
             case "11C": {//Admit for Renal Dialysis
@@ -314,7 +302,6 @@ public class GetMDC11 {
                 }
                 break;
             }
-
             case "11A": {//Chronic Renal Failure
                 dc = age > 17 ? "1150" : "1151";
                 break;

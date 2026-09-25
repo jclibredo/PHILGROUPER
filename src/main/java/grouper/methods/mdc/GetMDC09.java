@@ -55,6 +55,9 @@ public class GetMDC09 {
             ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             AX checkAX = new AX();
+            GetPDC getPdc = new GetPDC();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
+            ORProcedure orProc = new ORProcedure();
             PDxMalignancy pdxMalig = new PDxMalignancy();
             int mdcAsInt = Integer.parseInt(drgResult.getMDC());
             String mdcWithoutZeros = String.valueOf(mdcAsInt);
@@ -83,13 +86,13 @@ public class GetMDC09 {
             Counter9BX += checkAX.AX(datasource, SchemaName, "9BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 Counter9PDX += checkAX.AX(datasource, SchemaName, "9PDX", procS).isSuccess() ? 1 : 0;
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource,
                         SchemaName,
                         procS,
                         mdcWithoutZeros,
@@ -97,7 +100,7 @@ public class GetMDC09 {
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
@@ -237,11 +240,8 @@ public class GetMDC09 {
                 break;
             }
             case "9PD": {//Skin Graft and Debridement
-                if (Counter9BX > 0) {
-                    result.setDC(Counter9PBX > 1 ? "0910" : "0905");
-                } else {
-                    result.setDC(Counter9PBX > 1 ? "0915" : "0906");
-                }
+                boolean hasMultiplePBX = Counter9PBX > 1;
+                result.setDC(Counter9BX > 0 ? (hasMultiplePBX ? "0910" : "0905") : (hasMultiplePBX ? "0915" : "0906"));
                 break;
             }
             case "9PA": {//Total Mastectomy

@@ -55,8 +55,10 @@ public class GetMDC06 {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             AX checkAX = new AX();
+            GetPDC getPdc = new GetPDC();
             PDxMalignancy pdxMalig = new PDxMalignancy();
             Endovasc enDov = new Endovasc();
+            ORProcedure orProc = new ORProcedure();
             int CartSDx = 0;
             int CaCRxSDx = 0;
             int CartProc = 0;
@@ -80,6 +82,14 @@ public class GetMDC06 {
             }
             MalignantCount += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "6A").isSuccess() ? 1 : 0;
             Ax6BXCount += checkAX.AX(datasource, SchemaName, "6BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
+            long age = utility.ComputeYear(grouperparameter.getBirthDate(),
+                    grouperparameter.getAdmissionDate());
+            long los = utility.ComputeLOS(
+                    grouperparameter.getAdmissionDate(),
+                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                    grouperparameter.getDischargeDate(),
+                    utility.Convert24to12(grouperparameter.getTimeDischarge())
+            );
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
                 DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
@@ -90,7 +100,7 @@ public class GetMDC06 {
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
@@ -99,7 +109,7 @@ public class GetMDC06 {
                 }
                 //Inguinal or Femoral PDC 6PH
                 Counter6PH += enDov.Endovasc(datasource, SchemaName, procS, "6PH", mdcWithoutZeros).isSuccess() ? 1 : 0;
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
@@ -113,18 +123,10 @@ public class GetMDC06 {
             }
             //CONDITIONAL STATEMENT STARTS HERE FOR MDC 06
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                long los = utility.ComputeLOS(
-                        grouperparameter.getAdmissionDate(),
-                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                        grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())
-                );
                 if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
-                        //Loop through the array  
                         for (int i = 0; i < hierarvalue.size(); i++) {
-                            //Compare elements of array with min  
                             if (hierarvalue.get(i) < min) {
                                 min = hierarvalue.get(i);
                             }
@@ -134,15 +136,12 @@ public class GetMDC06 {
                                 drgResult.getPDC(),
                                 MalignantCount,
                                 Ax6BXCount,
-                                grouperparameter.getBirthDate(),
-                                grouperparameter.getAdmissionDate(),
+                                age,
                                 Counter6PH,
                                 datasource,
                                 SchemaName,
                                 grouperparameter.getPdx(),
-                                grouperparameter.getTimeAdmission(),
-                                grouperparameter.getDischargeDate(),
-                                grouperparameter.getTimeDischarge());
+                                los);
                         drgResult.setDC(getResult.getDC());
                         if (!getResult.getDRG().isEmpty()) {
                             drgResult.setDRG(getResult.getDRG());
@@ -159,8 +158,7 @@ public class GetMDC06 {
                                 PBX6Proc,
                                 PBX99Proc,
                                 grouperparameter.getDischargeType(),
-                                grouperparameter.getBirthDate(),
-                                grouperparameter.getAdmissionDate());
+                                age);
                         drgResult.setDC(dc);
                     }
                 } else {
@@ -168,9 +166,7 @@ public class GetMDC06 {
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
-                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }
@@ -180,15 +176,12 @@ public class GetMDC06 {
                         drgResult.getPDC(),
                         MalignantCount,
                         Ax6BXCount,
-                        grouperparameter.getBirthDate(),
-                        grouperparameter.getAdmissionDate(),
+                        age,
                         Counter6PH,
                         datasource,
                         SchemaName,
                         grouperparameter.getPdx(),
-                        grouperparameter.getTimeAdmission(),
-                        grouperparameter.getDischargeDate(),
-                        grouperparameter.getTimeDischarge());
+                        los);
                 drgResult.setDC(getResult.getDC());
                 if (!getResult.getDRG().isEmpty()) {
                     drgResult.setDRG(getResult.getDRG());
@@ -205,8 +198,7 @@ public class GetMDC06 {
                         PBX6Proc,
                         PBX99Proc,
                         grouperparameter.getDischargeType(),
-                        grouperparameter.getBirthDate(),
-                        grouperparameter.getAdmissionDate());
+                        age);
                 drgResult.setDC(dc);
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
@@ -232,25 +224,18 @@ public class GetMDC06 {
             final String pdc,
             final Integer MalignantCount,
             final Integer Ax6BXCount,
-            final String bdate,
-            final String admDate,
+            final Long age,
             final Integer Counter6PH,
             final DataSource datasource,
             final String SchemaName,
             final String pdx,
-            final String admTime,
-            final String disDate,
-            final String disTime) {
+            final Long los) {
         MDCCodeOptimize result = utility.MDCCodeOptimize();
         result.setDC("");
         result.setDRG("");
         result.setPDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
-        long los = utility.ComputeLOS(admDate,
-                utility.Convert24to12(admTime),
-                disDate,
-                utility.Convert24to12(disTime));
         switch (pdc.toUpperCase()) {
             case "6PS": {//Lap Stomach, Eso & Duodenum
                 result.setDC("0627");
@@ -294,7 +279,7 @@ public class GetMDC06 {
             }
             case "6PG":
             case "6PH": {
-                result.setDC((utility.ComputeYear(bdate, admDate) > 14) ? ((Counter6PH > 0) ? "0610" : "0611") : "0612");
+                result.setDC((age > 14) ? ((Counter6PH > 0) ? "0610" : "0611") : "0612");
                 break;
             }
             case "6PL": {//Pyloromyotomy procedure
@@ -387,10 +372,8 @@ public class GetMDC06 {
             final Integer PBX6Proc,
             final Integer PBX99Proc,
             final String discharge,
-            final String bdate,
-            final String admDate) {
+            final Long age) {
         String dc = "";
-        long age = utility.ComputeYear(bdate, admDate);
         switch (pdc) {
             case "6A": {
                 //Radio+Chemotherapy

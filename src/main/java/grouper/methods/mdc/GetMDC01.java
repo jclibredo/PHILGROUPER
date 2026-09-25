@@ -47,8 +47,6 @@ public class GetMDC01 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
@@ -57,6 +55,8 @@ public class GetMDC01 {
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             AX checkAX = new AX();
             Endovasc enDov = new Endovasc();
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int CartSDx = 0;

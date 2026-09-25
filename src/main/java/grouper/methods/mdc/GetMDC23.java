@@ -1,258 +1,26 @@
-///*
-// * To change this license header, choose License Headers in Project Properties.
-// * To change this template file, choose Tools | Templates
-// * and open the template in the editor.
-// */
-//package grouper.methods.mdc;
-//
-//import grouper.methods.validation.AX;
-//import grouper.methods.validation.GetPDC;
-//import grouper.methods.validation.MDCProcedureMethod;
-//import grouper.methods.validation.ORProcedure;
-//import grouper.structures.DRGOutput;
-//import grouper.structures.DRGWSResult;
-//import grouper.structures.GrouperParameter;
-//import grouper.structures.MDCCodeOptimize;
-//import grouper.structures.MDCProcedure;
-//import grouper.structures.PDC;
-//import grouper.utility.Utility;
-//import java.io.IOException;
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.Collections;
-//import java.util.List;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
-//import javax.enterprise.context.RequestScoped;
-//import javax.sql.DataSource;
-//
-///**
-// *
-// * @author MINOSUN
-// */
-//@RequestScoped
-//public class GetMDC23 {
-//
-//    public GetMDC23() {
-//    }
-//    private final Utility utility = new Utility();
-//
-//    public DRGWSResult GetMDC23(
-//            final DataSource datasource,
-//            final String SchemaName,
-//            final DRGOutput drgResult,
-//            final GrouperParameter grouperparameter) {
-//        DRGWSResult result = utility.DRGWSResult();
-//        result.setMessage("");
-//        result.setResult("");
-//        result.setSuccess(false);
-//        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-//        String mdcWithoutZeros = String.valueOf(mdcAsInt);
-//        try {
-//            List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
-//            List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
-//            AX checkAX = new AX();
-//            //CHECKING FOR TRAUMA CODES
-//            int PDXCounter99 = 0;
-//            int PCXCounter99 = 0;
-//            int ORProcedureCounter = 0;
-//            ArrayList<Integer> hierarvalue = new ArrayList<>();
-//            ArrayList<String> pdclist = new ArrayList<>();
-//            int Counter23PBX = 0;
-//            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-//            for (int x = 0; x < ProcedureList.size(); x++) {
-//                //AX 99PDX Checking
-//                if (checkAX.AX(datasource, SchemaName, "99PDX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
-//                    PDXCounter99++;
-//                }
-//                //AX 99PCX Checking
-//                if (checkAX.AX(datasource, SchemaName, "99PCX", ProcedureList.get(x).trim()).isSuccess()) {//Dx Procedure
-//                    PCXCounter99++;
-//                }
-//                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
-//                if (ORProcedureResult.isSuccess()) {
-//                    ORProcedureCounter++;
-//                    ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
-//                }
-//                if (checkAX.AX(datasource, SchemaName, "23PBX", ProcedureList.get(x).trim()).isSuccess()) {
-//                    Counter23PBX++;
-//                }
-//                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName,
-//                        ProcedureList.get(x).trim(),
-//                        mdcWithoutZeros,
-//                        grouperparameter.getGender());
-//                if (JoinResult.isSuccess()) {
-////                    mdcprocedureCounter++;
-//                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-//                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
-//                    if (pdcresult.isSuccess()) {
-//                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
-//                        hierarvalue.add(hiarresult.getHIERAR());
-//                        pdclist.add(hiarresult.getPDC());
-//                    }
-//                }
-//            }
-//            int Counter23BX = 0;
-//            for (int a = 0; a < SecondaryList.size(); a++) {
-//                if (checkAX.AX(datasource, SchemaName, "23BX", SecondaryList.get(a).trim()).isSuccess()) {
-//                    Counter23BX++;
-//                }
-//            }
-//            if (PDXCounter99 > 0) {
-//                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
-//                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
-//                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
-//                    if (ORProcedureCounter > 0) {
-//                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-//                        drgResult.setDC(dc);
-//                    } else {
-//                        MDCCodeOptimize getResult = this.principalDaignosis(
-//                                drgResult.getPDC(),
-//                                Counter23BX,
-//                                SecondaryList,
-//                                datasource,
-//                                SchemaName,
-//                                Counter23PBX,
-//                                grouperparameter.getBirthDate(),
-//                                grouperparameter.getAdmissionDate());
-//                        if (!getResult.getSdxfinder().isEmpty()) {
-//                            drgResult.setSDXFINDER(getResult.getSdxfinder());
-//                        }
-//                        drgResult.setDC(getResult.getDC());
-//                    }
-//                } else {
-//                    if (PCXCounter99 > 0) {
-//                        drgResult.setDC("2311");
-//                    } else {
-//                        drgResult.setDC("2312");
-//                    }
-//                }
-//
-//            } else if (ORProcedureCounter > 0) {
-//                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-//                drgResult.setDC(dc);
-//            } else {
-//                MDCCodeOptimize getResult = this.principalDaignosis(
-//                        drgResult.getPDC(),
-//                        Counter23BX,
-//                        SecondaryList,
-//                        datasource,
-//                        SchemaName,
-//                        Counter23PBX,
-//                        grouperparameter.getBirthDate(),
-//                        grouperparameter.getAdmissionDate());
-//                if (!getResult.getSdxfinder().isEmpty()) {
-//                    drgResult.setSDXFINDER(getResult.getSdxfinder());
-//                }
-//                drgResult.setDC(getResult.getDC());
-//            }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-////            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
-//            if (getPCCLResult.isSuccess()) {
-//                result.setSuccess(true);
-//                result.setResult(getPCCLResult.getResult());
-//                result.setMessage("MDC 23 Done Checking");
-//            } else {
-//                result = getPCCLResult;
-//            }
-//        } catch (IOException | NumberFormatException ex) {
-//            result.setMessage("Something went wrong");
-//            Logger.getLogger(GetMDC23.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return result;
-//
-//    }
-//
-//    private String orProcedure(final Integer ORProcedureCounterList) {
-//        String dc = "";
-//        switch (ORProcedureCounterList) {
-//            case 6://OR Proc Level 6 AND 5
-//            case 5:
-//                dc = "2308";
-//                break;
-//            case 4://OR Proc Level 4
-//                dc = "2307";
-//                break;
-//            case 3://OR Proc Level 3
-//                dc = "2306";
-//                break;
-//            case 2://OR Proc Level 2
-//                dc = "2305";
-//                break;
-//            case 1://OR Proc Level 1
-//                dc = "2304";
-//                break;
-//        }
-//        return dc;
-//    }
-//
-//    private MDCCodeOptimize principalDaignosis(
-//            final String pdc,
-//            final Integer Counter23BX,
-//            final List<String> SecondaryList,
-//            final DataSource datasource,
-//            final String SchemaName,
-//            final Integer Counter23PBX,
-//            final String bdate,
-//            final String admDate) {
-//        MDCCodeOptimize result = utility.MDCCodeOptimize();
-//        result.setDC("");
-//        result.setPDC("");
-//        result.setSdxfinder("");
-//        AX checkAX = new AX();
-//        ArrayList<String> sdxfinder = new ArrayList<>();
-//        switch (pdc.toUpperCase()) {
-//            case "23A"://Rehabilitation
-//                if (Counter23BX > 0) {
-//                    for (int x = 0; x < SecondaryList.size(); x++) {
-//                        if (checkAX.AX(datasource, SchemaName, "23BX", SecondaryList.get(x).trim()).isSuccess()) {
-//                            sdxfinder.add(SecondaryList.get(x));
-//                        }
-//                    }
-//                    if (!sdxfinder.isEmpty()) {
-//                        result.setSdxfinder(String.join(",", sdxfinder));
-//                    }
-//                    result.setDC("2355");
-//                } else {
-//                    result.setDC("2350");
-//                }
-//                break;
-//            case "23B"://Signs, Symptoms and Other Abnormal Findings
-//                result.setDC("2351");
-//                break;
-//            case "23C"://Drugs
-//                if (Counter23PBX > 0) {
-//                    result.setDC("2303");
-//                } else {
-//                    result.setDC("2352");
-//                }
-//                break;
-//            case "23D"://Other Factors Influencing Health Status PDC 23D
-//                if (utility.ComputeYear(bdate, admDate) > 54) {
-//                    result.setDC("2353");
-//                } else {
-//                    result.setDC("2354");
-//                }
-//                break;
-//        }
-//        return result;
-//
-//    }
-//
-//}
-
-
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
+import grouper.methods.validation.GetPDC;
+import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
+import grouper.structures.MDCProcedure;
+import grouper.structures.PDC;
 import grouper.utility.Utility;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
@@ -265,12 +33,9 @@ import javax.sql.DataSource;
 @RequestScoped
 public class GetMDC23 {
 
-    private static final Logger LOGGER = Logger.getLogger(GetMDC23.class.getName());
-
-    private final Utility utility = new Utility();
-
     public GetMDC23() {
     }
+    private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC23(
             final DataSource datasource,
@@ -282,52 +47,95 @@ public class GetMDC23 {
         result.setResult("");
         result.setSuccess(false);
         try {
-            final String[] procedures = grouperparameter.getProc().split(",");
-            final String[] secondaries = grouperparameter.getSdx().split(",");
-
-            // Created once instead of once per procedure
-            final AX checkAX = new AX();
-            final ORProcedure orProcedureMethod = new ORProcedure();
-
-            boolean hasPDX99 = false; // AX 99PDX
-            boolean hasPCX99 = false; // AX 99PCX
-            boolean hasORProcedure = false;
-            int maxORProcedure = 0;
-            for (String rawProc : procedures) {
-                final String proc = rawProc.trim();
-                // Once a flag is true, further lookups for it can't change the outcome
-                if (!hasPDX99 && checkAX.AX(datasource, SchemaName, "99PDX", proc).isSuccess()) {
-                    hasPDX99 = true;
+            List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
+            List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
+            AX checkAX = new AX();
+            ORProcedure orProc = new ORProcedure();
+            GetPDC getPdc = new GetPDC();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
+            int PDXCounter99 = 0;
+            int PCXCounter99 = 0;
+            int ORProcedureCounter = 0;
+            int Counter23PBX = 0;
+            int Counter23BX = 0;
+            long age = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            for (int x = 0; x < ProcedureList.size(); x++) {
+                String procS = ProcedureList.get(x).trim();
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
+                if (ORProcedureResult.isSuccess()) {
+                    ORProcedureCounter++;
+                    ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                if (!hasPCX99 && checkAX.AX(datasource, SchemaName, "99PCX", proc).isSuccess()) {
-                    hasPCX99 = true;
-                }
-                final DRGWSResult orResult = orProcedureMethod.ORProcedure(datasource, SchemaName, proc);
-                if (orResult.isSuccess()) {
-                    // NumberFormatException here is still caught below, as in the original
-                    final int orValue = Integer.parseInt(orResult.getResult());
-                    maxORProcedure = hasORProcedure ? Math.max(maxORProcedure, orValue) : orValue;
-                    hasORProcedure = true;
+                Counter23PBX += checkAX.AX(datasource, SchemaName, "23PBX", procS).isSuccess() ? 1 : 0;
+                DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource, SchemaName,
+                        procS,
+                        mdcWithoutZeros,
+                        grouperparameter.getGender());
+                if (JoinResult.isSuccess()) {
+//                    mdcprocedureCounter++;
+                    MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    if (pdcresult.isSuccess()) {
+                        PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
+                        hierarvalue.add(hiarresult.getHIERAR());
+                        pdclist.add(hiarresult.getPDC());
+                    }
                 }
             }
 
-            // FINDING DC IS HERE
-            // The original repeated the OR / principal-diagnosis chain in two places; it is now written once.
-            if (hasPDX99 && utility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                    grouperparameter.getDischargeDate(),
-                    utility.Convert24to12(grouperparameter.getTimeDischarge())) >= 21) {
-                drgResult.setDC(hasPCX99 ? "2311" : "2312");
-            } else if (hasORProcedure) {
-                drgResult.setDC(this.orProcedure(maxORProcedure));
+            for (int a = 0; a < SecondaryList.size(); a++) {
+                String sdxCode = SecondaryList.get(a).trim();
+                Counter23BX += checkAX.AX(datasource, SchemaName, "23BX", sdxCode).isSuccess() ? 1 : 0;
+            }
+            if (PDXCounter99 > 0) {
+                long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                        utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                        grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
+                if (los < 21) {
+                    if (ORProcedureCounter > 0) {
+                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                    } else {
+                        MDCCodeOptimize getResult = this.principalDaignosis(
+                                drgResult.getPDC(),
+                                Counter23BX,
+                                SecondaryList,
+                                datasource,
+                                SchemaName,
+                                Counter23PBX,
+                                age);
+                        if (!getResult.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(getResult.getSdxfinder());
+                        }
+                        drgResult.setDC(getResult.getDC());
+                    }
+                } else {
+                    drgResult.setDC(PCXCounter99 > 0 ? "2311" : "2312");
+                }
+            } else if (ORProcedureCounter > 0) {
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
-                this.setPrincipalDiagnosisDc(drgResult, grouperparameter, datasource, SchemaName,
-                        checkAX, procedures, secondaries);
+                MDCCodeOptimize getResult = this.principalDaignosis(
+                        drgResult.getPDC(),
+                        Counter23BX,
+                        SecondaryList,
+                        datasource,
+                        SchemaName,
+                        Counter23PBX,
+                        age);
+                if (!getResult.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(getResult.getSdxfinder());
+                }
+                drgResult.setDC(getResult.getDC());
             }
-
-            // FINDING PCCL IS HERE
-//            final DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            final DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());
@@ -335,90 +143,79 @@ public class GetMDC23 {
             } else {
                 result = getPCCLResult;
             }
-        } catch (NumberFormatException ex) {
+        } catch (IOException | NumberFormatException ex) {
             result.setMessage("Something went wrong");
-            LOGGER.log(Level.SEVERE, null, ex);
+            Logger.getLogger(GetMDC23.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
+
     }
 
-    private String orProcedure(final int orProcedureLevel) {
-        switch (orProcedureLevel) {
-            case 6: // OR Proc Level 6 AND 5
+    private String orProcedure(final Integer ORProcedureCounterList) {
+        String dc = "";
+        switch (ORProcedureCounterList) {
+            case 6://OR Proc Level 6 AND 5
             case 5:
-                return "2308";
-            case 4: // OR Proc Level 4
-                return "2307";
-            case 3: // OR Proc Level 3
-                return "2306";
-            case 2: // OR Proc Level 2
-                return "2305";
-            case 1: // OR Proc Level 1
-                return "2304";
-            default:
-                return "";
+                dc = "2308";
+                break;
+            case 4://OR Proc Level 4
+                dc = "2307";
+                break;
+            case 3://OR Proc Level 3
+                dc = "2306";
+                break;
+            case 2://OR Proc Level 2
+                dc = "2305";
+                break;
+            case 1://OR Proc Level 1
+                dc = "2304";
+                break;
         }
+        return dc;
     }
 
-    /**
-     * Sets the DC (and SDXFINDER for 23A) from the principal diagnosis category.
-     * Lookups only run for the category that needs them. An unmatched PDC sets
-     * DC to "", as in the original.
-     */
-    private void setPrincipalDiagnosisDc(
-            final DRGOutput drgResult,
-            final GrouperParameter grouperparameter,
+    private MDCCodeOptimize principalDaignosis(
+            final String pdc,
+            final Integer Counter23BX,
+            final List<String> SecondaryList,
             final DataSource datasource,
             final String SchemaName,
-            final AX checkAX,
-            final String[] procedures,
-            final String[] secondaries) {
-        String dc = "";
-        switch (drgResult.getPDC().toUpperCase(Locale.ROOT)) {
-            case "23A": { // Rehabilitation
-                // Secondary Dx matching AX 23BX (untrimmed values, as in the original SDXFINDER)
-                final List<String> bxSecondaries = new ArrayList<>();
-                for (String sdx : secondaries) {
-                    if (checkAX.AX(datasource, SchemaName, "23BX", sdx.trim()).isSuccess()) {
-                        bxSecondaries.add(sdx);
+            final Integer Counter23PBX,
+            final Long age) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setPDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
+        switch (pdc.toUpperCase()) {
+            case "23A": {//Rehabilitation
+                result.setDC(Counter23BX > 0 ? "2355" : "2350");
+                if (Counter23BX > 0) {
+                    for (int x = 0; x < SecondaryList.size(); x++) {
+                        String sdxCode = SecondaryList.get(x).trim();
+                        if (checkAX.AX(datasource, SchemaName, "23BX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
                     }
                 }
-                if (!bxSecondaries.isEmpty()) {
-                    drgResult.setSDXFINDER(String.join(",", bxSecondaries));
-                    dc = "2355";
-                } else {
-                    dc = "2350";
-                }
                 break;
             }
-            case "23B": // Signs, Symptoms and Other Abnormal Findings
-                dc = "2351";
+            case "23B": {//Signs, Symptoms and Other Abnormal Findings
+                result.setDC("2351");
                 break;
-            case "23C": // Drugs
-                dc = anyMatch(checkAX, datasource, SchemaName, "23PBX", procedures) ? "2303" : "2352";
+            }
+            case "23C": {//Drugs
+                result.setDC(Counter23PBX > 0 ? "2303" : "2352");
                 break;
-            case "23D": // Other Factors Influencing Health Status
-                dc = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()) > 54
-                        ? "2353" : "2354";
+            }
+            case "23D": {//Other Factors Influencing Health Status PDC 23D
+                result.setDC(age > 54 ? "2353" : "2354");
                 break;
-            default:
-                break;
+            }
         }
-        drgResult.setDC(dc);
+        return result;
+
     }
 
-    /** True if any code matches the given AX table. Stops at the first match. */
-    private static boolean anyMatch(
-            final AX checkAX,
-            final DataSource datasource,
-            final String SchemaName,
-            final String table,
-            final String[] codes) {
-        for (String code : codes) {
-            if (checkAX.AX(datasource, SchemaName, table, code.trim()).isSuccess()) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

@@ -49,32 +49,28 @@ public class GetMDC18 {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             AX checkAX = new AX();
+            ORProcedure getOrProc = new ORProcedure();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
+            long age = utility.ComputeYear(grouperparameter.getBirthDate(),
+                    grouperparameter.getAdmissionDate());
             int mdcprocedureCounter = 0;
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int CounterSDxBX18 = 0;
             int CounterPDxBX18 = 0;
-//            int ORProcedureCounter = 0;
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             for (int x = 0; x < ProcedureList.size(); x++) {
-                String procS = ProcedureList.get(x);
-                //AX 99PDX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PDX", procS.trim()).isSuccess()) {//Dx Procedure
-                    PDXCounter99++;
-                }
-                //AX 99PCX Checking
-                if (checkAX.AX(datasource, SchemaName, "99PCX", procS.trim()).isSuccess()) {//Dx Procedure
-                    PCXCounter99++;
-                }
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, ProcedureList.get(x).trim());
+                String procS = ProcedureList.get(x).trim();
+                PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
+                PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
+                DRGWSResult ORProcedureResult = getOrProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
 //                    ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource,
                         SchemaName,
-                        procS.trim(),
+                        procS,
                         mdcWithoutZeros,
                         grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
@@ -87,10 +83,11 @@ public class GetMDC18 {
             }
             CounterPDxBX18 += checkAX.AX(datasource, SchemaName, "18BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
-                if (utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
-                        utility.Convert24to12(grouperparameter.getTimeDischarge())) < 21) {
+                        utility.Convert24to12(grouperparameter.getTimeDischarge()));
+                if (los < 21) {
 //                    if (ORProcedureCounter > 0) {
                     if (mdcprocedureCounter > 0) {
                         String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
@@ -98,8 +95,7 @@ public class GetMDC18 {
                     } else {
                         MDCCodeOptimize getMPrincipal = this.principalDaignosis(
                                 drgResult.getPDC(),
-                                grouperparameter.getBirthDate(),
-                                grouperparameter.getAdmissionDate(),
+                                age,
                                 grouperparameter.getDischargeType(),
                                 CounterSDxBX18, CounterPDxBX18,
                                 SecondaryList,
@@ -111,21 +107,15 @@ public class GetMDC18 {
                         }
                     }
                 } else {
-                    if (PCXCounter99 > 0) {
-                        drgResult.setDC("1808");
-                    } else {
-                        drgResult.setDC("1809");
-                    }
+                    drgResult.setDC(PCXCounter99 > 54 ? "1808" : "1809");
                 }
 //            } else if (ORProcedureCounter > 0) {
             } else if (mdcprocedureCounter > 0) {
-                String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
-                drgResult.setDC(dc);
+                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
                 MDCCodeOptimize getMPrincipal = this.principalDaignosis(
                         drgResult.getPDC(),
-                        grouperparameter.getBirthDate(),
-                        grouperparameter.getAdmissionDate(),
+                        age,
                         grouperparameter.getDischargeType(),
                         CounterSDxBX18, CounterPDxBX18,
                         SecondaryList,
@@ -157,32 +147,37 @@ public class GetMDC18 {
     private String orProcedure(final Integer maxCounter) {
         String dc = "";
         switch (maxCounter) {
-            case 6://OR Proc Level 6
+            case 6: {//OR Proc Level 6
                 dc = "1806";
                 break;
-            case 5://OR Proc Level 5
+            }
+            case 5: {//OR Proc Level 5
                 dc = "1805";
                 break;
-            case 4://OR Proc Level 4
+            }
+            case 4: {//OR Proc Level 4
                 dc = "1804";
                 break;
-            case 3://OR Proc Level 3
+            }
+            case 3: {//OR Proc Level 3
                 dc = "1803";
                 break;
-            case 2://OR Proc Level 2
+            }
+            case 2: {//OR Proc Level 2
                 dc = "1802";
                 break;
-            case 1://OR Proc Level 1
+            }
+            case 1: {//OR Proc Level 1
                 dc = "1801";
                 break;
+            }
         }
         return dc;
     }
 
     private MDCCodeOptimize principalDaignosis(
             final String pdc,
-            final String bdate,
-            final String admDate,
+            final Long age,
             final String dischargeType,
             final Integer CounterSDxBX18,
             final Integer CounterPDxBX18,
@@ -193,7 +188,6 @@ public class GetMDC18 {
         result.setDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
-        long age = utility.ComputeYear(bdate, admDate);
         switch (pdc.toUpperCase()) {
             case "18A": {//Septicemia
                 result.setDC(age > 14 ? ("4".equals(dischargeType) ? "1872" : "1850") : "1851");
@@ -211,12 +205,11 @@ public class GetMDC18 {
                 if (CounterSDxBX18 > 0 || CounterPDxBX18 > 0) {
                     result.setDC(age > 14 ? "1870" : "1871");
                     if (CounterPDxBX18 == 0 && CounterSDxBX18 > 0) {
-                        for (String sdx : SecondaryList) {
-                            if (checkAX.AX(datasource, SchemaName, "18BX", sdx.trim()).isSuccess()) {
-                                result.setSdxfinder(sdx.trim());
-                                break;
-                            }
-                        }
+                        SecondaryList.stream()
+                                .map(String::trim)
+                                .filter(sdx -> checkAX.AX(datasource, SchemaName, "18BX", sdx).isSuccess())
+                                .findFirst()
+                                .ifPresent(result::setSdxfinder);
                     }
                 } else {
                     result.setDC(age > 14 ? "1856" : "1857");

@@ -53,8 +53,14 @@ public class GetMDC08 {
             String mdcWithoutZeros = String.valueOf(mdcAsInt);
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
+            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            ArrayList<Integer> hierarvalue = new ArrayList<>();
+            ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
+            GetPDC getPdc = new GetPDC();
             Endovasc endO = new Endovasc();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
+            ORProcedure orProc = new ORProcedure();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int CartSDx = 0;
@@ -67,9 +73,7 @@ public class GetMDC08 {
             int mdcprocedureCounter = 0;
             int Counter8PH = 0;
             int Counter8QA = 0;
-            ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
-            ArrayList<Integer> hierarvalue = new ArrayList<>();
-            ArrayList<String> pdclist = new ArrayList<>();
+            long age = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String Secon = SecondaryList.get(a);
                 CartSDx += checkAX.AX(datasource, SchemaName, "99BX", Secon.trim()).isSuccess() ? 1 : 0;
@@ -78,12 +82,12 @@ public class GetMDC08 {
             //THIS AREA IS FOR CHECKING OF OR PROCEDURE
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource,
                         SchemaName,
                         procS,
                         mdcWithoutZeros,
@@ -91,7 +95,7 @@ public class GetMDC08 {
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource,
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource,
                             SchemaName,
                             mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
@@ -117,21 +121,17 @@ public class GetMDC08 {
                 if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
-                        //Loop through the array  
                         for (int i = 0; i < hierarvalue.size(); i++) {
-                            //Compare elements of array with min  
                             if (hierarvalue.get(i) < min) {
                                 min = hierarvalue.get(i);
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        MDCCodeOptimize getMdcProc = this.mdcProcedure(
+                        drgResult.setDC(this.mdcProcedure(
                                 drgResult.getPDC(),
                                 Counter8PH,
-                                grouperparameter.getBirthDate(),
-                                grouperparameter.getAdmissionDate(),
-                                Counter8QA);
-                        drgResult.setDC(getMdcProc.getDC());
+                                age,
+                                Counter8QA));
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {
@@ -143,8 +143,7 @@ public class GetMDC08 {
                                 CaCRxProc,
                                 Counter8PFX,
                                 PBX99Proc,
-                                grouperparameter.getBirthDate(),
-                                grouperparameter.getAdmissionDate());
+                                age);
                         drgResult.setDC(dc);
                     }
                 } else {
@@ -152,21 +151,18 @@ public class GetMDC08 {
                 }
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
-                //Loop through the array  
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                MDCCodeOptimize getMdcProc = this.mdcProcedure(
+                String getMdcProc = this.mdcProcedure(
                         drgResult.getPDC(),
                         Counter8PH,
-                        grouperparameter.getBirthDate(),
-                        grouperparameter.getAdmissionDate(),
+                        age,
                         Counter8QA);
-                drgResult.setDC(getMdcProc.getDC());
+                drgResult.setDC(getMdcProc);
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
@@ -178,8 +174,7 @@ public class GetMDC08 {
                         CaCRxProc,
                         Counter8PFX,
                         PBX99Proc,
-                        grouperparameter.getBirthDate(),
-                        grouperparameter.getAdmissionDate());
+                        age);
                 drgResult.setDC(dc);
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
@@ -200,137 +195,132 @@ public class GetMDC08 {
 
     }
 
-    private MDCCodeOptimize mdcProcedure(
+    private String mdcProcedure(
             final String pdc,
             final Integer Counter8PH,
-            final String bdate,
-            final String admDate,
+            final Long age,
             final Integer Counter8QA) {
-        MDCCodeOptimize result = utility.MDCCodeOptimize();
-        result.setPDC("");
-        result.setDC("");
-        result.setSdxfinder("");
-        long age = utility.ComputeYear(bdate, admDate);
+        String result = "";
         //CHECKING FOR TRAUMA CODES
         switch (pdc) {
             case "8QE": {//Plasmapheresis
-                result.setDC("0835");
+                result = "0835";
                 break;
             }
             case "8QF": {//Multiple (>4) Wound Debridement
-                result.setDC("0836");
+                result = "0836";
                 break;
             }
             case "8QD": {
-                result.setDC("0801");
+                result = "0801";
                 break;
             }
             case "8QB": {//Multiple (2-4) Wound Debridement
-                result.setDC(Counter8PH > 0 ? "0828" : "0830");
+                result = Counter8PH > 0 ? "0828" : "0830";
                 break;
             }
             case "8PD": {//Spinal Fusion
-                result.setDC("0805");
+                result = "0805";
                 break;
             }
             case "8PW": {//Total Hip Revision
-                result.setDC("0824");
+                result = "0824";
                 break;
             }
             case "8PF": {//Amputation for Musculoskeletal & Connective Tissue Disorders
-                result.setDC("0807");
+                result = "0807";
                 break;
             }
             case "8PZ": {//Partial Hip Revision
-                result.setDC("0827");
+                result = "0827";
                 break;
             }
             case "8PX": {//Total Knee Revision
-                result.setDC("0825");
+                result = "0825";
                 break;
             }
             case "8PY": {//Partial Knee Revision
-                result.setDC("0826");
+                result = "0826";
                 break;
             }
             case "8PA": {//Hip Replacement
-                result.setDC("0802");
+                result = "0802";
                 break;
             }
             case "8PV": {//Partial Hip Replacement
-                result.setDC("0823");
+                result = "0823";
                 break;
             }
             case "8PE": {//Back & Neck Procedure Except Spinal Fusion
-                result.setDC("0806");
+                result = "0806";
                 break;
             }
             case "8PB": {//Knee Replacement
-                result.setDC("0803");
+                result = "0803";
                 break;
             }
             case "8PC": {//Other Major Joint Replacement & Limb Reattach of Lower/Upper Extremities
-                result.setDC("0804");
+                result = "0804";
                 break;
             }
             case "8PG": {//Biopsies of Musculoskeletal & Connective Tissue Disorders
-                result.setDC("0808");
+                result = "0808";
                 break;
             }
             case "8PJ": {//Hip and Femur Procedures Except Replacement
-                result.setDC(age > 17 ? "0810" : "0811");
+                result = age > 17 ? "0810" : "0811";
                 break;
             }
             case "8PH": {//Skin Graft Except Hand for MS&CT
-                result.setDC(Counter8QA > 0 ? "0829" : "0809");
+                result = Counter8QA > 0 ? "0829" : "0809";
                 break;
             }
             case "8PK": {//Knee Procedures Except Replacement
-                result.setDC("0812");
+                result = "0812";
                 break;
             }
             case "8PU": {//Other Musculoskeletal System and Connective Tissue OR Procedures
-                result.setDC("0822");
+                result = "0822";
                 break;
             }
             case "8QA": {//Wound Debridement for MS&CT
-                result.setDC("0831");
+                result = "0831";
                 break;
             }
             case "8PT": {//Arthroscopy
-                result.setDC("0821");
+                result = "0821";
                 break;
             }
             case "8PL": {//Shoulder, Elbow & Forearm Procedures Except Replacement
-                result.setDC("0813");
+                result = "0813";
                 break;
             }
             case "8PM": {//Humerus, Tibia, Fibula & Ankle Procedures Except Replacement
-                result.setDC(age > 17 ? "0814" : "0815");
+                result = age > 17 ? "0814" : "0815";
                 break;
             }
             case "8QC": {//Reattachment of Finger
-                result.setDC("0832");
+                result = "0832";
                 break;
             }
             case "8PS": {//Soft Tissue Procedures
-                result.setDC("0820");
+                result = "0820";
                 break;
             }
             case "8PQ": {//Local Excision & Removal of Internal Fixation Devices of Hip & Femur
-                result.setDC("0818");
+                result = "0818";
                 break;
             }
             case "8PP": {//Foot Procedures
-                result.setDC("0817");
+                result = "0817";
                 break;
             }
             case "8PR": {//Local Excision & Removal of Internal Fixation Devices Exc Hip & Femur
-                result.setDC("0819");
+                result = "0819";
                 break;
             }
             case "8PN": {//Wrist & Hand Procedures Except Replacement PDC 8PN 
-                result.setDC("0816");
+                result = "0816";
                 break;
             }
 
@@ -377,11 +367,8 @@ public class GetMDC08 {
             final Integer CaCRxProc,
             final Integer Counter8PFX,
             final Integer PBX99Proc,
-            final String bdate,
-            final String admDate) {
+            final Long age) {
         String dc = "";
-        long age = utility.ComputeYear(bdate,
-                admDate);
         switch (pdc) {
             case "8E": {//Pathological Fracture and Malignancy
                 //Radio+Chemotherapy

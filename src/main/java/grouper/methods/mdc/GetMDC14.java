@@ -96,13 +96,15 @@ public class GetMDC14 {
             int K14Counter = 0;
             int L14Counter = 0;
             int J14Counter = 0;
+            ORProcedure orProc = new ORProcedure();
+            UnralatedANDORProc unrelated = new UnralatedANDORProc();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
-                    DRGWSResult ResultUnralated = new UnralatedANDORProc().UnralatedANDORProc(datasource, SchemaName,
+                    DRGWSResult ResultUnralated = unrelated.UnralatedANDORProc(datasource, SchemaName,
                             procS, drgResult.getMDC());
                     if (!ResultUnralated.isSuccess()) {
                         UnralatedORProcedure++;

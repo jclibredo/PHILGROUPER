@@ -51,6 +51,10 @@ public class GetMDC10 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
+            AX getAx = new AX();
+            GetPDC getPdc = new GetPDC();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
+            ORProcedure orProc = new ORProcedure();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter10PBX = 0;
@@ -58,10 +62,8 @@ public class GetMDC10 {
             int mdcprocedureCounter = 0;
             int mdcAsInt = Integer.parseInt(drgResult.getMDC());
             String mdcWithoutZeros = String.valueOf(mdcAsInt);
-            AX getAx = new AX();
-            GetPDC getPdc = new GetPDC();
-            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
-            ORProcedure orProc = new ORProcedure();
+            long age = utility.ComputeYear(grouperparameter.getBirthDate(),
+                    grouperparameter.getAdmissionDate());
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String sdxCode = ProcedureList.get(x).trim();
                 PDXCounter99 += getAx.AX(datasource, SchemaName, "99PDX", sdxCode).isSuccess() ? 1 : 0;
@@ -101,19 +103,11 @@ public class GetMDC10 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        String dc = this.mdcProcedure(drgResult.getPDC(),
-                                grouperparameter.getBirthDate(),
-                                grouperparameter.getAdmissionDate());
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), age));
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {
-                        String dc = this.principalDaignosis(
-                                drgResult.getPDC(),
-                                Counter10PBX,
-                                grouperparameter.getBirthDate(),
-                                grouperparameter.getAdmissionDate());
-                        drgResult.setDC(dc);
+                        drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), Counter10PBX, age));
                     }
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "1011" : "1012");
@@ -126,14 +120,11 @@ public class GetMDC10 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                String dc = this.mdcProcedure(drgResult.getPDC(),
-                        grouperparameter.getBirthDate(),
-                        grouperparameter.getAdmissionDate());
-                drgResult.setDC(dc);
+                drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), age));
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
-                drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), Counter10PBX, grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+                drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), Counter10PBX, age));
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -155,10 +146,8 @@ public class GetMDC10 {
 
     private String mdcProcedure(
             final String pdc,
-            final String bdate,
-            final String admDate) {
+            final Long age) {
         String result = "";
-        long age = utility.ComputeYear(bdate, admDate);
         switch (pdc.toUpperCase()) {
             case "10PB": {//Pituitary
                 result = "1001";
@@ -235,10 +224,8 @@ public class GetMDC10 {
     private String principalDaignosis(
             final String pdc,
             final Integer Counter10PBX,
-            final String bdate,
-            final String admDate) {
+            final Long age) {
         String dc = "";
-        long age = utility.ComputeYear(bdate, admDate);
         switch (pdc) {
             case "10A": {//Diabetes with Complicated PDx
                 dc = Counter10PBX > 0 ? "1057" : "1050";

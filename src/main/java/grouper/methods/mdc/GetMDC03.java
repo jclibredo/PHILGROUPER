@@ -46,9 +46,9 @@ public class GetMDC03 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
         try {
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
@@ -70,8 +70,9 @@ public class GetMDC03 {
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             for (int a = 0; a < SecondaryList.size(); a++) {
-                CartSDx += checkAX.AX(datasource, SchemaName, "99BX", SecondaryList.get(a).trim()).isSuccess() ? 1 : 0;
-                CaCRxSDx += checkAX.AX(datasource, SchemaName, "99CX", SecondaryList.get(a).trim()).isSuccess() ? 1 : 0;
+                String sdxCode = SecondaryList.get(a).trim();
+                CartSDx += checkAX.AX(datasource, SchemaName, "99BX", sdxCode).isSuccess() ? 1 : 0;
+                CaCRxSDx += checkAX.AX(datasource, SchemaName, "99CX", sdxCode).isSuccess() ? 1 : 0;
             }
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();

@@ -13,7 +13,6 @@ import grouper.methods.validation.PDxMalignancy;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
-import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -58,6 +57,9 @@ public class GetMDC07 {
             ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
             PDxMalignancy pdxMalig = new PDxMalignancy();
+            ORProcedure orProc = new ORProcedure();
+            GetPDC getPdc = new GetPDC();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int CartSDx = 0;
@@ -78,7 +80,7 @@ public class GetMDC07 {
             B7Count += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "7B").isSuccess() ? 1 : 0;
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource,
                         SchemaName,
                         procS,
                         mdcWithoutZeros,
@@ -86,7 +88,7 @@ public class GetMDC07 {
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
@@ -98,7 +100,7 @@ public class GetMDC07 {
                 CartProc += checkAX.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
                 CaCRxProc += checkAX.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
                 PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
@@ -122,8 +124,7 @@ public class GetMDC07 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        MDCCodeOptimize getMdcProc = this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX);
-                        drgResult.setDC(getMdcProc.getDC());
+                        drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX));
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                     } else {
@@ -140,8 +141,7 @@ public class GetMDC07 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                MDCCodeOptimize getMdcProc = this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX);
-                drgResult.setDC(getMdcProc.getDC());
+                drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX));
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else {
@@ -166,45 +166,42 @@ public class GetMDC07 {
 
     }
 
-    private MDCCodeOptimize mdcProcedure(
+    private String mdcProcedure(
             final String pdc,
             final Integer B7Count,
             final Integer Counter7PBX) {
-        MDCCodeOptimize result = utility.MDCCodeOptimize();
-        result.setPDC("");
-        result.setDC("");
-        result.setSdxfinder("");
+        String result = "";
         switch (pdc) {
             case "7PA": {//Pancreas, Liver Resection and Shunt Procedures
-                result.setDC("0701");
+                result = "0701";
                 break;
             }
             case "7PB": {//Biliary Tract Procedure
-                result.setDC(B7Count > 0 ? "0702" : "0703");
+                result = B7Count > 0 ? "0702" : "0703";
                 break;
             }
             case "7PG": {//Pancreas and Liver Procedure Except Resection
-                result.setDC("0711");
+                result = "0711";
                 break;
             }
             case "7PF": {//Laparoscopic Cholecystectomy
-                result.setDC(Counter7PBX > 0 ? "0709" : "0710");
+                result = Counter7PBX > 0 ? "0709" : "0710";
                 break;
             }
             case "7PC": {//Cholecystectomy
-                result.setDC(Counter7PBX > 0 ? "0704" : "0705");
+                result = Counter7PBX > 0 ? "0704" : "0705";
                 break;
             }
             case "7PD": {//Hepatobiliary Diagnostic Procedures
-                result.setDC("0706");
+                result = "0706";
                 break;
             }
             case "7PE": {//Other Hepatobiliary and Pancreas Procedures
-                result.setDC("0707");
+                result = "0707";
                 break;
             }
             case "7PH": {//ERCP with Therapeutic Procedures 7PH
-                result.setDC("0708");
+                result = "0708";
                 break;
             }
         }

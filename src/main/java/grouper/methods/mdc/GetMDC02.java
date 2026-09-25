@@ -128,9 +128,7 @@ public class GetMDC02 {
                     drgResult.setDC("0203");
                 } else if (mdcprocedureCounter > 0) { // MDC Procedure
                     int min = hierarvalue.get(0);
-                    //Loop through the array  
                     for (int i = 0; i < hierarvalue.size(); i++) {
-                        //Compare elements of array with min  
                         if (hierarvalue.get(i) < min) {
                             min = hierarvalue.get(i);
                         }
@@ -142,7 +140,6 @@ public class GetMDC02 {
                 } else { //Principal Diagnosis
                     drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
                 }
-                //START HERE
             } else if (pdcprocedureCounter2PA > 0) {  //Retina Procedure
                 drgResult.setDC("0201");
             } else if (pdcprocedureCounter2PJ > 0) {//Keratoplasty
@@ -150,15 +147,12 @@ public class GetMDC02 {
             } else if (pdcprocedureCounter2PH > 0) { //Other mech Vitrectomy
                 drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
             } else if (pdcprocedureCounter2PB > 0) { //Enuc & Orbit Procedure
-                //PDx Malignancy (PDC 2E)
                 drgResult.setDC(MalignantCount > 0 ? "0210" : "0202");
             } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
                 drgResult.setDC("0203");
             } else if (mdcprocedureCounter > 0) { // MDC Procedure
-                int min = hierarvalue.get(0);
-                //Loop through the array  
+                int min = hierarvalue.get(0); 
                 for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }
@@ -228,24 +222,30 @@ public class GetMDC02 {
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
-            case 1:
+            case 1: {
                 dc = "2601";
                 break;
-            case 2:
+            }
+            case 2: {
                 dc = "2602";
                 break;
-            case 3:
+            }
+            case 3: {
                 dc = "2603";
                 break;
-            case 4:
+            }
+            case 4: {
                 dc = "2604";
                 break;
-            case 5:
+            }
+            case 5: {
                 dc = "2605";
                 break;
-            case 6:
+            }
+            case 6: {
                 dc = "2606";
                 break;
+            }
         }
         return dc;
     }
@@ -256,21 +256,26 @@ public class GetMDC02 {
             final String admission) {
         String dc = "";
         switch (pdc) {
-            case "2C"://Hyphema and Trauma
+            case "2C": {//Hyphema and Trauma
                 dc = "0250";
                 break;
-            case "2A"://Acute Major Infections
+            }
+            case "2A": {//Acute Major Infections
                 dc = (utility.ComputeYear(dbate, admission) > 54) ? "0251" : "0252";
                 break;
-            case "2E"://Malignancy
+            }
+            case "2E": {//Malignancy
                 dc = "0255";
                 break;
-            case "2B"://Neurological & Vasc Disorders
+            }
+            case "2B": {//Neurological & Vasc Disorders
                 dc = "0253";
                 break;
-            case "2D": //Other Disorders of the Eye PDC 2D
+            }
+            case "2D": {//Other Disorders of the Eye PDC 2D
                 dc = "0254";
                 break;
+            }
         }
         return dc;
 
