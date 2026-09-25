@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -146,6 +148,9 @@ public class GetMDC14 {
             K14Counter += pdxMalignant.PDxMalignancy(datasource, SchemaName, PrimayDiag, "14K").isSuccess() ? 1 : 0;
             L14Counter += pdxMalignant.PDxMalignancy(datasource, SchemaName, PrimayDiag, "14L").isSuccess() ? 1 : 0;
             J14Counter += pdxMalignant.PDxMalignancy(datasource, SchemaName, PrimayDiag, "14J").isSuccess() ? 1 : 0;
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
             //AREA 3
             int area1 = dxax14Gx + Counter14GX;
             int area2 = dxax14Hx + Counter14HX;
@@ -165,17 +170,15 @@ public class GetMDC14 {
                 switch (drgResult.getPDC()) {
                     case "14A": {//Labour and Delivery
                         //COTNINUE TO 1
-                        System.out.println(ORProcedureCounterList);
-//                        System.out.println(Collections.max(ORProcedureCounterList));
-//                        String dc = this.processOne(
-//                                Counter14PBX,
-//                                Counter14PCX,
-//                                Counter14PGX,
-//                                Counter14PJX,
-//                                UnralatedORProcedure,
-//                                Counter14PHX,
-//                                Collections.max(ORProcedureCounterList));
-//                        drgResult.setDC(dc);
+                        String dc = this.processOne(
+                                Counter14PBX,
+                                Counter14PCX,
+                                Counter14PGX,
+                                Counter14PJX,
+                                UnralatedORProcedure,
+                                Counter14PHX,
+                                max);
+                        drgResult.setDC(dc);
                         break;
                     }
                     case "14B": {//Pregnancy
@@ -215,18 +218,16 @@ public class GetMDC14 {
                     }
                     case "14C": {//PP/Post Abort/Deli
                         if (Counter14BX > 0) {
-                            
-                            System.out.println(Collections.max(ORProcedureCounterList));
                             //COTNINUE TO 1
-//                            String dc = this.processOne(
-//                                    Counter14PBX,
-//                                    Counter14PCX,
-//                                    Counter14PGX,
-//                                    Counter14PJX,
-//                                    UnralatedORProcedure,
-//                                    Counter14PHX,
-//                                    Collections.max(ORProcedureCounterList));
-//                            drgResult.setDC(dc);
+                            String dc = this.processOne(
+                                    Counter14PBX,
+                                    Counter14PCX,
+                                    Counter14PGX,
+                                    Counter14PJX,
+                                    UnralatedORProcedure,
+                                    Counter14PHX,
+                                    max);
+                            drgResult.setDC(dc);
                         } else {
                             //COTNINUE TO 2
                             MDCCodeOptimize getResult = this.processTwo(ORProcedureCounter, Counter14PDX);
