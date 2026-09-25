@@ -22,92 +22,65 @@ public class ValidatePCCL {
     private final Logger logger = (Logger) LogManager.getLogger(ValidatePCCL.class);
     private final Utility utility = new Utility();
 
-    //Get Validate PCCL Value
     public DRGWSResult ValidatePCCL(
             final DataSource datasource,
-            final String SchemaName,
+            final String schemaName,
             final String dcs,
             final String drgs) {
+
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
+        // Guard clause: Validate input length before extracting substring
+        if (drgs == null || drgs.length() < 5) {
+            return result;
+        }
         try {
             DRG getDrg = new DRG();
-            String cclval = drgs.substring(5 - 1, 5);
-            switch (Integer.parseInt(cclval)) {
-                case 4: {
-                    DRGWSResult drgname3 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "3");
-                    DRGWSResult drgname222 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "2");
-                    DRGWSResult drgname111 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "1");
-                    if (drgname3.isSuccess()) {
-                        result.setResult("3");
-                    } else if (drgname222.isSuccess()) {
-                        result.setResult("2");
-                    } else if (drgname111.isSuccess()) {
-                        result.setResult("1");
-                    }
-                    result.setSuccess(true);
+            int cclVal = Integer.parseInt(drgs.substring(4, 5));
+            // Define search order priority based on input value
+            String[] lookupSuffixes;
+            switch (cclVal) {
+                case 4:
+                    lookupSuffixes = new String[]{"3", "2", "1"};
                     break;
-                }
-                case 3: {
-                    DRGWSResult drgname4 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "4");
-                    DRGWSResult drgname2 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "2");
-                    DRGWSResult drgname11 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "1");
-                    if (drgname4.isSuccess()) {
-                        result.setResult("4");
-                    } else if (drgname2.isSuccess()) {
-                        result.setResult("2");
-                    } else if (drgname11.isSuccess()) {
-                        result.setResult("1");
-                    }
-                    result.setSuccess(true);
+                case 3:
+                    lookupSuffixes = new String[]{"4", "2", "1"};
                     break;
-                }
-                case 2: {
-                    DRGWSResult drgname333 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "3");
-                    DRGWSResult drgname444 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "4");
-                    DRGWSResult drgname1 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "1");
-                    if (drgname333.isSuccess()) {
-                        result.setResult("3");
-                    } else if (drgname444.isSuccess()) {
-                        result.setResult("4");
-                    } else if (drgname1.isSuccess()) {
-                        result.setResult("1");
-                    }
-                    result.setSuccess(true);
+                case 2:
+                    lookupSuffixes = new String[]{"3", "4", "1"};
                     break;
-                }
-                case 1: {
-                    DRGWSResult drgname22 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "2");
-                    DRGWSResult drgname33 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "3");
-                    DRGWSResult drgname44 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "4");
-                    if (drgname22.isSuccess()) {
-                        result.setResult("2");
-                    } else if (drgname33.isSuccess()) {
-                        result.setResult("3");
-                    } else if (drgname44.isSuccess()) {
-                        result.setResult("4");
-                    }
-                    result.setSuccess(true);
+                case 1:
+                    lookupSuffixes = new String[]{"2", "3", "4"};
                     break;
-                }
-                case 0: {
-                    DRGWSResult drgname0 = getDrg.DRG(datasource, SchemaName, dcs, dcs + "0");
-                    if (drgname0.isSuccess()) {
-                        result.setResult("0");
-                    }
-                    result.setSuccess(true);
+                case 0:
+                    lookupSuffixes = new String[]{"0"};
                     break;
+                default:
+                    return result; // Value outside 0-4 range
+            }
+            // Short-circuit execution: Query database sequentially until a match is found
+            for (String suffix : lookupSuffixes) {
+                DRGWSResult drgNameResult = getDrg.DRG(datasource, schemaName, dcs, dcs + suffix);
+                if (drgNameResult != null && drgNameResult.isSuccess()) {
+                    result.setResult(suffix);
+                    break; // Stop querying once the highest priority match succeeds
                 }
             }
 
+            // Special case handling for 0 when the lookup fails
+            if (cclVal == 0 && result.getResult().isEmpty()) {
+                result.setResult("0");
+            }
+
+            result.setSuccess(true);
+
         } catch (NumberFormatException ex) {
             result.setMessage(ex.toString());
-            logger.info("Executing ValidatePCCL Method");
             logger.error("Error in ValidatePCCL Method : {}", ex.getMessage(), ex);
         }
+
         return result;
     }
-
 }

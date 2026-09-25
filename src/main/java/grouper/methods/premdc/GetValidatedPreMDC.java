@@ -165,12 +165,9 @@ public class GetValidatedPreMDC {
                 DRGWSResult getBmdcResult = checkBmdc.GetBMDC(datasource, schemaName, grouperParameter.getPdx());
                 boolean isBmdcSuccess = getBmdcResult.isSuccess();
                 BMDCPreMDCResult bmdcResult = isBmdcSuccess ? utility.objectMapper().readValue(getBmdcResult.getResult(), BMDCPreMDCResult.class) : null;
-
                 int computedLos = utility.ComputeLOS(grouperParameter.getAdmissionDate(),
                         timeAdm, grouperParameter.getDischargeDate(), timeDis);
                 int computedTime = utility.ComputeTime(grouperParameter.getAdmissionDate(),
-                        timeAdm, grouperParameter.getDischargeDate(), timeDis);
-                int minutesCompute = utility.MinutesCompute(grouperParameter.getAdmissionDate(),
                         timeAdm, grouperParameter.getDischargeDate(), timeDis);
                 int computedYearLos = utility.ComputeYear(grouperParameter.getAdmissionDate(),
                         grouperParameter.getDischargeDate());

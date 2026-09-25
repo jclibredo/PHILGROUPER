@@ -55,7 +55,10 @@ public class ProcessGrouperParameter {
         String path = utility.GetString("FilePathReports").getResult();
         try {
             DRGOutput drgresult = utility.DRGOutput();
+            AgeConfictValidation ageValidation = new AgeConfictValidation();
             GrouperParameter grouper = utility.GrouperParameter();
+            GetICD10 geti10 = new GetICD10();
+            GenderConfictValidation sexValidation = new GenderConfictValidation();
             //TIME FORMAT CONVERTER
             grouper.setResult_id(grouperparameter.getResult_id());
             grouper.setExpireTime(grouperparameter.getExpireTime());
@@ -125,8 +128,9 @@ public class ProcessGrouperParameter {
                     newsdxList.add(sdxList.get(m));
                 }
                 for (int u = 0; u < sdxList.size(); u++) {
-                    if (sdxList.get(u).equals(grouperparameter.getPdx())) {
-                        newsdxList.remove(sdxList.get(u));
+                    String sdxCode = sdxList.get(u).trim();
+                    if (sdxCode.equals(grouperparameter.getPdx())) {
+                        newsdxList.remove(sdxCode);
                     } else {
                         if (!grouperparameter.getBirthDate().isEmpty()
                                 && !grouperparameter.getAdmissionDate().isEmpty()) {
@@ -142,23 +146,23 @@ public class ProcessGrouperParameter {
                                 if (!grouper.getBirthDate().isEmpty() && !grouper.getAdmissionDate().isEmpty()) {
                                     if (utility.ComputeYear(grouper.getBirthDate(), grouper.getAdmissionDate()) >= 0
                                             && utility.ComputeDay(grouper.getBirthDate(),
-                                                    grouper.getAdmissionDate()) >= 0 && !sdxList.get(u).isEmpty()) {
-                                        DRGWSResult SDxResult = new GetICD10().GetICD10(datasource, SchemaName, sdxList.get(u).toUpperCase().trim());
+                                                    grouper.getAdmissionDate()) >= 0 && !sdxCode.isEmpty()) {
+                                        DRGWSResult SDxResult = geti10.GetICD10(datasource, SchemaName, sdxCode);
                                         if (SDxResult.isSuccess()) {
                                             //CHECKING FOR AGE CONFLICT
-                                            DRGWSResult getAgeConfictResult = new AgeConfictValidation().AgeConfictValidation(datasource, SchemaName, sdxList.get(u).toUpperCase().trim(),
+                                            DRGWSResult getAgeConfictResult = ageValidation.AgeConfictValidation(datasource, SchemaName, sdxCode,
                                                     String.valueOf(daysfinal), year);
                                             if (!getAgeConfictResult.isSuccess()) {
-                                                newsdxList.remove(sdxList.get(u));
+                                                newsdxList.remove(sdxCode);
                                             }
                                             //CHECKING FOR GENDER CONFLICT
-                                            DRGWSResult getSexConfictResult = new GenderConfictValidation().GenderConfictValidation(datasource, SchemaName, sdxList.get(u),
+                                            DRGWSResult getSexConfictResult = sexValidation.GenderConfictValidation(datasource, SchemaName, sdxCode,
                                                     grouper.getGender());
                                             if (!getSexConfictResult.isSuccess()) {
-                                                newsdxList.remove(sdxList.get(u));
+                                                newsdxList.remove(sdxCode);
                                             }
                                         } else {
-                                            newsdxList.remove(sdxList.get(u));
+                                            newsdxList.remove(sdxCode);
                                         }
                                     }
                                 }

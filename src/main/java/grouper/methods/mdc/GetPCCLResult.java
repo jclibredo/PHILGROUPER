@@ -116,7 +116,7 @@ public class GetPCCLResult {
             String currentDrg = drgResult.getDRG();
             String dc = drgResult.getDC();
             String sdxdcfinder = drgResult.getSDXFINDER() != null ? drgResult.getSDXFINDER() : "";
-          
+            ValidatePCCL validatePCCL = new ValidatePCCL();
             if (currentDrg == null) {
                 drgResult.setDRGName("Grouper Error");
                 if (utility.isValidDCList(dc)) {
@@ -124,7 +124,6 @@ public class GetPCCLResult {
                     drgResult.setDRG(fallbackDrg);
                     drgResult.setPrepccl("9");
                     drgResult.setFinalpccl("9");
-
                     DRGWSResult drgCheckResult = checkDRG.DRG(datasource, schemaName, dc, fallbackDrg);
                     drgResult.setDRGName(drgCheckResult.getMessage());
                 } else {
@@ -145,13 +144,10 @@ public class GetPCCLResult {
                         drgResult.setDRGName(drgCheckResult.getMessage());
                         drgResult.setFinalpccl(getLastChar(constructedDrg));
                     } else {
-                        ValidatePCCL validatePCCL = new ValidatePCCL();
                         DRGWSResult drgValues = validatePCCL.ValidatePCCL(datasource, schemaName, dc, constructedDrg);
-
                         if (drgValues.isSuccess()) {
                             String validDrgCode = dc + drgValues.getResult();
                             drgResult.setDRG(validDrgCode);
-
                             DRGWSResult drgNames = checkDRG.DRG(datasource, schemaName, dc, validDrgCode);
                             if (drgNames.isSuccess()) {
                                 drgResult.setDRGName(drgNames.getMessage());

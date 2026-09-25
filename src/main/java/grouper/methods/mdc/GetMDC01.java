@@ -151,7 +151,6 @@ public class GetMDC01 {
                         min = hierarvalue.get(i);
                     }
                 }
-                System.out.println(pdclist.get(hierarvalue.indexOf(min)));
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 String getResult = this.mdcProcedure(
                         drgResult.getPDC(),
