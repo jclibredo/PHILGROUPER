@@ -48,19 +48,16 @@ public class GetValidatedPreMDC {
             final DataSource datasource,
             final String schemaName,
             final GrouperParameter grouperParameter) {
-
         DRGWSResult result = utility.DRGWSResult();
         result.setSuccess(false);
         result.setMessage("");
         result.setResult("");
-
-        String pdx = "";
-        TRAUMAICD10 checkTraumaICD10 = new TRAUMAICD10();
-        TRAUMAICD9CM checkTraumaICD9 = new TRAUMAICD9CM();
-        Endovasc endoVasc = new Endovasc();
-        AX checkAx = new AX();
-
         try {
+            String pdx = "";
+            TRAUMAICD10 checkTraumaICD10 = new TRAUMAICD10();
+            TRAUMAICD9CM checkTraumaICD9 = new TRAUMAICD9CM();
+            Endovasc endoVasc = new Endovasc();
+            AX checkAx = new AX();
             // 1. Parse Parameters cleanly and eliminate trailing whitespaces safely
             List<String> procedureList = grouperParameter.getProc() != null && !grouperParameter.getProc().trim().isEmpty()
                     ? Arrays.stream(grouperParameter.getProc().split(",")).map(String::trim).collect(Collectors.toList())
@@ -182,7 +179,7 @@ public class GetValidatedPreMDC {
                     drgResult.setDC("2650");
                     drgResult.setDRGName("Invalid Age");
                 } else if (computedLos <= 0
-                        && computedTime < 24
+                        && computedTime < 6
                         && computedYearLos <= 0) {
                     int hoursLimit = isBmdcSuccess ? 2 : 6;
                     if (computedTime < hoursLimit) {

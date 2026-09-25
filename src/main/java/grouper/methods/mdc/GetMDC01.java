@@ -68,6 +68,9 @@ public class GetMDC01 {
             int mdcprocedureCounter = 0;
             int ORProcedureCounter = 0;
             int Counter1PBX = 0;
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
+            GetPDC getPdc = new GetPDC();
+            ORProcedure orProc = new ORProcedure();
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String sdxCode = SecondaryList.get(a).trim();
                 CartSDx += checkAX.AX(datasource, SchemaName, "99BX", sdxCode).isSuccess() ? 1 : 0;
@@ -81,18 +84,18 @@ public class GetMDC01 {
                 CartProc += checkAX.AX(datasource, SchemaName, "99PEX", procS).isSuccess() ? 1 : 0;
                 CaCRxProc += checkAX.AX(datasource, SchemaName, "99PFX", procS).isSuccess() ? 1 : 0;
                 PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource, SchemaName, procS, mdcWithoutZeros, grouperparameter.getGender());
+                DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource, SchemaName, procS, mdcWithoutZeros, grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource, SchemaName, mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
                         PDC hiarresult = utility.objectMapper().readValue(pdcresult.getResult(), PDC.class);
                         hierarvalue.add(hiarresult.getHIERAR());
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                DRGWSResult getOrProc = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult getOrProc = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (getOrProc.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(getOrProc.getResult()));
@@ -148,6 +151,7 @@ public class GetMDC01 {
                         min = hierarvalue.get(i);
                     }
                 }
+                System.out.println(pdclist.get(hierarvalue.indexOf(min)));
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 String getResult = this.mdcProcedure(
                         drgResult.getPDC(),
