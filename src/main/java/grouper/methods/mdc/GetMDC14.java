@@ -165,7 +165,8 @@ public class GetMDC14 {
                 switch (drgResult.getPDC()) {
                     case "14A": {//Labour and Delivery
                         //COTNINUE TO 1
-                        System.out.println(Collections.max(ORProcedureCounterList));
+                        System.out.println(ORProcedureCounterList);
+//                        System.out.println(Collections.max(ORProcedureCounterList));
 //                        String dc = this.processOne(
 //                                Counter14PBX,
 //                                Counter14PCX,
@@ -214,6 +215,7 @@ public class GetMDC14 {
                     }
                     case "14C": {//PP/Post Abort/Deli
                         if (Counter14BX > 0) {
+                            
                             System.out.println(Collections.max(ORProcedureCounterList));
                             //COTNINUE TO 1
 //                            String dc = this.processOne(
