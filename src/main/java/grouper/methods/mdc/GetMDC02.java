@@ -107,7 +107,8 @@ public class GetMDC02 {
             }
             CounterPDx2BX += checkAX.AX(datasource, SchemaName, "2BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
             MalignantCount += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "2E".trim()).isSuccess() ? 1 : 0;
-            //Condition Start this area   
+            //Condition Start this area  
+            long age = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(
                         grouperparameter.getAdmissionDate(),
@@ -122,17 +123,13 @@ public class GetMDC02 {
                 } else if (pdcprocedureCounter2PJ > 0) {//Keratoplasty
                     drgResult.setDC("0209");
                 } else if (pdcprocedureCounter2PH > 0) { //Other mech Vitrectomy
-//                    drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
-                    if (Counter2PDX > 0) {
-                        drgResult.setDC("0206");
-                    } else {
-                        drgResult.setDC("0201");
-                    }
+                    drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
                 } else if (pdcprocedureCounter2PB > 0) { //Enuc & Orbit Procedure
                     drgResult.setDC(MalignantCount > 0 ? "0210" : "0202");
                 } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
                     drgResult.setDC("0203");
                 } else if (mdcprocedureCounter > 0) { // MDC Procedure
+                    System.out.println("MDC PROCEDURE IS HERE ");
                     int min = hierarvalue.get(0);
                     for (int i = 0; i < hierarvalue.size(); i++) {
                         if (hierarvalue.get(i) < min) {
@@ -144,24 +141,20 @@ public class GetMDC02 {
                 } else if (ORProcedureCounter > 0) { //Check if OR Procedure
                     drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
                 } else { //Principal Diagnosis
-                    drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+                    drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), age));
                 }
             } else if (pdcprocedureCounter2PA > 0) {  //Retina Procedure
                 drgResult.setDC("0201");
             } else if (pdcprocedureCounter2PJ > 0) {//Keratoplasty
                 drgResult.setDC("0209");
             } else if (pdcprocedureCounter2PH > 0) { //Other mech Vitrectomy
-                if (Counter2PDX > 0) {
-                    drgResult.setDC("0206");
-                } else {
-                    drgResult.setDC("0201");
-                }
-//                drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
+                drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
             } else if (pdcprocedureCounter2PB > 0) { //Enuc & Orbit Procedure
                 drgResult.setDC(MalignantCount > 0 ? "0210" : "0202");
             } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
                 drgResult.setDC("0203");
             } else if (mdcprocedureCounter > 0) { // MDC Procedure
+                System.out.println("MDC PROCEDURE IS HERE ");
                 int min = hierarvalue.get(0);
                 for (int i = 0; i < hierarvalue.size(); i++) {
                     if (hierarvalue.get(i) < min) {
@@ -173,9 +166,10 @@ public class GetMDC02 {
             } else if (ORProcedureCounter > 0) { //Check if OR Procedure
                 drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
             } else { //Principal Diagnosis
-                drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate()));
+                drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), age));
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            System.out.println(utility.objectMapper().writeValueAsString(drgResult));
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
@@ -263,8 +257,7 @@ public class GetMDC02 {
 
     private String principalDaignosis(
             final String pdc,
-            final String dbate,
-            final String admission) {
+            final Long age) {
         String dc = "";
         switch (pdc) {
             case "2C": {//Hyphema and Trauma
@@ -272,7 +265,7 @@ public class GetMDC02 {
                 break;
             }
             case "2A": {//Acute Major Infections
-                dc = (utility.ComputeYear(dbate, admission) > 54) ? "0251" : "0252";
+                dc = (age > 54) ? "0251" : "0252";
                 break;
             }
             case "2E": {//Malignancy
@@ -289,7 +282,6 @@ public class GetMDC02 {
             }
         }
         return dc;
-
     }
 
 }

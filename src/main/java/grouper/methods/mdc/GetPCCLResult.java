@@ -111,7 +111,6 @@ public class GetPCCLResult {
         result.setResult("");
         result.setSuccess(false);
         try {
-            System.out.println("DC IS HERE : " + drgResult.getDC());
             DRG checkDRG = new DRG();
             String currentDrg = drgResult.getDRG();
             String dc = drgResult.getDC();
@@ -144,8 +143,6 @@ public class GetPCCLResult {
                         drgResult.setDRGName(drgCheckResult.getMessage());
                         drgResult.setFinalpccl(getLastChar(constructedDrg));
                     } else {
-
-                        System.out.println("DC :" + dc + " DRG :" + constructedDrg);
                         DRGWSResult drgValues = validatePCCL.ValidatePCCL(datasource, schemaName, dc, constructedDrg);
                         if (drgValues.isSuccess()) {
                             String validDrgCode = dc + drgValues.getResult();

@@ -32,7 +32,6 @@ public class ValidatePCCL {
         result.setResult("");
         result.setSuccess(false);
         // Guard clause: Validate input length before extracting substring
-        System.out.println("DRG: " + drgs);
         if (drgs == null || drgs.length() < 5) {
             return result;
         }
