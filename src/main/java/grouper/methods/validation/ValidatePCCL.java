@@ -35,7 +35,6 @@ public class ValidatePCCL {
         if (drgs == null || drgs.length() < 5) {
             return result;
         }
-
         try {
             DRG getDrg = new DRG();
             int cclVal = Integer.parseInt(drgs.substring(4, 5));
@@ -68,19 +67,15 @@ public class ValidatePCCL {
                     break; // Stop querying once the highest priority match succeeds
                 }
             }
-
             // Special case handling for 0 when the lookup fails
             if (cclVal == 0 && result.getResult().isEmpty()) {
                 result.setResult("0");
             }
-
             result.setSuccess(true);
-
         } catch (NumberFormatException ex) {
             result.setMessage("ValidatePCCL " + ex.toString());
             logger.error("Error in ValidatePCCL Method : {}", ex.getMessage(), ex);
         }
-
         return result;
     }
 }

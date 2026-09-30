@@ -91,10 +91,10 @@ public class GetMDC02 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-                pdcprocedureCounter2PA += enDova.Endovasc(datasource, SchemaName, procS, "2PA".trim(), mdcWithoutZeros).isSuccess() ? 1 : 0;
-                pdcprocedureCounter2PJ += enDova.Endovasc(datasource, SchemaName, procS, "2PJ".trim(), mdcWithoutZeros).isSuccess() ? 1 : 0;
-                pdcprocedureCounter2PH += enDova.Endovasc(datasource, SchemaName, procS, "2PH".trim(), mdcWithoutZeros).isSuccess() ? 1 : 0;
-                pdcprocedureCounter2PB += enDova.Endovasc(datasource, SchemaName, procS, "2PB".trim(), mdcWithoutZeros).isSuccess() ? 1 : 0;
+                pdcprocedureCounter2PA += enDova.Endovasc(datasource, SchemaName, procS, "2PA", mdcWithoutZeros).isSuccess() ? 1 : 0;
+                pdcprocedureCounter2PJ += enDova.Endovasc(datasource, SchemaName, procS, "2PJ", mdcWithoutZeros).isSuccess() ? 1 : 0;
+                pdcprocedureCounter2PH += enDova.Endovasc(datasource, SchemaName, procS, "2PH", mdcWithoutZeros).isSuccess() ? 1 : 0;
+                pdcprocedureCounter2PB += enDova.Endovasc(datasource, SchemaName, procS, "2PB", mdcWithoutZeros).isSuccess() ? 1 : 0;
                 Counter2PDX += checkAX.AX(datasource, SchemaName, "2PDX", procS).isSuccess() ? 1 : 0;
                 PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
                 PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
@@ -106,7 +106,7 @@ public class GetMDC02 {
                 }
             }
             CounterPDx2BX += checkAX.AX(datasource, SchemaName, "2BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
-            MalignantCount += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "2E".trim()).isSuccess() ? 1 : 0;
+            MalignantCount += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "2E").isSuccess() ? 1 : 0;
             //Condition Start this area  
             long age = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             if (PDXCounter99 > 0) {
@@ -129,7 +129,6 @@ public class GetMDC02 {
                 } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
                     drgResult.setDC("0203");
                 } else if (mdcprocedureCounter > 0) { // MDC Procedure
-                    System.out.println("MDC PROCEDURE IS HERE ");
                     int min = hierarvalue.get(0);
                     for (int i = 0; i < hierarvalue.size(); i++) {
                         if (hierarvalue.get(i) < min) {
@@ -154,7 +153,6 @@ public class GetMDC02 {
             } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
                 drgResult.setDC("0203");
             } else if (mdcprocedureCounter > 0) { // MDC Procedure
-                System.out.println("MDC PROCEDURE IS HERE ");
                 int min = hierarvalue.get(0);
                 for (int i = 0; i < hierarvalue.size(); i++) {
                     if (hierarvalue.get(i) < min) {
@@ -169,7 +167,6 @@ public class GetMDC02 {
                 drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), age));
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            System.out.println(utility.objectMapper().writeValueAsString(drgResult));
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
@@ -283,5 +280,4 @@ public class GetMDC02 {
         }
         return dc;
     }
-
 }

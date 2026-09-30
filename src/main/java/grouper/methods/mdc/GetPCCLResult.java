@@ -111,13 +111,14 @@ public class GetPCCLResult {
         result.setResult("");
         result.setSuccess(false);
         try {
+            DRGDetermination drgDetermination = new DRGDetermination();
             DRG checkDRG = new DRG();
             String currentDrg = drgResult.getDRG();
             String dc = drgResult.getDC();
             String sdxdcfinder = drgResult.getSDXFINDER() != null ? drgResult.getSDXFINDER() : "";
             ValidatePCCL validatePCCL = new ValidatePCCL();
             if (currentDrg == null) {
-                drgResult.setDRGName("Grouper Error");
+//                drgResult.setDRGName("Grouper Error");
                 if (utility.isValidDCList(dc)) {
                     String fallbackDrg = dc + "9";
                     drgResult.setDRG(fallbackDrg);
@@ -126,7 +127,6 @@ public class GetPCCLResult {
                     DRGWSResult drgCheckResult = checkDRG.DRG(datasource, schemaName, dc, fallbackDrg);
                     drgResult.setDRGName(drgCheckResult.getMessage());
                 } else {
-                    DRGDetermination drgDetermination = new DRGDetermination();
                     String sdxFinalList = drgDetermination.CleanSDxDCDetermination(
                             datasource,
                             schemaName,
