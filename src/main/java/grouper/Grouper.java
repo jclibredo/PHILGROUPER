@@ -6,16 +6,21 @@
 package grouper;
 
 import grouper.methods.premdc.ProcessGrouperParameter;
+import grouper.methods.validation.CodeConverter;
 import grouper.methods.validation.GetGrouper;
+import grouper.structures.ConverterStructure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -132,6 +137,63 @@ public class Grouper {
             }
         }
         return result;
+    }
+
+    @POST
+    @Path("CodeConverter")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult CodeConverter(final List<ConverterStructure> converterData) {
+        DRGWSResult result = utility.DRGWSResult();
+        CodeConverter converter = new CodeConverter();
+        if (dynamicSchema.isSuccess() && utility.GetString("FilePathReports").isSuccess()) {
+            try {
+                for (int g = 0; g < converterData.size(); g++) {
+                    DRGWSResult getResult = converter.RVSCodeConverter(datasource, dynamicSchema.getResult(), converterData.get(g).getRvs());
+                    if (getResult.isSuccess()) {
+                        this.FileWriter(
+                                utility.GetString("FilePathReports").getResult(),
+                                converterData.get(g).getClaimseries(),
+                                converterData.get(g).getRvs(),
+                                getResult.getResult());
+                    }
+                }
+                result.setMessage("RVS Code Converted Successfully");
+                result.setSuccess(true);
+            } catch (Exception ex) {
+                result.setMessage("Something went wrong");
+                logger.info("Executing ProcessGrouperParameter");
+                logger.error("Error in ProcessGrouperParameter: {}", ex.getMessage(), ex);
+            }
+        } else {
+            result.setMessage("Something went wrong");
+        }
+        return result;
+    }
+
+    public void FileWriter(String path, String series, String rvs, String proc) {
+        try {
+            FileReader fr = new FileReader(path);
+            ArrayList<String> oldContent;
+            try (BufferedReader br = new BufferedReader(fr)) {
+                String line;
+                oldContent = new ArrayList<>();
+                while ((line = br.readLine()) != null) {
+                    oldContent.add(line);
+                }
+            }
+            try (PrintWriter pw = new PrintWriter(path)) {
+                for (int a = 0; a < oldContent.size(); a++) {
+                    pw.write(oldContent.get(a) + "\n");
+                }
+                pw.write(series + "|" + rvs + "|" + proc + "\n");
+                pw.flush();
+
+            }
+        } catch (IOException ex) {
+            logger.info("Executing File writer Method");
+            logger.error("Error in File writer Method : {}", ex.getMessage(), ex);
+        }
     }
 
     @POST

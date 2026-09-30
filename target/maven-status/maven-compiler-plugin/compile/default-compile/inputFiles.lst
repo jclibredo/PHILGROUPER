@@ -11,6 +11,7 @@ D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\GetBMDC
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\GET_CONVERTER.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\premdc\GetValidatedPreMDC.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\GetICD10PreMDC.java
+D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\ConverterStructure.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\CleanSDxDCDeterminationPLSQL.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC12.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\SdxDcHelper.java
@@ -71,7 +72,6 @@ D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\PDCHierar.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC03.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\DC.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\GetCCLValue.java
-D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\CodeConverter.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\MDCProcedureMethod.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC15.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC18.java

@@ -12,14 +12,14 @@ import lombok.Data;
  * @author MINOSUN
  */
 @Data
-public class CodeConverter {
-    public CodeConverter(){
+public class ConverterStructure {
+
+    public ConverterStructure() {
     }
-    
-    private String id;
-    private String rvs_code;
+
+    private String claimseries;
+    private String rvs;
     private String icd9cm;
     private String category;
-    
-    
+
 }

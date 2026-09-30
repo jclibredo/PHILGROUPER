@@ -1,4 +1,3 @@
-grouper\structures\CodeConverter.class
 grouper\methods\mdc\GetMDC03.class
 grouper\methods\mdc\GetMDC13.class
 grouper\methods\mdc\GetMDC23.class
@@ -112,6 +111,7 @@ grouper\methods\mdc\GetMDC05.class
 grouper\methods\mdc\GetMDC28.class
 grouper\structures\MDC.class
 grouper\methods\validation\GetWarningError.class
+grouper\structures\ConverterStructure.class
 grouper\methods\premdc\ValidateFindMDC$SDxPDx.class
 grouper\structures\DRGRESULT.class
 grouper\Grouper.class

@@ -22,25 +22,25 @@ public class GrouperParameter {
 
 //    @JsonProperty("expiretime")
     private String ExpireTime;
-    
+
 //    @JsonProperty("expiredate")
     private String ExpiredDate;
-    
+
 //    @JsonProperty("timeofbirth")
     private String TimeOfBirth;
-    
+
 //    @JsonProperty("prepccl")
     private String prepccl;
-    
+
 //    @JsonProperty("finalpccl")
     private String finalpccl;
-    
+
 //    @JsonProperty("warningerror")
     private String warningerror;
-    
+
 //    @JsonProperty("idseries")
     private String idseries;
-    
+
 //    @JsonProperty("result_id")
     private String result_id;
 
@@ -55,6 +55,9 @@ public class GrouperParameter {
 
 //    @JsonProperty("proc")
     private String Proc;
+
+//    @JsonProperty("rvs")
+    private String rvs;
 
 //    @JsonProperty("birthDate")
     private String BirthDate;
