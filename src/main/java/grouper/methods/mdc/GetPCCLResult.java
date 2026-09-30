@@ -111,7 +111,7 @@ public class GetPCCLResult {
         result.setResult("");
         result.setSuccess(false);
         try {
-
+            System.out.println("DC IS HERE : " + drgResult.getDC());
             DRG checkDRG = new DRG();
             String currentDrg = drgResult.getDRG();
             String dc = drgResult.getDC();
@@ -144,6 +144,8 @@ public class GetPCCLResult {
                         drgResult.setDRGName(drgCheckResult.getMessage());
                         drgResult.setFinalpccl(getLastChar(constructedDrg));
                     } else {
+
+                        System.out.println("DC :" + dc + " DRG :" + constructedDrg);
                         DRGWSResult drgValues = validatePCCL.ValidatePCCL(datasource, schemaName, dc, constructedDrg);
                         if (drgValues.isSuccess()) {
                             String validDrgCode = dc + drgValues.getResult();
@@ -158,6 +160,7 @@ public class GetPCCLResult {
                             drgResult.setFinalpccl("X");
                             drgResult.setDRGName("DRG code grouper provide not exist in the library");
                         }
+
                     }
                 }
             } else {
@@ -175,10 +178,10 @@ public class GetPCCLResult {
 
         } catch (IOException ex) {
             logger.error("JSON serialization error in GetPCCLJava: {}", ex.getMessage(), ex);
-            result.setMessage("Serialization error occurred");
+            result.setMessage("Something went wrong GET PCCL Result " + ex.getMessage());
         } catch (Exception ex) {
             logger.error("Unexpected error in GetPCCLJava: {}", ex.getMessage(), ex);
-            result.setMessage("Something went wrong");
+            result.setMessage("Something went wrong GET PCCL Result " + ex.getMessage());
         }
 
         return result;

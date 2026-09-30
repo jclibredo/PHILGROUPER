@@ -122,7 +122,12 @@ public class GetMDC02 {
                 } else if (pdcprocedureCounter2PJ > 0) {//Keratoplasty
                     drgResult.setDC("0209");
                 } else if (pdcprocedureCounter2PH > 0) { //Other mech Vitrectomy
-                    drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
+//                    drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
+                    if (Counter2PDX > 0) {
+                        drgResult.setDC("0206");
+                    } else {
+                        drgResult.setDC("0201");
+                    }
                 } else if (pdcprocedureCounter2PB > 0) { //Enuc & Orbit Procedure
                     drgResult.setDC(MalignantCount > 0 ? "0210" : "0202");
                 } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
@@ -146,7 +151,12 @@ public class GetMDC02 {
             } else if (pdcprocedureCounter2PJ > 0) {//Keratoplasty
                 drgResult.setDC("0209");
             } else if (pdcprocedureCounter2PH > 0) { //Other mech Vitrectomy
-                drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
+                if (Counter2PDX > 0) {
+                    drgResult.setDC("0206");
+                } else {
+                    drgResult.setDC("0201");
+                }
+//                drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
             } else if (pdcprocedureCounter2PB > 0) { //Enuc & Orbit Procedure
                 drgResult.setDC(MalignantCount > 0 ? "0210" : "0202");
             } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
@@ -175,7 +185,7 @@ public class GetMDC02 {
                 result = getPCCLResult;
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
+            result.setMessage("Something went wrong GetMDC02 " + ex.getMessage());
             logger.info("Executing MDC2 Method");
             logger.error("Error in MDC2 Method : {}", ex.getMessage(), ex);
         }

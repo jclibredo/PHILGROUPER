@@ -27,15 +27,16 @@ public class ValidatePCCL {
             final String schemaName,
             final String dcs,
             final String drgs) {
-
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         // Guard clause: Validate input length before extracting substring
+        System.out.println("DRG: " + drgs);
         if (drgs == null || drgs.length() < 5) {
             return result;
         }
+
         try {
             DRG getDrg = new DRG();
             int cclVal = Integer.parseInt(drgs.substring(4, 5));
@@ -77,7 +78,7 @@ public class ValidatePCCL {
             result.setSuccess(true);
 
         } catch (NumberFormatException ex) {
-            result.setMessage(ex.toString());
+            result.setMessage("ValidatePCCL " + ex.toString());
             logger.error("Error in ValidatePCCL Method : {}", ex.getMessage(), ex);
         }
 
