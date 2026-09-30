@@ -57,6 +57,7 @@ public class GetMDC06 {
             AX checkAX = new AX();
             GetPDC getPdc = new GetPDC();
             PDxMalignancy pdxMalig = new PDxMalignancy();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
             Endovasc enDov = new Endovasc();
             ORProcedure orProc = new ORProcedure();
             int CartSDx = 0;
@@ -92,7 +93,7 @@ public class GetMDC06 {
             );
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource,
                         SchemaName,
                         procS,
                         mdcWithoutZeros,

@@ -56,6 +56,7 @@ public class GetMDC05 {
             ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             AX checkAX = new AX();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
             ORProcedure orProc = new ORProcedure();
             GetPDC getPdc = new GetPDC();
             Endovasc endDovas = new Endovasc();
@@ -88,7 +89,7 @@ public class GetMDC05 {
             }
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String procS = ProcedureList.get(x).trim();
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource,
                         SchemaName,
                         procS,
                         mdcWithoutZeros,

@@ -55,6 +55,9 @@ public class GetMDC03 {
             ArrayList<Integer> hierarvalue = new ArrayList<>();
             ArrayList<String> pdclist = new ArrayList<>();
             AX checkAX = new AX();
+            GetPDC getPdc = new GetPDC();
+            MDCProcedureMethod mdcProc = new MDCProcedureMethod();
+            ORProcedure orProc = new ORProcedure();
             int Counter3PDX = 0;
             int Counter3PBX = 0;
             int CartSDx = 0;
@@ -76,14 +79,14 @@ public class GetMDC03 {
             }
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
-                DRGWSResult JoinResult = new MDCProcedureMethod().MDCProcedure(datasource,
+                DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource,
                         SchemaName,
                         procS,
                         mdcWithoutZeros, grouperparameter.getGender());
                 if (JoinResult.isSuccess()) {
                     mdcprocedureCounter++;
                     MDCProcedure mdcProcedure = utility.objectMapper().readValue(JoinResult.getResult(), MDCProcedure.class);
-                    DRGWSResult pdcresult = new GetPDC().GetPDC(datasource,
+                    DRGWSResult pdcresult = getPdc.GetPDC(datasource,
                             SchemaName,
                             mdcProcedure.getA_PDC(), drgResult.getMDC());
                     if (pdcresult.isSuccess()) {
@@ -99,7 +102,7 @@ public class GetMDC03 {
                 PCX3Proc += checkAX.AX(datasource, SchemaName, "3PCX", procS).isSuccess() ? 1 : 0;
                 PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
                 Counter3PDX += checkAX.AX(datasource, SchemaName, "3PDX", procS).isSuccess() ? 1 : 0;
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));

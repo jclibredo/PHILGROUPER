@@ -114,9 +114,7 @@ public class GetMDC01 {
                     drgResult.setDC(PCXCounter99 > 0 ? "0115" : "0116");
                 } else if (mdcprocedureCounter > 0) { //MDC Procedure
                     int min = hierarvalue.get(0);
-                    //Loop through the array  
                     for (int i = 0; i < hierarvalue.size(); i++) {
-                        //Compare elements of array with min  
                         if (hierarvalue.get(i) < min) {
                             min = hierarvalue.get(i);
                         }

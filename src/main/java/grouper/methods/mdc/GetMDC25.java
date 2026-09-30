@@ -51,7 +51,6 @@ public class GetMDC25 {
             List<String> SecondaryList = Arrays.asList(grouperparameter.getSdx().split(","));
             AX checkAX = new AX();
             //CHECKING FOR TRAUMA CODES
-            ArrayList<String> sdxfinder = new ArrayList<>();
             int mdcAsInt = Integer.parseInt(drgResult.getMDC());
             String mdcWithoutZeros = String.valueOf(mdcAsInt);
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
@@ -93,7 +92,6 @@ public class GetMDC25 {
                         pdclist.add(hiarresult.getPDC());
                     }
                 }
-
             }
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String sdxCode = SecondaryList.get(a).trim();
@@ -104,7 +102,6 @@ public class GetMDC25 {
             Counter25BXPDx += checkAX.AX(datasource, SchemaName, "25BX", grouperparameter.getPdx().trim()).isSuccess() ? 1 : 0;
             Counter25CXPDx += checkAX.AX(datasource, SchemaName, "25CX", grouperparameter.getPdx().trim()).isSuccess() ? 1 : 0;
             Counter25DXPDx += checkAX.AX(datasource, SchemaName, "25DX", grouperparameter.getPdx().trim()).isSuccess() ? 1 : 0;
-
             if (PDXCounter99 > 0) {//Trache-ostomy
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),

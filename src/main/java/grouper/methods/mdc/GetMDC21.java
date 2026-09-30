@@ -50,7 +50,6 @@ public class GetMDC21 {
             int mdcAsInt = Integer.parseInt(drgResult.getMDC());
             String mdcWithoutZeros = String.valueOf(mdcAsInt);
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
-            //CHECKING FOR TRAUMA CODES
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int ORProcedureCounter = 0;
@@ -95,9 +94,7 @@ public class GetMDC21 {
                 if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
-                        //Loop through the array  
                         for (int i = 0; i < hierarvalue.size(); i++) {
-                            //Compare elements of array with min  
                             if (hierarvalue.get(i) < min) {
                                 min = hierarvalue.get(i);
                             }
@@ -115,9 +112,7 @@ public class GetMDC21 {
 
             } else if (mdcprocedureCounter > 0) {
                 int min = hierarvalue.get(0);
-                //Loop through the array  
-                for (int i = 0; i < hierarvalue.size(); i++) {
-                    //Compare elements of array with min  
+                for (int i = 0; i < hierarvalue.size(); i++) {  
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
                     }

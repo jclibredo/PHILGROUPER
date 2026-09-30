@@ -45,8 +45,7 @@ public class GetMDC24 {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        int mdcAsInt = Integer.parseInt(drgResult.getMDC());
-        String mdcWithoutZeros = String.valueOf(mdcAsInt);
+
         try {
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             //CHECKING FOR TRAUMA CODES
@@ -70,6 +69,8 @@ public class GetMDC24 {
             AX checkAX = new AX();
             ORProcedure orProc = new ORProcedure();
             MDCProcedureMethod mdcProc = new MDCProcedureMethod();
+            int mdcAsInt = Integer.parseInt(drgResult.getMDC());
+            String mdcWithoutZeros = String.valueOf(mdcAsInt);
             GetPDC getPdc = new GetPDC();
             for (int x = 0; x < ProcedureList.size(); x++) {
                 String procS = ProcedureList.get(x).trim();

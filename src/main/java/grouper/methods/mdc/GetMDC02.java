@@ -71,6 +71,7 @@ public class GetMDC02 {
             int CounterPDx2BX = 0;
             GetPDC getPdc = new GetPDC();
             MDCProcedureMethod mdcProcess = new MDCProcedureMethod();
+            ORProcedure orProc = new ORProcedure();
             PDxMalignancy pdxMalig = new PDxMalignancy();
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
@@ -98,7 +99,7 @@ public class GetMDC02 {
                 PDXCounter99 += checkAX.AX(datasource, SchemaName, "99PDX", procS).isSuccess() ? 1 : 0;
                 PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
                 Counter2PCX += checkAX.AX(datasource, SchemaName, "2PCX", procS).isSuccess() ? 1 : 0;
-                DRGWSResult ORProcedureResult = new ORProcedure().ORProcedure(datasource, SchemaName, procS);
+                DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
@@ -151,7 +152,7 @@ public class GetMDC02 {
             } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
                 drgResult.setDC("0203");
             } else if (mdcprocedureCounter > 0) { // MDC Procedure
-                int min = hierarvalue.get(0); 
+                int min = hierarvalue.get(0);
                 for (int i = 0; i < hierarvalue.size(); i++) {
                     if (hierarvalue.get(i) < min) {
                         min = hierarvalue.get(i);
