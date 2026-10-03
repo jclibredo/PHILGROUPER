@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -142,6 +144,10 @@ public class GetMDC04 {
                 CounterPdx4BX++;
             }
             boolean hasQualifyingCondition = PDXCounter99 > 0 || Counter4BX > 0 || CounterPdx4BX > 0;
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//            pdclist.sort(Collections.reverseOrder());
             if (hasQualifyingCondition) {
                 long los = utility.ComputeLOS(
                         grouperparameter.getAdmissionDate(),
@@ -168,7 +174,7 @@ public class GetMDC04 {
                     drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                     drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
                 } else if (ORProcedureCounter > 0) {
-                    drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                    drgResult.setDC(this.orProcedure(max));
                 } else {
                     String dc = this.principalDaignosis(
                             drgResult.getPDC(),
@@ -191,7 +197,7 @@ public class GetMDC04 {
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -204,8 +210,8 @@ public class GetMDC04 {
                         PBX99Proc);
                 drgResult.setDC(dc);
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -102,6 +104,10 @@ public class GetMDC01 {
                 }
                 Counter1PBX += checkAX.AX(datasource, SchemaName, "1PBX", procS).isSuccess() ? 1 : 0;
             }
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//            pdclist.sort(Collections.reverseOrder());
             // THIS AREA WILL START STATEMENT TO FIND DC FOR MDC 1
             if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
                 long los = utility.ComputeLOS(
@@ -128,7 +134,7 @@ public class GetMDC01 {
                             EndoCounter);
                     drgResult.setDC(getResult);
                 } else if (ORProcedureCounter > 0) {
-                    drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                    drgResult.setDC(this.orProcedure(max));
                 } else {
                     String dc = this.principalDaignosis(
                             drgResult.getPDC(),
@@ -158,7 +164,7 @@ public class GetMDC01 {
                         EndoCounter);
                 drgResult.setDC(getResult);
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),

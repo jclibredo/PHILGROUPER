@@ -56,6 +56,7 @@ public class GetValidatedPreMDC {
             String pdx = "";
             TRAUMAICD10 checkTraumaICD10 = new TRAUMAICD10();
             TRAUMAICD9CM checkTraumaICD9 = new TRAUMAICD9CM();
+            GetICD10PreMDC getI10premdc = new GetICD10PreMDC();
             Endovasc endoVasc = new Endovasc();
             AX checkAx = new AX();
             // 1. Parse Parameters cleanly and eliminate trailing whitespaces safely
@@ -80,7 +81,7 @@ public class GetValidatedPreMDC {
                 drgResult.setDRGName("PDx : " + grouperParameter.getPdx() + " Having conflict with age");
             } else {
                 // 3. Process ICD10 Base Calculations
-                DRGWSResult icd10SortResult = new GetICD10PreMDC().GetICD10(
+                DRGWSResult icd10SortResult = getI10premdc.GetICD10(
                         datasource, schemaName, grouperParameter.getPdx(), String.valueOf(finalDays), String.valueOf(ageInYears), grouperParameter.getGender());
                 ICD10PreMDCResult icd10Result = utility.objectMapper().readValue(icd10SortResult.getResult(), ICD10PreMDCResult.class);
                 int traumaCounterPDX0 = 0;

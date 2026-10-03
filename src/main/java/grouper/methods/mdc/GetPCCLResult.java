@@ -118,7 +118,7 @@ public class GetPCCLResult {
             String sdxdcfinder = drgResult.getSDXFINDER() != null ? drgResult.getSDXFINDER() : "";
             ValidatePCCL validatePCCL = new ValidatePCCL();
             if (currentDrg == null) {
-//                drgResult.setDRGName("Grouper Error");
+                drgResult.setDRGName("Grouper Error");
                 if (utility.isValidDCList(dc)) {
                     String fallbackDrg = dc + "9";
                     drgResult.setDRG(fallbackDrg);

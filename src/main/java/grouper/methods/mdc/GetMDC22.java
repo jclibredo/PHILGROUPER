@@ -73,6 +73,7 @@ public class GetMDC22 {
             Counter22BXPDx += checkAX.AX(datasource, SchemaName, "22BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
             Counter22APDx += pdxMalignant.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "22A").isSuccess() ? 1 : 0;
             Counter22BPDx += pdxMalignant.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "22B").isSuccess() ? 1 : 0;
+            
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
@@ -131,8 +132,8 @@ public class GetMDC22 {
                     drgResult.setDC(getDC.getDC());
                 }
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

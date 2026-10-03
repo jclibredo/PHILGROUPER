@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
@@ -86,6 +88,11 @@ public class GetMDC21 {
                     }
                 }
             }
+            
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//             pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
@@ -102,7 +109,7 @@ public class GetMDC21 {
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                         drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
                     } else if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                        drgResult.setDC(this.orProcedure(max));
                     } else {
                         drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), age));
                     }
@@ -120,12 +127,12 @@ public class GetMDC21 {
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), age));
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

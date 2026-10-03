@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -113,6 +115,12 @@ public class GetMDC08 {
                 Counter8PFX += checkAX.AX(datasource, SchemaName, "8PFX", procS).isSuccess() ? 1 : 0;
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
+            
+            
+             int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//              pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
@@ -132,7 +140,7 @@ public class GetMDC08 {
                                 age,
                                 Counter8QA));
                     } else if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                        drgResult.setDC(this.orProcedure(max));
                     } else {
                         String dc = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -163,7 +171,7 @@ public class GetMDC08 {
                         Counter8QA);
                 drgResult.setDC(getMdcProc);
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -176,8 +184,8 @@ public class GetMDC08 {
                         age);
                 drgResult.setDC(dc);
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

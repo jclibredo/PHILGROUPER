@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -109,6 +111,10 @@ public class GetMDC02 {
             MalignantCount += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "2E").isSuccess() ? 1 : 0;
             //Condition Start this area  
             long age = utility.ComputeYear(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//            pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(
                         grouperparameter.getAdmissionDate(),
@@ -138,7 +144,7 @@ public class GetMDC02 {
                     drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                     drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
                 } else if (ORProcedureCounter > 0) { //Check if OR Procedure
-                    drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                    drgResult.setDC(this.orProcedure(max));
                 } else { //Principal Diagnosis
                     drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), age));
                 }
@@ -162,12 +168,12 @@ public class GetMDC02 {
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
             } else if (ORProcedureCounter > 0) { //Check if OR Procedure
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else { //Principal Diagnosis
                 drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), age));
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -91,6 +93,10 @@ public class GetMDC10 {
                 }
             }
 
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//            pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
@@ -105,7 +111,7 @@ public class GetMDC10 {
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                         drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), age));
                     } else if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                        drgResult.setDC(this.orProcedure(max));
                     } else {
                         drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), Counter10PBX, age));
                     }
@@ -122,12 +128,12 @@ public class GetMDC10 {
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), age));
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), Counter10PBX, age));
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

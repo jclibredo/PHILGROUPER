@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -68,7 +70,6 @@ public class GetMDC12 {
             int CaCRxProc = 0;
             int PBX12Proc = 0;
             int PBX99Proc = 0;
-            String pdc12A = "12A";
             int MalignantCount = 0;
             for (int y = 0; y < ProcedureList.size(); y++) {
                 String procS = ProcedureList.get(y).trim();
@@ -104,6 +105,11 @@ public class GetMDC12 {
                 CartSDx += axRest.AX(datasource, SchemaName, "99BX", Secon).isSuccess() ? 1 : 0;
                 CaCRxSDx += axRest.AX(datasource, SchemaName, "99CX", Secon).isSuccess() ? 1 : 0;
             }
+            
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//             pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
@@ -118,9 +124,9 @@ public class GetMDC12 {
                         }
                     }
                     drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    drgResult.setDC(this.mdcProcedure(pdc12A, MalignantCount));
+                    drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), MalignantCount));
                 } else if (ORProcedureCounter > 0) {
-                    drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                    drgResult.setDC(this.orProcedure(max));
                 } else {
                     String dc = this.principalDaignosis(
                             drgResult.getPDC(),
@@ -140,9 +146,9 @@ public class GetMDC12 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                drgResult.setDC(this.mdcProcedure(pdc12A, MalignantCount));
+                drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), MalignantCount));
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -154,8 +160,8 @@ public class GetMDC12 {
                         PBX99Proc);
                 drgResult.setDC(dc);
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

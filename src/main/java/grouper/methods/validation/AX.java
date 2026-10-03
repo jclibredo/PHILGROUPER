@@ -47,14 +47,8 @@ public class AX {
             ResultSet resultSet = (ResultSet) statement.getObject("get_ax");
             if (resultSet.next()) {
                 // THIS LINE IS FOR OLD LIBRARY
-//                List<String> codelist = Arrays.asList(resultSet.getString("CODES").split(","));
-//                for (int x = 0; x < codelist.size(); x++) {
-//                    if (requestcode.trim().equals(codelist.get(x).trim())) {
                 result.setResult(requestcode);
                 result.setSuccess(true);
-//                        break;
-//                    }
-//                }
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong");

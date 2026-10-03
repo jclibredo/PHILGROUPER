@@ -21,9 +21,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -111,12 +115,18 @@ public class GetMDC11 {
                 CaCRxSDx += getAx.AX(datasource, SchemaName, "99CX", sdxCode).isSuccess() ? 1 : 0;
             }
             Counter11C += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "11C").isSuccess() ? 1 : 0;
+
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//            pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
                 if (los < 21) {
-                    if (mdcprocedureCounter > 0) {
+//                    if (mdcprocedureCounter > 0) {
+                    if (mdcprocedureCounter > 0 && !hierarvalue.isEmpty()) {
                         int min = hierarvalue.get(0);
                         for (int i = 0; i < hierarvalue.size(); i++) {
                             if (hierarvalue.get(i) < min) {
@@ -124,9 +134,9 @@ public class GetMDC11 {
                             }
                         }
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        drgResult.setDC(this.mdcProcedure(SchemaName, Counter11C, Counter11PBX));
+                        drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), Counter11C, Counter11PBX));
                     } else if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                        drgResult.setDC(this.orProcedure(max));
                     } else {
                         String dc = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -144,7 +154,8 @@ public class GetMDC11 {
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "1113" : "1114");
                 }
-            } else if (mdcprocedureCounter > 0) {
+//            } else if (mdcprocedureCounter > 0) {
+            } else if (mdcprocedureCounter > 0 && !hierarvalue.isEmpty()) {
                 int min = hierarvalue.get(0);
                 for (int i = 0; i < hierarvalue.size(); i++) {
                     if (hierarvalue.get(i) < min) {
@@ -152,9 +163,9 @@ public class GetMDC11 {
                     }
                 }
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                drgResult.setDC(this.mdcProcedure(SchemaName, Counter11C, Counter11PBX));
+                drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), Counter11C, Counter11PBX));
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -169,8 +180,8 @@ public class GetMDC11 {
                         grouperparameter.getDischargeType());
                 drgResult.setDC(dc);
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

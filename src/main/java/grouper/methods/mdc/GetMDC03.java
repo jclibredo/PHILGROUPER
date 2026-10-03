@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -111,6 +113,10 @@ public class GetMDC03 {
                 PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
             }
             Counter3BX += checkAX.AX(datasource, SchemaName, "3BX", grouperparameter.getPdx().toUpperCase().trim()).isSuccess() ? 1 : 0;
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//            pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) {
                 if (Counter3BX > 0) {
                     drgResult.setDC(Counter3PDX > 0 ? "0322" : "0323");
@@ -133,7 +139,7 @@ public class GetMDC03 {
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                         drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), Counter3PEX));
                     } else if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                        drgResult.setDC(this.orProcedure(max));
                     } else {
                         String dc = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -157,7 +163,7 @@ public class GetMDC03 {
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), Counter3PEX));
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -170,8 +176,8 @@ public class GetMDC03 {
                         Counter3PBX);
                 drgResult.setDC(dc);
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

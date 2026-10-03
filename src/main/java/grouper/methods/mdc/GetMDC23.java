@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
@@ -93,14 +95,19 @@ public class GetMDC23 {
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String sdxCode = SecondaryList.get(a).trim();
                 Counter23BX += checkAX.AX(datasource, SchemaName, "23BX", sdxCode).isSuccess() ? 1 : 0;
-            }
+            } 
+            
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//                   pdclist.sort(Collections.reverseOrder());  
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
                 if (los < 21) {
                     if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                        drgResult.setDC(this.orProcedure(max));
                     } else {
                         MDCCodeOptimize getResult = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -119,7 +126,7 @@ public class GetMDC23 {
                     drgResult.setDC(PCXCounter99 > 0 ? "2311" : "2312");
                 }
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 MDCCodeOptimize getResult = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -134,8 +141,8 @@ public class GetMDC23 {
                 }
                 drgResult.setDC(getResult.getDC());
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

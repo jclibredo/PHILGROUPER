@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -108,6 +110,10 @@ public class GetMDC07 {
                 Counter7PDX += checkAX.AX(datasource, SchemaName, "7PDX", procS).isSuccess() ? 1 : 0;
                 Counter7PBX += checkAX.AX(datasource, SchemaName, "7PBX", procS).isSuccess() ? 1 : 0;
             }
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//             pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
@@ -126,7 +132,7 @@ public class GetMDC07 {
                         drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                         drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX));
                     } else if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                        drgResult.setDC(this.orProcedure(max));
                     } else {
                         drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter7PDX, PBX99Proc, grouperparameter.getDischargeType()));
                     }
@@ -143,12 +149,12 @@ public class GetMDC07 {
                 drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
                 drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), B7Count, Counter7PBX));
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter7PDX, PBX99Proc, grouperparameter.getDischargeType()));
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

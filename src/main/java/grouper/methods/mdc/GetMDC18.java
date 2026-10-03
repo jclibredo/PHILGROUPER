@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -54,6 +56,7 @@ public class GetMDC18 {
             long age = utility.ComputeYear(grouperparameter.getBirthDate(),
                     grouperparameter.getAdmissionDate());
             int mdcprocedureCounter = 0;
+            int ORProcedureCounter = 0;
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int CounterSDxBX18 = 0;
@@ -65,7 +68,7 @@ public class GetMDC18 {
                 PCXCounter99 += checkAX.AX(datasource, SchemaName, "99PCX", procS).isSuccess() ? 1 : 0;
                 DRGWSResult ORProcedureResult = getOrProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
-//                    ORProcedureCounter++;
+                    ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                 }
                 DRGWSResult JoinResult = mdcProc.MDCProcedure(datasource,
@@ -82,15 +85,18 @@ public class GetMDC18 {
                 CounterSDxBX18 += checkAX.AX(datasource, SchemaName, "18BX", sdxCode).isSuccess() ? 1 : 0;
             }
             CounterPDxBX18 += checkAX.AX(datasource, SchemaName, "18BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(),
                         utility.Convert24to12(grouperparameter.getTimeDischarge()));
                 if (los < 21) {
-//                    if (ORProcedureCounter > 0) {
-                    if (mdcprocedureCounter > 0) {
-                        String dc = this.orProcedure(Collections.max(ORProcedureCounterList));
+                    if (ORProcedureCounter > 0) {
+//                    if (mdcprocedureCounter > 0) {
+                        String dc = this.orProcedure(max);
                         drgResult.setDC(dc);
                     } else {
                         MDCCodeOptimize getMPrincipal = this.principalDaignosis(
@@ -109,9 +115,9 @@ public class GetMDC18 {
                 } else {
                     drgResult.setDC(PCXCounter99 > 54 ? "1808" : "1809");
                 }
-//            } else if (ORProcedureCounter > 0) {
-            } else if (mdcprocedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+            } else if (ORProcedureCounter > 0) {
+//            } else if (mdcprocedureCounter > 0) {
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 MDCCodeOptimize getMPrincipal = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -126,8 +132,8 @@ public class GetMDC18 {
                     drgResult.setSDXFINDER(getMPrincipal.getSdxfinder());
                 }
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

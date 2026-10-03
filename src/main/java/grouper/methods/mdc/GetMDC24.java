@@ -61,7 +61,7 @@ public class GetMDC24 {
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter24PBX = 0;
-//            int ORProcedureCounter = 0;
+            int ORProcedureCounter = 0;
             int mdcprocedureCounter = 0;
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             ArrayList<Integer> hierarvalue = new ArrayList<>();
@@ -94,7 +94,7 @@ public class GetMDC24 {
                 DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource,
                         SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
-//                    ORProcedureCounter++;
+                    ORProcedureCounter++;
                     ORProcedureCounterList.add(Integer.valueOf(ORProcedureResult.getResult()));
                     switch (ORProcedureResult.getMessage()) {
                         case "A":
@@ -134,8 +134,8 @@ public class GetMDC24 {
                         grouperparameter.getDischargeDate(),
                         utility.Convert24to12(grouperparameter.getTimeDischarge()));
                 if (los < 21) {
-//                    if (ORProcedureCounter > 0) {
-                    if (mdcprocedureCounter > 0) {
+                    if (ORProcedureCounter > 0) {
+//                    if (mdcprocedureCounter > 0) {
                         String getDcResult = this.MDCProcedure(A, D, H, G, E, Counter24PBX, B, C, F, J);
                         drgResult.setDC(getDcResult);
                     } else {
@@ -145,16 +145,16 @@ public class GetMDC24 {
                     drgResult.setDC(PCXCounter99 > 0 ? "2415" : "2416");
                 }
             } else {
-//                if (ORProcedureCounter > 0) {
-                if (mdcprocedureCounter > 0) {
+                if (ORProcedureCounter > 0) {
+//                if (mdcprocedureCounter > 0) {
                     String getDcResult = this.MDCProcedure(A, D, H, G, E, Counter24PBX, B, C, F, J);
                     drgResult.setDC(getDcResult);
                 } else {
                     drgResult.setDC("2450");
                 }
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

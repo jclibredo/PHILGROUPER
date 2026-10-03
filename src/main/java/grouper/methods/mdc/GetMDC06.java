@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -123,6 +125,10 @@ public class GetMDC06 {
                 PBX99Proc += checkAX.AX(datasource, SchemaName, "99PBX", procS).isSuccess() ? 1 : 0;
             }
             //CONDITIONAL STATEMENT STARTS HERE FOR MDC 06
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//             pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) { //CHECK FOR TRACHEOSTOMY 
                 if (los < 21) {
                     if (mdcprocedureCounter > 0) {
@@ -148,7 +154,7 @@ public class GetMDC06 {
                             drgResult.setDRG(getResult.getDRG());
                         }
                     } else if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(ORProcedureCounterList));
+                        drgResult.setDC(this.orProcedure(max));
                     } else {
                         String dc = this.principalDaignosis(
                                 drgResult.getPDC(),
@@ -188,7 +194,7 @@ public class GetMDC06 {
                     drgResult.setDRG(getResult.getDRG());
                 }
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(ORProcedureCounterList));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 String dc = this.principalDaignosis(
                         drgResult.getPDC(),
@@ -202,8 +208,8 @@ public class GetMDC06 {
                         age);
                 drgResult.setDC(dc);
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());
@@ -333,9 +339,9 @@ public class GetMDC06 {
         return result;
     }
 
-    private String orProcedure(ArrayList<Integer> ORProcedureCounterList) {
+    private String orProcedure(Integer ORProcedureCounterList) {
         String dc = "";
-        switch (Collections.max(ORProcedureCounterList)) {
+        switch (ORProcedureCounterList) {
             case 1: {
                 dc = "2601";
                 break;

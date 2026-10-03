@@ -23,7 +23,6 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -191,7 +190,7 @@ public class GetMDC14 {
                                     Counter14PJX,
                                     UnralatedORProcedure,
                                     Counter14PHX,
-                                    Collections.max(ORProcedureCounterList));
+                                    max);
                             drgResult.setDC(dc);
                         } else {
                             if (Counter14EX > 0) {

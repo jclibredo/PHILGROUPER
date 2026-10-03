@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -125,6 +127,10 @@ public class GetMDC05 {
             AMICount += pdxMalig.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "5A").isSuccess() ? 1 : 0;
             Counter5BX += checkAX.AX(datasource, SchemaName, "5BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
             Counter5DXPDx += checkAX.AX(datasource, SchemaName, "5DX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
+            int max = Optional.ofNullable(ORProcedureCounterList)
+                    .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
+                    .orElse(0);
+//             pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(
                         grouperparameter.getAdmissionDate(),
@@ -178,7 +184,7 @@ public class GetMDC05 {
                             drgResult.setSDXFINDER(getMDCProcedure.getSdxfinder());
                         }
                     } else if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                        drgResult.setDC(this.orProcedure(max));
                     } else {
                         drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), grouperparameter.getDischargeType()));
                     }
@@ -230,13 +236,13 @@ public class GetMDC05 {
                     drgResult.setSDXFINDER(getMDCProcedure.getSdxfinder());
                 }
             } else if (ORProcedureCounter > 0) {
-                drgResult.setDC(this.orProcedure(Collections.max(ORProcedureCounterList)));
+                drgResult.setDC(this.orProcedure(max));
             } else {
                 drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), grouperparameter.getDischargeType()));
 
             }
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());
