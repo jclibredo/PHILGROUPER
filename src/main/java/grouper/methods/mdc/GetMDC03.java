@@ -18,7 +18,6 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -127,30 +126,32 @@ public class GetMDC03 {
                             grouperparameter.getDischargeDate(),
                             utility.Convert24to12(grouperparameter.getTimeDischarge())
                     );
-                    if (los > 21) {
-                        drgResult.setDC(PCXCounter99 > 0 ? "0318" : "0319");
-                    } else if (mdcprocedureCounter > 0) {
-                        int min = hierarvalue.get(0);
-                        for (int i = 0; i < hierarvalue.size(); i++) {
-                            if (hierarvalue.get(i) < min) {
-                                min = hierarvalue.get(i);
+                    if (los < 21) {
+                        if (mdcprocedureCounter > 0) {
+                            int min = hierarvalue.get(0);
+                            for (int i = 0; i < hierarvalue.size(); i++) {
+                                if (hierarvalue.get(i) < min) {
+                                    min = hierarvalue.get(i);
+                                }
                             }
+                            drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
+                            drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), Counter3PEX));
+                        } else if (ORProcedureCounter > 0) {
+                            drgResult.setDC(this.orProcedure(max));
+                        } else {
+                            String dc = this.principalDaignosis(
+                                    drgResult.getPDC(),
+                                    CartSDx,
+                                    CaCRxSDx,
+                                    CartProc,
+                                    CaCRxProc,
+                                    PCX3Proc,
+                                    PBX99Proc,
+                                    Counter3PBX);
+                            drgResult.setDC(dc);
                         }
-                        drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                        drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), Counter3PEX));
-                    } else if (ORProcedureCounter > 0) {
-                        drgResult.setDC(this.orProcedure(max));
                     } else {
-                        String dc = this.principalDaignosis(
-                                drgResult.getPDC(),
-                                CartSDx,
-                                CaCRxSDx,
-                                CartProc,
-                                CaCRxProc,
-                                PCX3Proc,
-                                PBX99Proc,
-                                Counter3PBX);
-                        drgResult.setDC(dc);
+                        drgResult.setDC(PCXCounter99 > 0 ? "0318" : "0319");
                     }
                 }
             } else if (mdcprocedureCounter > 0) {
@@ -176,8 +177,8 @@ public class GetMDC03 {
                         Counter3PBX);
                 drgResult.setDC(dc);
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

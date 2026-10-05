@@ -19,7 +19,6 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -105,7 +104,7 @@ public class GetMDC12 {
                 CartSDx += axRest.AX(datasource, SchemaName, "99BX", Secon).isSuccess() ? 1 : 0;
                 CaCRxSDx += axRest.AX(datasource, SchemaName, "99CX", Secon).isSuccess() ? 1 : 0;
             }
-            
+
             int max = Optional.ofNullable(ORProcedureCounterList)
                     .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
                     .orElse(0);
@@ -115,28 +114,30 @@ public class GetMDC12 {
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
                 if (los > 21) {
-                    drgResult.setDC(PCXCounter99 > 0 ? "1209" : "1210");
-                } else if (mdcprocedureCounter > 0) {
-                    int min = hierarvalue.get(0);
-                    for (int i = 0; i < hierarvalue.size(); i++) {
-                        if (hierarvalue.get(i) < min) {
-                            min = hierarvalue.get(i);
+                    if (mdcprocedureCounter > 0) {
+                        int min = hierarvalue.get(0);
+                        for (int i = 0; i < hierarvalue.size(); i++) {
+                            if (hierarvalue.get(i) < min) {
+                                min = hierarvalue.get(i);
+                            }
                         }
+                        drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
+                        drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), MalignantCount));
+                    } else if (ORProcedureCounter > 0) {
+                        drgResult.setDC(this.orProcedure(max));
+                    } else {
+                        String dc = this.principalDaignosis(
+                                drgResult.getPDC(),
+                                CartSDx,
+                                CaCRxSDx,
+                                CartProc,
+                                CaCRxProc,
+                                PBX12Proc,
+                                PBX99Proc);
+                        drgResult.setDC(dc);
                     }
-                    drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    drgResult.setDC(this.mdcProcedure(drgResult.getPDC(), MalignantCount));
-                } else if (ORProcedureCounter > 0) {
-                    drgResult.setDC(this.orProcedure(max));
                 } else {
-                    String dc = this.principalDaignosis(
-                            drgResult.getPDC(),
-                            CartSDx,
-                            CaCRxSDx,
-                            CartProc,
-                            CaCRxProc,
-                            PBX12Proc,
-                            PBX99Proc);
-                    drgResult.setDC(dc);
+                    drgResult.setDC(PCXCounter99 > 0 ? "1209" : "1210");
                 }
             } else if (mdcprocedureCounter > 0) { //MDC Procedure
                 int min = hierarvalue.get(0);
@@ -160,8 +161,8 @@ public class GetMDC12 {
                         PBX99Proc);
                 drgResult.setDC(dc);
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

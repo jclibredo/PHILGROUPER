@@ -20,7 +20,6 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -122,31 +121,33 @@ public class GetMDC02 {
                         grouperparameter.getDischargeDate(),
                         utility.Convert24to12(grouperparameter.getTimeDischarge())
                 );
-                if (los > 21) {
-                    drgResult.setDC(PCXCounter99 > 0 ? "0214" : "0215");
-                } else if (pdcprocedureCounter2PA > 0) {  //Retina Procedure
-                    drgResult.setDC("0201");
-                } else if (pdcprocedureCounter2PJ > 0) {//Keratoplasty
-                    drgResult.setDC("0209");
-                } else if (pdcprocedureCounter2PH > 0) { //Other mech Vitrectomy
-                    drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
-                } else if (pdcprocedureCounter2PB > 0) { //Enuc & Orbit Procedure
-                    drgResult.setDC(MalignantCount > 0 ? "0210" : "0202");
-                } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
-                    drgResult.setDC("0203");
-                } else if (mdcprocedureCounter > 0) { // MDC Procedure
-                    int min = hierarvalue.get(0);
-                    for (int i = 0; i < hierarvalue.size(); i++) {
-                        if (hierarvalue.get(i) < min) {
-                            min = hierarvalue.get(i);
+                if (los < 21) {
+                    if (pdcprocedureCounter2PA > 0) {  //Retina Procedure
+                        drgResult.setDC("0201");
+                    } else if (pdcprocedureCounter2PJ > 0) {//Keratoplasty
+                        drgResult.setDC("0209");
+                    } else if (pdcprocedureCounter2PH > 0) { //Other mech Vitrectomy
+                        drgResult.setDC(Counter2PDX > 0 ? "0206" : "0201");
+                    } else if (pdcprocedureCounter2PB > 0) { //Enuc & Orbit Procedure
+                        drgResult.setDC(MalignantCount > 0 ? "0210" : "0202");
+                    } else if (Counter2PCX > 0 && CounterPDx2BX > 0) { // Major Aye Injury with OR 
+                        drgResult.setDC("0203");
+                    } else if (mdcprocedureCounter > 0) { // MDC Procedure
+                        int min = hierarvalue.get(0);
+                        for (int i = 0; i < hierarvalue.size(); i++) {
+                            if (hierarvalue.get(i) < min) {
+                                min = hierarvalue.get(i);
+                            }
                         }
+                        drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
+                        drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
+                    } else if (ORProcedureCounter > 0) { //Check if OR Procedure
+                        drgResult.setDC(this.orProcedure(max));
+                    } else { //Principal Diagnosis
+                        drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), age));
                     }
-                    drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    drgResult.setDC(this.mdcProcedure(drgResult.getPDC()));
-                } else if (ORProcedureCounter > 0) { //Check if OR Procedure
-                    drgResult.setDC(this.orProcedure(max));
-                } else { //Principal Diagnosis
-                    drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), age));
+                } else {
+                    drgResult.setDC(PCXCounter99 > 0 ? "0214" : "0215");
                 }
             } else if (pdcprocedureCounter2PA > 0) {  //Retina Procedure
                 drgResult.setDC("0201");
@@ -172,8 +173,8 @@ public class GetMDC02 {
             } else { //Principal Diagnosis
                 drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), age));
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());

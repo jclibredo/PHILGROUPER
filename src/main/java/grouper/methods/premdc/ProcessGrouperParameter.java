@@ -8,6 +8,7 @@ package grouper.methods.premdc;
 import grouper.methods.validation.AgeConfictValidation;
 import grouper.methods.validation.CodeConverter;
 import grouper.methods.validation.GenderConfictValidation;
+import grouper.methods.validation.GenderConfictValidationProc;
 import grouper.methods.validation.GetICD10;
 import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.InsertGrouperAuditTrail;
@@ -55,7 +56,9 @@ public class ProcessGrouperParameter {
         String path = utility.GetString("FilePathReports").getResult();
         try {
             DRGOutput drgresult = utility.DRGOutput();
+
             AgeConfictValidation ageValidation = new AgeConfictValidation();
+
             GrouperParameter grouper = utility.GrouperParameter();
             GetICD10 geti10 = new GetICD10();
             GenderConfictValidation sexValidation = new GenderConfictValidation();
@@ -110,14 +113,36 @@ public class ProcessGrouperParameter {
             grouper.setWarningerror("");
             drgresult.setPrepccl("");
             drgresult.setFinalpccl("");
-            drgresult.setWarningerror("");
 
             //CLEANING PROC DATA
-            if (!grouperparameter.getProc().trim().isEmpty()) {
+            ArrayList<String> warningError = new ArrayList<>();
+            ArrayList<String> newProc = new ArrayList<>();
+            String procString = grouperparameter.getProc();
+            GenderConfictValidationProc procValidate = new GenderConfictValidationProc();
+            if (procString != null && !procString.trim().isEmpty()) {
+                for (String code : procString.split(",")) {
+                    String proCode = code.trim();
+                    if (proCode.isEmpty()) {
+                        continue;
+                    }
+                    boolean isValid = procValidate.GenderConfictValidationProc(datasource, SchemaName, proCode, grouperparameter.getGender()).isSuccess();
+                    if (isValid) {
+                        newProc.add(proCode);
+                    } else {
+                        warningError.add(proCode + " Not valid");
+                    }
+                }
+            }
+            if (!newProc.isEmpty()) {
                 CodeConverter getConverter = new CodeConverter();
-                grouper.setProc(getConverter.formatICD9Result(grouperparameter.getProc()));
+                grouper.setProc(getConverter.formatICD9Result(String.join(",", newProc)));
             } else {
-                grouper.setProc(grouperparameter.getProc());
+                grouper.setProc("");
+            }
+            if (!warningError.isEmpty()) {
+                drgresult.setWarningerror(String.join(",", warningError));
+            } else {
+                drgresult.setWarningerror("");
             }
             grouper.setResult_id(grouperparameter.getResult_id());
             //CLEANING SDX

@@ -6,6 +6,7 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
+import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -20,7 +21,6 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -118,7 +118,7 @@ public class GetMDC09 {
                 Counter9PBX += checkAX.AX(datasource, SchemaName, "9PBX", procS).isSuccess() ? 1 : 0;
             }
             //CONDITIONAL STATEMENT WILL START THIS AREA FOR MDC 07
-            
+
             int max = Optional.ofNullable(ORProcedureCounterList)
                     .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
                     .orElse(0);
@@ -208,8 +208,8 @@ public class GetMDC09 {
                         grouperparameter.getAdmissionDate());
                 drgResult.setDC(dc);
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());
@@ -241,6 +241,7 @@ public class GetMDC09 {
         result.setDC("");
         result.setSdxfinder("");
         PDxMalignancy malignant = new PDxMalignancy();
+        GetICD10PreMDC getI10 = new GetICD10PreMDC();
         switch (pdc.toUpperCase()) {
             case "9PJ": {//Pedicle Graft Plastic Procedures
                 result.setDC("0911");
@@ -256,11 +257,16 @@ public class GetMDC09 {
                     result.setDC("0914");    //SDxMalignantCount
                 } else {
                     if (PDxMalignantCount == 0 && SDxMalignantCount > 0 && SecondaryList != null) {
-                        SecondaryList.stream()
-                                .map(String::trim)
-                                .filter(sdx -> malignant.PDxMalignancy(datasource, SchemaName, sdx, "9E").isSuccess())
-                                .findFirst()
-                                .ifPresent(result::setSdxfinder);
+                        for (String sdx : SecondaryList) {
+                            String sdxTrimmed = sdx.trim();
+                            if (malignant.PDxMalignancy(datasource, SchemaName, sdxTrimmed, "9E").isSuccess()) {
+                                DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxTrimmed);
+                                if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                                    result.setSdxfinder(sdxTrimmed);
+                                    break;
+                                }
+                            }
+                        }
                         result.setDC("0901");
                     } else {
                         result.setDC("0903");
@@ -278,10 +284,12 @@ public class GetMDC09 {
                 if (PDxMalignantCount == 0 && SDxMalignantCount > 0 && SecondaryList != null) {
                     for (String sdx : SecondaryList) {
                         String sdxTrimmed = sdx.trim();
-                        DRGWSResult maligSDxResult = malignant.PDxMalignancy(datasource, SchemaName, sdxTrimmed, "9E");
-                        if (maligSDxResult.isSuccess()) {
-                            result.setSdxfinder(sdxTrimmed);
-                            break;
+                        if (malignant.PDxMalignancy(datasource, SchemaName, sdxTrimmed, "9E").isSuccess()) {
+                            DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxTrimmed);
+                            if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                                result.setSdxfinder(sdxTrimmed);
+                                break;
+                            }
                         }
                     }
                 }

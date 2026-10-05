@@ -7,6 +7,7 @@ package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
 import grouper.methods.validation.Endovasc;
+import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.PDxMalignancy;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
@@ -73,7 +74,7 @@ public class GetMDC22 {
             Counter22BXPDx += checkAX.AX(datasource, SchemaName, "22BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
             Counter22APDx += pdxMalignant.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "22A").isSuccess() ? 1 : 0;
             Counter22BPDx += pdxMalignant.PDxMalignancy(datasource, SchemaName, grouperparameter.getPdx(), "22B").isSuccess() ? 1 : 0;
-            
+
             if (PDXCounter99 > 0) {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
@@ -132,8 +133,8 @@ public class GetMDC22 {
                     drgResult.setDC(getDC.getDC());
                 }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());
@@ -162,15 +163,26 @@ public class GetMDC22 {
         result.setDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
+        GetICD10PreMDC getI10 = new GetICD10PreMDC();
         if (Counter22BSDx > 0 || Counter22BPDx > 0) {
             boolean has22Condition = Counter22PA > 0 || Counter22BXPDx > 0 || Counter22BXSDx > 0;
             if (has22Condition) {
                 if (Counter22BXPDx == 0 && Counter22BXSDx > 0) {
-                    SecondaryList.stream()
-                            .map(String::trim)
-                            .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "22BX", sdxCode).isSuccess())
-                            .findFirst()
-                            .ifPresent(result::setSdxfinder);
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "22BX", sdxCode);
+                        if (!getSdxCode.isSuccess()) {
+                            continue;
+                        }
+                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
+                        if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                 }
             }
             result.setDC(has22Condition ? "2202" : "2251");

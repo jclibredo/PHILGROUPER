@@ -41,6 +41,7 @@ public class GetCCLValue {
             if (cclList.next()) {
                 //Get Value suing inderx off
                 String longstring = cclList.getString("CCL");
+//                System.out.println(" | "+longstring);
                 int x = Integer.parseInt(dccol);
                 String cclval = longstring.substring(x - 1, Integer.parseInt(dccol));
                 result = Integer.parseInt(cclval);

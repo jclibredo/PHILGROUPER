@@ -6,6 +6,7 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
+import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
@@ -15,7 +16,6 @@ import grouper.structures.MDCCodeOptimize;
 import grouper.utility.Utility;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -132,8 +132,8 @@ public class GetMDC18 {
                     drgResult.setSDXFINDER(getMPrincipal.getSdxfinder());
                 }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());
@@ -194,6 +194,7 @@ public class GetMDC18 {
         result.setDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
+        GetICD10PreMDC getI10 = new GetICD10PreMDC();
         switch (pdc.toUpperCase()) {
             case "18A": {//Septicemia
                 result.setDC(age > 14 ? ("4".equals(dischargeType) ? "1872" : "1850") : "1851");
@@ -211,11 +212,23 @@ public class GetMDC18 {
                 if (CounterSDxBX18 > 0 || CounterPDxBX18 > 0) {
                     result.setDC(age > 14 ? "1870" : "1871");
                     if (CounterPDxBX18 == 0 && CounterSDxBX18 > 0) {
-                        SecondaryList.stream()
-                                .map(String::trim)
-                                .filter(sdx -> checkAX.AX(datasource, SchemaName, "18BX", sdx).isSuccess())
-                                .findFirst()
-                                .ifPresent(result::setSdxfinder);
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+
+                            DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "18BX", sdxCode);
+                            if (!getSdxCode.isSuccess()) {
+                                continue;
+                            }
+
+                            DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
+                            if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                                result.setSdxfinder(sdxCode);
+                                break;
+                            }
+                        }
                     }
                 } else {
                     result.setDC(age > 14 ? "1856" : "1857");

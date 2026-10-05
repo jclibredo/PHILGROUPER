@@ -6,6 +6,7 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
+import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -19,7 +20,6 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -91,12 +91,10 @@ public class GetMDC23 {
                     }
                 }
             }
-
             for (int a = 0; a < SecondaryList.size(); a++) {
                 String sdxCode = SecondaryList.get(a).trim();
                 Counter23BX += checkAX.AX(datasource, SchemaName, "23BX", sdxCode).isSuccess() ? 1 : 0;
-            } 
-            
+            }
             int max = Optional.ofNullable(ORProcedureCounterList)
                     .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
                     .orElse(0);
@@ -141,8 +139,8 @@ public class GetMDC23 {
                 }
                 drgResult.setDC(getResult.getDC());
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(true);
                 result.setResult(getPCCLResult.getResult());
@@ -194,17 +192,27 @@ public class GetMDC23 {
         result.setPDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
+        GetICD10PreMDC getI10 = new GetICD10PreMDC();
         switch (pdc.toUpperCase()) {
             case "23A": {//Rehabilitation
                 result.setDC(Counter23BX > 0 ? "2355" : "2350");
                 if (Counter23BX > 0) {
-                    for (int x = 0; x < SecondaryList.size(); x++) {
-                        String sdxCode = SecondaryList.get(x).trim();
-                        if (checkAX.AX(datasource, SchemaName, "23BX", sdxCode).isSuccess()) {
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "23BX", sdxCode);
+                        if (!getSdxCode.isSuccess()) {
+                            continue;
+                        }
+                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
+                        if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
                             result.setSdxfinder(sdxCode);
                             break;
                         }
                     }
+
                 }
                 break;
             }

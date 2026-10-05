@@ -19,7 +19,6 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -116,37 +115,38 @@ public class GetMDC01 {
                         grouperparameter.getDischargeDate(),
                         utility.Convert24to12(grouperparameter.getTimeDischarge())
                 );
-                if (los > 21) {
-                    drgResult.setDC(PCXCounter99 > 0 ? "0115" : "0116");
-                } else if (mdcprocedureCounter > 0) { //MDC Procedure
-                    int min = hierarvalue.get(0);
-                    for (int i = 0; i < hierarvalue.size(); i++) {
-                        if (hierarvalue.get(i) < min) {
-                            min = hierarvalue.get(i);
+                if (los < 21) {
+                    if (mdcprocedureCounter > 0) { //MDC Procedure
+                        int min = hierarvalue.get(0);
+                        for (int i = 0; i < hierarvalue.size(); i++) {
+                            if (hierarvalue.get(i) < min) {
+                                min = hierarvalue.get(i);
+                            }
                         }
+                        drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
+                        String getResult = this.mdcProcedure(
+                                drgResult.getPDC(),
+                                datasource,
+                                SchemaName,
+                                grouperparameter.getPdx(),
+                                EndoCounter);
+                        drgResult.setDC(getResult);
+                    } else if (ORProcedureCounter > 0) {
+                        drgResult.setDC(this.orProcedure(max));
+                    } else {
+                        String dc = this.principalDaignosis(
+                                drgResult.getPDC(),
+                                CartSDx,
+                                CaCRxSDx,
+                                CartProc,
+                                CaCRxProc,
+                                Counter1PBX,
+                                PBX99Proc,
+                                grouperparameter.getDischargeType());
+                        drgResult.setDC(dc);
                     }
-                    drgResult.setPDC(pdclist.get(hierarvalue.indexOf(min)));
-                    String getResult = this.mdcProcedure(
-                            drgResult.getPDC(),
-                            datasource,
-                            SchemaName,
-                            grouperparameter.getPdx(),
-                            EndoCounter);
-                    drgResult.setDC(getResult);
-                } else if (ORProcedureCounter > 0) {
-                    drgResult.setDC(this.orProcedure(max));
                 } else {
-                    String dc = this.principalDaignosis(
-                            drgResult.getPDC(),
-                            CartSDx,
-                            CaCRxSDx,
-                            CartProc,
-                            CaCRxProc,
-                            Counter1PBX,
-                            PBX99Proc,
-                            grouperparameter.getDischargeType());
-                    drgResult.setDC(dc);
-
+                    drgResult.setDC(PCXCounter99 > 0 ? "0115" : "0116");
                 }
             } else if (mdcprocedureCounter > 0) { //MDC Procedure
                 int min = hierarvalue.get(0);

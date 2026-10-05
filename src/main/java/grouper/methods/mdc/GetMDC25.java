@@ -6,6 +6,7 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
+import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -18,7 +19,6 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -61,6 +61,7 @@ public class GetMDC25 {
             MDCProcedureMethod mdcProc = new MDCProcedureMethod();
             ORProcedure orProc = new ORProcedure();
             GetPDC getPdc = new GetPDC();
+            GetICD10PreMDC getI10 = new GetICD10PreMDC();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter25BXSDx = 0;
@@ -104,7 +105,7 @@ public class GetMDC25 {
             Counter25BXPDx += checkAX.AX(datasource, SchemaName, "25BX", grouperparameter.getPdx().trim()).isSuccess() ? 1 : 0;
             Counter25CXPDx += checkAX.AX(datasource, SchemaName, "25CX", grouperparameter.getPdx().trim()).isSuccess() ? 1 : 0;
             Counter25DXPDx += checkAX.AX(datasource, SchemaName, "25DX", grouperparameter.getPdx().trim()).isSuccess() ? 1 : 0;
-            
+
             int max = Optional.ofNullable(ORProcedureCounterList)
                     .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
                     .orElse(0);
@@ -120,31 +121,76 @@ public class GetMDC25 {
                         drgResult.setDC(this.MDCProcedures(max));
                     } else if (Counter25BXSDx > 0 || Counter25BXPDx > 0) {//HIV-related CNS Diseases
                         if (Counter25BXPDx == 0 && Counter25BXSDx > 0) {
-                            SecondaryList.stream()
-                                    .map(String::trim)
-                                    .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25BX", sdxCode).isSuccess())
-                                    .findFirst()
-                                    .ifPresent(drgResult::setSDXFINDER);
+//                            SecondaryList.stream()
+//                                    .map(String::trim)
+//                                    .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25BX", sdxCode).isSuccess())
+//                                    .findFirst()
+//                                    .ifPresent(drgResult::setSDXFINDER);
+                            for (String rawSdxCode : SecondaryList) {
+                                if (rawSdxCode == null) {
+                                    continue;
+                                }
+                                String sdxCode = rawSdxCode.trim();
+                                DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25BX", sdxCode);
+                                if (!getSdxCode.isSuccess()) {
+                                    continue;
+                                }
+                                DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
+                                if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                                    drgResult.setSDXFINDER(sdxCode);
+                                    break;
+                                }
+                            }
                         }
                         drgResult.setDC("2550");
                     } else if (Counter25CXSDx > 0 || Counter25CXPDx > 0) {//HIV-related Malignancy
-                        if (Counter25CXSDx > 0 || Counter25CXPDx == 0) {
-                            SecondaryList.stream()
-                                    .map(String::trim)
-                                    .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25CX", sdxCode).isSuccess())
-                                    .findFirst()
-                                    .ifPresent(drgResult::setSDXFINDER);
+                        if (Counter25CXSDx > 0 && Counter25CXPDx == 0) {
+//                            SecondaryList.stream()
+//                                    .map(String::trim)
+//                                    .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25CX", sdxCode).isSuccess())
+//                                    .findFirst()
+//                                    .ifPresent(drgResult::setSDXFINDER);
+                            for (String rawSdxCode : SecondaryList) {
+                                if (rawSdxCode == null) {
+                                    continue;
+                                }
+                                String sdxCode = rawSdxCode.trim();
+                                DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25CX", sdxCode);
+                                if (!getSdxCode.isSuccess()) {
+                                    continue;
+                                }
+                                DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
+                                if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                                    drgResult.setSDXFINDER(sdxCode);
+                                    break;
+                                }
+                            }
                         }
                         drgResult.setDC("2551");
                     } else {
                         if (Counter25DXSDx > 0 || Counter25DXPDx > 0) {//HIV-related Infection
                             drgResult.setDC(grouperparameter.getDischargeType().equals("4") ? "2554" : "2552");
-                            if (Counter25DXSDx > 0 || Counter25DXPDx == 0) {
-                                SecondaryList.stream()
-                                        .map(String::trim)
-                                        .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25DX", sdxCode).isSuccess())
-                                        .findFirst()
-                                        .ifPresent(drgResult::setSDXFINDER);
+                            if (Counter25DXSDx > 0 && Counter25DXPDx == 0) {
+//                                SecondaryList.stream()
+//                                        .map(String::trim)
+//                                        .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25DX", sdxCode).isSuccess())
+//                                        .findFirst()
+//                                        .ifPresent(drgResult::setSDXFINDER);
+                                for (String rawSdxCode : SecondaryList) {
+                                    if (rawSdxCode == null) {
+                                        continue;
+                                    }
+                                    String sdxCode = rawSdxCode.trim();
+                                    DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25DX", sdxCode);
+                                    if (!getSdxCode.isSuccess()) {
+                                        continue;
+                                    }
+                                    DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
+                                    if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                                        drgResult.setSDXFINDER(sdxCode);
+                                        break;
+                                    }
+                                }
                             }
                         } else {//Other HIV-related Condition
                             drgResult.setDC("2553");
@@ -157,39 +203,79 @@ public class GetMDC25 {
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.MDCProcedures(max));
             } else if (Counter25BXSDx > 0 || Counter25BXPDx > 0) {//HIV-related CNS Diseases
-                if (Counter25BXSDx > 0 || Counter25BXPDx == 0) {
-                    SecondaryList.stream()
-                            .map(String::trim)
-                            .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25BX", sdxCode).isSuccess())
-                            .findFirst()
-                            .ifPresent(drgResult::setSDXFINDER);
+                if (Counter25BXSDx > 0 && Counter25BXPDx == 0) {
+//                    SecondaryList.stream()
+//                            .map(String::trim)
+//                            .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25BX", sdxCode).isSuccess())
+//                            .findFirst()
+////                            .ifPresent(drgResult::setSDXFINDER);
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25BX", sdxCode);
+                        if (!getSdxCode.isSuccess()) {
+                            continue;
+                        }
+                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
+                        if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                            drgResult.setSDXFINDER(sdxCode);
+                            break;
+                        }
+                    }
                 }
                 drgResult.setDC("2550");
             } else if (Counter25CXSDx > 0 || Counter25CXPDx > 0) {//HIV-related Malignancy
-                if (Counter25CXSDx > 0 || Counter25CXPDx == 0) {
-                    SecondaryList.stream()
-                            .map(String::trim)
-                            .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25CX", sdxCode).isSuccess())
-                            .findFirst()
-                            .ifPresent(drgResult::setSDXFINDER);
+                if (Counter25CXSDx > 0 && Counter25CXPDx == 0) {
+//                    SecondaryList.stream()
+//                            .map(String::trim)
+//                            .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25CX", sdxCode).isSuccess())
+//                            .findFirst()
+//                            .ifPresent(drgResult::setSDXFINDER);
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25CX", sdxCode);
+                        if (!getSdxCode.isSuccess()) {
+                            continue;
+                        }
+                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
+                        if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                            drgResult.setSDXFINDER(sdxCode);
+                            break;
+                        }
+                    }
                 }
                 drgResult.setDC("2551");
             } else {
                 if (Counter25DXSDx > 0 || Counter25DXPDx > 0) {//HIV-related Infection
                     drgResult.setDC(grouperparameter.getDischargeType().equals("4") ? "2554" : "2552");
-                    if (Counter25DXSDx > 0 || Counter25DXPDx == 0) {
-                        SecondaryList.stream()
-                                .map(String::trim)
-                                .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25DX", sdxCode).isSuccess())
-                                .findFirst()
-                                .ifPresent(drgResult::setSDXFINDER);
+                    if (Counter25DXSDx > 0 && Counter25DXPDx == 0) {
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+                            DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25DX", sdxCode);
+                            if (!getSdxCode.isSuccess()) {
+                                continue;
+                            }
+                            DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
+                            if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                                drgResult.setSDXFINDER(sdxCode);
+                                break;
+                            }
+                        }
                     }
                 } else {//Other HIV-related Condition
                     drgResult.setDC("2553");
                 }
             }
-            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
-//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
+//            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
+            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {
                 result.setSuccess(getPCCLResult.isSuccess());
                 result.setResult(getPCCLResult.getResult());

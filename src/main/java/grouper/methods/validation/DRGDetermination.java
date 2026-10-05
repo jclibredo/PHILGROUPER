@@ -64,7 +64,6 @@ public class DRGDetermination {
                 Set<String> excludeSet = Arrays.stream(sdxdcsfinder.split(","))
                         .map(String::trim)
                         .collect(Collectors.toSet());
-
                 // 2. Filter dataA by keeping elements NOT present in excludeSet
                 String result = Arrays.stream(sdxoriglis.split(","))
                         .map(String::trim)
@@ -98,6 +97,7 @@ public class DRGDetermination {
             if (detDcCol.isSuccess()) {
                 dcCol = detDcCol.getMessage();
             }
+            System.out.println("DCCOL " + dcCol);
             // 3. Populate CCROW, MAINCC, and Initial CCL per SDX
             for (SdxItem item : sdxList) {
                 DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, item.code);
@@ -113,8 +113,8 @@ public class DRGDetermination {
             System.out.println("========================================");
             // 4. Initial Exclusion Check against Principal Diagnosis (PDX)
             sdxList.forEach((item) -> {
-//                DRGWSResult exclCheck = getExclu.CheckExclusionList(datasource, SchemaName, item.mainCc, pdx);
-                DRGWSResult exclCheck = getExclu.CheckExclusionList(datasource, SchemaName, item.code, pdx);
+                DRGWSResult exclCheck = getExclu.CheckExclusionList(datasource, SchemaName, item.mainCc, pdx);
+//                DRGWSResult exclCheck = getExclu.CheckExclusionList(datasource, SchemaName, item.code, pdx);
                 if (exclCheck.isSuccess()) {
                     item.ccl = 0;
                 }
@@ -139,16 +139,12 @@ public class DRGDetermination {
                 if (anchor.ccl == 0) {
                     continue;
                 }
-
                 boolean exclusionsApplied = false;
-
                 for (int n = i + 1; n < sdxList.size(); n++) {
                     SdxItem target = sdxList.get(n);
-
                     if (target.ccl == 0) {
                         continue;
                     }
-
                     // Rule A: Same MAINCC Exclusion (If anchor & target share same MAINCC, anchor excludes target)
                     boolean isSameMainCcExclusion = (anchor.mainCc != null && !anchor.mainCc.isEmpty())
                             && anchor.mainCc.equalsIgnoreCase(target.mainCc);
@@ -223,7 +219,7 @@ public class DRGDetermination {
             } else {
                 pccl = (int) x;
             }
-            System.out.println("PCCL => " + pccl);
+//            System.out.println("PCCL => " + num);
             return String.valueOf(pccl);
 
         } catch (NumberFormatException | IOException ex) {
