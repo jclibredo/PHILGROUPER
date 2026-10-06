@@ -6,7 +6,6 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
-import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
@@ -194,7 +193,6 @@ public class GetMDC18 {
         result.setDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
-        GetICD10PreMDC getI10 = new GetICD10PreMDC();
         switch (pdc.toUpperCase()) {
             case "18A": {//Septicemia
                 result.setDC(age > 14 ? ("4".equals(dischargeType) ? "1872" : "1850") : "1851");
@@ -217,14 +215,8 @@ public class GetMDC18 {
                                 continue;
                             }
                             String sdxCode = rawSdxCode.trim();
-
                             DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "18BX", sdxCode);
-                            if (!getSdxCode.isSuccess()) {
-                                continue;
-                            }
-
-                            DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                            if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                            if (getSdxCode.isSuccess()) {
                                 result.setSdxfinder(sdxCode);
                                 break;
                             }

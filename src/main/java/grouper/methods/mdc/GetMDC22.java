@@ -7,7 +7,6 @@ package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
 import grouper.methods.validation.Endovasc;
-import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.PDxMalignancy;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
@@ -163,7 +162,6 @@ public class GetMDC22 {
         result.setDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
-        GetICD10PreMDC getI10 = new GetICD10PreMDC();
         if (Counter22BSDx > 0 || Counter22BPDx > 0) {
             boolean has22Condition = Counter22PA > 0 || Counter22BXPDx > 0 || Counter22BXSDx > 0;
             if (has22Condition) {
@@ -174,11 +172,7 @@ public class GetMDC22 {
                         }
                         String sdxCode = rawSdxCode.trim();
                         DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "22BX", sdxCode);
-                        if (!getSdxCode.isSuccess()) {
-                            continue;
-                        }
-                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                        if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                        if (getSdxCode.isSuccess()) {
                             result.setSdxfinder(sdxCode);
                             break;
                         }

@@ -172,15 +172,13 @@ public class GetValidatedPreMDC {
                         timeAdm, grouperParameter.getDischargeDate(), timeDis);
                 int computedYearLos = utility.ComputeYear(grouperParameter.getAdmissionDate(),
                         grouperParameter.getDischargeDate());
+
                 if (ageInYears > 124) {
                     drgResult.setDRG("26509");
                     drgResult.setDC("2650");
                     drgResult.setDRGName("Invalid Age");
-                } else if (computedLos <= 0
-                        && computedTime < 6
-                        && computedYearLos <= 0) {
-                    int hoursLimit = isBmdcSuccess ? 2 : 6;
-                    if (computedTime < hoursLimit) {
+                } else if (computedLos <= 0 && computedTime < 6 && computedYearLos <= 0) {
+                    if (computedLos <= 0 && computedTime < 2 && computedYearLos <= 0) {
                         drgResult.setDRG("26549");
                         drgResult.setDRGName("LOS(" + computedTime + "), The required Length of Stay (LOS) is at least 24 hours");
                     } else {

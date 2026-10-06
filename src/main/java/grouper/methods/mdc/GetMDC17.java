@@ -13,6 +13,7 @@ import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -110,7 +111,7 @@ public class GetMDC17 {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(), utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
                 if (los < 21) {
-                    String dc = this.principalDaignosis(
+                    MDCCodeOptimize dc = this.principalDaignosis(
                             drgResult.getPDC(),
                             ORProcedureCounter,
                             Counter17PA,
@@ -119,13 +120,19 @@ public class GetMDC17 {
                             CartProc,
                             CaCRxProc,
                             Counter17PBX,
-                            PBX99Proc);
-                    drgResult.setDC(dc);
+                            PBX99Proc,
+                            SecondaryList,
+                            SchemaName,
+                            datasource);
+                    drgResult.setDC(dc.getDC());
+                    if (!dc.getSdxfinder().isEmpty()) {
+                        drgResult.setSDXFINDER(dc.getSdxfinder());
+                    }
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "1705" : "1706");
                 }
             } else {
-                String dc = this.principalDaignosis(
+                MDCCodeOptimize dc = this.principalDaignosis(
                         drgResult.getPDC(),
                         ORProcedureCounter,
                         Counter17PA,
@@ -134,8 +141,14 @@ public class GetMDC17 {
                         CartProc,
                         CaCRxProc,
                         Counter17PBX,
-                        PBX99Proc);
-                drgResult.setDC(dc);
+                        PBX99Proc,
+                        SecondaryList,
+                        SchemaName,
+                        datasource);
+                drgResult.setDC(dc.getDC());
+                if (!dc.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(dc.getSdxfinder());
+                }
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -155,7 +168,7 @@ public class GetMDC17 {
 
     }
 
-    private String principalDaignosis(
+    private MDCCodeOptimize principalDaignosis(
             final String pdc,
             final Integer ORProcedureCounter,
             final Integer Counter17PA,
@@ -164,77 +177,185 @@ public class GetMDC17 {
             final Integer CartProc,
             final Integer CaCRxProc,
             final Integer Counter17PBX,
-            final Integer PBX99Proc) {
-        String dc = "";
+            final Integer PBX99Proc,
+            final List<String> SecondaryList,
+            final String SchemaName,
+            final DataSource dataSource) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
         switch (pdc.toUpperCase()) {
             case "17A"://Acute Leukemia
                 if (ORProcedureCounter > 0) {
-                    dc = Counter17PA > 0 ? "1701" : "1703";
+                    result.setDC(Counter17PA > 0 ? "1701" : "1703");
                 } else {
                     //Radio+Chemotherapy
                     if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                        dc = "1756";
+                        result.setDC("1756");
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+                            // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                            if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                    || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                                result.setSdxfinder(sdxCode);
+                                break;
+                            }
+                        }
                         //Chemotherapy
                     } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                        dc = "1757";
+                        result.setDC("1757");
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+                            // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                            if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                                result.setSdxfinder(sdxCode);
+                                break;
+                            }
+                        }
                         //Radiotherapy
                     } else if (CartSDx > 0 && CartProc > 0) {
-                        dc = "1758";
+                        result.setDC("1758");
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+                            // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                            if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                                result.setSdxfinder(sdxCode);
+                                break;
+                            }
+                        }
                     } else if (Counter17PBX > 0) { //##Dx Procedure
-                        dc = "1759";
+                        result.setDC("1759");
                     } else if (PBX99Proc > 0) {//Blood Transfusion
-                        dc = "1760";
+                        result.setDC("1760");
                     } else {//Malignancy 
-                        dc = "1750";
+                        result.setDC("1750");
                     }
                 }
                 break;
             case "17B"://Lymphoma & Non-acute Leukemia
                 if (ORProcedureCounter > 0) {
-                    dc = Counter17PA > 0 ? "1701" : "1703";
+                    result.setDC(Counter17PA > 0 ? "1701" : "1703");
                 } else {
                     //Radio+Chemotherapy
                     if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                        dc = "1761";
+                        result.setDC("1761");
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+                            // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                            if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                    || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                                result.setSdxfinder(sdxCode);
+                                break;
+                            }
+                        }
                         //Chemotherapy
                     } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                        dc = "1762";
+                        result.setDC("1762");
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+                            // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                            if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                                result.setSdxfinder(sdxCode);
+                                break;
+                            }
+                        }
                         //Radiotherapy
                     } else if (CartSDx > 0 && CartProc > 0) {
-                        dc = "1763";
+                        result.setDC("1763");
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+                            // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                            if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                                result.setSdxfinder(sdxCode);
+                                break;
+                            }
+                        }
                     } else if (Counter17PBX > 0) { //##Dx Procedure
-                        dc = "1764";
+                        result.setDC("1764");
                     } else if (PBX99Proc > 0) {//Blood Transfusion
-                        dc = "1765";
+                        result.setDC("1765");
                     } else {//Malignancy 
-                        dc = "1751";
+                        result.setDC("1751");
                     }
                 }
                 break;
             case "17C"://Other Neoplastic Disorders PDC 17C
                 if (ORProcedureCounter > 0) {
-                    dc = Counter17PA > 0 ? "1702" : "1704";
+                    result.setDC(Counter17PA > 0 ? "1702" : "1704");
                 } else {
                     //Radio+Chemotherapy
                     if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                        dc = "1766";
+                        result.setDC("1766");
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+                            // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                            if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                    || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                                result.setSdxfinder(sdxCode);
+                                break;
+                            }
+                        }
                         //Chemotherapy
                     } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                        dc = "1767";
+                        result.setDC("1767");
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+                            // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                            if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                                result.setSdxfinder(sdxCode);
+                                break;
+                            }
+                        }
                         //Radiotherapy
                     } else if (CartSDx > 0 && CartProc > 0) {
-                        dc = "1768";
+                        result.setDC("1768");
+                        for (String rawSdxCode : SecondaryList) {
+                            if (rawSdxCode == null) {
+                                continue;
+                            }
+                            String sdxCode = rawSdxCode.trim();
+                            // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                            if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                                result.setSdxfinder(sdxCode);
+                                break;
+                            }
+                        }
                     } else if (Counter17PBX > 0) { //##Dx Procedure
-                        dc = "1769";
+                        result.setDC("1769");
                     } else if (PBX99Proc > 0) {//Blood Transfusion
-                        dc = "1770";
+                        result.setDC("1770");
                     } else {//Malignancy 
-                        dc = "1752";
+                        result.setDC("1752");
                     }
                 }
                 break;
         }
-        return dc;
+        return result;
 
     }
 

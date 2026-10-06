@@ -12,6 +12,7 @@ import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -32,12 +33,12 @@ import org.apache.logging.log4j.Logger;
  */
 @RequestScoped
 public class GetMDC03 {
-
+    
     public GetMDC03() {
     }
     private final Logger logger = (Logger) LogManager.getLogger(GetMDC03.class);
     private final Utility utility = new Utility();
-
+    
     public DRGWSResult GetMDC03(
             final DataSource datasource,
             final String SchemaName,
@@ -115,7 +116,6 @@ public class GetMDC03 {
             int max = Optional.ofNullable(ORProcedureCounterList)
                     .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
                     .orElse(0);
-//            pdclist.sort(Collections.reverseOrder());
             if (PDXCounter99 > 0) {
                 if (Counter3BX > 0) {
                     drgResult.setDC(Counter3PDX > 0 ? "0322" : "0323");
@@ -139,7 +139,7 @@ public class GetMDC03 {
                         } else if (ORProcedureCounter > 0) {
                             drgResult.setDC(this.orProcedure(max));
                         } else {
-                            String dc = this.principalDaignosis(
+                            MDCCodeOptimize dc = this.principalDaignosis(
                                     drgResult.getPDC(),
                                     CartSDx,
                                     CaCRxSDx,
@@ -147,8 +147,14 @@ public class GetMDC03 {
                                     CaCRxProc,
                                     PCX3Proc,
                                     PBX99Proc,
-                                    Counter3PBX);
-                            drgResult.setDC(dc);
+                                    Counter3PBX,
+                                    SecondaryList,
+                                    SchemaName,
+                                    datasource);
+                            drgResult.setDC(dc.getDC());
+                            if (!dc.getSdxfinder().isEmpty()) {
+                                drgResult.setSDXFINDER(dc.getSdxfinder());
+                            }
                         }
                     } else {
                         drgResult.setDC(PCXCounter99 > 0 ? "0318" : "0319");
@@ -166,7 +172,7 @@ public class GetMDC03 {
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(max));
             } else {
-                String dc = this.principalDaignosis(
+                MDCCodeOptimize dc = this.principalDaignosis(
                         drgResult.getPDC(),
                         CartSDx,
                         CaCRxSDx,
@@ -174,8 +180,14 @@ public class GetMDC03 {
                         CaCRxProc,
                         PCX3Proc,
                         PBX99Proc,
-                        Counter3PBX);
-                drgResult.setDC(dc);
+                        Counter3PBX,
+                        SecondaryList,
+                        SchemaName,
+                        datasource);
+                drgResult.setDC(dc.getDC());
+                if (!dc.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(dc.getSdxfinder());
+                }
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -193,7 +205,7 @@ public class GetMDC03 {
         }
         return result;
     }
-
+    
     private String mdcProcedure(
             final String pdc,
             final Integer Counter3PEX) {
@@ -268,10 +280,10 @@ public class GetMDC03 {
                 break;
             }
         }
-
+        
         return result;
     }
-
+    
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
@@ -302,8 +314,8 @@ public class GetMDC03 {
         }
         return dc;
     }
-
-    private String principalDaignosis(
+    
+    private MDCCodeOptimize principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -311,60 +323,102 @@ public class GetMDC03 {
             final Integer CaCRxProc,
             final Integer PCX3Proc,
             final Integer PBX99Proc,
-            final Integer Counter3PBX) {
-        String dc = "";
+            final Integer Counter3PBX,
+            final List<String> SecondaryList,
+            final String SchemaName,
+            final DataSource dataSource) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
         switch (pdc) {
             case "3A": {
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                    dc = "0358";
+                    result.setDC("0358");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
+
                     //Chemotherapy
                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                    dc = "0359";
+                    result.setDC("0359");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Radiotherapy
                 } else if (CartSDx > 0 && CartProc > 0) {
-                    dc = "0360";
+                    result.setDC("0360");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                 } else if (PCX3Proc > 0) { //##Dx Procedure
-                    dc = "0361";
+                    result.setDC("0361");
                     //Radiotherapy
                 } else if (PBX99Proc > 0) {//Blood Transfusion
-                    dc = "0362";
+                    result.setDC("0362");
                 } else {
-                    dc = "0350";
+                    result.setDC("0350");
                 }
                 break;
             }
             case "3B": {//Dysequilibrium
-                dc = "0351";
+                result.setDC("0351");
                 break;
             }
             case "3C": {//Epistaxis
-                dc = "0352";
+                result.setDC("0352");
                 break;
             }
             case "3D": {//Otitis Media and Upper Respiratory Infection
-                dc = "0353";
+                result.setDC("0353");
                 break;
             }
             case "3E": {//Epiglottitis and Cellulitis of Face-Neck
-                dc = "0354";
+                result.setDC("0354");
                 break;
             }
             case "3F": {//Nasal Trauma and Deformity
-                dc = "0355";
+                result.setDC("0355");
                 break;
             }
             case "3G": {//Other Ear, Noes, Mouth and Throat Diagnoses
-                dc = "0356";
+                result.setDC("0356");
                 break;
             }
             case "3H": {//Dental and Oral 3H
-                dc = (Counter3PBX > 0) ? "0312" : "0357";//Extraction and Restoration
+                result.setDC((Counter3PBX > 0) ? "0312" : "0357");
+                //Extraction and Restoration
                 break;
             }
         }
-        return dc;
-
+        return result;
+        
     }
-
+    
 }

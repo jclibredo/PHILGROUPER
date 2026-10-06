@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
@@ -53,14 +55,15 @@ public class ProcessGrouperParameter {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        String path = utility.GetString("FilePathReports").getResult();
+//        String path = utility.GetString("FilePathReports").getResult();
         try {
             DRGOutput drgresult = utility.DRGOutput();
-
             AgeConfictValidation ageValidation = new AgeConfictValidation();
-
             GrouperParameter grouper = utility.GrouperParameter();
             GetICD10 geti10 = new GetICD10();
+            GetICD10PreMDC getI10PreMdc = new GetICD10PreMDC();
+            ValidateFindMDC validateMdc = new ValidateFindMDC();
+            UpdateDRGResult updateDrgResult = new UpdateDRGResult();
             GenderConfictValidation sexValidation = new GenderConfictValidation();
             //TIME FORMAT CONVERTER
             grouper.setResult_id(grouperparameter.getResult_id());
@@ -141,6 +144,7 @@ public class ProcessGrouperParameter {
             }
             if (!warningError.isEmpty()) {
                 drgresult.setWarningerror(String.join(",", warningError));
+                grouper.setWarningerror(String.join(",", warningError));
             } else {
                 drgresult.setWarningerror("");
             }
@@ -195,14 +199,18 @@ public class ProcessGrouperParameter {
                         }
                     }
                 }
-                grouper.setSdx(String.join(",", newsdxList));
+                List<String> SecondaryList = newsdxList.stream()
+                        .map(String::trim)
+                        .sorted(Comparator.reverseOrder())
+                        .collect(Collectors.toList());
+                grouper.setSdx(String.join(",", SecondaryList));
             } else {
                 grouper.setSdx(grouperparameter.getSdx());
             }
             //END CLEANING SDX
             grouper.setAdmissionWeight(grouperparameter.getAdmissionWeight());
             //VALIDATION AREA
-            DRGWSResult geticd10Result = new GetICD10PreMDC().GetICD10PreMDC(datasource, SchemaName, grouper.getPdx());
+            DRGWSResult geticd10Result = getI10PreMdc.GetICD10PreMDC(datasource, SchemaName, grouper.getPdx());
             if (grouper.getPdx().isEmpty()) {
                 drgresult.setDRG("26509");
                 drgresult.setDC("2650");
@@ -331,7 +339,7 @@ public class ProcessGrouperParameter {
             }
             if (drgresult.getDRG() != null) {
                 //COMMENT THIS IN TESTING MODE STARTING LINE
-                DRGWSResult updatedrgresult = new UpdateDRGResult().UpdateDRGResult(datasource,
+                DRGWSResult updatedrgresult = updateDrgResult.UpdateDRGResult(datasource,
                         SchemaName,
                         "ERR",
                         "ERR",
@@ -350,11 +358,11 @@ public class ProcessGrouperParameter {
                 //FILE WRITE IN TESTING MODE
 //                this.FileWriter(path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
             } else {
-                DRGWSResult validateresult = new ValidateFindMDC().validateFindMDC(datasource, SchemaName, grouper);
+                DRGWSResult validateresult = validateMdc.validateFindMDC(datasource, SchemaName, grouper);
                 if (validateresult.isSuccess()) {
                     DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
 //                    COMMENT THIS IN TESTING MODE STARTING LINE
-                    DRGWSResult updatedrgresult = new UpdateDRGResult().UpdateDRGResult(datasource,
+                    DRGWSResult updatedrgresult = updateDrgResult.UpdateDRGResult(datasource,
                             SchemaName,
                             drgResults.getMDC(),
                             drgResults.getPDC(),
@@ -392,51 +400,50 @@ public class ProcessGrouperParameter {
             logger.info("Executing Process Grouper Parameter Method");
             logger.error("Error in Process Grouper Parameter Method : {}", ex.getMessage(), ex);
             //FILE WRITE IN TESTING MODE
-            this.FileWriter(path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
+//            this.FileWriter(path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
         }
         return result;
     }
 
-    public void FileWriter(
-            final String path,
-            final String series,
-            final String drgcode,
-            final String pdc,
-            final String drgname,
-            final String prepccl,
-            final String finalpccl,
-            final String warningerror) {
-        try {
-            FileReader fr = new FileReader(path);
-            ArrayList<String> oldContent;
-            try (BufferedReader br = new BufferedReader(fr)) {
-                String line;
-                oldContent = new ArrayList<>();
-                while ((line = br.readLine()) != null) {
-                    oldContent.add(line);
-                }
-            }
-            try (PrintWriter pw = new PrintWriter(path)) {
-                for (int a = 0; a < oldContent.size(); a++) {
-                    pw.write(oldContent.get(a) + "\n");
-                }
-                pw.write(
-                        "SERIES: " + series
-                        + ", DRGCODE:" + drgcode
-                        + ", PDC:" + pdc
-                        + ", NAME:" + drgname
-                        + ", PREPCCL:" + prepccl
-                        + ", FINALPCCL:" + finalpccl
-                        + ", ERROR:" + warningerror + "\n");
-                pw.flush();
-
-            }
-        } catch (IOException ex) {
-            logger.info("Executing File writer Method");
-            logger.error("Error in File writer Method : {}", ex.getMessage(), ex);
-        }
-    }
-
+//    public void FileWriter(
+//            final String path,
+//            final String series,
+//            final String drgcode,
+//            final String pdc,
+//            final String drgname,
+//            final String prepccl,
+//            final String finalpccl,
+//            final String warningerror) {
+//        try {
+//            FileReader fr = new FileReader(path);
+//            ArrayList<String> oldContent;
+//            try (BufferedReader br = new BufferedReader(fr)) {
+//                String line;
+//                oldContent = new ArrayList<>();
+//                while ((line = br.readLine()) != null) {
+//                    oldContent.add(line);
+//                }
+//            }
+//            try (PrintWriter pw = new PrintWriter(path)) {
+//                for (int a = 0; a < oldContent.size(); a++) {
+//                    pw.write(oldContent.get(a) + "\n");
+//                }
+//                pw.write(
+//                        "SERIES: " + series
+//                        + ", DRGCODE:" + drgcode
+//                        + ", PDC:" + pdc
+//                        + ", NAME:" + drgname
+//                        + ", PREPCCL:" + prepccl
+//                        + ", FINALPCCL:" + finalpccl
+//                        + ", ERROR:" + warningerror + "\n");
+//                pw.flush();
+//
+//            }
+//        } catch (IOException ex) {
+//            logger.info("Executing File writer Method");
+//            logger.error("Error in File writer Method : {}", ex.getMessage(), ex);
+//        }
+//    }
     public String DRGAuditTrail(final DataSource datasource, final String SchemaName, String claimsSeries, String idSeries, String deTails, String status) {
         DRGWSResult grouperauditrail = new InsertGrouperAuditTrail().InsertGrouperAuditTrail(datasource, SchemaName, claimsSeries, idSeries, deTails, status);
         return grouperauditrail.getMessage();

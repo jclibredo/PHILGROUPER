@@ -13,6 +13,7 @@ import grouper.methods.validation.PDxMalignancy;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -133,7 +134,21 @@ public class GetMDC07 {
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(max));
                     } else {
-                        drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter7PDX, PBX99Proc, grouperparameter.getDischargeType()));
+                        MDCCodeOptimize dc = this.principalDaignosis(drgResult.getPDC(),
+                                CartSDx,
+                                CaCRxSDx,
+                                CartProc,
+                                CaCRxProc,
+                                Counter7PDX,
+                                PBX99Proc,
+                                grouperparameter.getDischargeType(),
+                                SecondaryList,
+                                SchemaName,
+                                datasource);
+                        drgResult.setDC(dc.getDC());
+                        if (!dc.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(dc.getSdxfinder());
+                        }
                     }
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "0712" : "0713");
@@ -150,7 +165,21 @@ public class GetMDC07 {
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(max));
             } else {
-                drgResult.setDC(this.principalDaignosis(drgResult.getPDC(), CartSDx, CaCRxSDx, CartProc, CaCRxProc, Counter7PDX, PBX99Proc, grouperparameter.getDischargeType()));
+                MDCCodeOptimize dc = this.principalDaignosis(drgResult.getPDC(),
+                        CartSDx,
+                        CaCRxSDx,
+                        CartProc,
+                        CaCRxProc,
+                        Counter7PDX,
+                        PBX99Proc,
+                        grouperparameter.getDischargeType(),
+                        SecondaryList,
+                        SchemaName,
+                        datasource);
+                drgResult.setDC(dc.getDC());
+                if (!dc.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(dc.getSdxfinder());
+                }
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -244,7 +273,7 @@ public class GetMDC07 {
         return dc;
     }
 
-    private String principalDaignosis(
+    private MDCCodeOptimize principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -252,47 +281,87 @@ public class GetMDC07 {
             final Integer CaCRxProc,
             final Integer Counter7PDX,
             final Integer PBX99Proc,
-            final String disChargeType) {
-        String dc = "";
+            final String disChargeType,
+            final List<String> SecondaryList,
+            final String SchemaName,
+            final DataSource dataSource) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
         switch (pdc) {
             case "7B": {//Malignancy of Hepatobiliary or Pancreas
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                    dc = "0756";
+                    result.setDC("0756");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Chemotherapy
                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                    dc = "0757";
+                    result.setDC("0757");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Radiotherapy
                 } else if (CartSDx > 0 && CartProc > 0) {
-                    dc = "0758";
+                    result.setDC("0758");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                 } else if (Counter7PDX > 0) { //##Dx Procedure
-                    dc = "0759";
+                    result.setDC("0759");
                     //Radiotherapy
                 } else if (PBX99Proc > 0) {//Blood Transfusion
-                    dc = "0760";
+                    result.setDC("0760");
                 } else {//Malignancy 
-                    dc = "4".equals(disChargeType) ? "0761" : "0751";
+                    result.setDC("4".equals(disChargeType) ? "0761" : "0751");
                 }
                 break;
             }
             case "7A": {//Cirrhosis and Alcoholic Hepatitis
-                dc = "0750";
+                result.setDC("0750");
                 break;
             }
             case "7C": {//Disorder of Pancreas, Except Malignancy
-                dc = "0753";
+                result.setDC("0753");
                 break;
             }
             case "7D": {//Disorder of Liver, Except Malignancy, Cirrhosis, Alcoholic Hepatitis
-                dc = "0754";
+                result.setDC("0754");
                 break;
             }
             case "7E": {//Disorder of Biliary Tract 7E
-                dc = "0755";
+                result.setDC("0755");
                 break;
             }
         }
-        return dc;
+        return result;
 
     }
 

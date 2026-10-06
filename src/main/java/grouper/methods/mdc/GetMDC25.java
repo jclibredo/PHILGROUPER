@@ -6,7 +6,6 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
-import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -61,7 +60,6 @@ public class GetMDC25 {
             MDCProcedureMethod mdcProc = new MDCProcedureMethod();
             ORProcedure orProc = new ORProcedure();
             GetPDC getPdc = new GetPDC();
-            GetICD10PreMDC getI10 = new GetICD10PreMDC();
             int PDXCounter99 = 0;
             int PCXCounter99 = 0;
             int Counter25BXSDx = 0;
@@ -121,22 +119,13 @@ public class GetMDC25 {
                         drgResult.setDC(this.MDCProcedures(max));
                     } else if (Counter25BXSDx > 0 || Counter25BXPDx > 0) {//HIV-related CNS Diseases
                         if (Counter25BXPDx == 0 && Counter25BXSDx > 0) {
-//                            SecondaryList.stream()
-//                                    .map(String::trim)
-//                                    .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25BX", sdxCode).isSuccess())
-//                                    .findFirst()
-//                                    .ifPresent(drgResult::setSDXFINDER);
                             for (String rawSdxCode : SecondaryList) {
                                 if (rawSdxCode == null) {
                                     continue;
                                 }
                                 String sdxCode = rawSdxCode.trim();
                                 DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25BX", sdxCode);
-                                if (!getSdxCode.isSuccess()) {
-                                    continue;
-                                }
-                                DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                                if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                                if (getSdxCode.isSuccess()) {
                                     drgResult.setSDXFINDER(sdxCode);
                                     break;
                                 }
@@ -145,22 +134,13 @@ public class GetMDC25 {
                         drgResult.setDC("2550");
                     } else if (Counter25CXSDx > 0 || Counter25CXPDx > 0) {//HIV-related Malignancy
                         if (Counter25CXSDx > 0 && Counter25CXPDx == 0) {
-//                            SecondaryList.stream()
-//                                    .map(String::trim)
-//                                    .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25CX", sdxCode).isSuccess())
-//                                    .findFirst()
-//                                    .ifPresent(drgResult::setSDXFINDER);
                             for (String rawSdxCode : SecondaryList) {
                                 if (rawSdxCode == null) {
                                     continue;
                                 }
                                 String sdxCode = rawSdxCode.trim();
                                 DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25CX", sdxCode);
-                                if (!getSdxCode.isSuccess()) {
-                                    continue;
-                                }
-                                DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                                if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                                if (getSdxCode.isSuccess()) {
                                     drgResult.setSDXFINDER(sdxCode);
                                     break;
                                 }
@@ -171,22 +151,13 @@ public class GetMDC25 {
                         if (Counter25DXSDx > 0 || Counter25DXPDx > 0) {//HIV-related Infection
                             drgResult.setDC(grouperparameter.getDischargeType().equals("4") ? "2554" : "2552");
                             if (Counter25DXSDx > 0 && Counter25DXPDx == 0) {
-//                                SecondaryList.stream()
-//                                        .map(String::trim)
-//                                        .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25DX", sdxCode).isSuccess())
-//                                        .findFirst()
-//                                        .ifPresent(drgResult::setSDXFINDER);
                                 for (String rawSdxCode : SecondaryList) {
                                     if (rawSdxCode == null) {
                                         continue;
                                     }
                                     String sdxCode = rawSdxCode.trim();
                                     DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25DX", sdxCode);
-                                    if (!getSdxCode.isSuccess()) {
-                                        continue;
-                                    }
-                                    DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                                    if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                                    if (getSdxCode.isSuccess()) {
                                         drgResult.setSDXFINDER(sdxCode);
                                         break;
                                     }
@@ -204,22 +175,13 @@ public class GetMDC25 {
                 drgResult.setDC(this.MDCProcedures(max));
             } else if (Counter25BXSDx > 0 || Counter25BXPDx > 0) {//HIV-related CNS Diseases
                 if (Counter25BXSDx > 0 && Counter25BXPDx == 0) {
-//                    SecondaryList.stream()
-//                            .map(String::trim)
-//                            .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25BX", sdxCode).isSuccess())
-//                            .findFirst()
-////                            .ifPresent(drgResult::setSDXFINDER);
                     for (String rawSdxCode : SecondaryList) {
                         if (rawSdxCode == null) {
                             continue;
                         }
                         String sdxCode = rawSdxCode.trim();
                         DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25BX", sdxCode);
-                        if (!getSdxCode.isSuccess()) {
-                            continue;
-                        }
-                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                        if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                        if (getSdxCode.isSuccess()) {
                             drgResult.setSDXFINDER(sdxCode);
                             break;
                         }
@@ -228,22 +190,13 @@ public class GetMDC25 {
                 drgResult.setDC("2550");
             } else if (Counter25CXSDx > 0 || Counter25CXPDx > 0) {//HIV-related Malignancy
                 if (Counter25CXSDx > 0 && Counter25CXPDx == 0) {
-//                    SecondaryList.stream()
-//                            .map(String::trim)
-//                            .filter(sdxCode -> checkAX.AX(datasource, SchemaName, "25CX", sdxCode).isSuccess())
-//                            .findFirst()
-//                            .ifPresent(drgResult::setSDXFINDER);
                     for (String rawSdxCode : SecondaryList) {
                         if (rawSdxCode == null) {
                             continue;
                         }
                         String sdxCode = rawSdxCode.trim();
                         DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25CX", sdxCode);
-                        if (!getSdxCode.isSuccess()) {
-                            continue;
-                        }
-                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                        if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                        if (getSdxCode.isSuccess()) {
                             drgResult.setSDXFINDER(sdxCode);
                             break;
                         }
@@ -260,11 +213,7 @@ public class GetMDC25 {
                             }
                             String sdxCode = rawSdxCode.trim();
                             DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "25DX", sdxCode);
-                            if (!getSdxCode.isSuccess()) {
-                                continue;
-                            }
-                            DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                            if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                            if (getSdxCode.isSuccess()) {
                                 drgResult.setSDXFINDER(sdxCode);
                                 break;
                             }

@@ -13,6 +13,7 @@ import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -106,7 +107,6 @@ public class GetMDC01 {
             int max = Optional.ofNullable(ORProcedureCounterList)
                     .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
                     .orElse(0);
-//            pdclist.sort(Collections.reverseOrder());
             // THIS AREA WILL START STATEMENT TO FIND DC FOR MDC 1
             if (PDXCounter99 > 0) { //Check Procedure if Tracheostomy
                 long los = utility.ComputeLOS(
@@ -134,7 +134,7 @@ public class GetMDC01 {
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(max));
                     } else {
-                        String dc = this.principalDaignosis(
+                        MDCCodeOptimize dc = this.principalDaignosis(
                                 drgResult.getPDC(),
                                 CartSDx,
                                 CaCRxSDx,
@@ -142,8 +142,14 @@ public class GetMDC01 {
                                 CaCRxProc,
                                 Counter1PBX,
                                 PBX99Proc,
-                                grouperparameter.getDischargeType());
-                        drgResult.setDC(dc);
+                                grouperparameter.getDischargeType(),
+                                SecondaryList,
+                                SchemaName,
+                                datasource);
+                        drgResult.setDC(dc.getDC());
+                        if (!dc.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(dc.getSdxfinder());
+                        }
                     }
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "0115" : "0116");
@@ -166,7 +172,7 @@ public class GetMDC01 {
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(max));
             } else {
-                String dc = this.principalDaignosis(
+                MDCCodeOptimize dc = this.principalDaignosis(
                         drgResult.getPDC(),
                         CartSDx,
                         CaCRxSDx,
@@ -174,8 +180,14 @@ public class GetMDC01 {
                         CaCRxProc,
                         Counter1PBX,
                         PBX99Proc,
-                        grouperparameter.getDischargeType());
-                drgResult.setDC(dc);
+                        grouperparameter.getDischargeType(),
+                        SecondaryList,
+                        SchemaName,
+                        datasource);
+                drgResult.setDC(dc.getDC());
+                if (!dc.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(dc.getSdxfinder());
+                }
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -194,7 +206,7 @@ public class GetMDC01 {
         return result;
     }
 
-    private String principalDaignosis(
+    private MDCCodeOptimize principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -202,87 +214,145 @@ public class GetMDC01 {
             final Integer CaCRxProc,
             final Integer Counter1PBX,
             final Integer PBX99Proc,
-            final String discharge) {
-        String dc = "";
+            final String discharge,
+            final List<String> SecondaryList,
+            final String SchemaName,
+            final DataSource dataSource) {
+        AX checkAX = new AX();
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setSdxfinder("");
         switch (pdc) {
-            case "1A":
-                dc = "0150";
+            case "1A": {
+                result.setDC("0150");
                 break;
-            case "1B":
-                dc = "0151";
+            }
+            case "1B": {
+                result.setDC("0151");
                 break;
-            case "1C":
+            }
+            case "1C": {
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                    dc = "0170";
+                    result.setDC("0170");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Chemotherapy
                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                    dc = "0171";
+                    result.setDC("0171");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Radiotherapy
                 } else if (CartSDx > 0 && CartProc > 0) {
-                    dc = "0172";
+                    result.setDC("0172");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                 } else if (Counter1PBX > 0) { //##Dx Procedure
-                    dc = "0173";
+                    result.setDC("0173");
                     //Radiotherapy
                 } else if (PBX99Proc > 0) {//Blood Transfusion
-                    dc = "0174";
+                    result.setDC("0174");
                 } else {
-                    dc = "0152";
+                    result.setDC("0152");
                 }
                 break;
-            case "1D"://Degenerative Disorders
-                dc = "0153";
+            }
+            case "1D": {//Degenerative Disorders
+                result.setDC("0153");
                 break;
-            case "1E"://Multiple Sclerosis and Cerebellar Ataxia
-                dc = "0154";
+            }
+            case "1E": {//Multiple Sclerosis and Cerebellar Ataxia
+                result.setDC("0154");
                 break;
-            case "1F"://Specific Cerebrovascular Disorders Except TIA
-                dc = "4".equals(discharge) ? "0175" : "0155";
+            }
+            case "1F": {//Specific Cerebrovascular Disorders Except TIA
+                result.setDC("4".equals(discharge) ? "0175" : "0155");
                 break;
-            case "1G"://Transient Ischemic Attack and Precerebral Occlusions
-                dc = "0156";
+            }
+            case "1G": {//Transient Ischemic Attack and Precerebral Occlusions
+                result.setDC("0156");
                 break;
-            case "1H"://Nonspecific Cerebrovascular Diseases
-                dc = "0157";
+            }
+            case "1H": {//Nonspecific Cerebrovascular Diseases
+                result.setDC("0157");
                 break;
-            case "1J"://Cranial and Peripheral Nerve Disorders
-                dc = "0158";
+            }
+            case "1J": {//Cranial and Peripheral Nerve Disorders
+                result.setDC("0158");
                 break;
-            case "1K"://Infections Except Viral Meningitis
-                dc = "4".equals(discharge) ? "0176" : "0159";
+            }
+            case "1K": {//Infections Except Viral Meningitis
+                result.setDC("4".equals(discharge) ? "0176" : "0159");
                 break;
-            case "1L"://Viral Meningitis
-                dc = "0160";
+            }
+            case "1L": {//Viral Meningitis
+                result.setDC("0160");
                 break;
-            case "1M"://Nontraumatic Stupor and Coma
-                dc = "0161";
+            }
+            case "1M": {//Nontraumatic Stupor and Coma
+                result.setDC("0161");
                 break;
-            case "1N"://Febrile Convulsions
-                dc = "0162";
+            }
+            case "1N": {//Febrile Convulsions
+                result.setDC("0162");
                 break;
-            case "1P"://Seizure Disorders
-                dc = "0163";
+            }
+            case "1P": {//Seizure Disorders
+                result.setDC("0163");
                 break;
-            case "1Q"://Headaches
-                dc = "0164";
+            }
+            case "1Q": {//Headaches
+                result.setDC("0164");
                 break;
-            case "1R"://Intracranial Injury
-                dc = "0165";
+            }
+            case "1R": {//Intracranial Injury
+                result.setDC("0165");
                 break;
-            case "1S"://Skull Fractures
-                dc = "0166";
+            }
+            case "1S": {//Skull Fractures
+                result.setDC("0166");
                 break;
-            case "1T"://Other Head Injury
-                dc = "0167";
+            }
+            case "1T": {//Other Head Injury
+                result.setDC("0167");
                 break;
-            case "1U"://Other Disorders of Nervous System
-                dc = "0168";
+            }
+            case "1U": {//Other Disorders of Nervous System
+                result.setDC("0168");
                 break;
-            case "1V"://Guillain-Barre Syndrome 1V
-                dc = "0169";
+            }
+            case "1V": {//Guillain-Barre Syndrome 1V
+                result.setDC("0169");
                 break;
+            }
         }
-        return dc;
+        return result;
     }
 
     private String orProcedure(final Integer ORProcedureCounterList) {

@@ -6,7 +6,6 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
-import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -155,7 +154,7 @@ public class GetMDC09 {
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(max));
                     } else {
-                        String dc = this.principalDaignosis(
+                        MDCCodeOptimize dc = this.principalDaignosis(
                                 drgResult.getPDC(),
                                 CartSDx,
                                 CaCRxSDx,
@@ -164,8 +163,14 @@ public class GetMDC09 {
                                 Counter9PCX,
                                 PBX99Proc,
                                 grouperparameter.getBirthDate(),
-                                grouperparameter.getAdmissionDate());
-                        drgResult.setDC(dc);
+                                grouperparameter.getAdmissionDate(),
+                                SecondaryList,
+                                SchemaName,
+                                datasource);
+                        drgResult.setDC(dc.getDC());
+                        if (!dc.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(dc.getSdxfinder());
+                        }
                     }
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "0912" : "0913");
@@ -196,7 +201,7 @@ public class GetMDC09 {
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(max));
             } else {
-                String dc = this.principalDaignosis(
+                MDCCodeOptimize dc = this.principalDaignosis(
                         drgResult.getPDC(),
                         CartSDx,
                         CaCRxSDx,
@@ -205,8 +210,14 @@ public class GetMDC09 {
                         Counter9PCX,
                         PBX99Proc,
                         grouperparameter.getBirthDate(),
-                        grouperparameter.getAdmissionDate());
-                drgResult.setDC(dc);
+                        grouperparameter.getAdmissionDate(),
+                        SecondaryList,
+                        SchemaName,
+                        datasource);
+                drgResult.setDC(dc.getDC());
+                if (!dc.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(dc.getSdxfinder());
+                }
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -241,7 +252,6 @@ public class GetMDC09 {
         result.setDC("");
         result.setSdxfinder("");
         PDxMalignancy malignant = new PDxMalignancy();
-        GetICD10PreMDC getI10 = new GetICD10PreMDC();
         switch (pdc.toUpperCase()) {
             case "9PJ": {//Pedicle Graft Plastic Procedures
                 result.setDC("0911");
@@ -256,20 +266,15 @@ public class GetMDC09 {
                 if (Counter9PDX > 0) {
                     result.setDC("0914");    //SDxMalignantCount
                 } else {
+                    result.setDC((PDxMalignantCount > 0 || SDxMalignantCount > 0) ? "0901" : "0903");
                     if (PDxMalignantCount == 0 && SDxMalignantCount > 0 && SecondaryList != null) {
                         for (String sdx : SecondaryList) {
                             String sdxTrimmed = sdx.trim();
                             if (malignant.PDxMalignancy(datasource, SchemaName, sdxTrimmed, "9E").isSuccess()) {
-                                DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxTrimmed);
-                                if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
-                                    result.setSdxfinder(sdxTrimmed);
-                                    break;
-                                }
+                                result.setSdxfinder(sdxTrimmed);
+                                break;
                             }
                         }
-                        result.setDC("0901");
-                    } else {
-                        result.setDC("0903");
                     }
                 }
                 break;
@@ -285,11 +290,8 @@ public class GetMDC09 {
                     for (String sdx : SecondaryList) {
                         String sdxTrimmed = sdx.trim();
                         if (malignant.PDxMalignancy(datasource, SchemaName, sdxTrimmed, "9E").isSuccess()) {
-                            DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxTrimmed);
-                            if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
-                                result.setSdxfinder(sdxTrimmed);
-                                break;
-                            }
+                            result.setSdxfinder(sdxTrimmed);
+                            break;
                         }
                     }
                 }
@@ -341,7 +343,7 @@ public class GetMDC09 {
         return dc;
     }
 
-    private String principalDaignosis(
+    private MDCCodeOptimize principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -350,59 +352,99 @@ public class GetMDC09 {
             final Integer Counter9PCX,
             final Integer PBX99Proc,
             final String bdate,
-            final String admDate) {
-        String dc = "";
+            final String admDate,
+            final List<String> SecondaryList,
+            final String SchemaName,
+            final DataSource dataSource) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
         long los = utility.ComputeYear(bdate, admDate);
         switch (pdc) {
             case "9A": {//Skin Ulcer
-                dc = "0950";
+                result.setDC("0950");
                 break;
             }
             case "9B": {//Severe Skin Disorders
-                dc = "0951";
+                result.setDC("0951");
                 break;
             }
             case "9C": {//Moderate Skin Disorders
-                dc = "0952";
+                result.setDC("0952");
                 break;
             }
             case "9D": {//Minor Skin Disorders
-                dc = "0953";
+                result.setDC("0953");
                 break;
             }
             case "9E": {//Malignant Breast Disorders
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                    dc = "0960";
+                    result.setDC("0960");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Chemotherapy
                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                    dc = "0961";
+                    result.setDC("0961");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Radiotherapy
                 } else if (CartSDx > 0 && CartProc > 0) {
-                    dc = "0962";
+                    result.setDC("0962");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                 } else if (Counter9PCX > 0) { //Dx Procedure
-                    dc = "0963";
+                    result.setDC("0963");
                 } else if (PBX99Proc > 0) {//Blood Transfusion
-                    dc = "0964";
+                    result.setDC("0964");
                 } else {//Malignancy 
-                    dc = "0954";
+                    result.setDC("0954");
                 }
                 break;
             }
             case "9F": {//Non-Malignant Breast Disorders
-                dc = "0955";
+                result.setDC("0955");
                 break;
             }
             case "9G": {//Cellulites
-                dc = (los > 17) ? "0956" : "0957";
+                result.setDC((los > 17) ? "0956" : "0957");
                 break;
             }
             case "9H": {//Trauma
-                dc = (los > 17) ? "0958" : "0959";
+                result.setDC((los > 17) ? "0958" : "0959");
                 break;
             }
         }
-        return dc;
+        return result;
 
     }
 }

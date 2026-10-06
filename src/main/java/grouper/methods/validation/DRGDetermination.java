@@ -30,7 +30,6 @@ public class DRGDetermination {
     // Internal data structure to bind SDx attributes together during calculations
 
     private static class SdxItem {
-
         String code;
         String mainCc;
         int ccRow;
@@ -97,7 +96,6 @@ public class DRGDetermination {
             if (detDcCol.isSuccess()) {
                 dcCol = detDcCol.getMessage();
             }
-            System.out.println("DCCOL " + dcCol);
             // 3. Populate CCROW, MAINCC, and Initial CCL per SDX
             for (SdxItem item : sdxList) {
                 DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, item.code);
@@ -105,12 +103,12 @@ public class DRGDetermination {
                     ICD10PreMDCResult premdc = utility.objectMapper().readValue(ccRowResult.getResult(), ICD10PreMDCResult.class);
                     item.ccRow = Integer.parseInt(ccRowResult.getMessage());
                     item.mainCc = Optional.ofNullable(premdc.getMainCC()).orElse(""); // Assuming getResult() holds MAINCC
-                    System.out.print("SDX:" + item.code + " MAINCC:" + item.mainCc + " CCROW:" + item.ccRow);
+//                    System.out.print("SDX:" + item.code + " MAINCC:" + item.mainCc + " CCROW:" + item.ccRow);
                 }
                 item.ccl = getCCLVal.GetCCLValue(datasource, SchemaName, dcCol, String.valueOf(item.ccRow));
-                System.out.println(" CCL:" + item.ccl);
+//                System.out.println(" CCL:" + item.ccl);
             }
-            System.out.println("========================================");
+//            System.out.println("========================================");
             // 4. Initial Exclusion Check against Principal Diagnosis (PDX)
             sdxList.forEach((item) -> {
                 DRGWSResult exclCheck = getExclu.CheckExclusionList(datasource, SchemaName, item.mainCc, pdx);
@@ -120,12 +118,11 @@ public class DRGDetermination {
                 }
             });
             // 5. First Sort: Descending CCL, then Descending Code String (Z-A)
-//            sortSdxList(sdxList);
-            System.out.println("Before Rearrange");
+//            System.out.println("Before Rearrange");
             printSdxState(sdxList);
             sortSdxList(sdxList);
 
-            System.out.println("After Rearrange");
+//            System.out.println("After Rearrange");
             printSdxState(sdxList);
             // =========================================================================
             // 6. Pairwise Recursive Exclusion Matrix (SDx_i vs SDx_n)
@@ -148,9 +145,7 @@ public class DRGDetermination {
                     // Rule A: Same MAINCC Exclusion (If anchor & target share same MAINCC, anchor excludes target)
                     boolean isSameMainCcExclusion = (anchor.mainCc != null && !anchor.mainCc.isEmpty())
                             && anchor.mainCc.equalsIgnoreCase(target.mainCc);
-
                     boolean isDbExclusion = false;
-
                     // Rule B: DB Exclusion Check (if not already matched by same MAINCC)
                     if (!isSameMainCcExclusion) {
                         String targetExclCode = (target.mainCc != null && !target.mainCc.trim().isEmpty())
@@ -171,13 +166,13 @@ public class DRGDetermination {
                 }
 
                 roundsPerformed++;
-                System.out.println(String.format("After Round %d (%s as anchor)", roundsPerformed, anchor.code));
+//                System.out.println(String.format("After Round %d (%s as anchor)", roundsPerformed, anchor.code));
                 printSdxState(sdxList);
             }
 
             // Check if further rounds are needed
             if (roundsPerformed <= 1) {
-                System.out.println("6.2 Recursive Exclusion: No need to do.");
+//                System.out.println("6.2 Recursive Exclusion: No need to do.");
             }
 
             // Calculate Final Effective CCLs
@@ -186,8 +181,7 @@ public class DRGDetermination {
                     .filter(ccl -> ccl > 0)
                     .collect(Collectors.toList());
 
-            System.out.println("CCL: " + activeCcls.stream().map(Object::toString).collect(Collectors.joining(" ")));
-
+//            System.out.println("CCL: " + activeCcls.stream().map(Object::toString).collect(Collectors.joining(" ")));
             // =========================================================================
             // Helper Method for Formatted Output
             // =========================================================================
@@ -234,144 +228,10 @@ public class DRGDetermination {
             sdxRow.append(String.format("%-6s", item.code));
             cclRow.append(String.format("%-6d", item.ccl));
         }
-        System.out.println(sdxRow.toString());
-        System.out.println(cclRow.toString());
-        System.out.println();
+//        System.out.println(sdxRow.toString());
+//        System.out.println(cclRow.toString());
+//        System.out.println();
     }
-//    public String CleanSDxDCDetermination(
-//            final DataSource datasource,
-//            final String SchemaName,
-//            final String sdxorig,
-//            final String sdxdc,
-//            final String pdx,
-//            final String dcs) {
-//        GetICD10PreMDC getI10 = new GetICD10PreMDC();
-//        GetCCLValue getCCLVal = new GetCCLValue();
-//        CheckExclusionList getExclu = new CheckExclusionList();
-//        GetDC getDC = new GetDC();
-//        try {
-//            String sdxoriglist = "";
-//            String sdxdcsfinder = Optional.ofNullable(sdxdc).orElse("");
-//            String sdxoriglis = Optional.ofNullable(sdxorig).orElse("");
-//            if (!sdxdcsfinder.equals("") && !sdxoriglis.equals("")) {
-//                // 1. Convert dataB into a Set of strings to exclude
-//                Set<String> excludeSet = Arrays.stream(sdxdcsfinder.split(","))
-//                        .map(String::trim)
-//                        .collect(Collectors.toSet());
-//
-//                // 2. Filter dataA by keeping elements NOT present in excludeSet
-//                String result = Arrays.stream(sdxoriglis.split(","))
-//                        .map(String::trim)
-//                        .filter(item -> !excludeSet.contains(item))
-//                        .collect(Collectors.joining(","));
-//                sdxoriglist = result;
-//            } else {
-//                sdxoriglist = sdxoriglis;
-//            }
-//            // 1. Parse comma-separated secondary diagnoses (SDX)
-//            List<SdxItem> sdxList = new ArrayList<>();
-//            if (sdxoriglist != null && !sdxoriglist.trim().isEmpty()) {
-//                for (String token : sdxoriglist.split(",")) {
-//                    String trimmed = token.trim();
-//                    if (!trimmed.isEmpty()) {
-//                        sdxList.add(new SdxItem(trimmed));
-//                    }
-//                }
-//            }
-//            // Cap list size to 12 items as specified in the Stata logic
-//            if (sdxList.size() > 12) {
-//                sdxList = sdxList.subList(0, 12);
-//            }
-//            // If no SDX codes exist, return PCCL = 0
-//            if (sdxList.isEmpty()) {
-//                return "0";
-//            }
-//            // 2. Lookup Adjacent DRG / DC Column
-//            String dcCol = "";
-//            DRGWSResult detDcCol = getDC.GetDC(datasource, SchemaName, dcs);
-//            if (detDcCol.isSuccess()) {
-//                dcCol = detDcCol.getMessage();
-//            }
-//            // 3. Populate CCROW, MAINCC, and Initial CCL per SDX
-//            for (SdxItem item : sdxList) {
-//                DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, item.code);
-//                if (ccRowResult.isSuccess()) {
-//                    ICD10PreMDCResult premdc = utility.objectMapper().readValue(ccRowResult.getResult(), ICD10PreMDCResult.class);
-//                    item.ccRow = Integer.parseInt(ccRowResult.getMessage());
-//                    item.mainCc = Optional.ofNullable(premdc.getMainCC()).orElse(""); // Assuming getResult() holds MAINCC
-//                    System.out.print("SDX:" + item.code + " MAINCC:" + item.mainCc + " CCROW:" + item.ccRow);
-//                }
-//                item.ccl = getCCLVal.GetCCLValue(datasource, SchemaName, dcCol, String.valueOf(item.ccRow));
-//                System.out.println(" CCL:" + item.ccl);
-//            }
-//            System.out.println("========================================");
-//            // 4. Initial Exclusion Check against Principal Diagnosis (PDX)
-//            sdxList.forEach((item) -> {
-////                DRGWSResult exclCheck = getExclu.CheckExclusionList(datasource, SchemaName, item.mainCc, pdx);
-//                DRGWSResult exclCheck = getExclu.CheckExclusionList(datasource, SchemaName, item.code, pdx);
-//                if (exclCheck.isSuccess()) {
-//                    item.ccl = 0;
-//                }
-//                System.out.println("EXCLUSIONLIST FIRST:" + item.code + " PDX:" + pdx + " CCL:" + item.ccl);
-//            });
-//            System.out.println("========================================");
-//            // 5. First Sort: Descending CCL, then Descending Code String (Z-A)
-//            sortSdxList(sdxList);
-////            System.out.println("SDX LIST: "+utility.objectMapper().writeValueAsString(sdxList));
-////            // 6. Pairwise Recursive Exclusion Matrix (SDx_i vs SDx_n)
-//            for (int i = 0; i < sdxList.size(); i++) {
-//                SdxItem itemI = sdxList.get(i);
-//                for (int n = i + 1; n < sdxList.size(); n++) {
-//                    SdxItem itemN = sdxList.get(n);
-//                    // Skip comparison if either CCL is already 0
-//                    if (itemI.ccl == 0 || itemN.ccl == 0) {
-//                        continue;
-//                    }
-//                    // Check if itemI excludes itemN using itemI's code and itemN's mainCc
-//                    DRGWSResult pairExclCheck = getExclu.CheckExclusionList(
-//                            datasource, SchemaName, itemI.code, itemN.mainCc);
-//                    if (pairExclCheck.isSuccess()) {
-//                        itemN.ccl = 0; // Reset excluded diagnosis CCL to 0
-//                    }
-//                }
-//                System.out.println("EXCLUSIONLIST SECOND:" + itemI.code + " PDX:" + pdx + " CCL:" + itemI.ccl);
-//            }
-//            System.out.println("========================================");
-//
-//            // 7. Second Sort: Re-sort by updated CCL (descending) and Code (Z-A)
-//            sortSdxList(sdxList);
-//            // 8. Calculate Pre-PCCL Weight Sum
-//            double alpha = 0.4;
-//            double wsum = 0.0;
-//            for (int i = 0; i < sdxList.size(); i++) {
-//                int cclVal = sdxList.get(i).ccl;
-//                if (cclVal > 0) {
-//                    // Formula matches Stata: ccl * exp(-alpha * (i - 1)) [0-indexed in Java]
-//                    wsum += cclVal * Math.exp(-alpha * i);
-//                }
-//                System.out.println("EXCLUSIONLIST THIRD:" + sdxList.get(i) + " CCL:" + cclVal);
-//            }
-//            if (wsum <= 0) {
-//                return "0";
-//            }
-//
-//            // 9. Logarithmic PCCL Scoring Step
-//            double num = Math.log(1.0 + wsum);
-//            double denom = Math.log(3.0 / alpha) / 4.0;
-//            long x = Math.round(num / denom);
-//            int pccl;
-//            if (x > 4) {
-//                pccl = 4;
-//            } else if (x < 0) {
-//                pccl = 0;
-//            } else {
-//                pccl = (int) x;
-//            }
-//            return String.valueOf(pccl);
-//        } catch (NumberFormatException | IOException ex) {
-//            return "Something went wrong";
-//        }
-//    }
 
     /**
      * Sorts the list by CCL descending, then SDX Code string descending (Z-A)

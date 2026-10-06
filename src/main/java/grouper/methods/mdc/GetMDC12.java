@@ -13,6 +13,7 @@ import grouper.methods.validation.PDxMalignancy;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -126,15 +127,21 @@ public class GetMDC12 {
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(max));
                     } else {
-                        String dc = this.principalDaignosis(
+                        MDCCodeOptimize dc = this.principalDaignosis(
                                 drgResult.getPDC(),
                                 CartSDx,
                                 CaCRxSDx,
                                 CartProc,
                                 CaCRxProc,
                                 PBX12Proc,
-                                PBX99Proc);
-                        drgResult.setDC(dc);
+                                PBX99Proc,
+                                SecondaryList,
+                                SchemaName,
+                                datasource);
+                        drgResult.setDC(dc.getDC());
+                        if (!dc.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(dc.getSdxfinder());
+                        }
                     }
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "1209" : "1210");
@@ -151,15 +158,21 @@ public class GetMDC12 {
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(max));
             } else {
-                String dc = this.principalDaignosis(
+                MDCCodeOptimize dc = this.principalDaignosis(
                         drgResult.getPDC(),
                         CartSDx,
                         CaCRxSDx,
                         CartProc,
                         CaCRxProc,
                         PBX12Proc,
-                        PBX99Proc);
-                drgResult.setDC(dc);
+                        PBX99Proc,
+                        SecondaryList,
+                        SchemaName,
+                        datasource);
+                drgResult.setDC(dc.getDC());
+                if (!dc.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(dc.getSdxfinder());
+                }
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -247,54 +260,94 @@ public class GetMDC12 {
         return dc;
     }
 
-    private String principalDaignosis(
+    private MDCCodeOptimize principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
             final Integer CartProc,
             final Integer CaCRxProc,
             final Integer PBX12Proc,
-            final Integer PBX99Proc) {
-        String dc = "";
+            final Integer PBX99Proc,
+            final List<String> SecondaryList,
+            final String SchemaName,
+            final DataSource dataSource) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
         switch (pdc.toUpperCase()) {
             case "12A": {
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                    dc = "1255";
+                    result.setDC("1255");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Chemotherapy
                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                    dc = "1256";
+                    result.setDC("1256");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Radiotherapy
                 } else if (CartSDx > 0 && CartProc > 0) {
-                    dc = "1257";
+                    result.setDC("1257");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                 } else if (PBX12Proc > 0) { //##Dx Procedure
-                    dc = "1258";
+                    result.setDC("1258");
                     //Radiotherapy
                 } else if (PBX99Proc > 0) {//Blood Transfusion
-                    dc = "1259";
+                    result.setDC("1259");
                 } else {
-                    dc = "1250";
+                    result.setDC("1250");
                 }
                 break;
             }
             case "12B": { //#Benign prostatic hypertrophy
-                dc = "1251";
+                result.setDC("1251");
                 break;
             }
             case "12C": { //#Inflammation of male reproductive system
-                dc = "1252";
+                result.setDC("1252");
                 break;
             }
             case "12D": { //#Inflammation of male reproductive system
-                dc = "1253";
+                result.setDC("1253");
                 break;
             }
             case "12E": {//##Other male reproductive system diagnoses 12E
-                dc = "1254";
+                result.setDC("1254");
                 break;
             }
         }
-        return dc;
+        return result;
 
     }
 

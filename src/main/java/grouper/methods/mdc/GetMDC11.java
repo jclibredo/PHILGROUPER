@@ -14,6 +14,7 @@ import grouper.methods.validation.PDxMalignancy;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.utility.Utility;
@@ -135,7 +136,7 @@ public class GetMDC11 {
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(max));
                     } else {
-                        String dc = this.principalDaignosis(
+                        MDCCodeOptimize dc = this.principalDaignosis(
                                 drgResult.getPDC(),
                                 CartSDx,
                                 CaCRxSDx,
@@ -145,8 +146,14 @@ public class GetMDC11 {
                                 PBX99Proc,
                                 age,
                                 Counter11PBX,
-                                grouperparameter.getDischargeType());
-                        drgResult.setDC(dc);
+                                grouperparameter.getDischargeType(),
+                                SecondaryList,
+                                SchemaName,
+                                datasource);
+                        drgResult.setDC(dc.getDC());
+                        if (!dc.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(dc.getSdxfinder());
+                        }
                     }
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "1113" : "1114");
@@ -164,7 +171,7 @@ public class GetMDC11 {
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(max));
             } else {
-                String dc = this.principalDaignosis(
+                MDCCodeOptimize dc = this.principalDaignosis(
                         drgResult.getPDC(),
                         CartSDx,
                         CaCRxSDx,
@@ -174,8 +181,14 @@ public class GetMDC11 {
                         PBX99Proc,
                         age,
                         Counter11PBX,
-                        grouperparameter.getDischargeType());
-                drgResult.setDC(dc);
+                        grouperparameter.getDischargeType(),
+                        SecondaryList,
+                        SchemaName,
+                        datasource);
+                drgResult.setDC(dc.getDC());
+                if (!dc.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(dc.getSdxfinder());
+                }
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -278,7 +291,7 @@ public class GetMDC11 {
         return dc;
     }
 
-    private String principalDaignosis(
+    private MDCCodeOptimize principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -288,67 +301,107 @@ public class GetMDC11 {
             final Integer PBX99Proc,
             final Long age,
             final Integer Counter11PBX,
-            final String dischargeType) {
-        String dc = "";
+            final String dischargeType,
+            final List<String> SecondaryList,
+            final String SchemaName,
+            final DataSource dataSource) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
         switch (pdc) {
             //Radio+Chemotherapy
             case "11C": {//Admit for Renal Dialysis
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                    dc = "1161";
+                    result.setDC("1161");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Chemotherapy
                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                    dc = "1162";
+                    result.setDC("1162");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Radiotherapy
                 } else if (CartSDx > 0 && CartProc > 0) {
-                    dc = "1163";
+                    result.setDC("1163");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                 } else if (Counter11PCX > 0) { //##Dx Procedure
-                    dc = "1164";
+                    result.setDC("1164");
                 } else if (PBX99Proc > 0) {//Blood Transfusion
-                    dc = "1165";
+                    result.setDC("1165");
                 } else {//Malignancy 
-                    dc = "1153";
+                    result.setDC("1153");
                 }
                 break;
             }
             case "11A": {//Chronic Renal Failure
-                dc = age > 17 ? "1150" : "1151";
+                result.setDC(age > 17 ? "1150" : "1151");
                 break;
             }
             case "11J": {//Acute Renal Failure
-                dc = (age > 17) ? ("4".equals(dischargeType) ? "1167" : "1159") : "1160";
+                result.setDC((age > 17) ? ("4".equals(dischargeType) ? "1167" : "1159") : "1160");
                 break;
             }
             case "11B": {//Admit for Renal Dialysis
-                dc = "1152";
+                result.setDC("1152");
                 break;
             }
             case "11D": {//Kidney and Urinary Tract Infection
-                dc = "1154";
+                result.setDC("1154");
                 break;
             }
             case "11E": {//Urinary Stone
-                dc = Counter11PBX > 0 ? "1112" : "1155";
+                result.setDC(Counter11PBX > 0 ? "1112" : "1155");
                 break;
             }
             case "11F": {//Kidney & Urinary Tract Signs & Symptoms
-                dc = "1156";
+                result.setDC("1156");
                 break;
             }
             case "11G": {//Urethral Stricture
-                dc = "1157";
+                result.setDC("1157");
                 break;
             }
             case "11H": {//Other Kidney and Urinary Tract Diagnoses
-                dc = "1158";
+                result.setDC("1158");
                 break;
             }
             case "11K": {//Major Kidney Dx PDC 11K
-                dc = "1166";
+                result.setDC("1166");
             }
             break;
 
         }
-        return dc;
+        return result;
 
     }
 

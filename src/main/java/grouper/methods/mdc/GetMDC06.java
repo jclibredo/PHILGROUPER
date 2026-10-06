@@ -6,7 +6,6 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
-import grouper.methods.validation.Endovasc;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -59,7 +58,6 @@ public class GetMDC06 {
             GetPDC getPdc = new GetPDC();
             PDxMalignancy pdxMalig = new PDxMalignancy();
             MDCProcedureMethod mdcProc = new MDCProcedureMethod();
-            Endovasc enDov = new Endovasc();
             ORProcedure orProc = new ORProcedure();
             int CartSDx = 0;
             int CaCRxSDx = 0;
@@ -69,7 +67,6 @@ public class GetMDC06 {
             int PBX99Proc = 0;
             int MalignantCount = 0;
             int Ax6BXCount = 0;
-            int Counter6PH = 0;
             int mdcprocedureCounter = 0;
             int ORProcedureCounter = 0;
             int PDXCounter99 = 0;
@@ -110,7 +107,6 @@ public class GetMDC06 {
                     }
                 }
                 //Inguinal or Femoral PDC 6PH
-                Counter6PH += enDov.Endovasc(datasource, SchemaName, procS, "6PH", mdcWithoutZeros).isSuccess() ? 1 : 0;
                 DRGWSResult ORProcedureResult = orProc.ORProcedure(datasource, SchemaName, procS);
                 if (ORProcedureResult.isSuccess()) {
                     ORProcedureCounter++;
@@ -143,7 +139,6 @@ public class GetMDC06 {
                                 MalignantCount,
                                 Ax6BXCount,
                                 age,
-                                Counter6PH,
                                 datasource,
                                 SchemaName,
                                 grouperparameter.getPdx(),
@@ -155,7 +150,7 @@ public class GetMDC06 {
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(max));
                     } else {
-                        String dc = this.principalDaignosis(
+                        MDCCodeOptimize dc = this.principalDaignosis(
                                 drgResult.getPDC(),
                                 CartSDx,
                                 CaCRxSDx,
@@ -164,8 +159,14 @@ public class GetMDC06 {
                                 PBX6Proc,
                                 PBX99Proc,
                                 grouperparameter.getDischargeType(),
-                                age);
-                        drgResult.setDC(dc);
+                                age,
+                                SecondaryList,
+                                SchemaName,
+                                datasource);
+                        drgResult.setDC(dc.getDC());
+                        if (!dc.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(dc.getSdxfinder());
+                        }
                     }
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "0633" : "0634");
@@ -183,7 +184,6 @@ public class GetMDC06 {
                         MalignantCount,
                         Ax6BXCount,
                         age,
-                        Counter6PH,
                         datasource,
                         SchemaName,
                         grouperparameter.getPdx(),
@@ -195,7 +195,7 @@ public class GetMDC06 {
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(max));
             } else {
-                String dc = this.principalDaignosis(
+                MDCCodeOptimize dc = this.principalDaignosis(
                         drgResult.getPDC(),
                         CartSDx,
                         CaCRxSDx,
@@ -204,8 +204,14 @@ public class GetMDC06 {
                         PBX6Proc,
                         PBX99Proc,
                         grouperparameter.getDischargeType(),
-                        age);
-                drgResult.setDC(dc);
+                        age,
+                        SecondaryList,
+                        SchemaName,
+                        datasource);
+                drgResult.setDC(dc.getDC());
+                if (!dc.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(dc.getSdxfinder());
+                }
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -231,7 +237,6 @@ public class GetMDC06 {
             final Integer MalignantCount,
             final Integer Ax6BXCount,
             final Long age,
-            final Integer Counter6PH,
             final DataSource datasource,
             final String SchemaName,
             final String pdx,
@@ -285,7 +290,7 @@ public class GetMDC06 {
             }
             case "6PG":
             case "6PH": {
-                result.setDC((age > 14) ? ((Counter6PH > 0) ? "0610" : "0611") : "0612");
+                result.setDC((age > 14) ? ("6PH".equals(pdc.toUpperCase()) ? "0610" : "0611") : "0612");
                 break;
             }
             case "6PL": {//Pyloromyotomy procedure
@@ -369,7 +374,7 @@ public class GetMDC06 {
         return dc;
     }
 
-    private String principalDaignosis(
+    private MDCCodeOptimize principalDaignosis(
             final String pdc,
             final Integer CartSDx,
             final Integer CaCRxSDx,
@@ -378,75 +383,115 @@ public class GetMDC06 {
             final Integer PBX6Proc,
             final Integer PBX99Proc,
             final String discharge,
-            final Long age) {
-        String dc = "";
+            final Long age,
+            final List<String> SecondaryList,
+            final String SchemaName,
+            final DataSource dataSource) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
         switch (pdc) {
             case "6A": {
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                    dc = "0668";
+                    result.setDC("0668");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Chemotherapy
                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                    dc = "0669";
+                    result.setDC("0669");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Radiotherapy
                 } else if (CartSDx > 0 && CartProc > 0) {
-                    dc = "0670";
+                    result.setDC("0670");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                 } else if (PBX6Proc > 0) { //##Dx Procedure
-                    dc = "0671";
+                    result.setDC("0671");
                     //Radiotherapy
                 } else if (PBX99Proc > 0) {//Blood Transfusion
-                    dc = "0672";
+                    result.setDC("0672");
                 } else {//Malignancy 
-                    dc = "4".equals(discharge) ? "0673" : "0650";
+                    result.setDC("4".equals(discharge) ? "0673" : "0650");
                 }
                 break;
             }
             case "6B": {//G.I. Hemorrhage
-                dc = (age > 64 ? "0651" : "0652");
+                result.setDC(age > 64 ? "0651" : "0652");
                 break;
             }
             case "6C": {//Complicated Peptic Ulcer
-                dc = "0653";
+                result.setDC("0653");
                 break;
             }
             case "6D": {//Uncomplicated Peptic Ulcer
-                dc = "0654";
+                result.setDC("0654");
                 break;
             }
             case "6E": {//Inflammatory Bowel Diseases
-                dc = "0655";
+                result.setDC("0655");
                 break;
             }
             case "6F": {//G.I. Obstruction
-                dc = "4".equals(discharge) ? "0674" : "0656";
+                result.setDC("4".equals(discharge) ? "0674" : "0656");
                 break;
             }
             case "6G": {//Gastroenteritis
-                dc = (age > 9 ? "0657" : "0658");
+                result.setDC(age > 9 ? "0657" : "0658");
                 break;
             }
             case "6H": {//Misc Digestive Disorder
-                dc = (age > 9 ? "0666" : "0667");
+                result.setDC(age > 9 ? "0666" : "0667");
                 break;
             }
             case "6J": {//Other Digestive System Diagnoses
-                dc = "4".equals(discharge) ? "0675" : "0660";
+                result.setDC("4".equals(discharge) ? "0675" : "0660");
                 break;
             }
             case "6K": {//Abdominal Pain or Mesenteric Adenitis
-                dc = "0661";
+                result.setDC("0661");
                 break;
             }
             case "6L": {//Intestinal Helminthiases
-                dc = (age > 9 ? "0662" : "0663");
+                result.setDC(age > 9 ? "0662" : "0663");
                 break;
             }
             case "6M": {//Esophagitis, Gastritis & Dyspepsia PDC 6M
-                dc = (age > 9 ? "0664" : "0665");
+                result.setDC(age > 9 ? "0664" : "0665");
                 break;
             }
         }
-        return dc;
+        return result;
 
     }
 

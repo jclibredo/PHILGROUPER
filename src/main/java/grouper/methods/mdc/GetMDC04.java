@@ -6,13 +6,13 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
-import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
+import grouper.structures.MDCCodeOptimize;
 import grouper.structures.MDCProcedure;
 import grouper.structures.PDC;
 import grouper.structures.SdxDcHelper;
@@ -57,7 +57,6 @@ public class GetMDC04 {
             ArrayList<String> pdclist = new ArrayList<>();
             ArrayList<Integer> ORProcedureCounterList = new ArrayList<>();
             AX checkAX = new AX();
-            GetICD10PreMDC getI10 = new GetICD10PreMDC();
             ORProcedure orProc = new ORProcedure();
             GetPDC getPdc = new GetPDC();
             MDCProcedureMethod mdcProc = new MDCProcedureMethod();
@@ -169,7 +168,7 @@ public class GetMDC04 {
                     } else if (ORProcedureCounter > 0) {
                         drgResult.setDC(this.orProcedure(max));
                     } else {
-                        String dc = this.principalDaignosis(
+                        MDCCodeOptimize dc = this.principalDaignosis(
                                 drgResult.getPDC(),
                                 grouperparameter.getDischargeType(),
                                 CartSDx,
@@ -177,8 +176,14 @@ public class GetMDC04 {
                                 CartProc,
                                 CaCRxProc,
                                 PCX4Proc,
-                                PBX99Proc);
-                        drgResult.setDC(dc);
+                                PBX99Proc,
+                                SecondaryList,
+                                SchemaName,
+                                datasource);
+                        drgResult.setDC(dc.getDC());
+                        if (!dc.getSdxfinder().isEmpty()) {
+                            drgResult.setSDXFINDER(dc.getSdxfinder());
+                        }
                     }
                 } else {
                     drgResult.setDC(PCXCounter99 > 0 ? "0405" : "0406");
@@ -186,11 +191,8 @@ public class GetMDC04 {
                         for (int x = 0; x < helperList.size(); x++) {
                             if (helperList.get(x).getTags().equals("SDX")) {
                                 String sdxCode = helperList.get(x).getCodes();
-                                DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                                if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
-                                    drgResult.setSDXFINDER(sdxCode);
-                                    break;
-                                }
+                                drgResult.setSDXFINDER(sdxCode);
+                                break;
                             }
                         }
                     }
@@ -207,7 +209,7 @@ public class GetMDC04 {
             } else if (ORProcedureCounter > 0) {
                 drgResult.setDC(this.orProcedure(max));
             } else {
-                String dc = this.principalDaignosis(
+                MDCCodeOptimize dc = this.principalDaignosis(
                         drgResult.getPDC(),
                         grouperparameter.getDischargeType(),
                         CartSDx,
@@ -215,8 +217,14 @@ public class GetMDC04 {
                         CartProc,
                         CaCRxProc,
                         PCX4Proc,
-                        PBX99Proc);
-                drgResult.setDC(dc);
+                        PBX99Proc,
+                        SecondaryList,
+                        SchemaName,
+                        datasource);
+                drgResult.setDC(dc.getDC());
+                if (!dc.getSdxfinder().isEmpty()) {
+                    drgResult.setSDXFINDER(dc.getSdxfinder());
+                }
             }
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
@@ -294,7 +302,7 @@ public class GetMDC04 {
         return dc;
     }
 
-    private String principalDaignosis(
+    private MDCCodeOptimize principalDaignosis(
             final String pdc,
             final String discharge,
             final Integer CartSDx,
@@ -302,91 +310,131 @@ public class GetMDC04 {
             final Integer CartProc,
             final Integer CaCRxProc,
             final Integer PCX4Proc,
-            final Integer PBX99Proc) {
-        String dc = "";
+            final Integer PBX99Proc,
+            final List<String> SecondaryList,
+            final String SchemaName,
+            final DataSource dataSource) {
+        MDCCodeOptimize result = utility.MDCCodeOptimize();
+        result.setDC("");
+        result.setSdxfinder("");
+        AX checkAX = new AX();
         switch (pdc) {
             case "4A": {//Cystic Fibrosis
-                dc = "0450";
+                result.setDC("0450");
                 break;
             }
             case "4B": {//Pulmonary Embolism
-                dc = "0451";
+                result.setDC("0451");
                 break;
             }
             case "4C": {//Respiratory Infection/Inflammation
-                dc = "0452";
+                result.setDC("0452");
                 break;
             }
             case "4D": {//Sleep Apnea
-                dc = "0453";
+                result.setDC("0453");
                 break;
             }
             case "4E": {//Noninvasive Ventilation 
-                dc = "4".equals(discharge) ? "0471" : "0454";
+                result.setDC("4".equals(discharge) ? "0471" : "0454");
                 break;
             }
             case "4F": {//COPD
-                dc = "0455";
+                result.setDC("0455");
                 break;
             }
             case "4G": {//Major Chest Trauma
-                dc = "0456";
+                result.setDC("0456");
                 break;
             }
             case "4H": {//Respiratory Signs and Symptoms 
-                dc = "0457";
+                result.setDC("0457");
                 break;
             }
             case "4J": {//Pneumothorax
-                dc = "0458";
+                result.setDC("0458");
                 break;
             }
             case "4K": {//Bronchitis and Asthma
-                dc = "0459";
+                result.setDC("0459");
                 break;
             }
             case "4L": {//Whooping Cough and Acute Bronchiolitis
-                dc = "0460";
+                result.setDC("0460");
                 break;
             }
             case "4M": {//Respiratory Neoplasms
                 //Radio+Chemotherapy
                 if (CartSDx > 0 && CaCRxSDx > 0 && CartProc > 0 && CaCRxProc > 0) {
-                    dc = "0465";
+                    result.setDC("0465");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()
+                                || checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Chemotherapy
                 } else if (CaCRxSDx > 0 && CaCRxProc > 0) {
-                    dc = "0466";
+                    result.setDC("0466");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99CX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                     //Radiotherapy
                 } else if (CartSDx > 0 && CartProc > 0) {
-                    dc = "0467";
+                    result.setDC("0467");
+                    for (String rawSdxCode : SecondaryList) {
+                        if (rawSdxCode == null) {
+                            continue;
+                        }
+                        String sdxCode = rawSdxCode.trim();
+                        // Short-circuiting ensures 99CX is only evaluated if 99BX fails
+                        if (checkAX.AX(dataSource, SchemaName, "99BX", sdxCode).isSuccess()) {
+                            result.setSdxfinder(sdxCode);
+                            break;
+                        }
+                    }
                 } else if (PCX4Proc > 0) { //##Dx Procedure
-                    dc = "0468";
+                    result.setDC("0468");
                     //Radiotherapy
                 } else if (PBX99Proc > 0) {//Blood Transfusion
-                    dc = "0469";
+                    result.setDC("0469");
                 } else {
-                    dc = "0461";
+                    result.setDC("0461");
                 }
                 break;
             }
             case "4R": {//Pyothorax 
-                dc = "0470";
+                result.setDC("0470");
                 break;
             }
             case "4N": {//Pleural Effusion
-                dc = "4".equals(discharge) ? "0472" : "0462";
+                result.setDC("4".equals(discharge) ? "0472" : "0462");
                 break;
             }
             case "4P": {//Interstitial Lung Diseases
-                dc = "0463";
+                result.setDC("0463");
                 break;
             }
             case "4Q": {//Other Minor Respiratory System Diagnosis PDC 4Q
-                dc = "0464";
+                result.setDC("0464");
                 break;
             }
         }
-        return dc;
+        return result;
 
     }
 

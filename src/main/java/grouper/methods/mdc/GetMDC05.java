@@ -7,7 +7,6 @@ package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
 import grouper.methods.validation.Endovasc;
-import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -23,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
@@ -275,7 +273,6 @@ public class GetMDC05 {
             final String SchemaName,
             final String discharge) {
         AX checkAX = new AX();
-        GetICD10PreMDC getI10 = new GetICD10PreMDC();
         MDCCodeOptimize result = utility.MDCCodeOptimize();
         result.setPDC("");
         result.setDC("");
@@ -296,38 +293,12 @@ public class GetMDC05 {
                         continue;
                     }
                     String sdxCode = rawSdxCode.trim();
-
                     DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "5CX", sdxCode);
-                    if (!getSdxCode.isSuccess()) {
-                        continue;
-                    }
-
-                    DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                    if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                    if (getSdxCode.isSuccess()) {
                         result.setSdxfinder(sdxCode);
                         break;
                     }
                 }
-//                SecondaryList.stream()
-//                        .map(String::trim)
-//                        .filter(sdx -> checkAX.AX(datasource, SchemaName, "5CX", sdx).isSuccess())
-//                        .findFirst()
-//                        .ifPresent(result::setSdxfinder);
-
-//                for (int x = 0; x < SecondaryList.size(); x++) {
-//                    String sdxCode = SecondaryList.get(x).trim();
-//                    DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "5CX", sdxCode);
-//                    if (getSdxCode.isSuccess()) {
-//                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-//                        if (ccRowResult.isSuccess()) {
-//                            if (!ccRowResult.getMessage().equals("0")) {
-//                                result.setSdxfinder(sdxCode);
-//                                break;
-//                            }
-//                        }
-//                    }
-//
-//                }
             }
         } else if (discharge.equals("4")) {
             result.setDC("0569");
@@ -340,34 +311,11 @@ public class GetMDC05 {
                     }
                     String sdxCode = rawSdxCode.trim();
                     DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "5CX", sdxCode);
-                    if (!getSdxCode.isSuccess()) {
-                        continue;
-                    }
-                    DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                    if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                    if (getSdxCode.isSuccess()) {
                         result.setSdxfinder(sdxCode);
                         break;
                     }
                 }
-//                for (int x = 0; x < SecondaryList.size(); x++) {
-//                    String sdxCode = SecondaryList.get(x).trim();
-//                    DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "5CX", sdxCode);
-//                    if (getSdxCode.isSuccess()) {
-//                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-//                        if (ccRowResult.isSuccess()) {
-//                            if (!ccRowResult.getMessage().equals("0")) {
-//                                result.setSdxfinder(sdxCode);
-//                                break;
-//                            }
-//                        }
-//                    }
-//
-//                }
-//                SecondaryList.stream()
-//                        .map(String::trim)
-//                        .filter(sdx -> checkAX.AX(datasource, SchemaName, "5CX", sdx).isSuccess())
-//                        .findFirst()
-//                        .ifPresent(result::setSdxfinder);
             }
         }
         return result;
@@ -391,7 +339,6 @@ public class GetMDC05 {
         result.setDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
-        GetICD10PreMDC getI10 = new GetICD10PreMDC();
         switch (pdc) {
             case "5PE": {//Thoracoabdominal Procedures Combination
                 result.setDC("0507");
@@ -474,20 +421,11 @@ public class GetMDC05 {
                         }
                         String sdxCode = rawSdxCode.trim();
                         DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "5DX", sdxCode);
-                        if (!getSdxCode.isSuccess()) {
-                            continue;
-                        }
-                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                        if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                        if (getSdxCode.isSuccess()) {
                             result.setSdxfinder(sdxCode);
                             break;
                         }
                     }
-//                    SecondaryList.stream()
-//                            .map(String::trim)
-//                            .filter(sdx -> checkAX.AX(datasource, SchemaName, "5DX", sdx).isSuccess())
-//                            .findFirst()
-//                            .ifPresent(result::setSdxfinder);
                 }
                 break;
             }

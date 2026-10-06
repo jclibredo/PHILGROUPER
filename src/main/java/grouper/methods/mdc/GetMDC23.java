@@ -6,7 +6,6 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
-import grouper.methods.validation.GetICD10PreMDC;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
@@ -192,7 +191,6 @@ public class GetMDC23 {
         result.setPDC("");
         result.setSdxfinder("");
         AX checkAX = new AX();
-        GetICD10PreMDC getI10 = new GetICD10PreMDC();
         switch (pdc.toUpperCase()) {
             case "23A": {//Rehabilitation
                 result.setDC(Counter23BX > 0 ? "2355" : "2350");
@@ -203,11 +201,7 @@ public class GetMDC23 {
                         }
                         String sdxCode = rawSdxCode.trim();
                         DRGWSResult getSdxCode = checkAX.AX(datasource, SchemaName, "23BX", sdxCode);
-                        if (!getSdxCode.isSuccess()) {
-                            continue;
-                        }
-                        DRGWSResult ccRowResult = getI10.GetICD10PreMDC(datasource, SchemaName, sdxCode);
-                        if (ccRowResult.isSuccess() && !"0".equals(ccRowResult.getMessage())) {
+                        if (getSdxCode.isSuccess()) {
                             result.setSdxfinder(sdxCode);
                             break;
                         }
