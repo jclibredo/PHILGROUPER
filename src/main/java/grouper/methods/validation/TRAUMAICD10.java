@@ -23,13 +23,13 @@ import oracle.jdbc.OracleTypes;
  */
 @RequestScoped
 public class TRAUMAICD10 {
-
+    
     public TRAUMAICD10() {
     }
 
 //    private final Logger logger = (Logger) LogManager.getLogger(TRAUMAICD10.class);
     private final Utility utility = new Utility();
-
+    
     public DRGWSResult TRAUMAICD10(
             final DataSource datasource,
             final String SchemaName,
@@ -45,6 +45,7 @@ public class TRAUMAICD10 {
             statement.execute();
             ResultSet resultSet = (ResultSet) statement.getObject("trauma_output");
             if (resultSet.next()) {
+                result.setMessage(sdx);
                 result.setResult(resultSet.getString("TRAUMA"));
                 result.setSuccess(true);
             }
@@ -54,7 +55,7 @@ public class TRAUMAICD10 {
 //            logger.error("Error in TRAUMAICD10 Method : {}", ex.getMessage(), ex);
         }
         return result;
-
+        
     }
-
+    
 }

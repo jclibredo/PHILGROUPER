@@ -325,7 +325,7 @@ public class GetMDC14 {
             }
             //PROCESS LAST DRG DIGIT
             DRG checkDRG = new DRG();
-            GetDC getDc = new GetDC();
+//            GetDC getDc = new GetDC();
             GetPCCL getPccl = new GetPCCL();
             ValidatePCCL validatePccl = new ValidatePCCL();
             // 2. Call the service ONCE and store the result
@@ -336,7 +336,8 @@ public class GetMDC14 {
                 drgResult.setDRG(drgResult.getDC() + "X");
                 String rest = drgResult.getDC().substring(0, 2);
                 if (Integer.parseInt(rest) == 26) {
-                    if (getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
+//                    if (getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
+                    if (utility.isValidDCList(drgResult.getDC())) {
                         drgResult.setDRG(drgResult.getDC() + "9");
                         drgResult.setPrepccl("9");
                         drgResult.setFinalpccl("9");

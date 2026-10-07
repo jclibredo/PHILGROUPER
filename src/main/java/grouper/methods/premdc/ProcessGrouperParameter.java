@@ -199,11 +199,11 @@ public class ProcessGrouperParameter {
                         }
                     }
                 }
-                List<String> SecondaryList = newsdxList.stream()
-                        .map(String::trim)
-                        .sorted(Comparator.reverseOrder())
-                        .collect(Collectors.toList());
-                grouper.setSdx(String.join(",", SecondaryList));
+//                List<String> SecondaryList = newsdxList.stream()
+//                        .map(String::trim)
+//                        .sorted(Comparator.reverseOrder())
+//                        .collect(Collectors.toList());
+                grouper.setSdx(String.join(",", newsdxList));
             } else {
                 grouper.setSdx(grouperparameter.getSdx());
             }
@@ -396,7 +396,7 @@ public class ProcessGrouperParameter {
                 }
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong " +ex.getMessage());
+            result.setMessage("Something went wrong " + ex.getMessage());
 //            logger.info("Executing Process Grouper Parameter Method");
 //            logger.error("Error in Process Grouper Parameter Method : {}", ex.getMessage(), ex);
             //FILE WRITE IN TESTING MODE

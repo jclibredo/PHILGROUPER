@@ -44,7 +44,7 @@ public class GetPCCLResult {
         result.setSuccess(false);
         try {
             DRG checkDRG = new DRG();
-            GetDC getDc = new GetDC();
+//            GetDC getDc = new GetDC();
             GetPCCL getPccl = new GetPCCL();
             ValidatePCCL validatePccl = new ValidatePCCL();
             if (drgResult.getDRG() == null) {
@@ -52,7 +52,8 @@ public class GetPCCLResult {
                 drgResult.setFinalpccl("X");
                 drgResult.setDRGName("Grouper Error");
                 drgResult.setDRG(drgResult.getDC() + "X");
-                if (!getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
+//                if (!getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                     drgResult.setPrepccl("9");
                     drgResult.setFinalpccl("9");
@@ -117,14 +118,15 @@ public class GetPCCLResult {
         try {
             DRGDetermination drgDetermination = new DRGDetermination();
             DRG checkDRG = new DRG();
-            GetDC getDc = new GetDC();
+//            GetDC getDc = new GetDC();
             String currentDrg = drgResult.getDRG();
             String dc = drgResult.getDC();
             String sdxdcfinder = drgResult.getSDXFINDER() != null ? drgResult.getSDXFINDER() : "";
             ValidatePCCL validatePCCL = new ValidatePCCL();
             if (currentDrg == null) {
                 drgResult.setDRGName("Grouper Error");
-                if (getDc.GetDC(datasource, schemaName, dc).isSuccess()) {
+//                if (getDc.GetDC(datasource, schemaName, dc).isSuccess()) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     String fallbackDrg = dc + "9";
                     drgResult.setDRG(fallbackDrg);
                     drgResult.setPrepccl("9");
@@ -177,7 +179,6 @@ public class GetPCCLResult {
 
             result.setSuccess(true);
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
-
         } catch (IOException ex) {
             result.setMessage("Something went wrong " + ex.getMessage());
         } catch (Exception ex) {

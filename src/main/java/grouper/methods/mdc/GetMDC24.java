@@ -9,7 +9,8 @@ import grouper.methods.validation.AX;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
-import grouper.methods.validation.TRAUMAICD10;
+//import grouper.methods.validation.TRAUMAICD10;
+//import grouper.methods.validation.TRAUMAICD9CM;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
@@ -19,10 +20,12 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+//import java.util.Collections;
 import java.util.List;
+//import java.util.stream.Collectors;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
-import java.util.stream.Collectors;
+//import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -48,16 +51,6 @@ public class GetMDC24 {
         result.setResult("");
         result.setSuccess(false);
         try {
-            TRAUMAICD10 checkTraumaICD10 = new TRAUMAICD10();
-            String sdxFinderResult = Arrays.stream(grouperparameter.getSdx().split(","))
-                    .map(String::trim)
-                    .filter(sdxCode -> !sdxCode.isEmpty())
-                    .filter(sdxCode -> {
-                        DRGWSResult sdxTrauma = checkTraumaICD10.TRAUMAICD10(datasource, SchemaName, sdxCode);
-                        return sdxTrauma.isSuccess() && !"0".equals(sdxTrauma.getResult());
-                    })
-                    .collect(Collectors.joining(","));
-            drgResult.setSDXFINDER(sdxFinderResult);
             List<String> ProcedureList = Arrays.asList(grouperparameter.getProc().split(","));
             //CHECKING FOR TRAUMA CODES
             int A = 0;

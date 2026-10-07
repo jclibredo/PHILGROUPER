@@ -148,8 +148,9 @@ public class GetMDC15 {
             // FINDING FINAL DRG
 
             if (drgResult.getDRG() == null) {
-                GetDC getDc = new GetDC();
-                if (getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
+//                GetDC getDc = new GetDC();
+//                if (getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
+                if (utility.isValidDCList(drgResult.getDC())) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     if (MainCCPDx > 0 || Counter15BX > 0) {

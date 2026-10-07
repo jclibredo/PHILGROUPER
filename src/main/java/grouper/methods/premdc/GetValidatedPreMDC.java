@@ -22,6 +22,7 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -101,7 +102,8 @@ public class GetValidatedPreMDC {
                 List<String> sdxNewList = sDxList.stream()
                         .map(sdx -> checkTraumaICD10.TRAUMAICD10(datasource, schemaName, sdx))
                         .filter(res -> res.isSuccess() && !"0".equals(res.getResult()))
-                        .map(DRGWSResult::getResult)
+                        //.map(DRGWSResult::getResult)
+                        .map(DRGWSResult::getMessage)
                         .collect(Collectors.toList());
                 for (int i = 0; i < sdxNewList.size(); i++) {
                     if (!uniqueSdxElements.add(sdxNewList.get(i))) {
@@ -200,10 +202,13 @@ public class GetValidatedPreMDC {
                     drgResult.setMDC("00");
                     drgResult.setDRGName("Bone Marrow Transplant");
                 } else if (traumaCounterPDX0 > 0 && finalSdxNewList.size() >= 2) {
+                    String firstTwo = sdxNewList.get(0) + "," + sdxNewList.get(1);
+                    drgResult.setSDXFINDER(firstTwo);
                     drgResult.setMDC("24");
                 } else if (traumaCounterPDX0 > 0 && finalProcNewList.size() >= 2) {
                     drgResult.setMDC("24");
                 } else if (traumaCounterPDX1 > 0 && sdxPdxNewList.size() >= 1) {
+                    drgResult.setSDXFINDER(sdxPdxNewList.get(0));
                     drgResult.setMDC("24");
                 } else if (traumaCounterPDX1 > 0 && finalProcNewList.size() >= 2) {
                     drgResult.setMDC("24");
@@ -227,6 +232,14 @@ public class GetValidatedPreMDC {
             }
             // 6. Final Assignment Process
             ProcessMDC getMDC = new ProcessMDC();
+            if (!drgResult.getMDC().equals("24") && !grouperParameter.getSdx().isEmpty()) {
+                List<String> newsdxList = Arrays.asList(grouperParameter.getSdx().split(","));
+                List<String> SecondaryList = newsdxList.stream()
+                        .map(String::trim)
+                        .sorted(Comparator.reverseOrder())
+                        .collect(Collectors.toList());
+                grouperParameter.setSdx(String.join(",", SecondaryList));
+            }
             if (drgResult.getDRG() == null) {
                 if ("30".equals(drgResult.getMDC())) {
                     if (drgResult.getPDC() == null || drgResult.getPDC().isEmpty()) {
