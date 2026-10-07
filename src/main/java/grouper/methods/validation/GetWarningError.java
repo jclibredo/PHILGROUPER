@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -30,7 +30,7 @@ public class GetWarningError {
     public GetWarningError() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(GetWarningError.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetWarningError.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetWarningError(
@@ -63,9 +63,9 @@ public class GetWarningError {
                 result.setSuccess(true);
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetWarningError Method");
-            logger.error("Error in GetWarningError Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetWarningError Method");
+//            logger.error("Error in GetWarningError Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

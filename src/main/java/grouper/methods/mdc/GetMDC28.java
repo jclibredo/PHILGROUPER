@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -227,8 +227,8 @@ public class GetMDC28 {
             result.setMessage("MDC 28 Done Checking");
             result.setSuccess(true);
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            Logger.getLogger(GetMDC28.class.getName()).log(Level.SEVERE, null, ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            Logger.getLogger(GetMDC28.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 

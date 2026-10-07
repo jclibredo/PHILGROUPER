@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,7 @@ public class ServicesDRG {
 
     public ServicesDRG() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ServicesDRG.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(ServicesDRG.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetDrg(
@@ -63,9 +63,9 @@ public class ServicesDRG {
                 result.setSuccess(true);
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetDrg Method");
-            logger.error("Error in GetDrg Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetDrg Method");
+//            logger.error("Error in GetDrg Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -105,9 +105,9 @@ public class ServicesDRG {
                 result.setMessage(auditrail.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing CreateDrg Method");
-            logger.error("Error in CreateDrg Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing CreateDrg Method");
+//            logger.error("Error in CreateDrg Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -130,9 +130,9 @@ public class ServicesDRG {
                 result.setMessage(auditrail.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing DeleteDrg Method");
-            logger.error("Error in DeleteDrg Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing DeleteDrg Method");
+//            logger.error("Error in DeleteDrg Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,7 @@ public class GenderConfictValidationProc {
 
     public GenderConfictValidationProc() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GenderConfictValidationProc.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GenderConfictValidationProc.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GenderConfictValidationProc(
@@ -49,9 +49,9 @@ public class GenderConfictValidationProc {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GenderConfictValidationProc Method");
-            logger.error("Error in GenderConfictValidationProc Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong "+ex.getMessage());
+//            logger.info("Executing GenderConfictValidationProc Method");
+//            logger.error("Error in GenderConfictValidationProc Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

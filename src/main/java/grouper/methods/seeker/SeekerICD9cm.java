@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -30,7 +30,7 @@ public class SeekerICD9cm {
     public SeekerICD9cm() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(SeekerICD9cm.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(SeekerICD9cm.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult SeekerICD9cm(final DataSource datasource, final String SchemaName) {
@@ -58,9 +58,9 @@ public class SeekerICD9cm {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing Seeker ICD9CM Method");
-            logger.error("Error in Seeker ICD9CM Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing Seeker ICD9CM Method");
+//            logger.error("Error in Seeker ICD9CM Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

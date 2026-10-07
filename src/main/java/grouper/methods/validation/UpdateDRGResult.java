@@ -13,8 +13,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -25,7 +25,7 @@ public class UpdateDRGResult {
 
     public UpdateDRGResult() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(UpdateDRGResult.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(UpdateDRGResult.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult UpdateDRGResult(
@@ -62,9 +62,9 @@ public class UpdateDRGResult {
             result.setMessage(updatedrgresult.getString("Code"));
             result.setResult(updatedrgresult.getString("Message"));
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing UpdateDRGResult Method");
-            logger.error("Error in UpdateDRGResult Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing UpdateDRGResult Method");
+//            logger.error("Error in UpdateDRGResult Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

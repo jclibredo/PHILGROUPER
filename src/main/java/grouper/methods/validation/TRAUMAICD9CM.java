@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,7 @@ public class TRAUMAICD9CM {
 
     public TRAUMAICD9CM() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(TRAUMAICD9CM.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(TRAUMAICD9CM.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult TRAUMAICD9CM(
@@ -48,9 +48,9 @@ public class TRAUMAICD9CM {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing TRAUMAICD9CM Method");
-            logger.error("Error in TRAUMAICD9CM Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing TRAUMAICD9CM Method");
+//            logger.error("Error in TRAUMAICD9CM Method : {}", ex.getMessage(), ex);
         }
         return result;
 

@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -27,7 +27,7 @@ public class PDxMalignancy {
     public PDxMalignancy() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(PDxMalignancy.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(PDxMalignancy.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult PDxMalignancy(
@@ -50,9 +50,9 @@ public class PDxMalignancy {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing PDxMalignancy Method");
-            logger.error("Error in PDxMalignancy Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing PDxMalignancy Method");
+//            logger.error("Error in PDxMalignancy Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

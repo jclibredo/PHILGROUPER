@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -32,10 +32,12 @@ import org.apache.logging.log4j.Logger;
 @RequestScoped
 public class ValidateFindMDC {
 
-    private final Logger logger = LogManager.getLogger(ValidateFindMDC.class);
+//    private final Logger logger = LogManager.getLogger(ValidateFindMDC.class);
     private final Utility utility = new Utility();
+
     public ValidateFindMDC() {
     }
+
     public DRGWSResult validateFindMDC(
             final DataSource datasource,
             final String schemaName,
@@ -149,8 +151,8 @@ public class ValidateFindMDC {
                 result = getPreMDC.getValidatedPreMDC(datasource, schemaName, newGrouperParam);
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.error("Error in Find MDC Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.error("Error in Find MDC Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

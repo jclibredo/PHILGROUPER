@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,7 @@ public class ServicesI10VX {
 
     public ServicesI10VX() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ServicesI10VX.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(ServicesI10VX.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetIcd10(final DataSource datasource, final String SchemaName) {
@@ -56,9 +56,9 @@ public class ServicesI10VX {
                 result.setSuccess(true);
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetIcd10 Method");
-            logger.error("Error in GetIcd10 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetIcd10 Method");
+//            logger.error("Error in GetIcd10 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -87,14 +87,14 @@ public class ServicesI10VX {
                 result.setMessage(auditrail.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing CreateIcd10 Method");
-            logger.error("Error in CreateIcd10 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing CreateIcd10 Method");
+//            logger.error("Error in CreateIcd10 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
 
-    public DRGWSResult DeleteIcd10(final DataSource datasource,final String SchemaName) {
+    public DRGWSResult DeleteIcd10(final DataSource datasource, final String SchemaName) {
         DRGWSResult result = utility.DRGWSResult();
         result.setResult("");
         result.setMessage("");
@@ -110,9 +110,9 @@ public class ServicesI10VX {
                 result.setMessage(auditrail.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing DeleteIcd10 Method");
-            logger.error("Error in DeleteIcd10 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing DeleteIcd10 Method");
+//            logger.error("Error in DeleteIcd10 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

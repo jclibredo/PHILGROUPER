@@ -51,8 +51,8 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.xml.bind.DatatypeConverter;
 import okhttp3.OkHttpClient;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -65,7 +65,7 @@ public class Utility {
 
     public Utility() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(Utility.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(Utility.class);
     private static SecretKeySpec secretkey;
     private byte[] key;
     String regex = "^(?=.*[0-9])"
@@ -73,45 +73,14 @@ public class Utility {
             + "(?=.*[@#$%^&+=])"
             + "(?=\\S+$).{8,20}$";
     private static final String CIPHERKEY = "A263B7980A15ADE7";
-
-//    String[] pkgcode = {"", "", "", ""};
-//    String[] OPA = {"5051", "5059"};
-//    String[] OPB = {"3350", "3351", "3352", "336", "3751"};
-//    String[] OPD = {"4100", "4101", "4102", "4103", "4104", "4105", "4106", "4107", "4108", "4109"};
-    //AX 99BX Radiotherapy
-//    String[] BX99 = {"Z510"};
-    //AX 99CX Chemotherapy
-//    String[] CX99 = {"Z511"};
-    //AX 99PBX Blood transfusion
-//    String[] PBX99 = {"9903", "9905", "9904"};
-    //AX 99PCX Cont mech ventilation 96 consecutive hours or more
-//    String[] PCX99 = {"9672"};
-    //AX 2PDX Cataract Frag/Asp
-    //AX 99PDX Tracheostomy
-//    String[] PDX99 = {"311", "3121", "3129"};
-    //AX 99PEX Radiotherapeutic procedure
-//    String[] PEX99 = {"9223", "9224", "9225", "9227", "9228", "9229", "9230", "9231", "9232", "9241"};
-    //AX 99PFX Parenteral cancer chemotherapy
-//    String[] PFX99 = {"9925", "1770"};
-    //AX 2BX Parenteral cancer chemotherapy
-    //Procedures for upper airway obstruction
-//    String[] CX6 = {"C181", "K352", "K383"};
-//    String[] PEX8 = {"8156"};
-//    String[] PBX9 = {"86221>1"};
-//    String[] PBX10 = {"3995"};
-//    String[] PBX11 = {"9851"};
-//    String[] PBX16 = {"0096"};
-//    String[] PBX28 = {"9671"};
-//    String[] DX28 = {"K920", "K922"};
-//    String[] PBX24 = {"8628>1"};
-    String[] dclist = {"0019", "0029", "0049", "0107", "0110", "0203", "0210", "0213", "0214", "0215", "0311", "0318", "0319", "0450", "0503", "0507", "0510", "0525", "0528", "0535",
-        "0557", "0615", "0620", "0622", "0625", "0626", "0627", "0629", "0634", "0712", "0713", "0804", "0826", "0827", "0832", "0833", "0834", "0835", "0907", "0912",
-        "0913", "1005", "1009", "1011", "1012", "1113", "1114", "1115", "1152", "1161", "1209", "1210", "1253", "1255", "1312", "1313", "1314", "1318", "1319", "1361",
-        "1363", "1512", "1604", "1605", "1705", "1706", "1758", "1766", "1808", "1809", "1863", "1901", "1903", "1950", "1951", "1956", "1957", "1961", "2054", "2105",
-        "2106", "2203", "2204", "2303", "2305", "2308", "2311", "2312", "2355", "2414", "2416", "2501", "2502", "2506", "2508", "2509", "2650", "2651", "2652", "2653",
-        "2654", "2801", "2802", "2803", "2804", "2805", "2806", "2807", "2808", "2809", "2810", "2811", "2812", "2813", "2814", "2815", "2816", "2817", "2818", "2819",
-        "2820", "2821", "2822", "2823", "2824", "2825", "2826", "2827", "2828", "2829", "2830", "2831", "2832", "2833", "2834", "2835", "2836", "2837", "2850", "2851",
-        "2852", "2853", "2854", "2855", "2856", "2857", "2858", "2859", "2860", "2861", "2862", "2863", "2864", "2865", "2866", "2867", "2868", "2869"};
+//    String[] dclist = {"0019", "0029", "0049", "0107", "0110", "0203", "0210", "0213", "0214", "0215", "0311", "0318", "0319", "0450", "0503", "0507", "0510", "0525", "0528", "0535",
+//        "0557", "0615", "0620", "0622", "0625", "0626", "0627", "0629", "0634", "0712", "0713", "0804", "0826", "0827", "0832", "0833", "0834", "0835", "0907", "0912",
+//        "0913", "1005", "1009", "1011", "1012", "1113", "1114", "1115", "1152", "1161", "1209", "1210", "1253", "1255", "1312", "1313", "1314", "1318", "1319", "1361",
+//        "1363", "1512", "1604", "1605", "1705", "1706", "1758", "1766", "1808", "1809", "1863", "1901", "1903", "1950", "1951", "1956", "1957", "1961", "2054", "2105",
+//        "2106", "2203", "2204", "2303", "2305", "2308", "2311", "2312", "2355", "2414", "2416", "2501", "2502", "2506", "2508", "2509", "2650", "2651", "2652", "2653",
+//        "2654", "2801", "2802", "2803", "2804", "2805", "2806", "2807", "2808", "2809", "2810", "2811", "2812", "2813", "2814", "2815", "2816", "2817", "2818", "2819",
+//        "2820", "2821", "2822", "2823", "2824", "2825", "2826", "2827", "2828", "2829", "2830", "2831", "2832", "2833", "2834", "2835", "2836", "2837", "2850", "2851",
+//        "2852", "2853", "2854", "2855", "2856", "2857", "2858", "2859", "2860", "2861", "2862", "2863", "2864", "2865", "2866", "2867", "2868", "2869"};
 
     public boolean MaxAge(String DOB, String AD) {
         boolean result = false;
@@ -123,8 +92,8 @@ public class Utility {
             long AgeY = (difference_In_Time / (1000l * 60 * 60 * 24 * 365));
             result = AgeY > 124;
         } catch (ParseException ex) {
-            logger.info("Executing MaxAge Utility");
-            logger.error("Error in MaxAge Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing MaxAge Utility");
+//            logger.error("Error in MaxAge Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -171,8 +140,8 @@ public class Utility {
             cipher.init(Cipher.ENCRYPT_MODE, secretkey);
             result = Base64.getEncoder().encodeToString(cipher.doFinal(string.getBytes("UTF-8"))).replaceAll("=", "");
         } catch (UnsupportedEncodingException | InvalidKeyException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException ex) {
-            logger.info("Executing EncryptString Utility");
-            logger.error("Error in EncryptString Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing EncryptString Utility");
+//            logger.error("Error in EncryptString Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -187,8 +156,8 @@ public class Utility {
             key = Arrays.copyOf(key, 16);
             secretkey = new SecretKeySpec(key, "AES");
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-            logger.info("Executing SetKey Utility");
-            logger.error("Error in SetKey Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing SetKey Utility");
+//            logger.error("Error in SetKey Utility : {}", ex.getMessage(), ex);
         }
     }
 
@@ -212,8 +181,8 @@ public class Utility {
             result = new String(cipher.doFinal(Base64.getDecoder().decode(string)));
         } catch (InvalidKeyException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException ex) {
             result = ex.toString();
-            logger.info("Executing DecryptString Utility");
-            logger.error("Error in DecryptString Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing DecryptString Utility");
+//            logger.error("Error in DecryptString Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -256,8 +225,8 @@ public class Utility {
             }
         } catch (ExpiredJwtException | MalformedJwtException | SignatureException | UnsupportedJwtException | IllegalArgumentException | IOException ex) {
             result.setMessage(ex.getLocalizedMessage());
-            logger.info("Executing GetPayload Utility");
-            logger.error("Error in GetPayload Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing GetPayload Utility");
+//            logger.error("Error in GetPayload Utility : {}", ex.getMessage(), ex);
 
         }
         return result;
@@ -293,8 +262,8 @@ public class Utility {
             result = (int) Hours_difference;
         } catch (ParseException ex) {
             ex.getLocalizedMessage();
-            logger.info("Executing ComputeTime Utility");
-            logger.error("Error in ComputeTime Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing ComputeTime Utility");
+//            logger.error("Error in ComputeTime Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -312,8 +281,8 @@ public class Utility {
 
             result = (int) Minutes;
         } catch (ParseException ex) {
-            logger.info("Executing MinutesCompute Utility");
-            logger.error("Error in MinutesCompute Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing MinutesCompute Utility");
+//            logger.error("Error in MinutesCompute Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -328,8 +297,8 @@ public class Utility {
             long AgeY = (difference_In_Time / (1000l * 60 * 60 * 24 * 365));
             result = (int) AgeY;
         } catch (ParseException ex) {
-            logger.info("Executing ComputeYear Utility");
-            logger.error("Error in ComputeYear Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing ComputeYear Utility");
+//            logger.error("Error in ComputeYear Utility : {}", ex.getMessage(), ex);
         }
         return result;
 
@@ -344,8 +313,8 @@ public class Utility {
             result = displayFormat.format(dates);
 
         } catch (ParseException ex) {
-            logger.info("Executing Convert12to24 Utility");
-            logger.error("Error in Convert12to24 Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing Convert12to24 Utility");
+//            logger.error("Error in Convert12to24 Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -358,8 +327,8 @@ public class Utility {
             Date time24 = displayFormat.parse(times);
             result = parseFormat.format(time24);
         } catch (ParseException ex) {
-            logger.info("Executing Convert24to12 Utility");
-            logger.error("Error in Convert24to12 Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing Convert24to12 Utility");
+//            logger.error("Error in Convert24to12 Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -375,8 +344,8 @@ public class Utility {
             result = (int) difference_In_Days;
         } catch (ParseException ex) {
             ex.getLocalizedMessage();
-            logger.info("Executing ComputeDay Utility");
-            logger.error("Error in ComputeDay Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing ComputeDay Utility");
+//            logger.error("Error in ComputeDay Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -395,8 +364,8 @@ public class Utility {
 
         } catch (ParseException ex) {
             ex.getLocalizedMessage();
-            logger.info("Executing ComputeLOS Utility");
-            logger.error("Error in ComputeLOS Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing ComputeLOS Utility");
+//            logger.error("Error in ComputeLOS Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -447,11 +416,11 @@ public class Utility {
         return result;
     }
 
-    public boolean isValidDCList(String dcs) {
-        boolean result = false;
-        result = Arrays.asList(dclist).contains(dcs);
-        return result;
-    }
+//    public boolean isValidDCList(String dcs) {
+//        boolean result = false;
+//        result = Arrays.asList(dclist).contains(dcs);
+//        return result;
+//    }
 
     public DRGWSResult DRGWSResult() {
         return new DRGWSResult();
@@ -493,8 +462,8 @@ public class Utility {
             result.setSuccess(true);
         } catch (NamingException ex) {
             result.setMessage(ex.toString());
-            logger.info("Executing GetString Utility");
-            logger.error("Error in GetString Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing GetString Utility");
+//            logger.error("Error in GetString Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -657,8 +626,8 @@ public class Utility {
         try {
             sf = this.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a").parse(stringdate);
         } catch (ParseException ex) {
-            logger.info("Executing StringToDate Utility");
-            logger.error("Error in StringToDate Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing StringToDate Utility");
+//            logger.error("Error in StringToDate Utility : {}", ex.getMessage(), ex);
         }
         return sf;
     }

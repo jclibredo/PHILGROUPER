@@ -9,8 +9,8 @@ import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -72,8 +72,8 @@ public class GetMDC20 {
                 result = getPCCLResult;
             }
         } catch (Exception ex) {
-            result.setMessage("Something went wrong");
-            Logger.getLogger(GetMDC20.class.getName()).log(Level.SEVERE, null, ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            Logger.getLogger(GetMDC20.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 

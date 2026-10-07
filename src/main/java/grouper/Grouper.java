@@ -6,21 +6,21 @@
 package grouper;
 
 import grouper.methods.premdc.ProcessGrouperParameter;
-import grouper.methods.validation.CodeConverter;
+//import grouper.methods.validation.CodeConverter;
 import grouper.methods.validation.GetGrouper;
-import grouper.structures.ConverterStructure;
+//import grouper.structures.ConverterStructure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+//import java.io.BufferedReader;
+//import java.io.File;
+//import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+//import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,9 +38,9 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import javax.ws.rs.core.Response;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  * REST Web Service
@@ -57,7 +57,7 @@ public class Grouper {
     @Resource(lookup = "jdbc/grouperuser")
     private DataSource datasource;
 
-    private final Logger logger = (Logger) LogManager.getLogger(Grouper.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(Grouper.class);
     private final Utility utility = new Utility();
 
     private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");
@@ -95,8 +95,8 @@ public class Grouper {
             }
         } catch (SQLException ex) {
             result = "Something went wrong";
-            logger.info("Executing GetServerDateTime");
-            logger.error("Error in GetServerDateTime: {}", ex.getMessage(), ex);
+//            logger.info("Executing GetServerDateTime");
+//            logger.error("Error in GetServerDateTime: {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -132,70 +132,68 @@ public class Grouper {
                 }
             } catch (Exception ex) {
                 result.setMessage("Something went wrong");
-                logger.info("Executing ProcessGrouperParameter");
-                logger.error("Error in ProcessGrouperParameter: {}", ex.getMessage(), ex);
+//                logger.info("Executing ProcessGrouperParameter");
+//                logger.error("Error in ProcessGrouperParameter: {}", ex.getMessage(), ex);
             }
         }
         return result;
     }
 
-    @POST
-    @Path("CodeConverter")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult CodeConverter(final List<ConverterStructure> converterData) {
-        DRGWSResult result = utility.DRGWSResult();
-        CodeConverter converter = new CodeConverter();
-        if (dynamicSchema.isSuccess() && utility.GetString("FilePathReports").isSuccess()) {
-            try {
-                for (int g = 0; g < converterData.size(); g++) {
-                    DRGWSResult getResult = converter.RVSCodeConverter(datasource, dynamicSchema.getResult(), converterData.get(g).getRvs());
-                    if (getResult.isSuccess()) {
-                        this.FileWriter(
-                                utility.GetString("FilePathReports").getResult(),
-                                converterData.get(g).getClaimseries(),
-                                converterData.get(g).getRvs(),
-                                getResult.getResult());
-                    }
-                }
-                result.setMessage("RVS Code Converted Successfully");
-                result.setSuccess(true);
-            } catch (Exception ex) {
-                result.setMessage("Something went wrong");
-                logger.info("Executing ProcessGrouperParameter");
-                logger.error("Error in ProcessGrouperParameter: {}", ex.getMessage(), ex);
-            }
-        } else {
-            result.setMessage("Something went wrong");
-        }
-        return result;
-    }
-
-    public void FileWriter(String path, String series, String rvs, String proc) {
-        try {
-            FileReader fr = new FileReader(path);
-            ArrayList<String> oldContent;
-            try (BufferedReader br = new BufferedReader(fr)) {
-                String line;
-                oldContent = new ArrayList<>();
-                while ((line = br.readLine()) != null) {
-                    oldContent.add(line);
-                }
-            }
-            try (PrintWriter pw = new PrintWriter(path)) {
-                for (int a = 0; a < oldContent.size(); a++) {
-                    pw.write(oldContent.get(a) + "\n");
-                }
-                pw.write(series + "|" + rvs + "|" + proc + "\n");
-                pw.flush();
-
-            }
-        } catch (IOException ex) {
-            logger.info("Executing File writer Method");
-            logger.error("Error in File writer Method : {}", ex.getMessage(), ex);
-        }
-    }
-
+//    @POST
+//    @Path("CodeConverter")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public DRGWSResult CodeConverter(final List<ConverterStructure> converterData) {
+//        DRGWSResult result = utility.DRGWSResult();
+//        CodeConverter converter = new CodeConverter();
+//        if (dynamicSchema.isSuccess() && utility.GetString("FilePathReports").isSuccess()) {
+//            try {
+//                for (int g = 0; g < converterData.size(); g++) {
+//                    DRGWSResult getResult = converter.RVSCodeConverter(datasource, dynamicSchema.getResult(), converterData.get(g).getRvs());
+//                    if (getResult.isSuccess()) {
+//                        this.FileWriter(
+//                                utility.GetString("FilePathReports").getResult(),
+//                                converterData.get(g).getClaimseries(),
+//                                converterData.get(g).getRvs(),
+//                                getResult.getResult());
+//                    }
+//                }
+//                result.setMessage("RVS Code Converted Successfully");
+//                result.setSuccess(true);
+//            } catch (Exception ex) {
+//                result.setMessage("Something went wrong");
+//                logger.info("Executing ProcessGrouperParameter");
+//                logger.error("Error in ProcessGrouperParameter: {}", ex.getMessage(), ex);
+//            }
+//        } else {
+//            result.setMessage("Something went wrong");
+//        }
+//        return result;
+//    }
+//    public void FileWriter(String path, String series, String rvs, String proc) {
+//        try {
+//            FileReader fr = new FileReader(path);
+//            ArrayList<String> oldContent;
+//            try (BufferedReader br = new BufferedReader(fr)) {
+//                String line;
+//                oldContent = new ArrayList<>();
+//                while ((line = br.readLine()) != null) {
+//                    oldContent.add(line);
+//                }
+//            }
+//            try (PrintWriter pw = new PrintWriter(path)) {
+//                for (int a = 0; a < oldContent.size(); a++) {
+//                    pw.write(oldContent.get(a) + "\n");
+//                }
+//                pw.write(series + "|" + rvs + "|" + proc + "\n");
+//                pw.flush();
+//
+//            }
+//        } catch (IOException ex) {
+//            logger.info("Executing File writer Method");
+//            logger.error("Error in File writer Method : {}", ex.getMessage(), ex);
+//        }
+//    }
     @POST
     @Path("DRGClaimsData")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -241,9 +239,9 @@ public class Grouper {
                     }
                 }
             } catch (IOException ex) {
-                result.setMessage("Something went wrong");
-                logger.info("Executing PhilSeeker");
-                logger.error("Error in PhilSeeker: {}", ex.getMessage(), ex);
+                result.setMessage("Something went wrong " + ex.getMessage());
+//                logger.info("Executing PhilSeeker");
+//                logger.error("Error in PhilSeeker: {}", ex.getMessage(), ex);
             }
         }
         return result;
@@ -278,24 +276,23 @@ public class Grouper {
             }
         } catch (IOException ex) {
             result = ex.toString();
-            logger.info("Executing GetVersion");
-            logger.error("Error in GetVersion: {}", ex.getMessage(), ex);
+//            logger.info("Executing GetVersion");
+//            logger.error("Error in GetVersion: {}", ex.getMessage(), ex);
         }
         return result;
     }
 
-    @GET
-    @Path("download-log")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadLogFile() {
-        // This MUST match the fileName in the XML above
-        File logFile = new File("logs/drg-system/app-log.log");
-        if (!logFile.exists()) {
-            return Response.status(404).entity("Log file not found at " + logFile.getAbsolutePath()).build();
-        }
-        return Response.ok(logFile)
-                .header("Content-Disposition", "attachment; filename=drg-api-system.log")
-                .build();
-    }
-
+//    @GET
+//    @Path("download-log")
+//    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+//    public Response downloadLogFile() {
+//        // This MUST match the fileName in the XML above
+//        File logFile = new File("logs/drg-system/app-log.log");
+//        if (!logFile.exists()) {
+//            return Response.status(404).entity("Log file not found at " + logFile.getAbsolutePath()).build();
+//        }
+//        return Response.ok(logFile)
+//                .header("Content-Disposition", "attachment; filename=drg-api-system.log")
+//                .build();
+//    }
 }

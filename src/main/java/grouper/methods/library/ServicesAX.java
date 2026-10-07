@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,7 @@ public class ServicesAX {
 
     public ServicesAX() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ServicesAX.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(ServicesAX.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetAx(
@@ -57,9 +57,9 @@ public class ServicesAX {
                 result.setSuccess(true);
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetAx Method");
-            logger.error("Error in GetAx Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetAx Method");
+//            logger.error("Error in GetAx Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -87,9 +87,9 @@ public class ServicesAX {
                 result.setMessage(statement.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing CreateAx Method");
-            logger.error("Error in CreateAx Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing CreateAx Method");
+//            logger.error("Error in CreateAx Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -112,9 +112,9 @@ public class ServicesAX {
                 result.setMessage(auditrail.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing DeleteAx Method");
-            logger.error("Error in DeleteAx Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing DeleteAx Method");
+//            logger.error("Error in DeleteAx Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

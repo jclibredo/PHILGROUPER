@@ -23,8 +23,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -35,7 +35,7 @@ public class GetMDC10 {
 
     public GetMDC10() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC10.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC10.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC10(
@@ -141,9 +141,9 @@ public class GetMDC10 {
                 result = getPCCLResult;
             }
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
-            logger.info("Executing MDC10 Method");
-            logger.error("Error in MDC10 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing MDC10 Method");
+//            logger.error("Error in MDC10 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

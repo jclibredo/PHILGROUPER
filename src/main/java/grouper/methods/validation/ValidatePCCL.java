@@ -8,8 +8,8 @@ package grouper.methods.validation;
 import grouper.structures.DRGWSResult;
 import grouper.utility.Utility;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -19,7 +19,7 @@ public class ValidatePCCL {
 
     public ValidatePCCL() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ValidatePCCL.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(ValidatePCCL.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult ValidatePCCL(
@@ -73,8 +73,8 @@ public class ValidatePCCL {
             }
             result.setSuccess(true);
         } catch (NumberFormatException ex) {
-            result.setMessage("ValidatePCCL " + ex.toString());
-            logger.error("Error in ValidatePCCL Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.error("Error in ValidatePCCL Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

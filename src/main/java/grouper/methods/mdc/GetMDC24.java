@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
@@ -174,8 +174,8 @@ public class GetMDC24 {
                 result = getPCCLResult;
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            Logger.getLogger(GetMDC24.class.getName()).log(Level.SEVERE, null, ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            Logger.getLogger(GetMDC24.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

@@ -7,6 +7,9 @@ package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
 import grouper.methods.validation.DRG;
+import grouper.methods.validation.GetDC;
+import grouper.methods.validation.GetPCCL;
+import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
@@ -16,8 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -28,7 +31,7 @@ public class GetMDC15 {
 
     public GetMDC15() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC15.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC15.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC15(
@@ -143,8 +146,10 @@ public class GetMDC15 {
                 drgResult.setDC(Counter15PCX > 0 ? "1504" : "1551");
             }
             // FINDING FINAL DRG
+
             if (drgResult.getDRG() == null) {
-                if (utility.isValidDCList(drgResult.getDC())) {
+                GetDC getDc = new GetDC();
+                if (getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                 } else {
                     if (MainCCPDx > 0 || Counter15BX > 0) {
@@ -178,9 +183,9 @@ public class GetMDC15 {
             result.setSuccess(true);
             result.setMessage("MDC 15 Done Checking");
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing MDC15 Method");
-            logger.error("Error in MDC15 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing MDC15 Method");
+//            logger.error("Error in MDC15 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

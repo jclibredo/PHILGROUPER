@@ -17,8 +17,8 @@ import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -30,7 +30,7 @@ public class GET_CONVERTER {
     public GET_CONVERTER() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(GET_CONVERTER.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GET_CONVERTER.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GET_CONVERTER(
@@ -63,9 +63,9 @@ public class GET_CONVERTER {
             }
 
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing Get converter Method");
-            logger.error("Error in Get converter Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing Get converter Method");
+//            logger.error("Error in Get converter Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -97,9 +97,9 @@ public class GET_CONVERTER {
                 result.setMessage("RVS " + rvs_code + " invalid");
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing RVS Validate");
-            logger.error("Error in RVS Validate Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing RVS Validate");
+//            logger.error("Error in RVS Validate Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

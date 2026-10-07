@@ -16,8 +16,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -28,7 +28,7 @@ public class GetICD10PreMDC {
 
     public GetICD10PreMDC() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetICD10PreMDC.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetICD10PreMDC.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetICD10PreMDC(
@@ -66,9 +66,9 @@ public class GetICD10PreMDC {
                 result.setSuccess(true);
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing Get ICD10 Pre-MDC Method");
-            logger.error("Error in Get ICD10 Pre-MDC : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing Get ICD10 Pre-MDC Method");
+//            logger.error("Error in Get ICD10 Pre-MDC : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -113,9 +113,9 @@ public class GetICD10PreMDC {
                 result.setSuccess(true);
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing Get ICD10 Method");
-            logger.error("Error in Get ICD10 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing Get ICD10 Method");
+//            logger.error("Error in Get ICD10 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

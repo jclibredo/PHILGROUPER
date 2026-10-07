@@ -16,10 +16,10 @@ import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
-import java.io.BufferedReader;
-import java.io.FileReader;
+//import java.io.BufferedReader;
+//import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
+//import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,8 +33,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -50,7 +50,7 @@ public class GrouperTesting {
     @Resource(lookup = "jdbc/grouperuser")
     private DataSource datasource;
 
-    private final Logger logger = (Logger) LogManager.getLogger(GrouperTesting.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GrouperTesting.class);
     private final Utility utility = new Utility();
     private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");
 
@@ -93,8 +93,8 @@ public class GrouperTesting {
 
             } catch (Exception ex) {
                 result.setMessage("Something went wrong");
-                logger.info("Executing JasonData API end point");
-                logger.error("Error in JasonData API end point : {}", ex.getMessage(), ex);
+//                logger.info("Executing JasonData API end point");
+//                logger.error("Error in JasonData API end point : {}", ex.getMessage(), ex);
             }
         }
         return result;
@@ -373,53 +373,53 @@ public class GrouperTesting {
 //                drgresult.setClaimseries(grouperparameter.getClaimseries());
 //                result.setResult(utility.objectMapper().writeValueAsString(drgresult));
                 result.setSuccess(true);
-                this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
+//                this.FileWriter(Path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
             } else {
                 DRGWSResult validateresult = new ValidateFindMDC().validateFindMDC(datasource, dynamicSchema.getResult(), grouper);
                 if (validateresult.isSuccess()) {
                     DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
-                    this.FileWriter(Path, grouperparameter.getClaimseries(),
-                            drgResults.getDRG(), drgResults.getPDC(),
-                            drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
+//                    this.FileWriter(Path, grouperparameter.getClaimseries(),
+//                            drgResults.getDRG(), drgResults.getPDC(),
+//                            drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
 //                    result.setResult(validateresult.getResult());
                     result.setSuccess(true);
                 } else {
-                    this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage(), "N/A", "N/A", "N/A");
+//                    this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage(), "N/A", "N/A", "N/A");
                     result.setMessage(validateresult.getMessage());
                 }
             }
         } catch (IOException | NumberFormatException ex) {
             result.setMessage("Something went wrong");
-            logger.error("Error in ProcessData Method : {}", ex.getMessage(), ex);
-            this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
+//            logger.error("Error in ProcessData Method : {}", ex.getMessage(), ex);
+//            this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
         }
         return result;
     }
 
-    public void FileWriter(String path, String series, String drgcode, String pdc, String drgname, String prepccl, String finalpccl, String warningerror) {
-        try {
-            FileReader fr = new FileReader(path);
-            ArrayList<String> oldContent;
-            try (BufferedReader br = new BufferedReader(fr)) {
-                String line;
-                oldContent = new ArrayList<>();
-                while ((line = br.readLine()) != null) {
-                    oldContent.add(line);
-                }
-            }
-            try (PrintWriter pw = new PrintWriter(path)) {
-                for (int a = 0; a < oldContent.size(); a++) {
-                    pw.write(oldContent.get(a) + "\n");
-                }
-                pw.write("SERIES: " + series + ", DRGCODE:" + drgcode + ", PDC:" + pdc + ", NAME:" + drgname + ", PREPCCL:" + prepccl + ", FINALPCCL:" + finalpccl + ", ERROR:" + warningerror + "\n");
-                pw.flush();
-
-            }
-        } catch (IOException ex) {
-            logger.info("Executing File writer Method");
-            logger.error("Error in File writer Method : {}", ex.getMessage(), ex);
-        }
-    }
+//    public void FileWriter(String path, String series, String drgcode, String pdc, String drgname, String prepccl, String finalpccl, String warningerror) {
+//        try {
+//            FileReader fr = new FileReader(path);
+//            ArrayList<String> oldContent;
+//            try (BufferedReader br = new BufferedReader(fr)) {
+//                String line;
+//                oldContent = new ArrayList<>();
+//                while ((line = br.readLine()) != null) {
+//                    oldContent.add(line);
+//                }
+//            }
+//            try (PrintWriter pw = new PrintWriter(path)) {
+//                for (int a = 0; a < oldContent.size(); a++) {
+//                    pw.write(oldContent.get(a) + "\n");
+//                }
+//                pw.write("SERIES: " + series + ", DRGCODE:" + drgcode + ", PDC:" + pdc + ", NAME:" + drgname + ", PREPCCL:" + prepccl + ", FINALPCCL:" + finalpccl + ", ERROR:" + warningerror + "\n");
+//                pw.flush();
+//
+//            }
+//        } catch (IOException ex) {
+//            logger.info("Executing File writer Method");
+//            logger.error("Error in File writer Method : {}", ex.getMessage(), ex);
+//        }
+//    }
 
     public String DRGAuditTrail(final DataSource datasource, String claimsSeries, String idSeries, String deTails, String status) {
         DRGWSResult grouperauditrail = new InsertGrouperAuditTrail().InsertGrouperAuditTrail(datasource, dynamicSchema.getResult(), claimsSeries, idSeries, deTails, status);

@@ -8,6 +8,7 @@ package grouper.methods.mdc;
 import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
 import grouper.methods.validation.DRG;
 import grouper.methods.validation.DRGDetermination;
+import grouper.methods.validation.GetDC;
 import grouper.methods.validation.GetPCCL;
 import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
@@ -17,8 +18,8 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +30,7 @@ public class GetPCCLResult {
 
     public GetPCCLResult() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetPCCLResult.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetPCCLResult.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetPCCLResult(
@@ -43,12 +44,15 @@ public class GetPCCLResult {
         result.setSuccess(false);
         try {
             DRG checkDRG = new DRG();
+            GetDC getDc = new GetDC();
+            GetPCCL getPccl = new GetPCCL();
+            ValidatePCCL validatePccl = new ValidatePCCL();
             if (drgResult.getDRG() == null) {
                 drgResult.setPrepccl("X");
                 drgResult.setFinalpccl("X");
                 drgResult.setDRGName("Grouper Error");
                 drgResult.setDRG(drgResult.getDC() + "X");
-                if (utility.isValidDCList(drgResult.getDC())) {
+                if (!getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
                     drgResult.setDRG(drgResult.getDC() + "9");
                     drgResult.setPrepccl("9");
                     drgResult.setFinalpccl("9");
@@ -57,7 +61,7 @@ public class GetPCCLResult {
                 } else {
                     String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, SchemaName, grouperparameter.getSdx(),
                             drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                    DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, SchemaName, drgResult, grouperparameter, sdxfinalList);
+                    DRGWSResult getpcclvalue = getPccl.GetPCCL(datasource, SchemaName, drgResult, grouperparameter, sdxfinalList);
                     if (getpcclvalue.isSuccess()) {
                         DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
                         drgResult.setPrepccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
@@ -68,7 +72,7 @@ public class GetPCCLResult {
                             drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, drgResult.getDC(),
                                     finaldrgresult.getDRG()).getMessage());
                         } else {
-                            DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG());
+                            DRGWSResult drgvalues = validatePccl.ValidatePCCL(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG());
                             if (drgvalues.isSuccess()) {
                                 String drgcode = drgResult.getDC() + drgvalues.getResult();
                                 drgResult.setDRG(drgcode);
@@ -93,9 +97,9 @@ public class GetPCCLResult {
             result.setSuccess(true);
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
         } catch (IOException | NumberFormatException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetPCCLResult Method");
-            logger.error("Error in GetPCCLResult Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetPCCLResult Method");
+//            logger.error("Error in GetPCCLResult Method : {}", ex.getMessage(), ex);
         }
 
         return result;
@@ -113,13 +117,14 @@ public class GetPCCLResult {
         try {
             DRGDetermination drgDetermination = new DRGDetermination();
             DRG checkDRG = new DRG();
+            GetDC getDc = new GetDC();
             String currentDrg = drgResult.getDRG();
             String dc = drgResult.getDC();
             String sdxdcfinder = drgResult.getSDXFINDER() != null ? drgResult.getSDXFINDER() : "";
             ValidatePCCL validatePCCL = new ValidatePCCL();
             if (currentDrg == null) {
                 drgResult.setDRGName("Grouper Error");
-                if (utility.isValidDCList(dc)) {
+                if (getDc.GetDC(datasource, schemaName, dc).isSuccess()) {
                     String fallbackDrg = dc + "9";
                     drgResult.setDRG(fallbackDrg);
                     drgResult.setPrepccl("9");
@@ -174,11 +179,9 @@ public class GetPCCLResult {
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
 
         } catch (IOException ex) {
-            logger.error("JSON serialization error in GetPCCLJava: {}", ex.getMessage(), ex);
-            result.setMessage("Something went wrong GET PCCL Result " + ex.getMessage());
+            result.setMessage("Something went wrong " + ex.getMessage());
         } catch (Exception ex) {
-            logger.error("Unexpected error in GetPCCLJava: {}", ex.getMessage(), ex);
-            result.setMessage("Something went wrong GET PCCL Result " + ex.getMessage());
+            result.setMessage("Something went wrong " + ex.getMessage());
         }
 
         return result;

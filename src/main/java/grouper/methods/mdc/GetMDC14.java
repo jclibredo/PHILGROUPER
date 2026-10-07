@@ -8,6 +8,7 @@ package grouper.methods.mdc;
 import grouper.methods.validation.AX;
 import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
 import grouper.methods.validation.DRG;
+import grouper.methods.validation.GetDC;
 import grouper.methods.validation.GetPCCL;
 import grouper.methods.validation.GetPDCUsePDx;
 import grouper.methods.validation.ORProcedure;
@@ -28,8 +29,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -40,7 +41,7 @@ public class GetMDC14 {
 
     public GetMDC14() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC14.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC14.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC14(
@@ -324,6 +325,9 @@ public class GetMDC14 {
             }
             //PROCESS LAST DRG DIGIT
             DRG checkDRG = new DRG();
+            GetDC getDc = new GetDC();
+            GetPCCL getPccl = new GetPCCL();
+            ValidatePCCL validatePccl = new ValidatePCCL();
             // 2. Call the service ONCE and store the result
             if (drgResult.getDRG() == null) {
                 drgResult.setPrepccl("X");
@@ -332,14 +336,14 @@ public class GetMDC14 {
                 drgResult.setDRG(drgResult.getDC() + "X");
                 String rest = drgResult.getDC().substring(0, 2);
                 if (Integer.parseInt(rest) == 26) {
-                    if (utility.isValidDCList(drgResult.getDC())) {
+                    if (getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
                         drgResult.setDRG(drgResult.getDC() + "9");
                         drgResult.setPrepccl("9");
                         drgResult.setFinalpccl("9");
                     } else {
                         //String sdxfinalList = new CleanSDxDCDetermination().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
                         String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, SchemaName, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                        DRGWSResult getpcclvalue = new GetPCCL().GetPCCL(datasource, SchemaName, drgResult, grouperparameter, sdxfinalList);
+                        DRGWSResult getpcclvalue = getPccl.GetPCCL(datasource, SchemaName, drgResult, grouperparameter, sdxfinalList);
                         if (getpcclvalue.isSuccess()) {
                             DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
                             drgResult.setPrepccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
@@ -348,7 +352,7 @@ public class GetMDC14 {
                             if (checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
                                 drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
                             } else {
-                                DRGWSResult drgvalues = new ValidatePCCL().ValidatePCCL(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG());
+                                DRGWSResult drgvalues = validatePccl.ValidatePCCL(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG());
                                 if (drgvalues.isSuccess()) {
                                     String drgcode = drgResult.getDC() + drgvalues.getResult();
                                     drgResult.setDRG(drgcode);
@@ -415,9 +419,9 @@ public class GetMDC14 {
             result.setMessage("MDC 14 Done Checking");
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing MDC14 Method");
-            logger.error("Error in MDC14 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing MDC14 Method");
+//            logger.error("Error in MDC14 Method : {}", ex.getMessage(), ex);
         }
 
         return result;

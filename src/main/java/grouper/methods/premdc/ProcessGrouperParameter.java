@@ -17,10 +17,10 @@ import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
-import java.io.BufferedReader;
-import java.io.FileReader;
+//import java.io.BufferedReader;
+//import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
+//import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -42,7 +42,7 @@ public class ProcessGrouperParameter {
     public ProcessGrouperParameter() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(ProcessGrouperParameter.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(ProcessGrouperParameter.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult ProcessGrouperParameter(
@@ -396,9 +396,9 @@ public class ProcessGrouperParameter {
                 }
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing Process Grouper Parameter Method");
-            logger.error("Error in Process Grouper Parameter Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " +ex.getMessage());
+//            logger.info("Executing Process Grouper Parameter Method");
+//            logger.error("Error in Process Grouper Parameter Method : {}", ex.getMessage(), ex);
             //FILE WRITE IN TESTING MODE
 //            this.FileWriter(path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
         }

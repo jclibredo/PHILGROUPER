@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,7 @@ public class GetICD10 {
 
     public GetICD10() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetICD10.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetICD10.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetICD10(
@@ -51,9 +51,9 @@ public class GetICD10 {
                 result.setMessage("No ICD10 Record Found");
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetICD10 Method");
-            logger.error("Error in GetICD10 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetICD10 Method");
+//            logger.error("Error in GetICD10 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

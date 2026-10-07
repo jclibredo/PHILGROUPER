@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
@@ -77,7 +77,7 @@ public class CodeConverter {
             result.setResult(formattedResultString);
         } catch (Exception ex) {
             result.setMessage("Something went wrong: " + ex.getMessage());
-            Logger.getLogger(CodeConverter.class.getName()).log(Level.SEVERE, "Error converting RVS codes", ex);
+//            Logger.getLogger(CodeConverter.class.getName()).log(Level.SEVERE, "Error converting RVS codes", ex);
         }
 
         return result;

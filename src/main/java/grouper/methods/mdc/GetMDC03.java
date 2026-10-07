@@ -24,8 +24,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -33,12 +33,12 @@ import org.apache.logging.log4j.Logger;
  */
 @RequestScoped
 public class GetMDC03 {
-    
+
     public GetMDC03() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC03.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC03.class);
     private final Utility utility = new Utility();
-    
+
     public DRGWSResult GetMDC03(
             final DataSource datasource,
             final String SchemaName,
@@ -199,13 +199,13 @@ public class GetMDC03 {
                 result = getPCCLResult;
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing MDC3 Method");
-            logger.error("Error in MDC3 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing MDC3 Method");
+//            logger.error("Error in MDC3 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
-    
+
     private String mdcProcedure(
             final String pdc,
             final Integer Counter3PEX) {
@@ -280,10 +280,10 @@ public class GetMDC03 {
                 break;
             }
         }
-        
+
         return result;
     }
-    
+
     private String orProcedure(final Integer ORProcedureCounterList) {
         String dc = "";
         switch (ORProcedureCounterList) {
@@ -314,7 +314,7 @@ public class GetMDC03 {
         }
         return dc;
     }
-    
+
     private MDCCodeOptimize principalDaignosis(
             final String pdc,
             final Integer CartSDx,
@@ -418,7 +418,7 @@ public class GetMDC03 {
             }
         }
         return result;
-        
+
     }
-    
+
 }

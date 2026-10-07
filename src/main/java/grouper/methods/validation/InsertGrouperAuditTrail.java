@@ -14,8 +14,8 @@ import java.util.Date;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,7 @@ public class InsertGrouperAuditTrail {
 
     public InsertGrouperAuditTrail() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(InsertGrouperAuditTrail.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(InsertGrouperAuditTrail.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult InsertGrouperAuditTrail(
@@ -58,9 +58,9 @@ public class InsertGrouperAuditTrail {
                 result.setMessage(auditrail.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing InsertGrouperAuditTrail Method");
-            logger.error("Error in InsertGrouperAuditTrail Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing InsertGrouperAuditTrail Method");
+//            logger.error("Error in InsertGrouperAuditTrail Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

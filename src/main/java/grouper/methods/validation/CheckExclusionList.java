@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,7 @@ public class CheckExclusionList {
 
     public CheckExclusionList() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(CheckExclusionList.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(CheckExclusionList.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult CheckExclusionList(
@@ -49,9 +49,9 @@ public class CheckExclusionList {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing check exclusion list Method");
-            logger.error("Error in check exclusion list Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing check exclusion list Method");
+//            logger.error("Error in check exclusion list Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

@@ -16,8 +16,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,7 @@ public class GetValidICD10Accpdx {
     public GetValidICD10Accpdx() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(GetValidICD10Accpdx.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetValidICD10Accpdx.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetValidICD10Accpdx(
@@ -66,9 +66,9 @@ public class GetValidICD10Accpdx {
                 result.setSuccess(true);
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetValidICD10Accpdx Method");
-            logger.error("Error in GetValidICD10Accpdx Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetValidICD10Accpdx Method");
+//            logger.error("Error in GetValidICD10Accpdx Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

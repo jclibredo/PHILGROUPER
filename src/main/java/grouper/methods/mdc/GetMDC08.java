@@ -25,8 +25,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -37,7 +37,7 @@ public class GetMDC08 {
 
     public GetMDC08() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC08.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC08.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC08(
@@ -216,9 +216,9 @@ public class GetMDC08 {
                 result = getPCCLResult;
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing MDC8 Method");
-            logger.error("Error in MDC8 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing MDC8 Method");
+//            logger.error("Error in MDC8 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

@@ -30,8 +30,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -40,7 +40,7 @@ import org.apache.logging.log4j.Logger;
 @RequestScoped
 public class SeekerMethods {
 
-    private final Logger logger = (Logger) LogManager.getLogger(SeekerMethods.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(SeekerMethods.class);
     private final Utility utility = new Utility();
     private final SimpleDateFormat datetimeformat = utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
 
@@ -65,9 +65,9 @@ public class SeekerMethods {
                 }
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GETTOKEN Utility");
-            logger.error("Error in GETTOKEN Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GETTOKEN Utility");
+//            logger.error("Error in GETTOKEN Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -95,9 +95,9 @@ public class SeekerMethods {
             }
 
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing InsertToken Utility");
-            logger.error("Error in InsertToken Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing InsertToken Utility");
+//            logger.error("Error in InsertToken Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -133,9 +133,9 @@ public class SeekerMethods {
                 }
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing UserInsert Utility");
-            logger.error("Error in UserInsert Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing UserInsert Utility");
+//            logger.error("Error in UserInsert Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -174,9 +174,9 @@ public class SeekerMethods {
                 result.setMessage("NO DATA FOUND");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetUserByID Utility");
-            logger.error("Error in GetUserByID Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetUserByID Utility");
+//            logger.error("Error in GetUserByID Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -237,9 +237,9 @@ public class SeekerMethods {
                 result.setMessage("NO DATA FOUND");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetUserByUsername Utility");
-            logger.error("Error in GetUserByUsername Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetUserByUsername Utility");
+//            logger.error("Error in GetUserByUsername Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -299,9 +299,9 @@ public class SeekerMethods {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetAllUser Utility");
-            logger.error("Error in GetAllUser Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetAllUser Utility");
+//            logger.error("Error in GetAllUser Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -355,9 +355,9 @@ public class SeekerMethods {
             }
 
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing UserLogin Utility");
-            logger.error("Error in UserLogin Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing UserLogin Utility");
+//            logger.error("Error in UserLogin Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -477,9 +477,9 @@ public class SeekerMethods {
                 result.setMessage("EXPIRATION VALUE IS NOT VALID");
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing VALIDATEOTP Utility");
-            logger.error("Error in VALIDATEOTP Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing VALIDATEOTP Utility");
+//            logger.error("Error in VALIDATEOTP Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -506,8 +506,8 @@ public class SeekerMethods {
                 }
             }
         } catch (ParseException ex) {
-            logger.info("Executing GetDatesDifferential Utility");
-            logger.error("Error in GetDatesDifferential Utility : {}", ex.getMessage(), ex);
+//            logger.info("Executing GetDatesDifferential Utility");
+//            logger.error("Error in GetDatesDifferential Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -547,9 +547,9 @@ public class SeekerMethods {
                 result.setMessage("Account can't be empty");
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing ValidateUserUpdate Utility");
-            logger.error("Error in ValidateUserUpdate Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing ValidateUserUpdate Utility");
+//            logger.error("Error in ValidateUserUpdate Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -579,9 +579,9 @@ public class SeekerMethods {
                 result.setMessage(statement.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing UserUpdate Utility");
-            logger.error("Error in UserUpdate Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing UserUpdate Utility");
+//            logger.error("Error in UserUpdate Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -602,9 +602,9 @@ public class SeekerMethods {
                 result.setMessage(statement.getString("TOTALEMAIL"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing COUNTEMAIL Utility");
-            logger.error("Error in COUNTEMAIL Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing COUNTEMAIL Utility");
+//            logger.error("Error in COUNTEMAIL Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -633,9 +633,9 @@ public class SeekerMethods {
             }
             result.setSuccess(true);
         } catch (MessagingException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing EmailSender Utility");
-            logger.error("Error in EmailSender Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing EmailSender Utility");
+//            logger.error("Error in EmailSender Utility : {}", ex.getMessage(), ex);
         }
         return result;//  PHL-DRGSEEKER
     }
@@ -684,9 +684,9 @@ public class SeekerMethods {
                 result.setMessage("Email not found");
             }
         } catch (IOException | MessagingException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing ForgatPassword Utility");
-            logger.error("Error in ForgatPassword Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing ForgatPassword Utility");
+//            logger.error("Error in ForgatPassword Utility : {}", ex.getMessage(), ex);
         }
         return result;//  PHL-DRGSEEKER
     }
@@ -714,9 +714,9 @@ public class SeekerMethods {
             }
 
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing UPDATEPASSWORD Utility");
-            logger.error("Error in UPDATEPASSWORD Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing UPDATEPASSWORD Utility");
+//            logger.error("Error in UPDATEPASSWORD Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -805,9 +805,9 @@ public class SeekerMethods {
                 }
             }
         } catch (MessagingException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing TestEmailSender Utility");
-            logger.error("Error in TestEmailSender Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing TestEmailSender Utility");
+//            logger.error("Error in TestEmailSender Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -832,9 +832,9 @@ public class SeekerMethods {
                 result.setMessage(statement.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing POSTOTP Utility");
-            logger.error("Error in POSTOTP Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing POSTOTP Utility");
+//            logger.error("Error in POSTOTP Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -861,9 +861,9 @@ public class SeekerMethods {
                 result.setMessage("INVALID USERNAME OR PASSWORD");
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing ValidatePayloadValue Utility");
-            logger.error("Error in ValidatePayloadValue Utility : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing ValidatePayloadValue Utility");
+//            logger.error("Error in ValidatePayloadValue Utility : {}", ex.getMessage(), ex);
         }
         return result;
     }

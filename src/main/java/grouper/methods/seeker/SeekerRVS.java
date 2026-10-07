@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -30,7 +30,7 @@ public class SeekerRVS {
     public SeekerRVS() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(SeekerRVS.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(SeekerRVS.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult SeekerRVS(final DataSource datasource, final String SchemaName) {
@@ -58,9 +58,9 @@ public class SeekerRVS {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing Seeker RVS Method");
-            logger.error("Error in Seeker RVS Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing Seeker RVS Method");
+//            logger.error("Error in Seeker RVS Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

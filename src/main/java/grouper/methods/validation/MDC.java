@@ -15,8 +15,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -28,7 +28,7 @@ public class MDC {
     public MDC() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(MDC.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(MDC.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult MDC(
@@ -54,9 +54,9 @@ public class MDC {
                 result.setResult(utility.objectMapper().writeValueAsString(mdcData));
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing MDC Method");
-            logger.error("Error in MDC Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing MDC Method");
+//            logger.error("Error in MDC Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

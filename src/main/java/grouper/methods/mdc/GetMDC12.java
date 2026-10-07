@@ -25,8 +25,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -35,7 +35,7 @@ import org.apache.logging.log4j.Logger;
 @RequestScoped
 public class GetMDC12 {
 
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC12.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC12.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC12(
@@ -184,9 +184,9 @@ public class GetMDC12 {
                 result = getPCCLResult;
             }
         } catch (IOException ex) {
-            result.setMessage(ex.toString());
-            logger.info("Executing MDC12 Method");
-            logger.error("Error in MDC12 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing MDC12 Method");
+//            logger.error("Error in MDC12 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

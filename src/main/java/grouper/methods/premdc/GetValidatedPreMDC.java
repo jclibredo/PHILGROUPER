@@ -28,8 +28,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -38,7 +38,7 @@ import org.apache.logging.log4j.Logger;
 @RequestScoped
 public class GetValidatedPreMDC {
 
-    private final Logger logger = LogManager.getLogger(GetValidatedPreMDC.class);
+//    private final Logger logger = LogManager.getLogger(GetValidatedPreMDC.class);
     private final Utility utility = new Utility();
 
     public GetValidatedPreMDC() {
@@ -262,8 +262,8 @@ public class GetValidatedPreMDC {
             }
 
         } catch (IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.error("Error in Pre-MDC Validation Method: {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.error("Error in Pre-MDC Validation Method: {}", ex.getMessage(), ex);
         }
         return result;
     }

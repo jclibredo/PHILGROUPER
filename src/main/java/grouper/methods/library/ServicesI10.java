@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,7 @@ public class ServicesI10 {
 
     public ServicesI10() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ServicesI10.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(ServicesI10.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetIcd10PreMDC(
@@ -69,9 +69,9 @@ public class ServicesI10 {
                 result.setSuccess(true);
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetIcd10PreMDC Method");
-            logger.error("Error in GetIcd10PreMDC Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetIcd10PreMDC Method");
+//            logger.error("Error in GetIcd10PreMDC Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -122,9 +122,9 @@ public class ServicesI10 {
                 result.setMessage(statement.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing CreateIcd10PreMdc Method");
-            logger.error("Error in CreateIcd10PreMdc Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing CreateIcd10PreMdc Method");
+//            logger.error("Error in CreateIcd10PreMdc Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -147,9 +147,9 @@ public class ServicesI10 {
                 result.setMessage(statement.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing DeleteIcd10PreMdc Method");
-            logger.error("Error in DeleteIcd10PreMdc Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing DeleteIcd10PreMdc Method");
+//            logger.error("Error in DeleteIcd10PreMdc Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

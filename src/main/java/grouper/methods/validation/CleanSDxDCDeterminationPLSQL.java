@@ -11,8 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -24,7 +24,7 @@ public class CleanSDxDCDeterminationPLSQL {
     public CleanSDxDCDeterminationPLSQL() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(CleanSDxDCDeterminationPLSQL.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(CleanSDxDCDeterminationPLSQL.class);
 
     public String CleanSDxDCDeterminationPLSQL(
             final DataSource datasource,
@@ -77,9 +77,9 @@ public class CleanSDxDCDeterminationPLSQL {
             }
 
         } catch (NumberFormatException ex) {
-            result = "Something went wrong";
-            logger.info("Executing clean SDX DC Determination PLSQL Method");
-            logger.error("Error in SDX DC Determination PLSQL Method : {}", ex.getMessage(), ex);
+            result = "Something went wrong "+ex.getMessage();
+//            logger.info("Executing clean SDX DC Determination PLSQL Method");
+//            logger.error("Error in SDX DC Determination PLSQL Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

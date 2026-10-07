@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,7 @@ public class AgeConfictValidation {
 
     public AgeConfictValidation() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(AgeConfictValidation.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(AgeConfictValidation.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult AgeConfictValidation(
@@ -51,9 +51,9 @@ public class AgeConfictValidation {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing Age conflict validation Method");
-            logger.error("Error in Age conflict validation Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing Age conflict validation Method");
+//            logger.error("Error in Age conflict validation Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

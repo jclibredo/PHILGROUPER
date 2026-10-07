@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,7 @@ public class ServicesCCEX {
 
     public ServicesCCEX() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ServicesCCEX.class);
+//    private final Logger logger = (Logger) LogManager.getLogger(ServicesCCEX.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetCCEX(
@@ -57,9 +57,9 @@ public class ServicesCCEX {
                 result.setSuccess(true);
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing GetCCEX Method");
-            logger.error("Error in GetCCEX Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing GetCCEX Method");
+//            logger.error("Error in GetCCEX Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -88,9 +88,9 @@ public class ServicesCCEX {
                 result.setMessage(statement.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing CreateCCEX Method");
-            logger.error("Error in CreateCCEX Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing CreateCCEX Method");
+//            logger.error("Error in CreateCCEX Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -113,9 +113,9 @@ public class ServicesCCEX {
                 result.setMessage(statement.getString("Message"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong");
-            logger.info("Executing DeleteCCEX Method");
-            logger.error("Error in DeleteCCEX Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong " + ex.getMessage());
+//            logger.info("Executing DeleteCCEX Method");
+//            logger.error("Error in DeleteCCEX Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

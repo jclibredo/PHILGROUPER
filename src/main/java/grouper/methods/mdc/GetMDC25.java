@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -233,8 +233,8 @@ public class GetMDC25 {
                 result = getPCCLResult;
             }
         } catch (NumberFormatException | IOException ex) {
-            result.setMessage("Something went wrong");
-            Logger.getLogger(GetMDC25.class.getName()).log(Level.SEVERE, null, ex);
+            result.setMessage("Something went wrong "+ex.getMessage());
+//            Logger.getLogger(GetMDC25.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 
