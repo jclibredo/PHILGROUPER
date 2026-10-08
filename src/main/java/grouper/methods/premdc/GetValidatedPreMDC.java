@@ -58,6 +58,7 @@ public class GetValidatedPreMDC {
             TRAUMAICD10 checkTraumaICD10 = new TRAUMAICD10();
             TRAUMAICD9CM checkTraumaICD9 = new TRAUMAICD9CM();
             GetICD10PreMDC getI10premdc = new GetICD10PreMDC();
+            COUNTBMDCICD10CODE bmdcCounter = new COUNTBMDCICD10CODE();
             Endovasc endoVasc = new Endovasc();
             AX checkAx = new AX();
             // 1. Parse Parameters cleanly and eliminate trailing whitespaces safely
@@ -216,7 +217,7 @@ public class GetValidatedPreMDC {
                     drgResult.setMDC("25");
                 } else if (ageInYears <= 0 && utility.ComputeDay(grouperParameter.getBirthDate(), grouperParameter.getAdmissionDate()) < 28) {
                     drgResult.setMDC("15");
-                } else if (isBmdcSuccess && new COUNTBMDCICD10CODE().COUNTBMDCICD10CODE(datasource, schemaName, grouperParameter.getPdx()).isSuccess()) {
+                } else if (isBmdcSuccess && bmdcCounter.COUNTBMDCICD10CODE(datasource, schemaName, grouperParameter.getPdx()).isSuccess()) {
                     String gender = grouperParameter.getGender().toUpperCase();
                     if (bmdcResult.getICD10().equals(grouperParameter.getPdx()) && "M".equals(gender)) {
                         drgResult.setMDC(bmdcResult.getMDC_M());

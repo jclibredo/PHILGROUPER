@@ -51,7 +51,7 @@ public class DRG {
                 DRGOutput drgOutput = new DRGOutput();
                 drgOutput.setRW(drgresultset.getString("RW"));
                 drgOutput.setWTLOS(drgresultset.getString("WTLOS"));
-                drgOutput.setOT(drgresultset.getString("OT"));
+                drgOutput.setOT(drgresultset.getString("OT")); 
                 drgOutput.setMDF(drgresultset.getString("MDF"));
                 drgOutput.setDRGName(drgresultset.getString("DRGNAME"));
                 drgOutput.setDRG(drgresultset.getString("DRG"));

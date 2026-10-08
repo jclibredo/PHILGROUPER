@@ -7,11 +7,13 @@ package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
 import grouper.methods.validation.DRG;
-import grouper.methods.validation.GetDC;
-import grouper.methods.validation.GetPCCL;
-import grouper.methods.validation.ValidatePCCL;
+import grouper.methods.validation.GetFDRG;
+//import grouper.methods.validation.GetDC;
+//import grouper.methods.validation.GetPCCL;
+//import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
+import grouper.structures.FDRG;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -146,47 +148,48 @@ public class GetMDC15 {
                 drgResult.setDC(Counter15PCX > 0 ? "1504" : "1551");
             }
             // FINDING FINAL DRG
-
+            DRG checkDRG = new DRG();
+            GetFDRG getFdrg = new GetFDRG();
             if (drgResult.getDRG() == null) {
-//                GetDC getDc = new GetDC();
-//                if (getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
-                if (utility.isValidDCList(drgResult.getDC())) {
-                    drgResult.setDRG(drgResult.getDC() + "9");
-                } else {
-                    if (MainCCPDx > 0 || Counter15BX > 0) {
-                        if (MainCCPDx > 0 && Counter15BX > 0) {
-                            drgResult.setDRG(drgResult.getDC() + "3");
-                        } else if (Counter15BX > 1) {
-                            drgResult.setDRG(drgResult.getDC() + "3");
-                        } else {
-                            drgResult.setDRG(drgResult.getDC() + "2");
-                        }
+                if (MainCCPDx > 0 || Counter15BX > 0) {
+                    if (MainCCPDx > 0 && Counter15BX > 0) {
+                        drgResult.setDRG(drgResult.getDC() + "3");
+                    } else if (Counter15BX > 1) {
+                        drgResult.setDRG(drgResult.getDC() + "3");
                     } else {
-                        if (Counter15CX > 0) {
-                            drgResult.setDRG(drgResult.getDC() + "1");
-                        } else if (PDxCounter15CX > 0) {
-                            drgResult.setDRG(drgResult.getDC() + "1");
-                        } else {
-                            drgResult.setDRG(drgResult.getDC() + "0");
-                        }
+                        drgResult.setDRG(drgResult.getDC() + "2");
+                    }
+                } else {
+                    if (Counter15CX > 0) {
+                        drgResult.setDRG(drgResult.getDC() + "1");
+                    } else if (PDxCounter15CX > 0) {
+                        drgResult.setDRG(drgResult.getDC() + "1");
+                    } else {
+                        drgResult.setDRG(drgResult.getDC() + "0");
                     }
                 }
             }
-            // FINAL RESULT IS HERE
-            DRG checkDRG = new DRG();
-            DRGWSResult checkResult = checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG());
-            if (checkResult.isSuccess()) {
-                drgResult.setDRGName(checkResult.getMessage());
+            DRGWSResult getFdrgResult = getFdrg.GetFDRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG());
+            if (getFdrgResult.isSuccess()) {
+                FDRG fdrg = utility.objectMapper().readValue(getFdrgResult.getResult(), FDRG.class);
+                String finalDrg = fdrg.getFdrg() == null ? fdrg.getPdrg() : fdrg.getFdrg();
+                String finalPccl = fdrg.getFpccl() == null ? fdrg.getPpccl() : fdrg.getFpccl();
+                drgResult.setDRG(finalDrg);
+                drgResult.setFinalpccl(finalPccl);
+                drgResult.setPrepccl(fdrg.getPpccl());
+                drgResult.setPredrg(fdrg.getPdrg());
+                drgResult.setDC(fdrg.getDc());
+                drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, fdrg.getDc(), finalDrg).getMessage());
             } else {
-                drgResult.setDRGName("DRG code grouper provide not exist in the library");
+                drgResult.setDRG(drgResult.getDRG());
+                drgResult.setFinalpccl("X");
+                drgResult.setDRGName(getFdrgResult.getMessage());
             }
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setSuccess(true);
             result.setMessage("MDC 15 Done Checking");
         } catch (IOException ex) {
             result.setMessage("Something went wrong " + ex.getMessage());
-//            logger.info("Executing MDC15 Method");
-//            logger.error("Error in MDC15 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

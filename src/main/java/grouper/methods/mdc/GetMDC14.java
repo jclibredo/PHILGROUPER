@@ -6,18 +6,21 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
-import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
+//import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
 import grouper.methods.validation.DRG;
-import grouper.methods.validation.GetDC;
-import grouper.methods.validation.GetPCCL;
+import grouper.methods.validation.DRGDetermination;
+//import grouper.methods.validation.GetDC;
+import grouper.methods.validation.GetFDRG;
+//import grouper.methods.validation.GetPCCL;
 import grouper.methods.validation.GetPDCUsePDx;
 import grouper.methods.validation.ORProcedure;
 import grouper.methods.validation.PDXandMDC;
 import grouper.methods.validation.PDxMalignancy;
 import grouper.methods.validation.UnralatedANDORProc;
-import grouper.methods.validation.ValidatePCCL;
+//import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
+import grouper.structures.FDRG;
 import grouper.structures.GrouperParameter;
 import grouper.structures.MDCCodeOptimize;
 import grouper.utility.Utility;
@@ -325,48 +328,36 @@ public class GetMDC14 {
             }
             //PROCESS LAST DRG DIGIT
             DRG checkDRG = new DRG();
-//            GetDC getDc = new GetDC();
-            GetPCCL getPccl = new GetPCCL();
-            ValidatePCCL validatePccl = new ValidatePCCL();
+            GetFDRG getFdrg = new GetFDRG();
+            String sdxdcfinder = drgResult.getSDXFINDER() != null ? drgResult.getSDXFINDER() : "";
+            DRGDetermination drgDetermination = new DRGDetermination();
             // 2. Call the service ONCE and store the result
             if (drgResult.getDRG() == null) {
-                drgResult.setPrepccl("X");
-                drgResult.setFinalpccl("X");
-                drgResult.setDRGName("Grouper Error");
-                drgResult.setDRG(drgResult.getDC() + "X");
                 String rest = drgResult.getDC().substring(0, 2);
                 if (Integer.parseInt(rest) == 26) {
-//                    if (getDc.GetDC(datasource, SchemaName, drgResult.getDC()).isSuccess()) {
-                    if (utility.isValidDCList(drgResult.getDC())) {
-                        drgResult.setDRG(drgResult.getDC() + "9");
-                        drgResult.setPrepccl("9");
-                        drgResult.setFinalpccl("9");
+                    String getPrePccl = drgDetermination.PCCLDetermination(
+                            datasource,
+                            SchemaName,
+                            grouperparameter.getSdx(),
+                            sdxdcfinder,
+                            grouperparameter.getPdx(),
+                            drgResult.getDC());
+                    String preDrg = drgResult.getDC() + getPrePccl;
+                    drgResult.setPrepccl(getPrePccl);
+                    drgResult.setPredrg(preDrg);
+                    DRGWSResult getFdrgResult = getFdrg.GetFDRG(datasource, SchemaName, drgResult.getDC(), preDrg);
+                    if (getFdrgResult.isSuccess()) {
+                        FDRG fdrg = utility.objectMapper().readValue(getFdrgResult.getResult(), FDRG.class);
+                        String finalDrg = fdrg.getFdrg() == null ? fdrg.getPdrg() : fdrg.getFdrg();
+                        String finalPccl = fdrg.getFpccl() == null ? fdrg.getPpccl() : fdrg.getFpccl();
+                        drgResult.setDRG(finalDrg);
+                        drgResult.setFinalpccl(finalPccl);
+                        drgResult.setDC(fdrg.getDc());
+                        drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, fdrg.getDc(), finalDrg).getMessage());
                     } else {
-                        //String sdxfinalList = new CleanSDxDCDetermination().CleanSDxDCDetermination(datasource, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                        String sdxfinalList = new CleanSDxDCDeterminationPLSQL().CleanSDxDCDeterminationPLSQL(datasource, SchemaName, grouperparameter.getSdx(), drgResult.getSDXFINDER(), grouperparameter.getPdx(), drgResult.getDC());
-                        DRGWSResult getpcclvalue = getPccl.GetPCCL(datasource, SchemaName, drgResult, grouperparameter, sdxfinalList);
-                        if (getpcclvalue.isSuccess()) {
-                            DRGOutput finaldrgresult = utility.objectMapper().readValue(getpcclvalue.getResult(), DRGOutput.class);
-                            drgResult.setPrepccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
-                            drgResult.setFinalpccl(finaldrgresult.getDRG().substring(finaldrgresult.getDRG().length() - 1));
-                            drgResult.setDRG(finaldrgresult.getDRG());
-                            if (checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG()).isSuccess()) {
-                                drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG()).getMessage());
-                            } else {
-                                DRGWSResult drgvalues = validatePccl.ValidatePCCL(datasource, SchemaName, drgResult.getDC(), finaldrgresult.getDRG());
-                                if (drgvalues.isSuccess()) {
-                                    String drgcode = drgResult.getDC() + drgvalues.getResult();
-                                    drgResult.setDRG(drgcode);
-                                    DRGWSResult drgnames = checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgcode);
-                                    if (drgnames.isSuccess()) {
-                                        drgResult.setDRGName(drgnames.getMessage());
-                                    }
-                                    drgResult.setFinalpccl(drgcode.substring(drgcode.length() - 1));
-                                } else {
-                                    drgResult.setDRGName("DRG code grouper provide not exist in the library");
-                                }
-                            }
-                        }
+                        drgResult.setDRG(drgResult.getDC() + getPrePccl);
+                        drgResult.setFinalpccl("X");
+                        drgResult.setDRGName(getFdrgResult.getMessage());
                     }
                 } else {
                     // PROCESS LAST DRG DIGIT
@@ -401,28 +392,18 @@ public class GetMDC14 {
                         drgResult.setDC("2604");
                     }
                     // 3. Use a ternary operator or a simple if/else for the result
-                    DRGWSResult checkResult = checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG());
-                    if (checkResult.isSuccess()) {
-                        drgResult.setDRGName(checkResult.getMessage());
-                    } else {
-                        drgResult.setDRGName("DRG code grouper provide not exist in the library");
-                    }
+                    drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG()).getMessage());
                 }
             } else {
-                DRGWSResult checkResult = checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG());
-                if (checkResult.isSuccess()) {
-                    drgResult.setDRGName(checkResult.getMessage());
-                } else {
-                    drgResult.setDRGName("DRG code grouper provide not exist in the library");
-                }
+                drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, drgResult.getDC(), drgResult.getDRG()).getMessage());
             }
+
+            result.setResult(utility.objectMapper().writeValueAsString(drgResult));
             result.setSuccess(true);
             result.setMessage("MDC 14 Done Checking");
-            result.setResult(utility.objectMapper().writeValueAsString(drgResult));
+
         } catch (IOException ex) {
             result.setMessage("Something went wrong " + ex.getMessage());
-//            logger.info("Executing MDC14 Method");
-//            logger.error("Error in MDC14 Method : {}", ex.getMessage(), ex);
         }
 
         return result;

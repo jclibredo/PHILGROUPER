@@ -79,6 +79,7 @@ D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\GetDA.j
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC04.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\GetPCOM.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC20.java
+D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\GetFDRG.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\WarningError.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC01.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\AX.java
@@ -121,5 +122,6 @@ D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\ICD10PreMDCResu
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC16.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\premdc\ValidateFindMDC.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\UserLogs.java
+D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\FDRG.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\GetGrouper.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC13.java

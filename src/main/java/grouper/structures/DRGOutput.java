@@ -32,4 +32,5 @@ public class DRGOutput {
     private String warningerror;
     private String SDXFINDER;
     private String claimseries;
+    private String predrg;
 }

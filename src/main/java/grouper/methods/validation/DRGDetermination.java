@@ -30,6 +30,7 @@ public class DRGDetermination {
     // Internal data structure to bind SDx attributes together during calculations
 
     private static class SdxItem {
+
         String code;
         String mainCc;
         int ccRow;
@@ -43,7 +44,7 @@ public class DRGDetermination {
         }
     }
 
-    public String CleanSDxDCDetermination(
+    public String PCCLDetermination(
             final DataSource datasource,
             final String SchemaName,
             final String sdxorig,
@@ -103,10 +104,10 @@ public class DRGDetermination {
                     ICD10PreMDCResult premdc = utility.objectMapper().readValue(ccRowResult.getResult(), ICD10PreMDCResult.class);
                     item.ccRow = Integer.parseInt(ccRowResult.getMessage());
                     item.mainCc = Optional.ofNullable(premdc.getMainCC()).orElse(""); // Assuming getResult() holds MAINCC
-                    System.out.print("SDX:" + item.code + " MAINCC:" + item.mainCc + " CCROW:" + item.ccRow);
+//                    System.out.print("SDX:" + item.code + " MAINCC:" + item.mainCc + " CCROW:" + item.ccRow);
                 }
                 item.ccl = getCCLVal.GetCCLValue(datasource, SchemaName, dcCol, String.valueOf(item.ccRow));
-                System.out.println(" CCL:" + item.ccl);
+//                System.out.println(" CCL:" + item.ccl);
             }
 //            System.out.println("========================================");
             // 4. Initial Exclusion Check against Principal Diagnosis (PDX)
@@ -118,11 +119,11 @@ public class DRGDetermination {
                 }
             });
             // 5. First Sort: Descending CCL, then Descending Code String (Z-A)
-            System.out.println("Before Rearrange");
+//            System.out.println("Before Rearrange");
             printSdxState(sdxList);
             sortSdxList(sdxList);
 
-            System.out.println("After Rearrange");
+//            System.out.println("After Rearrange");
             printSdxState(sdxList);
             // =========================================================================
             // 6. Pairwise Recursive Exclusion Matrix (SDx_i vs SDx_n)
@@ -166,13 +167,13 @@ public class DRGDetermination {
                 }
 
                 roundsPerformed++;
-                System.out.println(String.format("After Round %d (%s as anchor)", roundsPerformed, anchor.code));
+//                System.out.println(String.format("After Round %d (%s as anchor)", roundsPerformed, anchor.code));
                 printSdxState(sdxList);
             }
 
             // Check if further rounds are needed
             if (roundsPerformed <= 1) {
-                System.out.println("6.2 Recursive Exclusion: No need to do.");
+//                System.out.println("6.2 Recursive Exclusion: No need to do.");
             }
 
             // Calculate Final Effective CCLs
@@ -181,7 +182,7 @@ public class DRGDetermination {
                     .filter(ccl -> ccl > 0)
                     .collect(Collectors.toList());
 
-            System.out.println("CCL: " + activeCcls.stream().map(Object::toString).collect(Collectors.joining(" ")));
+//            System.out.println("CCL: " + activeCcls.stream().map(Object::toString).collect(Collectors.joining(" ")));
             // =========================================================================
             // Helper Method for Formatted Output
             // =========================================================================
@@ -228,9 +229,9 @@ public class DRGDetermination {
             sdxRow.append(String.format("%-6s", item.code));
             cclRow.append(String.format("%-6d", item.ccl));
         }
-        System.out.println(sdxRow.toString());
-        System.out.println(cclRow.toString());
-        System.out.println();
+//        System.out.println(sdxRow.toString());
+//        System.out.println(cclRow.toString());
+//        System.out.println();
     }
 
     /**

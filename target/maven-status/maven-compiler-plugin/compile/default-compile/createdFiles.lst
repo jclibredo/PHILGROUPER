@@ -22,6 +22,7 @@ grouper\structures\PDCHierar.class
 grouper\methods\library\ServiceDashboard.class
 grouper\methods\seeker\SeekerICD9cm.class
 grouper\methods\mdc\GetMDC06.class
+grouper\methods\validation\GetFDRG.class
 grouper\methods\seeker\SeekerRVS.class
 grouper\structures\CCL.class
 grouper\methods\validation\GetPDC.class
@@ -109,6 +110,7 @@ grouper\methods\mdc\GetMDC15.class
 grouper\structures\FindMDC.class
 grouper\methods\mdc\GetMDC05.class
 grouper\methods\mdc\GetMDC28.class
+grouper\structures\FDRG.class
 grouper\structures\MDC.class
 grouper\methods\validation\GetWarningError.class
 grouper\structures\ConverterStructure.class
