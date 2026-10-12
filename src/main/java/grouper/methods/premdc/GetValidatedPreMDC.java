@@ -20,6 +20,7 @@ import grouper.structures.GrouperParameter;
 import grouper.structures.ICD10PreMDCResult;
 import grouper.utility.Utility;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -97,6 +98,18 @@ public class GetValidatedPreMDC {
                         traumaCounterPDX0++;
                     }
                 }
+
+                ArrayList<SdxHelper> sdxHelperList = new ArrayList<>();
+                for (int x = 0; x < sDxList.size(); x++) {
+                    String sdxCode = sDxList.get(x).trim();
+                    DRGWSResult getSdxResult = checkTraumaICD10.TRAUMAICD10(datasource, schemaName, sdxCode);
+                    if (getSdxResult.isSuccess() && !"0".equals(getSdxResult.getResult())) {
+                        SdxHelper sdxHelper = new SdxHelper();
+                        sdxHelper.setSdx(sdxCode);
+                        sdxHelper.setTrauma(getSdxResult.getResult());
+                        sdxHelperList.add(sdxHelper);
+                    }
+                }
                 // 4. Clean $O(N)$ Deduplication Strategy for SDX and Procedure Lists using Sets
                 Set<String> uniqueSdxElements = new HashSet<>();
                 Set<String> duplicateSdxIndices = new HashSet<>();
@@ -105,6 +118,7 @@ public class GetValidatedPreMDC {
                         .filter(res -> res.isSuccess() && !"0".equals(res.getResult()))
                         .map(DRGWSResult::getResult)
                         .collect(Collectors.toList());
+
                 for (int i = 0; i < sdxNewList.size(); i++) {
                     if (!uniqueSdxElements.add(sdxNewList.get(i))) {
                         duplicateSdxIndices.add(String.valueOf(i));
@@ -159,7 +173,6 @@ public class GetValidatedPreMDC {
                         finalProcNewList.add(procNewList.get(i));
                     }
                 }
-
                 int counter0CX = checkAx.AX(datasource, schemaName, "0CX", grouperParameter.getPdx()).isSuccess() ? 1 : 0;
                 int counter0DX = checkAx.AX(datasource, schemaName, "0DX", grouperParameter.getPdx()).isSuccess() ? 1 : 0;
                 int counter0EX = checkAx.AX(datasource, schemaName, "0EX", grouperParameter.getPdx()).isSuccess() ? 1 : 0;
@@ -202,13 +215,35 @@ public class GetValidatedPreMDC {
                     drgResult.setMDC("00");
                     drgResult.setDRGName("Bone Marrow Transplant");
                 } else if (traumaCounterPDX0 > 0 && finalSdxNewList.size() >= 2) {
-                    String firstTwo = sdxNewList.get(0) + "," + sdxNewList.get(1);
+                    String index0 = "";
+                    String index1 = "";
+                    for (int x = 0; x < sdxHelperList.size(); x++) {
+                        String trauma = sdxHelperList.get(x).getTrauma().trim();
+                        if (trauma.equals(finalSdxNewList.get(0))) {
+                            index0 = sdxHelperList.get(x).getSdx().trim();
+                            break;
+                        }
+                    }
+
+                    for (int x = 0; x < sdxHelperList.size(); x++) {
+                        String trauma = sdxHelperList.get(x).getTrauma().trim();
+                        if (trauma.equals(finalSdxNewList.get(1))) {
+                            index1 = sdxHelperList.get(x).getSdx().trim();
+                            break;
+                        }
+                    }
+                    String firstTwo = index0 + "," + index1;
                     drgResult.setSDXFINDER(firstTwo);
                     drgResult.setMDC("24");
                 } else if (traumaCounterPDX0 > 0 && finalProcNewList.size() >= 2) {
                     drgResult.setMDC("24");
                 } else if (traumaCounterPDX1 > 0 && sdxPdxNewList.size() >= 1) {
-                    drgResult.setSDXFINDER(sdxPdxNewList.get(0));
+                    for (int x = 0; x < sdxHelperList.size(); x++) {
+                        if (sdxHelperList.get(x).getTrauma().equals(sdxPdxNewList.get(0))) {
+                            drgResult.setSDXFINDER(sdxHelperList.get(x).getSdx().trim());
+                            break;
+                        }
+                    }
                     drgResult.setMDC("24");
                 } else if (traumaCounterPDX1 > 0 && finalProcNewList.size() >= 2) {
                     drgResult.setMDC("24");
@@ -251,6 +286,7 @@ public class GetValidatedPreMDC {
                         result.setMessage("Grouper Done in Pre-MDC level only");
                     } else {
                         DRGOutput drgResultsUnwrapped = new DRGOutput();
+                        drgResultsUnwrapped.setSDXFINDER(drgResult.getSDXFINDER());
                         drgResultsUnwrapped.setCC(drgResult.getCC());
                         drgResultsUnwrapped.setDC(drgResult.getDC());
                         drgResultsUnwrapped.setDRG(drgResult.getDRG());
@@ -278,5 +314,28 @@ public class GetValidatedPreMDC {
 //            logger.error("Error in Pre-MDC Validation Method: {}", ex.getMessage(), ex);
         }
         return result;
+    }
+
+    public class SdxHelper {
+
+        private String sdx;
+        private String trauma;
+
+        public String getSdx() {
+            return sdx;
+        }
+
+        public void setSdx(String sdx) {
+            this.sdx = sdx;
+        }
+
+        public String getTrauma() {
+            return trauma;
+        }
+
+        public void setTrauma(String trauma) {
+            this.trauma = trauma;
+        }
+
     }
 }
