@@ -218,7 +218,7 @@ public class DRGDetermination {
             return String.valueOf(pccl);
 
         } catch (NumberFormatException | IOException ex) {
-            return "Something went wrong";
+            return "Something went wrong DRGDetermination"+ex.getMessage();
         }
     }
 

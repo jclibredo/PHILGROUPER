@@ -23,10 +23,10 @@ import java.io.IOException;
 //import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
+//import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
+//import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 //import org.apache.logging.log4j.LogManager;
@@ -358,10 +358,11 @@ public class ProcessGrouperParameter {
                 //FILE WRITE IN TESTING MODE
 //                this.FileWriter(path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
             } else {
+               
                 DRGWSResult validateresult = validateMdc.validateFindMDC(datasource, SchemaName, grouper);
                 if (validateresult.isSuccess()) {
                     DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);
-//                    COMMENT THIS IN TESTING MODE STARTING LINE
+////                    COMMENT THIS IN TESTING MODE STARTING LINE
                     DRGWSResult updatedrgresult = updateDrgResult.UpdateDRGResult(datasource,
                             SchemaName,
                             drgResults.getMDC(),
@@ -370,32 +371,33 @@ public class ProcessGrouperParameter {
                             grouper.getResult_id(),
                             grouper.getClaimseries(),
                             drgResults.getDRG(), "");
-//
+////
                     drgResults.setResultid(grouper.getResult_id());
                     drgResults.setClaimseries(grouperparameter.getClaimseries());
                     result.setSuccess(true);
                     result.setResult(utility.objectMapper().writeValueAsString(drgResults));
                     result.setMessage(validateresult.getMessage());
-//                    //Grouper Auditrail
+////                    //Grouper Auditrail
                     DRGAuditTrail(datasource, SchemaName, grouper.getClaimseries(),
                             grouper.getIdseries(),
                             updatedrgresult.getMessage(), "SUCCESS");
-                    //COMMENT THIS IN TESTING MODE ENDING LINE
-                    //FILE WRITE IN TESTING MODE
-//                    this.FileWriter(path, grouperparameter.getClaimseries(),
-//                            drgResults.getDRG(), drgResults.getPDC(),
-//                            drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
+//                    //COMMENT THIS IN TESTING MODE ENDING LINE
+//                    //FILE WRITE IN TESTING MODE
+////                    this.FileWriter(path, grouperparameter.getClaimseries(),
+////                            drgResults.getDRG(), drgResults.getPDC(),
+////                            drgResults.getDRGName(), drgResults.getPrepccl(), drgResults.getFinalpccl(), drgResults.getWarningerror());
                 } else {
-                    //COMMENT THIS IN TESTING MODE STARTING LINE
+//                    //COMMENT THIS IN TESTING MODE STARTING LINE
                     DRGAuditTrail(datasource, SchemaName, grouper.getClaimseries(), grouper.getIdseries(), validateresult.getMessage(), "FAILED");
                     result.setResult(utility.objectMapper().writeValueAsString(validateresult.getResult()));
                     result.setMessage(validateresult.getMessage());
-                    //COMMENT THIS IN TESTING MODE ENDING LINE
-                    //FILE WRITE IN TESTING MODE
-//                    this.FileWriter(path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage(), "N/A", "N/A", "N/A");
+//                    //COMMENT THIS IN TESTING MODE ENDING LINE
+//                    //FILE WRITE IN TESTING MODE
+////                    this.FileWriter(path, grouperparameter.getClaimseries(), "N/A", "N/A", validateresult.getMessage(), "N/A", "N/A", "N/A");
                 }
             }
         } catch (IOException ex) {
+//        } catch (Exception ex) {
             result.setMessage("Something went wrong " + ex.getMessage());
 //            logger.info("Executing Process Grouper Parameter Method");
 //            logger.error("Error in Process Grouper Parameter Method : {}", ex.getMessage(), ex);

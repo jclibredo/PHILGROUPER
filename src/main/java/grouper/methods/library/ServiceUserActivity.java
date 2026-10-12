@@ -63,10 +63,8 @@ public class ServiceUserActivity {
             getinsertresult.execute();
             if (getinsertresult.getString("Message").equals("SUCC")) {
                 result.setSuccess(true);
-                result.setMessage(getinsertresult.getString("Message"));
-            } else {
-                result.setMessage("Something went wrong");
             }
+            result.setMessage(getinsertresult.getString("Message"));
         } catch (SQLException ex) {
             result.setMessage("Something went wrong " + ex.getMessage());
 //            logger.info("Executing CreateUserLogs Method");

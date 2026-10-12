@@ -103,8 +103,7 @@ public class GetValidatedPreMDC {
                 List<String> sdxNewList = sDxList.stream()
                         .map(sdx -> checkTraumaICD10.TRAUMAICD10(datasource, schemaName, sdx))
                         .filter(res -> res.isSuccess() && !"0".equals(res.getResult()))
-                        //.map(DRGWSResult::getResult)
-                        .map(DRGWSResult::getMessage)
+                        .map(DRGWSResult::getResult)
                         .collect(Collectors.toList());
                 for (int i = 0; i < sdxNewList.size(); i++) {
                     if (!uniqueSdxElements.add(sdxNewList.get(i))) {
@@ -233,7 +232,7 @@ public class GetValidatedPreMDC {
             }
             // 6. Final Assignment Process
             ProcessMDC getMDC = new ProcessMDC();
-            if (!drgResult.getMDC().equals("24") && !grouperParameter.getSdx().isEmpty()) {
+            if (drgResult.getMDC() != null && !drgResult.getMDC().equals("24") && !grouperParameter.getSdx().isEmpty()) {
                 List<String> newsdxList = Arrays.asList(grouperParameter.getSdx().split(","));
                 List<String> SecondaryList = newsdxList.stream()
                         .map(String::trim)
@@ -274,7 +273,6 @@ public class GetValidatedPreMDC {
                 result.setSuccess(true);
                 result.setMessage("Grouper Done in Pre-MDC level only");
             }
-
         } catch (IOException ex) {
             result.setMessage("Something went wrong " + ex.getMessage());
 //            logger.error("Error in Pre-MDC Validation Method: {}", ex.getMessage(), ex);

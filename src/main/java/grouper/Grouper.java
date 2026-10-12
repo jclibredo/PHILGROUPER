@@ -94,7 +94,7 @@ public class Grouper {
                 }
             }
         } catch (SQLException ex) {
-            result = "Something went wrong";
+            result = "Something went wrong "+ex.getMessage();
 //            logger.info("Executing GetServerDateTime");
 //            logger.error("Error in GetServerDateTime: {}", ex.getMessage(), ex);
         }

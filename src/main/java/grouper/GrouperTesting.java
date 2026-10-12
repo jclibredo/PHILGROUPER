@@ -92,7 +92,7 @@ public class GrouperTesting {
                 }
 
             } catch (Exception ex) {
-                result.setMessage("Something went wrong");
+                result.setMessage("Something went wrong ");
 //                logger.info("Executing JasonData API end point");
 //                logger.error("Error in JasonData API end point : {}", ex.getMessage(), ex);
             }
