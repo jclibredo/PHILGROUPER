@@ -5,14 +5,9 @@
  */
 package grouper.methods.mdc;
 
-//import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
 import grouper.methods.validation.DRG;
 import grouper.methods.validation.DRGDetermination;
-//import grouper.methods.validation.GetDC;
 import grouper.methods.validation.GetFDRG;
-//import grouper.methods.validation.GetDC;
-//import grouper.methods.validation.GetPCCL;
-//import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.FDRG;
@@ -21,8 +16,6 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -68,6 +61,7 @@ public class GetPCCLResult {
                         sdxdcfinder,
                         grouperparameter.getPdx(),
                         drgResult.getDC());
+                
                 String preDrg = drgResult.getDC() + getPrePccl;
                 drgResult.setPrepccl(getPrePccl);
                 drgResult.setPredrg(preDrg);

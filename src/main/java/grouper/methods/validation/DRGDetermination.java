@@ -158,30 +158,25 @@ public class DRGDetermination {
 
                         isDbExclusion = (pairExclCheck != null && pairExclCheck.isSuccess());
                     }
-
                     // If excluded by same MAINCC or CCEX database record -> zero out target CCL
                     if (isSameMainCcExclusion || isDbExclusion) {
                         target.ccl = 0;
                         exclusionsApplied = true;
                     }
                 }
-
                 roundsPerformed++;
 //                System.out.println(String.format("After Round %d (%s as anchor)", roundsPerformed, anchor.code));
                 printSdxState(sdxList);
             }
-
             // Check if further rounds are needed
             if (roundsPerformed <= 1) {
 //                System.out.println("6.2 Recursive Exclusion: No need to do.");
             }
-
             // Calculate Final Effective CCLs
             List<Integer> activeCcls = sdxList.stream()
                     .map(item -> item.ccl)
                     .filter(ccl -> ccl > 0)
                     .collect(Collectors.toList());
-
 //            System.out.println("CCL: " + activeCcls.stream().map(Object::toString).collect(Collectors.joining(" ")));
             // =========================================================================
             // Helper Method for Formatted Output
@@ -214,7 +209,7 @@ public class DRGDetermination {
             } else {
                 pccl = (int) x;
             }
-//            System.out.println("PCCL => " + num);
+//            System.out.println("PCCL => " + x);
             return String.valueOf(pccl);
 
         } catch (NumberFormatException | IOException ex) {
@@ -225,10 +220,12 @@ public class DRGDetermination {
     private void printSdxState(List<SdxItem> list) {
         StringBuilder sdxRow = new StringBuilder("SDx:\t");
         StringBuilder cclRow = new StringBuilder("CCL:\t");
-        for (SdxItem item : list) {
+        list.stream().map((item) -> {
             sdxRow.append(String.format("%-6s", item.code));
+            return item;
+        }).forEachOrdered((item) -> {
             cclRow.append(String.format("%-6d", item.ccl));
-        }
+        });
 //        System.out.println(sdxRow.toString());
 //        System.out.println(cclRow.toString());
 //        System.out.println();

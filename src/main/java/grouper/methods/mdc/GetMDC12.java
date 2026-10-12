@@ -105,7 +105,7 @@ public class GetMDC12 {
                 CartSDx += axRest.AX(datasource, SchemaName, "99BX", Secon).isSuccess() ? 1 : 0;
                 CaCRxSDx += axRest.AX(datasource, SchemaName, "99CX", Secon).isSuccess() ? 1 : 0;
             }
-
+            System.out.println("MDC 12 " + mdcprocedureCounter);
             int max = Optional.ofNullable(ORProcedureCounterList)
                     .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
                     .orElse(0);
@@ -114,7 +114,7 @@ public class GetMDC12 {
                 long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                         utility.Convert24to12(grouperparameter.getTimeAdmission()),
                         grouperparameter.getDischargeDate(), utility.Convert24to12(grouperparameter.getTimeDischarge()));
-                if (los > 21) {
+                if (los < 21) {
                     if (mdcprocedureCounter > 0) {
                         int min = hierarvalue.get(0);
                         for (int i = 0; i < hierarvalue.size(); i++) {

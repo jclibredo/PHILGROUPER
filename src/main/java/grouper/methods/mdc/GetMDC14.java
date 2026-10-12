@@ -6,18 +6,14 @@
 package grouper.methods.mdc;
 
 import grouper.methods.validation.AX;
-//import grouper.methods.validation.CleanSDxDCDeterminationPLSQL;
 import grouper.methods.validation.DRG;
 import grouper.methods.validation.DRGDetermination;
-//import grouper.methods.validation.GetDC;
 import grouper.methods.validation.GetFDRG;
-//import grouper.methods.validation.GetPCCL;
 import grouper.methods.validation.GetPDCUsePDx;
 import grouper.methods.validation.ORProcedure;
 import grouper.methods.validation.PDXandMDC;
 import grouper.methods.validation.PDxMalignancy;
 import grouper.methods.validation.UnralatedANDORProc;
-//import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.FDRG;
@@ -32,8 +28,6 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -44,7 +38,6 @@ public class GetMDC14 {
 
     public GetMDC14() {
     }
-//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC14.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC14(

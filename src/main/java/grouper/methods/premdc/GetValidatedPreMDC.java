@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -99,26 +100,43 @@ public class GetValidatedPreMDC {
                     }
                 }
 
-                ArrayList<SdxHelper> sdxHelperList = new ArrayList<>();
-                for (int x = 0; x < sDxList.size(); x++) {
-                    String sdxCode = sDxList.get(x).trim();
-                    DRGWSResult getSdxResult = checkTraumaICD10.TRAUMAICD10(datasource, schemaName, sdxCode);
-                    if (getSdxResult.isSuccess() && !"0".equals(getSdxResult.getResult())) {
-                        SdxHelper sdxHelper = new SdxHelper();
-                        sdxHelper.setSdx(sdxCode);
-                        sdxHelper.setTrauma(getSdxResult.getResult());
-                        sdxHelperList.add(sdxHelper);
-                    }
+//                ArrayList<SdxHelper> sdxHelperList = new ArrayList<>();
+//                for (int x = 0; x < sDxList.size(); x++) {
+//                    String sdxCode = sDxList.get(x).trim();
+//                    DRGWSResult getSdxResult = checkTraumaICD10.TRAUMAICD10(datasource, schemaName, sdxCode);
+//                    if (getSdxResult.isSuccess() && !"0".equals(getSdxResult.getResult())) {
+//                        SdxHelper sdxHelper = new SdxHelper();
+//                        sdxHelper.setSdx(sdxCode);
+//                        sdxHelper.setTrauma(getSdxResult.getResult());
+//                        sdxHelperList.add(sdxHelper);
+//                    }
+//                }
+//                // 4. Clean $O(N)$ Deduplication Strategy for SDX and Procedure Lists using Sets
+//                List<String> sdxNewList = sDxList.stream()
+//                        .map(sdx -> checkTraumaICD10.TRAUMAICD10(datasource, schemaName, sdx))
+//                        .filter(res -> res.isSuccess() && !"0".equals(res.getResult()))
+//                        .map(DRGWSResult::getResult)
+//                        .collect(Collectors.toList());
+                List<SdxHelper> sdxHelperList = new ArrayList<>();
+                List<String> sdxNewList = new ArrayList<>();
+                if (sDxList != null) {
+                    sDxList.stream().filter((rawSdx) -> !(rawSdx == null)).map((rawSdx) -> rawSdx.trim()).filter((sdxCode) -> !(sdxCode.isEmpty())).forEachOrdered((sdxCode) -> {
+                        // Call the service/database check only ONCE per item
+                        DRGWSResult getSdxResult = checkTraumaICD10.TRAUMAICD10(datasource, schemaName, sdxCode);
+                        if (getSdxResult != null && getSdxResult.isSuccess() && !"0".equals(getSdxResult.getResult())) {
+                            String traumaResult = getSdxResult.getResult();
+                            // 1. Populate helper object list
+                            SdxHelper sdxHelper = new SdxHelper();
+                            sdxHelper.setSdx(sdxCode);
+                            sdxHelper.setTrauma(traumaResult);
+                            sdxHelperList.add(sdxHelper);
+                            // 2. Populate result list directly without re-querying
+                            sdxNewList.add(traumaResult);
+                        }
+                    });
                 }
-                // 4. Clean $O(N)$ Deduplication Strategy for SDX and Procedure Lists using Sets
                 Set<String> uniqueSdxElements = new HashSet<>();
                 Set<String> duplicateSdxIndices = new HashSet<>();
-                List<String> sdxNewList = sDxList.stream()
-                        .map(sdx -> checkTraumaICD10.TRAUMAICD10(datasource, schemaName, sdx))
-                        .filter(res -> res.isSuccess() && !"0".equals(res.getResult()))
-                        .map(DRGWSResult::getResult)
-                        .collect(Collectors.toList());
-
                 for (int i = 0; i < sdxNewList.size(); i++) {
                     if (!uniqueSdxElements.add(sdxNewList.get(i))) {
                         duplicateSdxIndices.add(String.valueOf(i));
