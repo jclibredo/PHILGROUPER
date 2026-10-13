@@ -79,7 +79,6 @@ public class GrouperParameter {
 
 //    @JsonProperty("dischargeType")
     private String DischargeType;
-
 //    @JsonProperty("admissionWeight")
     private String AdmissionWeight;
 

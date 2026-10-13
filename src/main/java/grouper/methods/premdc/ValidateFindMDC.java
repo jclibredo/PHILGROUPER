@@ -34,21 +34,20 @@ public class ValidateFindMDC {
 
 //    private final Logger logger = LogManager.getLogger(ValidateFindMDC.class);
     private final Utility utility = new Utility();
-
+    
     public ValidateFindMDC() {
     }
-
+    
     public DRGWSResult validateFindMDC(
             final DataSource datasource,
             final String schemaName,
             final GrouperParameter grouperParameter) {
-
         DRGWSResult result = utility.DRGWSResult();
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
         DRGOutput drgResult = new DRGOutput();
-
+        
         try {
             // 1. Shallow clone the parameter context
             GrouperParameter newGrouperParam = cloneGrouperParameter(grouperParameter);
@@ -156,7 +155,7 @@ public class ValidateFindMDC {
         }
         return result;
     }
-
+    
     private GrouperParameter cloneGrouperParameter(GrouperParameter src) {
         GrouperParameter target = new GrouperParameter();
         target.setAdmissionDate(src.getAdmissionDate());
@@ -172,26 +171,27 @@ public class ValidateFindMDC {
         target.setWarningerror(src.getWarningerror());
         target.setGender(src.getGender());
         target.setClaimseries(src.getClaimseries());
+        target.setRvs(src.getRvs());
         return target;
     }
-
+    
     public static class SDxPDx {
-
+        
         private String newpdx;
         private String newsdx;
-
+        
         public String getNewpdx() {
             return newpdx;
         }
-
+        
         public void setNewpdx(String newpdx) {
             this.newpdx = newpdx;
         }
-
+        
         public String getNewsdx() {
             return newsdx;
         }
-
+        
         public void setNewsdx(String newsdx) {
             this.newsdx = newsdx;
         }

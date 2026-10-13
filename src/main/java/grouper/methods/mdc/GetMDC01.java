@@ -25,8 +25,6 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -189,6 +187,7 @@ public class GetMDC01 {
                     drgResult.setSDXFINDER(dc.getSdxfinder());
                 }
             }
+            
 //            DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLResult(datasource, SchemaName, drgResult, grouperparameter);
             DRGWSResult getPCCLResult = new GetPCCLResult().GetPCCLJava(datasource, SchemaName, drgResult, grouperparameter);
             if (getPCCLResult.isSuccess()) {

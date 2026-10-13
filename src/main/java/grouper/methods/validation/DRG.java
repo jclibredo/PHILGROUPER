@@ -25,12 +25,12 @@ import oracle.jdbc.OracleTypes;
  */
 @RequestScoped
 public class DRG {
-
+    
     public DRG() {
     }
 //    private final Logger logger = (Logger) LogManager.getLogger(DRG.class);
     private final Utility utility = new Utility();
-
+    
     public DRGWSResult DRG(
             final DataSource datasource,
             final String SchemaName,
@@ -51,7 +51,7 @@ public class DRG {
                 DRGOutput drgOutput = new DRGOutput();
                 drgOutput.setRW(drgresultset.getString("RW"));
                 drgOutput.setWTLOS(drgresultset.getString("WTLOS"));
-                drgOutput.setOT(drgresultset.getString("OT")); 
+                drgOutput.setOT(drgresultset.getString("OT"));                
                 drgOutput.setMDF(drgresultset.getString("MDF"));
                 drgOutput.setDRGName(drgresultset.getString("DRGNAME"));
                 drgOutput.setDRG(drgresultset.getString("DRG"));
@@ -68,5 +68,5 @@ public class DRG {
         }
         return result;
     }
-
+    
 }

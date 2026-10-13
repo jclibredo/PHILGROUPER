@@ -72,7 +72,7 @@ public class GetValidatedPreMDC {
                     : Collections.emptyList();
             DRGOutput drgResult = new DRGOutput();
             drgResult.setClaimseries(grouperParameter.getClaimseries());
-            drgResult.setWarningerror(grouperParameter.getWarningerror());
+//            drgResult.setWarningerror(grouperParameter.getWarningerror());
             // Cache repeatedly calculated values
             int ageInYears = utility.ComputeYear(grouperParameter.getBirthDate(), grouperParameter.getAdmissionDate());
             int finalDays = (ageInYears > 0) ? (ageInYears * 365) : utility.ComputeDay(grouperParameter.getBirthDate(), grouperParameter.getAdmissionDate());
@@ -205,7 +205,7 @@ public class GetValidatedPreMDC {
                         timeAdm, grouperParameter.getDischargeDate(), timeDis);
                 int computedYearLos = utility.ComputeYear(grouperParameter.getAdmissionDate(),
                         grouperParameter.getDischargeDate());
-
+                
                 if (ageInYears > 124) {
                     drgResult.setDRG("26509");
                     drgResult.setDC("2650");
@@ -305,10 +305,10 @@ public class GetValidatedPreMDC {
                     } else {
                         DRGOutput drgResultsUnwrapped = new DRGOutput();
                         drgResultsUnwrapped.setSDXFINDER(drgResult.getSDXFINDER());
-                        drgResultsUnwrapped.setCC(drgResult.getCC());
+//                        drgResultsUnwrapped.setCC(drgResult.getCC());
                         drgResultsUnwrapped.setDC(drgResult.getDC());
                         drgResultsUnwrapped.setDRG(drgResult.getDRG());
-                        drgResultsUnwrapped.setWarningerror(grouperParameter.getWarningerror());
+//                        drgResultsUnwrapped.setWarningerror(grouperParameter.getWarningerror());
                         drgResultsUnwrapped.setDRGName(drgResult.getDRGName());
                         int substringLen = drgResult.getPDC().length() > 2 ? 2 : 1;
                         drgResultsUnwrapped.setMDC(drgResult.getPDC().substring(0, substringLen));

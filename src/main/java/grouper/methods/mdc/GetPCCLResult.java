@@ -23,11 +23,11 @@ import javax.sql.DataSource;
  */
 @RequestScoped
 public class GetPCCLResult {
-
+    
     public GetPCCLResult() {
     }
     private final Utility utility = new Utility();
-
+    
     public DRGWSResult GetPCCLJava(
             final DataSource datasource,
             final String schemaName,
@@ -73,7 +73,15 @@ public class GetPCCLResult {
                     drgResult.setDRG(finalDrg);
                     drgResult.setFinalpccl(finalPccl);
                     drgResult.setDC(fdrg.getDc());
-                    drgResult.setDRGName(checkDRG.DRG(datasource, schemaName, fdrg.getDc(), finalDrg).getMessage());
+                    DRGWSResult getDrg = checkDRG.DRG(datasource, schemaName, fdrg.getDc(), finalDrg);
+                    if (getDrg.isSuccess()) {
+                        DRGOutput mapDrg = utility.objectMapper().readValue(getDrg.getResult(), DRGOutput.class);
+                        drgResult.setWTLOS(mapDrg.getWTLOS() != null ? mapDrg.getWTLOS() : "");
+                        drgResult.setRW(mapDrg.getRW() != null ? mapDrg.getRW() : "");
+                        drgResult.setMDF(mapDrg.getMDF() != null ? mapDrg.getMDF() : "");
+                        drgResult.setOT(mapDrg.getOT() != null ? mapDrg.getOT() : "");
+                    }
+                    drgResult.setDRGName(getDrg.getMessage());
                 } else {
                     drgResult.setDRG(drgResult.getDC() + getPrePccl);
                     drgResult.setFinalpccl("X");
@@ -105,6 +113,44 @@ public class GetPCCLResult {
             } else {
                 drgResult.setDRGName(checkDRG.DRG(datasource, schemaName, drgResult.getDC(), drgResult.getDRG()).getMessage());
             }
+
+            //MAP PATIENT ADMISSION DETAILS
+            int ageDay = utility.ComputeDay(
+                    grouperparameter.getBirthDate(),
+                    grouperparameter.getAdmissionDate());
+            
+            int ageYear = utility.ComputeYear(
+                    grouperparameter.getBirthDate(),
+                    grouperparameter.getAdmissionDate());
+            
+            int computedLos = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                    grouperparameter.getDischargeDate(),
+                    utility.Convert24to12(grouperparameter.getTimeDischarge()));
+            
+            int computedTime = utility.ComputeTime(
+                    grouperparameter.getAdmissionDate(),
+                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
+                    grouperparameter.getDischargeDate(),
+                    utility.Convert24to12(grouperparameter.getTimeDischarge()));
+            
+            int computedYearLos = utility.ComputeYear(
+                    grouperparameter.getAdmissionDate(),
+                    grouperparameter.getDischargeDate());
+            String YearOfAge = (ageYear > 1) ? "YEARS" : "YEAR";
+            String DayOfAge = (ageDay > 1) ? "DAYS" : "DAY";
+            String YearOfLos = (computedYearLos > 1) ? "YEARS" : "YEAR";
+            String DayOfLos = (computedLos > 1) ? "DAYS" : "DAY";
+            String HourOfLos = (computedTime > 1) ? "HOURS" : "HOUR";
+            drgResult.setAge(DayOfAge + "(" + ageDay + ") " + YearOfAge + "(" + ageYear + ")");
+            drgResult.setLos(YearOfLos + "(" + computedYearLos + ") " + DayOfLos + "(" + computedLos + ") " + HourOfLos + "(" + computedTime + ")");
+            drgResult.setPdx(grouperparameter.getPdx());
+            drgResult.setSdx(grouperparameter.getSdx());
+            drgResult.setProc(grouperparameter.getProc());
+            drgResult.setSex(grouperparameter.getGender());
+            drgResult.setDischargetype(grouperparameter.getDischargeType());
+            drgResult.setRvs(grouperparameter.getRvs());
+            
             result.setSuccess(true);
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
         } catch (IOException ex) {
@@ -112,7 +158,7 @@ public class GetPCCLResult {
         } catch (Exception ex) {
             result.setMessage("Something went wrong " + ex.getMessage());
         }
-
+        
         return result;
     }
 

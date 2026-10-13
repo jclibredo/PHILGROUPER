@@ -17,20 +17,13 @@ import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
-//import java.io.BufferedReader;
-//import java.io.FileReader;
 import java.io.IOException;
-//import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-//import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-//import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -78,6 +71,7 @@ public class ProcessGrouperParameter {
             grouper.setGender(grouperparameter.getGender());
             grouper.setIdseries(grouperparameter.getIdseries());
             grouper.setPdx(grouperparameter.getPdx());
+            grouper.setRvs(grouperparameter.getRvs());
             String rawDischargeType = grouperparameter.getDischargeType().toUpperCase();
             switch (rawDischargeType) {
                 case "E": {
@@ -113,12 +107,12 @@ public class ProcessGrouperParameter {
 
             grouper.setPrepccl("");
             grouper.setFinalpccl("");
-            grouper.setWarningerror("");
+//            grouper.setWarningerror("");
             drgresult.setPrepccl("");
             drgresult.setFinalpccl("");
 
             //CLEANING PROC DATA
-            ArrayList<String> warningError = new ArrayList<>();
+//            ArrayList<String> warningError = new ArrayList<>();
             ArrayList<String> newProc = new ArrayList<>();
             String procString = grouperparameter.getProc();
             GenderConfictValidationProc procValidate = new GenderConfictValidationProc();
@@ -131,9 +125,10 @@ public class ProcessGrouperParameter {
                     boolean isValid = procValidate.GenderConfictValidationProc(datasource, SchemaName, proCode, grouperparameter.getGender()).isSuccess();
                     if (isValid) {
                         newProc.add(proCode);
-                    } else {
-                        warningError.add(proCode + " Not valid");
                     }
+//                    else {
+//                        warningError.add(proCode + " Not valid");
+//                    }
                 }
             }
             if (!newProc.isEmpty()) {
@@ -142,12 +137,12 @@ public class ProcessGrouperParameter {
             } else {
                 grouper.setProc("");
             }
-            if (!warningError.isEmpty()) {
-                drgresult.setWarningerror(String.join(",", warningError));
-                grouper.setWarningerror(String.join(",", warningError));
-            } else {
-                drgresult.setWarningerror("");
-            }
+//            if (!warningError.isEmpty()) {
+//                drgresult.setWarningerror(String.join(",", warningError));
+//                grouper.setWarningerror(String.join(",", warningError));
+//            } else {
+//                drgresult.setWarningerror("");
+//            }
             grouper.setResult_id(grouperparameter.getResult_id());
             //CLEANING SDX
             if (!grouperparameter.getSdx().isEmpty()) {
@@ -199,10 +194,6 @@ public class ProcessGrouperParameter {
                         }
                     }
                 }
-//                List<String> SecondaryList = newsdxList.stream()
-//                        .map(String::trim)
-//                        .sorted(Comparator.reverseOrder())
-//                        .collect(Collectors.toList());
                 grouper.setSdx(String.join(",", newsdxList));
             } else {
                 grouper.setSdx(grouperparameter.getSdx());
@@ -358,7 +349,6 @@ public class ProcessGrouperParameter {
                 //FILE WRITE IN TESTING MODE
 //                this.FileWriter(path, grouperparameter.getClaimseries(), drgresult.getDRG(), "N/A", drgresult.getDRGName(), "N/A", "N/A", "N/A");
             } else {
-               
                 DRGWSResult validateresult = validateMdc.validateFindMDC(datasource, SchemaName, grouper);
                 if (validateresult.isSuccess()) {
                     DRGOutput drgResults = utility.objectMapper().readValue(validateresult.getResult(), DRGOutput.class);

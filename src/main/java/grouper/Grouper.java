@@ -6,21 +6,15 @@
 package grouper;
 
 import grouper.methods.premdc.ProcessGrouperParameter;
-//import grouper.methods.validation.CodeConverter;
 import grouper.methods.validation.GetGrouper;
-//import grouper.structures.ConverterStructure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
-//import java.io.BufferedReader;
-//import java.io.File;
-//import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-//import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,9 +32,6 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
-//import javax.ws.rs.core.Response;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
 
 /**
  * REST Web Service
@@ -57,7 +48,6 @@ public class Grouper {
     @Resource(lookup = "jdbc/grouperuser")
     private DataSource datasource;
 
-//    private final Logger logger = (Logger) LogManager.getLogger(Grouper.class);
     private final Utility utility = new Utility();
 
     private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");

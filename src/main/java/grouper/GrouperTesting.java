@@ -16,10 +16,7 @@ import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
-//import java.io.BufferedReader;
-//import java.io.FileReader;
 import java.io.IOException;
-//import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,8 +30,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -169,7 +164,7 @@ public class GrouperTesting {
             }
             drgresult.setPrepccl("");
             drgresult.setFinalpccl("");
-            drgresult.setWarningerror("");
+//            drgresult.setWarningerror("");
             // PDx Cleanup Check
             String rawPdx = grouperparameter.getPdx();
             if (getPreMDC.GetICD10PreMDC(datasource, dynamicSchema.getResult(), rawPdx).isSuccess()) {
@@ -283,7 +278,7 @@ public class GrouperTesting {
             if (!warningerror.isEmpty()) {
                 String combinedWarnings = String.join(",", warningerror);
                 grouper.setWarningerror(combinedWarnings);
-                drgresult.setWarningerror(combinedWarnings);
+//                drgresult.setWarningerror(combinedWarnings);
             }
 
             // UNGROUPABLE ENGINE RULE CHECKERS

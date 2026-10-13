@@ -26,11 +26,17 @@ public class DRGOutput {
     private String MDC;
     private String DC;
     private String PDC;
-    private String CC;
     private String prepccl;
     private String finalpccl;
-    private String warningerror;
     private String SDXFINDER;
     private String claimseries;
     private String predrg;
+    private String sex;
+    private String pdx;
+    private String sdx;
+    private String proc;
+    private String age;
+    private String los;
+    private String rvs;
+    private String dischargetype;
 }
