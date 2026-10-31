@@ -5,6 +5,8 @@
  */
 package grouper;
 
+import grouper.methods.drgrates.Maifip;
+import grouper.methods.library.ServiceDashboard;
 import grouper.methods.premdc.ProcessGrouperParameter;
 import grouper.methods.validation.GetGrouper;
 import grouper.structures.DRGOutput;
@@ -31,7 +33,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * REST Web Service
@@ -49,7 +54,7 @@ public class Grouper {
     private DataSource datasource;
 
     private final Utility utility = new Utility();
-
+    private final Logger logger = (Logger) LogManager.getLogger(ServiceDashboard.class);
     private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");
     private final DRGWSResult stopper = utility.GetString("Limitter");
 
@@ -84,9 +89,9 @@ public class Grouper {
                 }
             }
         } catch (SQLException ex) {
-            result = "Something went wrong "+ex.getMessage();
-//            logger.info("Executing GetServerDateTime");
-//            logger.error("Error in GetServerDateTime: {}", ex.getMessage(), ex);
+            result = "Something went wrong Grouper Main GetServerDateTime";
+            logger.info("Executing Grouper Main Class");
+            logger.error("Error in GetServerDateTime: Method {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -121,9 +126,9 @@ public class Grouper {
                     result.setMessage("NO DATA AVAILABLE TO PROCESS");
                 }
             } catch (Exception ex) {
-                result.setMessage("Something went wrong");
-//                logger.info("Executing ProcessGrouperParameter");
-//                logger.error("Error in ProcessGrouperParameter: {}", ex.getMessage(), ex);
+                result.setMessage("Something went wrong Grouper Main ProcessGrouperParameter");
+                logger.info("Executing Grouper Main Class");
+                logger.error("Error in ProcessGrouperParameter: Method {}", ex.getMessage(), ex);
             }
         }
         return result;
@@ -229,9 +234,9 @@ public class Grouper {
                     }
                 }
             } catch (IOException ex) {
-                result.setMessage("Something went wrong " + ex.getMessage());
-//                logger.info("Executing PhilSeeker");
-//                logger.error("Error in PhilSeeker: {}", ex.getMessage(), ex);
+                result.setMessage("Something went wrong Grouper Main PhilSeeker");
+                logger.info("Executing Grouper Main Class");
+                logger.error("Error in PhilSeeker: Method {}", ex.getMessage(), ex);
             }
         }
         return result;
@@ -265,9 +270,9 @@ public class Grouper {
                 result = properties.getProperty("project.version");
             }
         } catch (IOException ex) {
-            result = ex.toString();
-//            logger.info("Executing GetVersion");
-//            logger.error("Error in GetVersion: {}", ex.getMessage(), ex);
+            result = "Something went wrong Grouper Main GetVersion";
+            logger.info("Executing Grouper Main Class");
+            logger.error("Error in GetVersion: Method {}", ex.getMessage(), ex);
         }
         return result;
     }
@@ -285,4 +290,23 @@ public class Grouper {
 //                .header("Content-Disposition", "attachment; filename=drg-api-system.log")
 //                .build();
 //    }
+    @GET
+    @Path("GetFacilityType/{hcfcode}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GetHCFType(
+            @PathParam("puserid") String puserid) {
+        Maifip doh = new Maifip();
+        return doh.GetHcfType(datasource, dynamicSchema.getResult(), "hcfcode");
+    }
+
+    @GET
+    @Path("GetMaifip")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult GetMAIFIP(
+            @HeaderParam("pdx") String pdx,
+            @HeaderParam("pccl") String pccl,
+            @HeaderParam("hcftype") String hcftype) {
+        Maifip doh = new Maifip();
+        return doh.GetMaifipMult(datasource, dynamicSchema.getResult(), pdx, pccl, hcftype);
+    }
 }

@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -24,7 +24,7 @@ public class CleanSDxDCDetermination {
     public CleanSDxDCDetermination() {
     }
 //    private final Utility utility = new Utility();
-//    private final Logger logger = (Logger) LogManager.getLogger(CleanSDxDCDetermination.class);
+    private final Logger logger = (Logger) LogManager.getLogger(CleanSDxDCDetermination.class);
 
     public String CleanSDxDCDetermination(
             final DataSource datasource,
@@ -205,7 +205,6 @@ public class CleanSDxDCDetermination {
                     }
                 }
             } else {
-//                System.out.println("YOU ARE HERE B " + utility.objectMapper().writeValueAsString(SDXoriglist));
                 //GET DCCOL USING DC
                 String DCCol = "";
                 DRGWSResult detdccol = getDC.GetDC(datasource, SchemaName, dcs);
@@ -254,8 +253,8 @@ public class CleanSDxDCDetermination {
 
         } catch (NumberFormatException ex) {
             result = "Something went wrong " + ex.getMessage();
-//            logger.info("Executing clean SDX DC determination Method");
-//            logger.error("Error in clean SDX DC determination Method : {}", ex.getMessage(), ex);
+            logger.info("Executing clean SDX DC determination Method");
+            logger.error("Error in clean SDX DC determination Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

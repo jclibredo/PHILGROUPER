@@ -22,8 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -36,6 +36,7 @@ public class GetMDC23 {
 
     public GetMDC23() {
     }
+     private final Logger logger = (Logger) LogManager.getLogger(GetMDC23.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC23(
@@ -148,8 +149,9 @@ public class GetMDC23 {
                 result = getPCCLResult;
             }
         } catch (IOException | NumberFormatException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
-//            Logger.getLogger(GetMDC23.class.getName()).log(Level.SEVERE, null, ex);
+            result.setMessage("Something went wrong MDC23");
+            logger.info("Executing MDC23 Class");
+            logger.error("Error in GetMDC23 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

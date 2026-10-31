@@ -22,10 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 //import java.util.Collections;
 import java.util.List;
-//import java.util.stream.Collectors;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
-//import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -38,7 +36,7 @@ public class GetMDC24 {
 
     public GetMDC24() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC24.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC24(
@@ -167,8 +165,9 @@ public class GetMDC24 {
                 result = getPCCLResult;
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
-//            Logger.getLogger(GetMDC24.class.getName()).log(Level.SEVERE, null, ex);
+            result.setMessage("Something went wrong MDC24");
+            logger.info("Executing MDC24 Class");
+            logger.error("Error in GetMDC24 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

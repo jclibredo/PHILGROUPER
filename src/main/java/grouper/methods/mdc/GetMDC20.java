@@ -9,10 +9,10 @@ import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -23,7 +23,7 @@ public class GetMDC20 {
 
     public GetMDC20() {
     }
-
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC20.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC20(
@@ -72,8 +72,9 @@ public class GetMDC20 {
                 result = getPCCLResult;
             }
         } catch (Exception ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
-//            Logger.getLogger(GetMDC20.class.getName()).log(Level.SEVERE, null, ex);
+            result.setMessage("Something went wrong MDC20");
+            logger.info("Executing MDC20 Class");
+            logger.error("Error in GetMDC20 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

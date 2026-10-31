@@ -25,14 +25,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -41,11 +40,10 @@ import javax.sql.DataSource;
 @RequestScoped
 public class GetValidatedPreMDC {
 
-//    private final Logger logger = LogManager.getLogger(GetValidatedPreMDC.class);
-    private final Utility utility = new Utility();
-
     public GetValidatedPreMDC() {
     }
+    private final Logger logger = (Logger) LogManager.getLogger(GetValidatedPreMDC.class);
+    private final Utility utility = new Utility();
 
     public DRGWSResult getValidatedPreMDC(
             final DataSource datasource,
@@ -205,7 +203,7 @@ public class GetValidatedPreMDC {
                         timeAdm, grouperParameter.getDischargeDate(), timeDis);
                 int computedYearLos = utility.ComputeYear(grouperParameter.getAdmissionDate(),
                         grouperParameter.getDischargeDate());
-                
+
                 if (ageInYears > 124) {
                     drgResult.setDRG("26509");
                     drgResult.setDC("2650");
@@ -328,8 +326,9 @@ public class GetValidatedPreMDC {
                 result.setMessage("Grouper Done in Pre-MDC level only");
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
-//            logger.error("Error in Pre-MDC Validation Method: {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong GetValidatePreMDC");
+            logger.info("Executing GetValidatePreMDC Class");
+            logger.error("Error in getValidatePreMDC Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

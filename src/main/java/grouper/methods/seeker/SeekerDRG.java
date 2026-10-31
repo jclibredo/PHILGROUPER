@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -30,7 +30,7 @@ public class SeekerDRG {
     public SeekerDRG() {
     }
 
-//    private final Logger logger = (Logger) LogManager.getLogger(SeekerDRG.class);
+    private final Logger logger = (Logger) LogManager.getLogger(SeekerDRG.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult SeekerDRG(final DataSource datasource, final String SchemaName) {
@@ -61,9 +61,9 @@ public class SeekerDRG {
                 result.setMessage("N/A");
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
-//            logger.info("Executing SeekerDRG Method");
-//            logger.error("Error in SeekerDRG Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong SeekerDRG");
+            logger.info("Executing SeekerDRG Class");
+            logger.error("Error in SeekerDRG Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

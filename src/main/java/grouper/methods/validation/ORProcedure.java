@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,7 @@ public class ORProcedure {
 
     public ORProcedure() {
     }
-//    private final Logger logger = (Logger) LogManager.getLogger(ORProcedure.class);
+    private final Logger logger = (Logger) LogManager.getLogger(ORProcedure.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult ORProcedure(
@@ -49,9 +49,9 @@ public class ORProcedure {
                 result.setResult(resultSet.getString("PROCGR"));
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
-//            logger.info("Executing ORProcedure Method");
-//            logger.error("Error in ORProcedure Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong ORProcedure");
+            logger.info("Executing ORProcedure Class");
+            logger.error("Error in ORProcedure Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

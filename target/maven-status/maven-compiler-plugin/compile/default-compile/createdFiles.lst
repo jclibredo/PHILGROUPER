@@ -24,6 +24,7 @@ grouper\methods\library\ServiceDashboard.class
 grouper\methods\seeker\SeekerICD9cm.class
 grouper\methods\mdc\GetMDC06.class
 grouper\methods\validation\GetFDRG.class
+grouper\utility\CorsFilter.class
 grouper\methods\seeker\SeekerRVS.class
 grouper\structures\CCL.class
 grouper\methods\validation\GetPDC.class
@@ -82,6 +83,7 @@ grouper\methods\validation\GET_ICD9.class
 grouper\utility\TestParamObject.class
 grouper\structures\CCEX.class
 grouper\methods\mdc\GetMDC02.class
+grouper\structures\MaifipModel.class
 grouper\structures\RVS.class
 grouper\methods\mdc\GetMDC22.class
 grouper\methods\validation\DRGDetermination.class
@@ -107,6 +109,7 @@ grouper\structures\BMDCPreMDCResult.class
 grouper\methods\validation\GetValidICD10Accpdx.class
 grouper\methods\validation\PDXandMDC.class
 grouper\structures\AX.class
+grouper\methods\drgrates\Maifip.class
 grouper\methods\mdc\GetMDC15.class
 grouper\structures\FindMDC.class
 grouper\methods\mdc\GetMDC05.class

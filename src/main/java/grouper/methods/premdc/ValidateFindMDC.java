@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -32,12 +32,11 @@ import javax.sql.DataSource;
 @RequestScoped
 public class ValidateFindMDC {
 
-//    private final Logger logger = LogManager.getLogger(ValidateFindMDC.class);
-    private final Utility utility = new Utility();
-    
     public ValidateFindMDC() {
     }
-    
+    private final Logger logger = (Logger) LogManager.getLogger(ValidateFindMDC.class);
+    private final Utility utility = new Utility();
+
     public DRGWSResult validateFindMDC(
             final DataSource datasource,
             final String schemaName,
@@ -46,9 +45,8 @@ public class ValidateFindMDC {
         result.setMessage("");
         result.setResult("");
         result.setSuccess(false);
-        DRGOutput drgResult = new DRGOutput();
-        
         try {
+            DRGOutput drgResult = new DRGOutput();
             // 1. Shallow clone the parameter context
             GrouperParameter newGrouperParam = cloneGrouperParameter(grouperParameter);
             drgResult.setClaimseries(grouperParameter.getClaimseries());
@@ -150,12 +148,13 @@ public class ValidateFindMDC {
                 result = getPreMDC.getValidatedPreMDC(datasource, schemaName, newGrouperParam);
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
-//            logger.error("Error in Find MDC Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong ValidateFindMDC");
+            logger.info("Executing Process ValidateFindMDC Class");
+            logger.error("Error in Process validateFindMDC Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
-    
+
     private GrouperParameter cloneGrouperParameter(GrouperParameter src) {
         GrouperParameter target = new GrouperParameter();
         target.setAdmissionDate(src.getAdmissionDate());
@@ -174,24 +173,24 @@ public class ValidateFindMDC {
         target.setRvs(src.getRvs());
         return target;
     }
-    
+
     public static class SDxPDx {
-        
+
         private String newpdx;
         private String newsdx;
-        
+
         public String getNewpdx() {
             return newpdx;
         }
-        
+
         public void setNewpdx(String newpdx) {
             this.newpdx = newpdx;
         }
-        
+
         public String getNewsdx() {
             return newsdx;
         }
-        
+
         public void setNewsdx(String newsdx) {
             this.newsdx = newsdx;
         }

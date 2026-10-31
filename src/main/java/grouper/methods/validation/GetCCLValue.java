@@ -12,8 +12,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -24,7 +24,7 @@ public class GetCCLValue {
 
     public GetCCLValue() {
     }
-//    private final Logger logger = (Logger) LogManager.getLogger(GetCCLValue.class);
+    private final Logger logger = (Logger) LogManager.getLogger(GetCCLValue.class);
 
     public int GetCCLValue(
             final DataSource datasource,
@@ -41,14 +41,13 @@ public class GetCCLValue {
             if (cclList.next()) {
                 //Get Value suing inderx off
                 String longstring = cclList.getString("CCL");
-//                System.out.println(" | "+longstring);
                 int x = Integer.parseInt(dccol);
                 String cclval = longstring.substring(x - 1, Integer.parseInt(dccol));
                 result = Integer.parseInt(cclval);
             }
         } catch (SQLException ex) {
-//            logger.info("Executing GetCCLValue Method");
-//            logger.error("Error in GetCCLValue Method : {}", ex.getMessage(), ex);
+            logger.info("Executing GetCCLValue Class");
+            logger.error("Error in GetCCLValue Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

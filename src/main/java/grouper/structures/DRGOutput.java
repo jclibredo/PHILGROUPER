@@ -39,4 +39,10 @@ public class DRGOutput {
     private String los;
     private String rvs;
     private String dischargetype;
+    private String amount;
+    private String hcftype;
+    private String hcflevel;
+    private String acramount;
+    private String category;
+    private String multiplier;
 }

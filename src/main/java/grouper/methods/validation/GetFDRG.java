@@ -16,6 +16,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,6 +28,8 @@ public class GetFDRG {
 
     public GetFDRG() {
     }
+
+    private final Logger logger = (Logger) LogManager.getLogger(GetDC.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetFDRG(
@@ -56,7 +60,9 @@ public class GetFDRG {
                 result.setResult(utility.objectMapper().writeValueAsString(fdrg));
             }
         } catch (IOException | SQLException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
+            result.setMessage("Something went wrong GetFDRG");
+            logger.info("Executing GetFDRG Class");
+            logger.error("Error in GetFDRG Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

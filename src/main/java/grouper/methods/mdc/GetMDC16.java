@@ -23,8 +23,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -35,7 +35,7 @@ public class GetMDC16 {
 
     public GetMDC16() {
     }
-//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC16.class);
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC16.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC16(
@@ -90,7 +90,7 @@ public class GetMDC16 {
                     }
                 }
             }
-            
+
             int max = Optional.ofNullable(ORProcedureCounterList)
                     .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
                     .orElse(0);
@@ -142,9 +142,9 @@ public class GetMDC16 {
                 result = getPCCLResult;
             }
         } catch (IOException ex) {
-             result.setMessage("Something went wrong "+ex.getMessage());
-//            logger.info("Executing MDC16 Method");
-//            logger.error("Error in MDC16 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong MDC16");
+            logger.info("Executing MDC16 Class");
+            logger.error("Error in GetMDC16 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

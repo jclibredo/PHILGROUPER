@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -33,7 +33,7 @@ public class GetMDC15 {
 
     public GetMDC15() {
     }
-//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC15.class);
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC15.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC15(
@@ -189,7 +189,9 @@ public class GetMDC15 {
             result.setSuccess(true);
             result.setMessage("MDC 15 Done Checking");
         } catch (IOException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
+            result.setMessage("Something went wrong MDC15");
+            logger.info("Executing MDC15 Class");
+            logger.error("Error in GetMDC15 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

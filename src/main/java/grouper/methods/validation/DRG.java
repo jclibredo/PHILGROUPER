@@ -16,8 +16,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -25,12 +25,12 @@ import oracle.jdbc.OracleTypes;
  */
 @RequestScoped
 public class DRG {
-    
+
     public DRG() {
     }
-//    private final Logger logger = (Logger) LogManager.getLogger(DRG.class);
+    private final Logger logger = (Logger) LogManager.getLogger(DRG.class);
     private final Utility utility = new Utility();
-    
+
     public DRGWSResult DRG(
             final DataSource datasource,
             final String SchemaName,
@@ -51,7 +51,7 @@ public class DRG {
                 DRGOutput drgOutput = new DRGOutput();
                 drgOutput.setRW(drgresultset.getString("RW"));
                 drgOutput.setWTLOS(drgresultset.getString("WTLOS"));
-                drgOutput.setOT(drgresultset.getString("OT"));                
+                drgOutput.setOT(drgresultset.getString("OT"));
                 drgOutput.setMDF(drgresultset.getString("MDF"));
                 drgOutput.setDRGName(drgresultset.getString("DRGNAME"));
                 drgOutput.setDRG(drgresultset.getString("DRG"));
@@ -62,11 +62,11 @@ public class DRG {
                 result.setMessage(drgOutput.getDRGName());
             }
         } catch (IOException | SQLException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
-//            logger.info("Executing DRG Method");
-//            logger.error("Error in DRG Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong DRG");
+            logger.info("Executing DRG Class");
+            logger.error("Error in DRG Method : {}", ex.getMessage(), ex);
         }
         return result;
     }
-    
+
 }

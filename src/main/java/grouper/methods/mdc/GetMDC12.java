@@ -25,8 +25,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -35,7 +35,7 @@ import javax.sql.DataSource;
 @RequestScoped
 public class GetMDC12 {
 
-//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC12.class);
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC12.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC12(
@@ -105,7 +105,6 @@ public class GetMDC12 {
                 CartSDx += axRest.AX(datasource, SchemaName, "99BX", Secon).isSuccess() ? 1 : 0;
                 CaCRxSDx += axRest.AX(datasource, SchemaName, "99CX", Secon).isSuccess() ? 1 : 0;
             }
-            System.out.println("MDC 12 " + mdcprocedureCounter);
             int max = Optional.ofNullable(ORProcedureCounterList)
                     .flatMap(list -> list.stream().filter(Objects::nonNull).max(Integer::compareTo))
                     .orElse(0);
@@ -184,9 +183,9 @@ public class GetMDC12 {
                 result = getPCCLResult;
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
-//            logger.info("Executing MDC12 Method");
-//            logger.error("Error in MDC12 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong MDC12");
+            logger.info("Executing MDC12 Class");
+            logger.error("Error in GetMDC12 Method : {}", ex.getMessage(), ex);
         }
         return result;
 

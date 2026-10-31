@@ -66,7 +66,6 @@ public class GrouperTesting {
 //                DRGWSResult grouperResult = this.ProcessData(datasource, grouperparameter.get(g));
                         if (grouperResult.isSuccess()) {
 //                        DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
-//                        System.out.println("SERIES: " + drgout.getClaimseries() + " PDC: " + drgout.getPDC() + " MDC: " + drgout.getMDC() + " DRG: " + drgout.getDRG());
                             drgresultList.add(grouperResult.getResult());
                         } else {
                             errorList.add(grouperResult.getMessage());

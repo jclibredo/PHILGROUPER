@@ -5,6 +5,7 @@
  */
 package grouper.methods.mdc;
 
+//import grouper.methods.drgrates.Maifip;
 import grouper.methods.validation.DRG;
 import grouper.methods.validation.DRGDetermination;
 import grouper.methods.validation.GetFDRG;
@@ -16,6 +17,8 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -23,11 +26,13 @@ import javax.sql.DataSource;
  */
 @RequestScoped
 public class GetPCCLResult {
-    
+
     public GetPCCLResult() {
     }
+
+    private final Logger logger = (Logger) LogManager.getLogger(GetPCCLResult.class);
     private final Utility utility = new Utility();
-    
+
     public DRGWSResult GetPCCLJava(
             final DataSource datasource,
             final String schemaName,
@@ -40,11 +45,11 @@ public class GetPCCLResult {
         try {
             DRGDetermination drgDetermination = new DRGDetermination();
             DRG checkDRG = new DRG();
+//            Maifip doh = new Maifip();
             GetFDRG getFdrg = new GetFDRG();
             String sdxdcfinder = drgResult.getSDXFINDER() != null ? drgResult.getSDXFINDER() : "";
             if (drgResult.getDRG() == null) {
 //                drgResult.setDRGName("Grouper Error");
-//                System.out.println();
 //                if (getDc.GetDC(datasource, schemaName, dc).isSuccess()) {
 ////                if (utility.isValidDCList(drgResult.getDC())) {
 //                    String fallbackDrg = dc + "9";
@@ -61,7 +66,7 @@ public class GetPCCLResult {
                         sdxdcfinder,
                         grouperparameter.getPdx(),
                         drgResult.getDC());
-                
+
                 String preDrg = drgResult.getDC() + getPrePccl;
                 drgResult.setPrepccl(getPrePccl);
                 drgResult.setPredrg(preDrg);
@@ -82,6 +87,8 @@ public class GetPCCLResult {
                         drgResult.setOT(mapDrg.getOT() != null ? mapDrg.getOT() : "");
                     }
                     drgResult.setDRGName(getDrg.getMessage());
+
+                    //GET MAIFIP DATA
                 } else {
                     drgResult.setDRG(drgResult.getDC() + getPrePccl);
                     drgResult.setFinalpccl("X");
@@ -118,22 +125,22 @@ public class GetPCCLResult {
             int ageDay = utility.ComputeDay(
                     grouperparameter.getBirthDate(),
                     grouperparameter.getAdmissionDate());
-            
+
             int ageYear = utility.ComputeYear(
                     grouperparameter.getBirthDate(),
                     grouperparameter.getAdmissionDate());
-            
+
             int computedLos = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
                     utility.Convert24to12(grouperparameter.getTimeAdmission()),
                     grouperparameter.getDischargeDate(),
                     utility.Convert24to12(grouperparameter.getTimeDischarge()));
-            
+
             int computedTime = utility.ComputeTime(
                     grouperparameter.getAdmissionDate(),
                     utility.Convert24to12(grouperparameter.getTimeAdmission()),
                     grouperparameter.getDischargeDate(),
                     utility.Convert24to12(grouperparameter.getTimeDischarge()));
-            
+
             int computedYearLos = utility.ComputeYear(
                     grouperparameter.getAdmissionDate(),
                     grouperparameter.getDischargeDate());
@@ -150,15 +157,19 @@ public class GetPCCLResult {
             drgResult.setSex(grouperparameter.getGender());
             drgResult.setDischargetype(grouperparameter.getDischargeType());
             drgResult.setRvs(grouperparameter.getRvs());
-            
+
             result.setSuccess(true);
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
         } catch (IOException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
+            result.setMessage("Something went wrong GetPCCLResult");
+            logger.info("Executing GetPCCLResult Class");
+            logger.error("Error in GetPCCLJava Method : {}", ex.getMessage(), ex);
         } catch (Exception ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
+            result.setMessage("Something went wrong GetPCCLResult");
+            logger.info("Executing GetPCCLResult Class");
+            logger.error("Error in GetPCCLJava Method : {}", ex.getMessage(), ex);
         }
-        
+
         return result;
     }
 

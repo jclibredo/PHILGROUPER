@@ -28,6 +28,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -38,6 +40,7 @@ public class GetMDC14 {
 
     public GetMDC14() {
     }
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC14.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC14(
@@ -396,7 +399,9 @@ public class GetMDC14 {
             result.setMessage("MDC 14 Done Checking");
 
         } catch (IOException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
+            result.setMessage("Something went wrong MDC14");
+            logger.info("Executing MDC14 Class");
+            logger.error("Error in GetMDC14 Method : {}", ex.getMessage(), ex);
         }
 
         return result;

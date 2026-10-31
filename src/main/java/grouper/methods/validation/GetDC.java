@@ -16,6 +16,8 @@ import java.sql.SQLException;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,6 +28,7 @@ public class GetDC {
 
     public GetDC() {
     }
+    private final Logger logger = (Logger) LogManager.getLogger(GetDC.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetDC(
@@ -54,7 +57,9 @@ public class GetDC {
                 result.setMessage(DCResultset.getString("DCCOL"));
             }
         } catch (SQLException | IOException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
+            result.setMessage("Something went wrong GetDA");
+            logger.info("Executing GetDA Class");
+            logger.error("Error in GetDA Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

@@ -32,6 +32,7 @@ public class ApplicationConfig extends Application {
         resources.add(grouper.GrouperTesting.class);
         resources.add(grouper.LibraryManagement.class);
         resources.add(grouper.Seeker.class);
+        resources.add(grouper.utility.CorsFilter.class);
 
     }
 

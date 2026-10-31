@@ -24,8 +24,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -36,7 +36,7 @@ public class GetMDC03 {
 
     public GetMDC03() {
     }
-//    private final Logger logger = (Logger) LogManager.getLogger(GetMDC03.class);
+    private final Logger logger = (Logger) LogManager.getLogger(GetMDC03.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC03(
@@ -199,9 +199,9 @@ public class GetMDC03 {
                 result = getPCCLResult;
             }
         } catch (IOException ex) {
-            result.setMessage("Something went wrong " + ex.getMessage());
-//            logger.info("Executing MDC3 Method");
-//            logger.error("Error in MDC3 Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong MDC3");
+            logger.info("Executing MDC3 Class");
+            logger.error("Error in GetMDC03 Method : {}", ex.getMessage(), ex);
         }
         return result;
     }

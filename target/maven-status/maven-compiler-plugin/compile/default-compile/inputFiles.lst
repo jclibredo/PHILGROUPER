@@ -31,6 +31,7 @@ D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\LibraryManagement.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\AX.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\ORProcedure.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\NClaimsData.java
+D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\MaifipModel.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\PCOM.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC14.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\library\ServiceUserActivity.java
@@ -40,6 +41,7 @@ D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\library\ServiceDas
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\CodeConverter.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\PDCUseProcedureChecking.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\MDCProcedure.java
+D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\utility\CorsFilter.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\UnralatedANDORProc.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\DRGPayload.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\seeker\SeekerICD9cm.java
@@ -71,6 +73,7 @@ D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\library\ServicesCC
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\PDCHierar.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC03.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\structures\DC.java
+D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\drgrates\Maifip.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\GetCCLValue.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\validation\MDCProcedureMethod.java
 D:\MyWorkRepository\PHILGROUPER\src\main\java\grouper\methods\mdc\GetMDC15.java
