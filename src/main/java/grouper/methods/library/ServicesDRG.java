@@ -14,11 +14,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,6 @@ public class ServicesDRG {
 
     public ServicesDRG() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ServicesDRG.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetDrg(
@@ -64,8 +63,7 @@ public class ServicesDRG {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetDrg");
-            logger.info("Executing ServicesDRG Class");
-            logger.error("Error in GetDrg Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesDRG.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -106,8 +104,7 @@ public class ServicesDRG {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong CreateDrg");
-            logger.info("Executing ServicesDRG Class");
-            logger.error("Error in CreateDrg Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesDRG.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -131,8 +128,7 @@ public class ServicesDRG {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong DeleteDrg");
-            logger.info("Executing ServicesDRG Class");
-            logger.error("Error in DeleteDrg Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesDRG.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

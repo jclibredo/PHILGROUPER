@@ -5,9 +5,7 @@
  */
 package grouper.methods.drgrates;
 
-import grouper.methods.library.ServiceDashboard;
 import grouper.structures.DRGWSResult;
-//import grouper.structures.DashboardView;
 import grouper.structures.MaifipModel;
 import grouper.utility.Utility;
 import java.io.IOException;
@@ -15,15 +13,14 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-//import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -32,7 +29,6 @@ import org.apache.logging.log4j.Logger;
 @RequestScoped
 public class Maifip {
 
-    private final Logger logger = (Logger) LogManager.getLogger(ServiceDashboard.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMaifipMult(
@@ -67,8 +63,7 @@ public class Maifip {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetMaifipMult");
-            logger.info("Executing Maifip Class");
-            logger.error("Error in GetMaifipMult Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(Maifip.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -94,8 +89,7 @@ public class Maifip {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong GetMaifipMult");
-            logger.info("Executing GetHcfType Class");
-            logger.error("Error in GetMaifipMult Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(Maifip.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

@@ -27,11 +27,11 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -42,7 +42,6 @@ public class GetValidatedPreMDC {
 
     public GetValidatedPreMDC() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetValidatedPreMDC.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult getValidatedPreMDC(
@@ -327,8 +326,7 @@ public class GetValidatedPreMDC {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong GetValidatePreMDC");
-            logger.info("Executing GetValidatePreMDC Class");
-            logger.error("Error in getValidatePreMDC Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetValidatedPreMDC.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -35,7 +35,7 @@ public class GetMDC21 {
 
     public GetMDC21() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC21.class);
+
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC21(
@@ -141,8 +141,7 @@ public class GetMDC21 {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong MDC21");
-            logger.info("Executing MDC21 Class");
-            logger.error("Error in GetMDC21 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetMDC21.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 

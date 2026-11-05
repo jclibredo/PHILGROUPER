@@ -18,10 +18,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -32,7 +32,6 @@ public class GetMDC18 {
 
     public GetMDC18() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC18.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC18(
@@ -142,8 +141,7 @@ public class GetMDC18 {
             }
         } catch (NumberFormatException ex) {
             result.setMessage("Something went wrong MDC18");
-            logger.info("Executing MDC18 Class");
-            logger.error("Error in GetMDC18 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetMDC18.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 

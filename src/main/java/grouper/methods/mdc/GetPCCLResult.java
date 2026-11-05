@@ -5,7 +5,6 @@
  */
 package grouper.methods.mdc;
 
-//import grouper.methods.drgrates.Maifip;
 import grouper.methods.validation.DRG;
 import grouper.methods.validation.DRGDetermination;
 import grouper.methods.validation.GetFDRG;
@@ -15,10 +14,10 @@ import grouper.structures.FDRG;
 import grouper.structures.GrouperParameter;
 import grouper.utility.Utility;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -30,7 +29,6 @@ public class GetPCCLResult {
     public GetPCCLResult() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(GetPCCLResult.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetPCCLJava(
@@ -162,12 +160,10 @@ public class GetPCCLResult {
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
         } catch (IOException ex) {
             result.setMessage("Something went wrong GetPCCLResult");
-            logger.info("Executing GetPCCLResult Class");
-            logger.error("Error in GetPCCLJava Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetPCCLResult.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             result.setMessage("Something went wrong GetPCCLResult");
-            logger.info("Executing GetPCCLResult Class");
-            logger.error("Error in GetPCCLJava Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetPCCLResult.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return result;

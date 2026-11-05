@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,6 @@ public class AgeConfictValidation {
 
     public AgeConfictValidation() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(AgeConfictValidation.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult AgeConfictValidation(
@@ -52,8 +51,7 @@ public class AgeConfictValidation {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong AgeConfictValidation");
-            logger.info("Executing Age AgeConfictValidation Class");
-            logger.error("Error in Age AgeConfictValidation Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(AgeConfictValidation.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

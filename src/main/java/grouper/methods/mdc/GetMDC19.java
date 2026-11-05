@@ -13,10 +13,10 @@ import grouper.utility.Utility;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -27,7 +27,6 @@ public class GetMDC19 {
 
     public GetMDC19() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC19.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC19(
@@ -64,8 +63,7 @@ public class GetMDC19 {
             }
         } catch (NumberFormatException ex) {
             result.setMessage("Something went wrong MDC19");
-            logger.info("Executing MDC19 Class");
-            logger.error("Error in GetMDC19 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetMDC19.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 

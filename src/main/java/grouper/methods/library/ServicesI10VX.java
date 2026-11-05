@@ -14,11 +14,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,6 @@ public class ServicesI10VX {
 
     public ServicesI10VX() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ServicesI10VX.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetIcd10(final DataSource datasource, final String SchemaName) {
@@ -57,8 +56,7 @@ public class ServicesI10VX {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetIcd10");
-            logger.info("Executing ServicesI10VX Class");
-            logger.error("Error in GetIcd10 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesI10VX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -88,8 +86,7 @@ public class ServicesI10VX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong CreateIcd10");
-            logger.info("Executing ServicesI10VX Class");
-            logger.error("Error in CreateIcd10 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesI10VX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -111,8 +108,7 @@ public class ServicesI10VX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong DeleteIcd10");
-            logger.info("Executing ServicesI10VX Class");
-            logger.error("Error in DeleteIcd10 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesI10VX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

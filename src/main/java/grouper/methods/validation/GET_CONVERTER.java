@@ -14,11 +14,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -30,7 +30,6 @@ public class GET_CONVERTER {
     public GET_CONVERTER() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(GET_CONVERTER.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GET_CONVERTER(
@@ -64,8 +63,7 @@ public class GET_CONVERTER {
 
         } catch (SQLException ex) {
             result.setMessage("Something went wrong GET_CONVERTER");
-            logger.info("Executing GET_CONVERTER Class");
-            logger.error("Error in GET_CONVERTER Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GET_CONVERTER.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -98,8 +96,7 @@ public class GET_CONVERTER {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong ValidateRVS");
-            logger.info("Executing GET_CONVERTER Class");
-            logger.error("Error in ValidateRVS Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GET_CONVERTER.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

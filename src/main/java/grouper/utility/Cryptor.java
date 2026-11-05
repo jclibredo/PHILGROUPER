@@ -19,11 +19,11 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.spec.KeySpec;
 import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -33,7 +33,6 @@ public class Cryptor {
 
     private static final int KEY_LENGTH = 256;
     private static final int ITERATION_COUNT = 65536;
-    private final Logger logger = (Logger) LogManager.getLogger(Cryptor.class);
 
     public String decrypt(String strToDecrypt, String secretKey, String salt) {
         try {
@@ -56,8 +55,7 @@ public class Cryptor {
             byte[] decryptedText = cipher.doFinal(cipherText);
             return new String(decryptedText, "UTF-8");
         } catch (UnsupportedEncodingException | InvalidAlgorithmParameterException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException e) {
-            logger.info("Executing Cryptor Class");
-            logger.error("Error in decrypt Method : {}", e.getMessage(), e);
+            Logger.getLogger(Cryptor.class.getName()).log(Level.SEVERE, null, e);
             return e.getLocalizedMessage();
         }
     }
@@ -80,8 +78,7 @@ public class Cryptor {
             System.arraycopy(cipherText, 0, encryptedData, iv.length, cipherText.length);
             return Base64.getEncoder().encodeToString(encryptedData);
         } catch (UnsupportedEncodingException | InvalidAlgorithmParameterException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException e) {
-            logger.info("Executing Cryptor Class");
-            logger.error("Error in encrypt Method : {}", e.getMessage(), e);
+            Logger.getLogger(Cryptor.class.getName()).log(Level.SEVERE, null, e);
             return e.getLocalizedMessage();
         }
     }

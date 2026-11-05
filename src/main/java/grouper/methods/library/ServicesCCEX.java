@@ -14,11 +14,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,6 @@ public class ServicesCCEX {
 
     public ServicesCCEX() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ServicesCCEX.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetCCEX(
@@ -58,8 +57,7 @@ public class ServicesCCEX {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetCCEX");
-            logger.info("Executing ServicesCCEX Class");
-            logger.error("Error in GetCCEX Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesCCEX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -89,8 +87,7 @@ public class ServicesCCEX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong CreateCCEX");
-            logger.info("Executing ServicesCCEX Class");
-            logger.error("Error in CreateCCEX Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesCCEX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -114,8 +111,7 @@ public class ServicesCCEX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong DeleteCCEX");
-            logger.info("Executing ServicesCCEX Class");
-            logger.error("Error in DeleteCCEX Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesCCEX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

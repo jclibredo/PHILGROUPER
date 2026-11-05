@@ -14,11 +14,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -30,7 +30,6 @@ public class SeekerICD9cm {
     public SeekerICD9cm() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(SeekerICD9cm.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult SeekerICD9cm(final DataSource datasource, final String SchemaName) {
@@ -59,8 +58,7 @@ public class SeekerICD9cm {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong SeekerICD9cm");
-            logger.info("Executing SeekerICD9cm Class");
-            logger.error("Error in SeekerICD9cm Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerICD9cm.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

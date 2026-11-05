@@ -13,11 +13,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -28,7 +28,6 @@ public class DRG {
 
     public DRG() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(DRG.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult DRG(
@@ -63,8 +62,7 @@ public class DRG {
             }
         } catch (IOException | SQLException ex) {
             result.setMessage("Something went wrong DRG");
-            logger.info("Executing DRG Class");
-            logger.error("Error in DRG Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(DRG.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

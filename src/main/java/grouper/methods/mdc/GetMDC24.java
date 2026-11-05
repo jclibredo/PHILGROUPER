@@ -9,8 +9,6 @@ import grouper.methods.validation.AX;
 import grouper.methods.validation.GetPDC;
 import grouper.methods.validation.MDCProcedureMethod;
 import grouper.methods.validation.ORProcedure;
-//import grouper.methods.validation.TRAUMAICD10;
-//import grouper.methods.validation.TRAUMAICD9CM;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
@@ -20,10 +18,9 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-//import java.util.Collections;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -36,7 +33,6 @@ public class GetMDC24 {
 
     public GetMDC24() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC24.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC24(
@@ -166,8 +162,7 @@ public class GetMDC24 {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong MDC24");
-            logger.info("Executing MDC24 Class");
-            logger.error("Error in GetMDC24 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetMDC24.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

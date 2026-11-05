@@ -14,11 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 public class DRGDetermination {
 
     private final Utility utility = new Utility();
-    private final Logger logger = (Logger) LogManager.getLogger(DRGDetermination.class);
     // Internal data structure to bind SDx attributes together during calculations
 
     private static class SdxItem {
@@ -215,8 +214,7 @@ public class DRGDetermination {
             return String.valueOf(pccl);
 
         } catch (NumberFormatException | IOException ex) {
-            logger.info("Executing DRGDetermination Class");
-            logger.error("Error in DRGDetermination Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(DRGDetermination.class.getName()).log(Level.SEVERE, null, ex);
             return "Something went wrong DRG";
         }
     }

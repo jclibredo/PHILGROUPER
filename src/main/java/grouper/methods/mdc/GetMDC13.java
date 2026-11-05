@@ -23,10 +23,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -37,7 +37,6 @@ public class GetMDC13 {
 
     public GetMDC13() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC13.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC13(
@@ -188,8 +187,7 @@ public class GetMDC13 {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong MDC13");
-            logger.info("Executing MDC13 Class");
-            logger.error("Error in GetMDC13 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetMDC13.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 

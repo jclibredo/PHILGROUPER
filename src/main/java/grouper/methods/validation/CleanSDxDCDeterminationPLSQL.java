@@ -11,8 +11,6 @@ package grouper.methods.validation;
 //import java.util.List;
 import javax.enterprise.context.RequestScoped;
 //import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -24,7 +22,7 @@ public class CleanSDxDCDeterminationPLSQL {
     public CleanSDxDCDeterminationPLSQL() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(CleanSDxDCDeterminationPLSQL.class);
+  
 
 //    public String CleanSDxDCDeterminationPLSQL(
 //            final DataSource datasource,

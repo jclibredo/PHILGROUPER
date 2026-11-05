@@ -13,11 +13,11 @@ import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -28,7 +28,7 @@ public class GetPCCL {
 
     public GetPCCL() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetPCCL.class);
+
     private final Utility utility = new Utility();
 
     public DRGWSResult GetPCCL(
@@ -53,8 +53,7 @@ public class GetPCCL {
             result.setSuccess(true);
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetPCCL");
-            logger.info("Executing GetPCCL Class");
-            logger.error("Error in GetPCCL Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetPCCL.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

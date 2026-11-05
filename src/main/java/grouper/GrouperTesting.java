@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
@@ -45,7 +47,6 @@ public class GrouperTesting {
     @Resource(lookup = "jdbc/grouperuser")
     private DataSource datasource;
 
-//    private final Logger logger = (Logger) LogManager.getLogger(GrouperTesting.class);
     private final Utility utility = new Utility();
     private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");
 
@@ -87,8 +88,7 @@ public class GrouperTesting {
 
             } catch (Exception ex) {
                 result.setMessage("Something went wrong ");
-//                logger.info("Executing JasonData API end point");
-//                logger.error("Error in JasonData API end point : {}", ex.getMessage(), ex);
+                Logger.getLogger(GrouperTesting.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return result;
@@ -384,7 +384,7 @@ public class GrouperTesting {
             }
         } catch (IOException | NumberFormatException ex) {
             result.setMessage("Something went wrong");
-//            logger.error("Error in ProcessData Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GrouperTesting.class.getName()).log(Level.SEVERE, null, ex);
 //            this.FileWriter(Path, grouperparameter.getClaimseries(), "N/A", "N/A", ex.toString(), "N/A", "N/A", "N/A");
         }
         return result;
@@ -414,7 +414,6 @@ public class GrouperTesting {
 //            logger.error("Error in File writer Method : {}", ex.getMessage(), ex);
 //        }
 //    }
-
     public String DRGAuditTrail(final DataSource datasource, String claimsSeries, String idSeries, String deTails, String status) {
         DRGWSResult grouperauditrail = new InsertGrouperAuditTrail().InsertGrouperAuditTrail(datasource, dynamicSchema.getResult(), claimsSeries, idSeries, deTails, status);
         return grouperauditrail.getMessage();

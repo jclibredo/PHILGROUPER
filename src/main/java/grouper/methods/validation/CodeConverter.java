@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
@@ -29,7 +29,6 @@ public class CodeConverter {
 
     public CodeConverter() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(CodeConverter.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult RVSCodeConverter(
@@ -78,8 +77,7 @@ public class CodeConverter {
             result.setResult(formattedResultString);
         } catch (Exception ex) {
             result.setMessage("Something went wrong RVSCodeConverter");
-            logger.info("Executing CodeConverter Class");
-            logger.error("Error RVSCodeConverter Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(CodeConverter.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return result;

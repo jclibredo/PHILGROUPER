@@ -15,8 +15,8 @@ import grouper.structures.MDCCodeOptimize;
 import grouper.utility.Utility;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -30,7 +30,6 @@ public class GetMDC22 {
     public GetMDC22() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC22.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC22(
@@ -144,8 +143,7 @@ public class GetMDC22 {
             }
         } catch (NumberFormatException ex) {
             result.setMessage("Something went wrong MDC22");
-            logger.info("Executing MDC22 Class");
-            logger.error("Error in GetMDC22 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetMDC22.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 

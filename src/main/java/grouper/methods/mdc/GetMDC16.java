@@ -21,10 +21,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -35,7 +35,6 @@ public class GetMDC16 {
 
     public GetMDC16() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC16.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC16(
@@ -143,8 +142,7 @@ public class GetMDC16 {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong MDC16");
-            logger.info("Executing MDC16 Class");
-            logger.error("Error in GetMDC16 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetMDC16.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 

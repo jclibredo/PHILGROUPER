@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,6 @@ public class AX {
 
     public AX() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(AX.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult AX(
@@ -51,9 +50,8 @@ public class AX {
                 result.setSuccess(true);
             }
         } catch (SQLException ex) {
-            result.setMessage("Something went wrong SeekerDRG");
-            logger.info("Executing SeekerDRG Class");
-            logger.error("Error in AX Method : {}", ex.getMessage(), ex);
+            result.setMessage("Something went wrong AX");
+            Logger.getLogger(AX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

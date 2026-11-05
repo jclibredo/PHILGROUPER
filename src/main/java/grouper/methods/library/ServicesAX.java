@@ -14,11 +14,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -29,7 +29,6 @@ public class ServicesAX {
 
     public ServicesAX() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ServicesAX.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetAx(
@@ -58,8 +57,7 @@ public class ServicesAX {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetAx");
-            logger.info("Executing ServicesAX Class");
-            logger.error("Error in GetAx Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesAX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -88,8 +86,7 @@ public class ServicesAX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong CreateAx");
-            logger.info("Executing ServicesAX Class");
-            logger.error("Error in CreateAx Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesAX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -113,8 +110,7 @@ public class ServicesAX {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong DeleteAx");
-            logger.info("Executing ServicesAX Class");
-            logger.error("Error in DeleteAx Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ServicesAX.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

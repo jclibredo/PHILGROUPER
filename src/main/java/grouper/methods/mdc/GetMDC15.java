@@ -19,10 +19,10 @@ import grouper.utility.Utility;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -33,7 +33,6 @@ public class GetMDC15 {
 
     public GetMDC15() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC15.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC15(
@@ -190,8 +189,7 @@ public class GetMDC15 {
             result.setMessage("MDC 15 Done Checking");
         } catch (IOException ex) {
             result.setMessage("Something went wrong MDC15");
-            logger.info("Executing MDC15 Class");
-            logger.error("Error in GetMDC15 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetMDC15.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 

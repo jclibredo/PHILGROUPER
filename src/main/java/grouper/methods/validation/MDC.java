@@ -12,11 +12,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -28,7 +28,6 @@ public class MDC {
     public MDC() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(MDC.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult MDC(
@@ -55,8 +54,7 @@ public class MDC {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong MDC");
-            logger.info("Executing MDC Class");
-            logger.error("Error in MDC Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(MDC.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

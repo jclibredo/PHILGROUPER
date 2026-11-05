@@ -14,11 +14,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -30,7 +30,6 @@ public class SeekerRVS {
     public SeekerRVS() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(SeekerRVS.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult SeekerRVS(final DataSource datasource, final String SchemaName) {
@@ -59,8 +58,7 @@ public class SeekerRVS {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong SeekerRVS");
-            logger.info("Executing SeekerRVS Class");
-            logger.error("Error in SeekerRVS Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerRVS.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

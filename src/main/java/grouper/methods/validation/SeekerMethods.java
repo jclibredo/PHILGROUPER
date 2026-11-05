@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
@@ -30,8 +32,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -40,7 +40,6 @@ import org.apache.logging.log4j.Logger;
 @RequestScoped
 public class SeekerMethods {
 
-    private final Logger logger = (Logger) LogManager.getLogger(SeekerMethods.class);
     private final Utility utility = new Utility();
     private final SimpleDateFormat datetimeformat = utility.SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
 
@@ -66,8 +65,7 @@ public class SeekerMethods {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong GETTOKEN");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in GETTOKEN Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -96,8 +94,7 @@ public class SeekerMethods {
 
         } catch (SQLException ex) {
             result.setMessage("Something went wrong InsertToken");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in InsertToken Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -134,8 +131,7 @@ public class SeekerMethods {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong UserInsert");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in UserInsert Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -175,8 +171,7 @@ public class SeekerMethods {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetUserByID");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in GetUserByID Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -238,8 +233,7 @@ public class SeekerMethods {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetUserByUsername");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in GetUserByUsername Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -300,8 +294,7 @@ public class SeekerMethods {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetAllUser");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in GetAllUser Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -356,8 +349,7 @@ public class SeekerMethods {
 
         } catch (IOException ex) {
             result.setMessage("Something went wrong UserLogin");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in UserLogin Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -478,8 +470,7 @@ public class SeekerMethods {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong VALIDATEOTP");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in VALIDATEOTP Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -506,8 +497,7 @@ public class SeekerMethods {
                 }
             }
         } catch (ParseException ex) {
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in GetDatesDifferential Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -548,8 +538,7 @@ public class SeekerMethods {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong ValidateUserUpdate");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in ValidateUserUpdate Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -580,8 +569,7 @@ public class SeekerMethods {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong UserUpdate");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in UserUpdate Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -603,8 +591,7 @@ public class SeekerMethods {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong COUNTEMAIL");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in COUNTEMAIL Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -634,8 +621,7 @@ public class SeekerMethods {
             result.setSuccess(true);
         } catch (MessagingException ex) {
             result.setMessage("Something went wrong EmailSender");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in EmailSender Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;//  PHL-DRGSEEKER
     }
@@ -685,8 +671,7 @@ public class SeekerMethods {
             }
         } catch (IOException | MessagingException ex) {
             result.setMessage("Something went wrong ForgatPassword");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in ForgatPassword Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;//  PHL-DRGSEEKER
     }
@@ -715,8 +700,7 @@ public class SeekerMethods {
 
         } catch (SQLException ex) {
             result.setMessage("Something went wrong UPDATEPASSWORD");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in UPDATEPASSWORD Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -806,8 +790,7 @@ public class SeekerMethods {
             }
         } catch (MessagingException | IOException ex) {
             result.setMessage("Something went wrong TestEmailSender");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in TestEmailSender Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -833,8 +816,7 @@ public class SeekerMethods {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong POSTOTP");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in POSTOTP Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -862,8 +844,7 @@ public class SeekerMethods {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong ValidatePayloadValue");
-            logger.info("Executing SeekerMethods Class");
-            logger.error("Error in ValidatePayloadValue Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(SeekerMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

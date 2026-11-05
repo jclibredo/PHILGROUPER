@@ -6,7 +6,6 @@
 package grouper;
 
 import grouper.methods.drgrates.Maifip;
-import grouper.methods.library.ServiceDashboard;
 import grouper.methods.premdc.ProcessGrouperParameter;
 import grouper.methods.validation.GetGrouper;
 import grouper.structures.DRGOutput;
@@ -24,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
@@ -35,8 +36,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * REST Web Service
@@ -54,7 +53,6 @@ public class Grouper {
     private DataSource datasource;
 
     private final Utility utility = new Utility();
-    private final Logger logger = (Logger) LogManager.getLogger(ServiceDashboard.class);
     private final DRGWSResult dynamicSchema = utility.GetString("SchemaName");
     private final DRGWSResult stopper = utility.GetString("Limitter");
 
@@ -90,8 +88,7 @@ public class Grouper {
             }
         } catch (SQLException ex) {
             result = "Something went wrong Grouper Main GetServerDateTime";
-            logger.info("Executing Grouper Main Class");
-            logger.error("Error in GetServerDateTime: Method {}", ex.getMessage(), ex);
+            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -127,8 +124,7 @@ public class Grouper {
                 }
             } catch (Exception ex) {
                 result.setMessage("Something went wrong Grouper Main ProcessGrouperParameter");
-                logger.info("Executing Grouper Main Class");
-                logger.error("Error in ProcessGrouperParameter: Method {}", ex.getMessage(), ex);
+                 Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return result;
@@ -235,8 +231,7 @@ public class Grouper {
                 }
             } catch (IOException ex) {
                 result.setMessage("Something went wrong Grouper Main PhilSeeker");
-                logger.info("Executing Grouper Main Class");
-                logger.error("Error in PhilSeeker: Method {}", ex.getMessage(), ex);
+                 Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return result;
@@ -271,8 +266,7 @@ public class Grouper {
             }
         } catch (IOException ex) {
             result = "Something went wrong Grouper Main GetVersion";
-            logger.info("Executing Grouper Main Class");
-            logger.error("Error in GetVersion: Method {}", ex.getMessage(), ex);
+            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

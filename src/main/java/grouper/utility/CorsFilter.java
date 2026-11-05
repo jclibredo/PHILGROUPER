@@ -27,7 +27,6 @@ public class CorsFilter implements ContainerResponseFilter {
         responseContext.getHeaders().add("Access-Control-Allow-Credentials", "true");
         responseContext.getHeaders().add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization, token, pdx, pccl, hcftype");
         responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
-
         // Handle preflight OPTIONS requests immediately
         if ("OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
             responseContext.setStatus(Response.Status.OK.getStatusCode());

@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -27,7 +27,6 @@ public class PDxMalignancy {
     public PDxMalignancy() {
     }
 
-    private final Logger logger = (Logger) LogManager.getLogger(PDxMalignancy.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult PDxMalignancy(
@@ -51,8 +50,7 @@ public class PDxMalignancy {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong PDxMalignancy");
-            logger.info("Executing PDxMalignancy Class");
-            logger.error("Error in PDxMalignancy Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(PDxMalignancy.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

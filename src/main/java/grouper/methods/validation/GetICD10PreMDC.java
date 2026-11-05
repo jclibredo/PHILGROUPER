@@ -13,11 +13,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -28,7 +28,7 @@ public class GetICD10PreMDC {
 
     public GetICD10PreMDC() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetICD10PreMDC.class);
+
     private final Utility utility = new Utility();
 
     public DRGWSResult GetICD10PreMDC(
@@ -67,8 +67,7 @@ public class GetICD10PreMDC {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetICD10PreMDC");
-            logger.info("Executing GetICD10PreMDC Class");
-            logger.error("Error in GetICD10PreMDC Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(GetICD10PreMDC.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -114,8 +113,7 @@ public class GetICD10PreMDC {
             }
         } catch (SQLException | IOException ex) {
             result.setMessage("Something went wrong GetICD10");
-            logger.info("Executing GetICD10PreMDC Class");
-            logger.error("Error in GetICD10 Method: {}", ex.getMessage(), ex);
+            Logger.getLogger(GetICD10PreMDC.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

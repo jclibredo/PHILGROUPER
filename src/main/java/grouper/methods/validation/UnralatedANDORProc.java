@@ -11,11 +11,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,7 +26,6 @@ public class UnralatedANDORProc {
 
     public UnralatedANDORProc() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(UnralatedANDORProc.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult UnralatedANDORProc(
@@ -51,8 +50,7 @@ public class UnralatedANDORProc {
             }
         } catch (SQLException ex) {
             result.setMessage("Something went wrong UnralatedANDORProc");
-            logger.info("Executing UnralatedANDORProc Class");
-            logger.error("Error in UnralatedANDORProc Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(UnralatedANDORProc.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

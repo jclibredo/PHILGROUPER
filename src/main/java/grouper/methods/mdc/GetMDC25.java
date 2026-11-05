@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
 
@@ -35,7 +35,6 @@ public class GetMDC25 {
 
     public GetMDC25() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(GetMDC25.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult GetMDC25(
@@ -234,8 +233,7 @@ public class GetMDC25 {
             }
         } catch (NumberFormatException | IOException ex) {
             result.setMessage("Something went wrong MDC25");
-            logger.info("Executing MDC25 Class");
-            logger.error("Error in GetMDC25 Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(GetMDC25.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 

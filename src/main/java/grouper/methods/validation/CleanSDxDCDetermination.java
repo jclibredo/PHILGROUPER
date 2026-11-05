@@ -9,10 +9,10 @@ import grouper.structures.DRGWSResult;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -23,8 +23,6 @@ public class CleanSDxDCDetermination {
 
     public CleanSDxDCDetermination() {
     }
-//    private final Utility utility = new Utility();
-    private final Logger logger = (Logger) LogManager.getLogger(CleanSDxDCDetermination.class);
 
     public String CleanSDxDCDetermination(
             final DataSource datasource,
@@ -252,9 +250,8 @@ public class CleanSDxDCDetermination {
             }
 
         } catch (NumberFormatException ex) {
-            result = "Something went wrong " + ex.getMessage();
-            logger.info("Executing clean SDX DC determination Method");
-            logger.error("Error in clean SDX DC determination Method : {}", ex.getMessage(), ex);
+            result = "Something went wrong ";
+            Logger.getLogger(CleanSDxDCDetermination.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }

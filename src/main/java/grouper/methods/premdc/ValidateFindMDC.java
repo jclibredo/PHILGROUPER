@@ -18,12 +18,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.enterprise.context.RequestScoped;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -34,7 +34,6 @@ public class ValidateFindMDC {
 
     public ValidateFindMDC() {
     }
-    private final Logger logger = (Logger) LogManager.getLogger(ValidateFindMDC.class);
     private final Utility utility = new Utility();
 
     public DRGWSResult validateFindMDC(
@@ -149,8 +148,7 @@ public class ValidateFindMDC {
             }
         } catch (IOException ex) {
             result.setMessage("Something went wrong ValidateFindMDC");
-            logger.info("Executing Process ValidateFindMDC Class");
-            logger.error("Error in Process validateFindMDC Method : {}", ex.getMessage(), ex);
+            Logger.getLogger(ValidateFindMDC.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
