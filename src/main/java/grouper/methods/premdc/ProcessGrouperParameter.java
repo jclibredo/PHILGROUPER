@@ -127,9 +127,13 @@ public class ProcessGrouperParameter {
                     if (isValid) {
                         newProc.add(proCode);
                     }
-//                    else {
-//                        warningError.add(proCode + " Not valid");
-//                    }
+                    if (!isValid && proCode.contains(">")) {
+                        String baseCode = proCode.split(">")[0].trim();
+                        boolean isBaseValid = procValidate.GenderConfictValidationProc(datasource, SchemaName, baseCode, grouperparameter.getGender()).isSuccess();
+                        if (isBaseValid) {
+                            newProc.add(proCode);
+                        }
+                    }
                 }
             }
             if (!newProc.isEmpty()) {

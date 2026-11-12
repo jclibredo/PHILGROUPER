@@ -7,6 +7,7 @@ package grouper.utility;
 
 import grouper.methods.validation.GET_CONVERTER;
 import grouper.structures.CombinationCode;
+import grouper.structures.ConverterStructure;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
 import grouper.structures.DRGWSResult;
@@ -356,6 +357,31 @@ public class Utility {
         return result;
     }
 
+    public int ComputeDaysLOS(String datein, String timein, String dateout, String timeout) {
+        int result = 0;
+
+        try {
+            SimpleDateFormat times = new SimpleDateFormat("MM-dd-yyyy hh:mma");
+            times.setLenient(false);
+
+            String IN = datein + " " + timein;
+            String OUT = dateout + " " + timeout;
+
+            Date AdmissionDate = times.parse(IN.trim());
+            Date DischargeDate = times.parse(OUT.trim());
+
+            long differenceInTime = DischargeDate.getTime() - AdmissionDate.getTime();
+
+            // Compute days
+            result = (int) (differenceInTime / (1000L * 60 * 60 * 24));
+
+        } catch (ParseException ex) {
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return result;
+    }
+
     public String CodeConverter(
             final DataSource datasouce,
             final String SchemaName,
@@ -418,6 +444,10 @@ public class Utility {
 
     public GrouperParameter GrouperParameter() {
         return new GrouperParameter();
+    }
+
+    public ConverterStructure ConverterStructure() {
+        return new ConverterStructure();
     }
 
     public ObjectMapper objectMapper() {

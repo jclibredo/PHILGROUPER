@@ -5,8 +5,10 @@
  */
 package grouper;
 
-import grouper.methods.drgrates.Maifip;
+//import grouper.methods.drgrates.Maifip;
 import grouper.methods.premdc.ProcessGrouperParameter;
+import grouper.methods.validation.CodeConverter;  //ConverterStructure
+import grouper.structures.ConverterStructure;
 import grouper.methods.validation.GetGrouper;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGPayload;
@@ -14,8 +16,11 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
+//import java.io.BufferedReader;
+//import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+//import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,7 +39,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -124,43 +128,50 @@ public class Grouper {
                 }
             } catch (Exception ex) {
                 result.setMessage("Something went wrong Grouper Main ProcessGrouperParameter");
-                 Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return result;
     }
 
-//    @POST
-//    @Path("CodeConverter")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public DRGWSResult CodeConverter(final List<ConverterStructure> converterData) {
-//        DRGWSResult result = utility.DRGWSResult();
-//        CodeConverter converter = new CodeConverter();
-//        if (dynamicSchema.isSuccess() && utility.GetString("FilePathReports").isSuccess()) {
-//            try {
-//                for (int g = 0; g < converterData.size(); g++) {
-//                    DRGWSResult getResult = converter.RVSCodeConverter(datasource, dynamicSchema.getResult(), converterData.get(g).getRvs());
-//                    if (getResult.isSuccess()) {
-//                        this.FileWriter(
-//                                utility.GetString("FilePathReports").getResult(),
-//                                converterData.get(g).getClaimseries(),
-//                                converterData.get(g).getRvs(),
-//                                getResult.getResult());
-//                    }
-//                }
-//                result.setMessage("RVS Code Converted Successfully");
-//                result.setSuccess(true);
-//            } catch (Exception ex) {
-//                result.setMessage("Something went wrong");
-//                logger.info("Executing ProcessGrouperParameter");
-//                logger.error("Error in ProcessGrouperParameter: {}", ex.getMessage(), ex);
-//            }
-//        } else {
-//            result.setMessage("Something went wrong");
-//        }
-//        return result;
-//    }
+    @POST
+    @Path("CodeConverter")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult RvsCodeConverter(final List<ConverterStructure> converterData) {
+        DRGWSResult result = utility.DRGWSResult();
+        CodeConverter converter = new CodeConverter();
+        try {
+            ArrayList<ConverterStructure> converterList = new ArrayList<>();
+            for (int g = 0; g < converterData.size(); g++) {
+                String rvsValue = (converterData.get(g) != null && converterData.get(g).getRvs() != null)
+                        ? converterData.get(g).getRvs().trim()
+                        : "";
+                String seriesValue = (converterData.get(g) != null && converterData.get(g).getClaimseries() != null)
+                        ? converterData.get(g).getClaimseries().trim()
+                        : "";
+                ConverterStructure convert = utility.ConverterStructure();
+                convert.setIcd9cm("NO DATA");
+                if (!rvsValue.isEmpty()) {
+                    DRGWSResult getResult = converter.RVSCodeConverter(datasource, dynamicSchema.getResult(), rvsValue);
+                    if (getResult.isSuccess()) {
+                        convert.setIcd9cm(getResult.getResult());
+                    }
+                }
+                convert.setClaimseries(seriesValue);
+                convert.setRvs(rvsValue);
+                converterList.add(convert);
+            }
+            result.setResult(utility.objectMapper().writeValueAsString(converterList));
+            result.setMessage("RVS Code Converted Successfully");
+            result.setSuccess(true);
+        } catch (IOException ex) {
+            result.setMessage("Something went wrong");
+            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
 //    public void FileWriter(String path, String series, String rvs, String proc) {
 //        try {
 //            FileReader fr = new FileReader(path);
@@ -181,8 +192,7 @@ public class Grouper {
 //
 //            }
 //        } catch (IOException ex) {
-//            logger.info("Executing File writer Method");
-//            logger.error("Error in File writer Method : {}", ex.getMessage(), ex);
+//            Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //    }
     @POST
@@ -231,7 +241,7 @@ public class Grouper {
                 }
             } catch (IOException ex) {
                 result.setMessage("Something went wrong Grouper Main PhilSeeker");
-                 Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return result;
@@ -284,23 +294,22 @@ public class Grouper {
 //                .header("Content-Disposition", "attachment; filename=drg-api-system.log")
 //                .build();
 //    }
-    @GET
-    @Path("GetFacilityType/{hcfcode}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult GetHCFType(
-            @PathParam("puserid") String puserid) {
-        Maifip doh = new Maifip();
-        return doh.GetHcfType(datasource, dynamicSchema.getResult(), "hcfcode");
-    }
-
-    @GET
-    @Path("GetMaifip")
-    @Produces(MediaType.APPLICATION_JSON)
-    public DRGWSResult GetMAIFIP(
-            @HeaderParam("pdx") String pdx,
-            @HeaderParam("pccl") String pccl,
-            @HeaderParam("hcftype") String hcftype) {
-        Maifip doh = new Maifip();
-        return doh.GetMaifipMult(datasource, dynamicSchema.getResult(), pdx, pccl, hcftype);
-    }
+//    @GET
+//    @Path("GetFacilityType/{hcfcode}")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public DRGWSResult GetHCFType(
+//            @PathParam("puserid") String puserid) {
+//        Maifip doh = new Maifip();
+//        return doh.GetHcfType(datasource, dynamicSchema.getResult(), "hcfcode");
+//    }
+//    @GET
+//    @Path("GetMaifip")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public DRGWSResult GetMAIFIP(
+//            @HeaderParam("pdx") String pdx,
+//            @HeaderParam("pccl") String pccl,
+//            @HeaderParam("hcftype") String hcftype) {
+//        Maifip doh = new Maifip();
+//        return doh.GetMaifipMult(datasource, dynamicSchema.getResult(), pdx, pccl, hcftype);
+//    }
 }

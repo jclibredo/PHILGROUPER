@@ -207,9 +207,10 @@ public class GetValidatedPreMDC {
                     drgResult.setDRG("26509");
                     drgResult.setDC("2650");
                     drgResult.setDRGName("Invalid Age");
-                } else if (computedLos <= 0 && computedTime < 6 && computedYearLos <= 0) {
+                } else if (computedLos <= 0 && computedTime < 24 && computedYearLos <= 0) {
                     if (computedLos <= 0 && computedTime < 2 && computedYearLos <= 0) {
-                        drgResult.setDRG("26549");
+                        drgResult.setDRG("26509");
+                        drgResult.setDC("2650");
                         drgResult.setDRGName("LOS(" + computedTime + "), The required Length of Stay (LOS) is at least 24 hours");
                     } else {
                         drgResult.setMDC("28");

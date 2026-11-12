@@ -8,9 +8,6 @@ package grouper.methods.mdc;
 import grouper.methods.validation.AX;
 import grouper.methods.validation.DRG;
 import grouper.methods.validation.GetFDRG;
-//import grouper.methods.validation.GetDC;
-//import grouper.methods.validation.GetPCCL;
-//import grouper.methods.validation.ValidatePCCL;
 import grouper.structures.DRGOutput;
 import grouper.structures.DRGWSResult;
 import grouper.structures.FDRG;
@@ -83,41 +80,60 @@ public class GetMDC15 {
             }
             PDxCounter15CX += checkAX.AX(datasource, SchemaName, "15CX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
             MainCCPDx += checkAX.AX(datasource, SchemaName, "15BX", grouperparameter.getPdx()).isSuccess() ? 1 : 0;
-            long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
-                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
-                    grouperparameter.getDischargeDate(),
-                    utility.Convert24to12(grouperparameter.getTimeDischarge()));
+            //ComputeLOS
+//            long los = utility.ComputeLOS(grouperparameter.getAdmissionDate(),
+//                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
+//                    grouperparameter.getDischargeDate(),
+//                    utility.Convert24to12(grouperparameter.getTimeDischarge()));
+            //ComputeDaysLOS
+//            long los = utility.ComputeDaysLOS(grouperparameter.getAdmissionDate(),
+//                    utility.Convert24to12(grouperparameter.getTimeAdmission()),
+//                    grouperparameter.getDischargeDate(),
+//                    utility.Convert24to12(grouperparameter.getTimeDischarge()));
+            //ComputeDays
+            long los = utility.ComputeDay(grouperparameter.getBirthDate(), grouperparameter.getAdmissionDate());
             String disCharge = grouperparameter.getDischargeType();
-            if (los < 5 && disCharge.equals("4")) {
-                if (Counter15PBX > 0) {
+//            if (los < 5 && disCharge.equals("4")) {
+//                if (Counter15PBX > 0) {
+//                    drgResult.setDC("1501");
+//                } else if (Counter15PDX > 0) {
+//                    drgResult.setDC("1501");
+//                } else if (Counter15PEX > 0) {
+//                    drgResult.setDC("1501");
+//                } else {
+//                    drgResult.setDC(Counter15PCX > 0 ? "1502" : ("4".equals(disCharge) ? "1550" : "1555"));
+//                }
+//
+//            } else if (los < 5 && disCharge.equals("8")) {
+//                if (Counter15PDX > 0) {
+//                    drgResult.setDC("1501");
+//                } else if (Counter15PBX > 0) {
+//                    drgResult.setDC("1501");
+//                } else if (Counter15PEX > 0) {
+//                    drgResult.setDC("1501");
+//                } else {
+//                    drgResult.setDC(Counter15PCX > 0 ? "1502" : ("4".equals(disCharge) ? "1550" : "1555"));
+//                }
+//            } else if (los < 5 && disCharge.equals("9")) {
+//                if (Counter15PDX > 0) {
+//                    drgResult.setDC("1501");
+//                } else if (Counter15PBX > 0) {
+//                    drgResult.setDC("1501");
+//                } else if (Counter15PEX > 0) {
+//                    drgResult.setDC("1501");
+//                } else {
+//                    drgResult.setDC(Counter15PCX > 0 ? "1502" : ("4".equals(grouperparameter.getDischargeType()) ? "1550" : "1555"));
+//                }
+//            } 
+//            System.out.println("With Time: " + los);
+//            System.out.println("Date Only: " + losDay);
+            if (los < 5 && ("4".equals(disCharge) || "8".equals(disCharge) || "9".equals(disCharge))) {
+                if (Counter15PBX > 0 || Counter15PDX > 0 || Counter15PEX > 0) {
                     drgResult.setDC("1501");
-                } else if (Counter15PDX > 0) {
-                    drgResult.setDC("1501");
-                } else if (Counter15PEX > 0) {
-                    drgResult.setDC("1501");
+                } else if (Counter15PCX > 0) {
+                    drgResult.setDC("1502");
                 } else {
-                    drgResult.setDC(Counter15PCX > 0 ? "1502" : ("4".equals(disCharge) ? "1550" : "1555"));
-                }
-
-            } else if (los < 5 && disCharge.equals("8")) {
-                if (Counter15PDX > 0) {
-                    drgResult.setDC("1501");
-                } else if (Counter15PBX > 0) {
-                    drgResult.setDC("1501");
-                } else if (Counter15PEX > 0) {
-                    drgResult.setDC("1501");
-                } else {
-                    drgResult.setDC(Counter15PCX > 0 ? "1502" : ("4".equals(disCharge) ? "1550" : "1555"));
-                }
-            } else if (los < 5 && disCharge.equals("9")) {
-                if (Counter15PDX > 0) {
-                    drgResult.setDC("1501");
-                } else if (Counter15PBX > 0) {
-                    drgResult.setDC("1501");
-                } else if (Counter15PEX > 0) {
-                    drgResult.setDC("1501");
-                } else {
-                    drgResult.setDC(Counter15PCX > 0 ? "1502" : ("4".equals(grouperparameter.getDischargeType()) ? "1550" : "1555"));
+                    drgResult.setDC("4".equals(grouperparameter.getDischargeType()) ? "1550" : "1555");
                 }
             } else if (Counter15PEX > 0) {
                 drgResult.setDRG("15129");
@@ -181,7 +197,8 @@ public class GetMDC15 {
                 drgResult.setDRGName(checkDRG.DRG(datasource, SchemaName, fdrg.getDc(), finalDrg).getMessage());
             } else {
                 drgResult.setDRG(drgResult.getDRG());
-                drgResult.setFinalpccl("X");
+                drgResult.setFinalpccl("0");
+                drgResult.setPrepccl("0");
                 drgResult.setDRGName(getFdrgResult.getMessage());
             }
             result.setResult(utility.objectMapper().writeValueAsString(drgResult));
