@@ -16,11 +16,8 @@ import grouper.structures.DRGWSResult;
 import grouper.structures.GrouperParameter;
 import grouper.utility.NamedParameterStatement;
 import grouper.utility.Utility;
-//import java.io.BufferedReader;
-//import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-//import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -130,6 +127,36 @@ public class Grouper {
                 result.setMessage("Something went wrong Grouper Main ProcessGrouperParameter");
                 Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+        return result;
+    }
+
+    @POST
+    @Path("ProcessMaifip")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DRGWSResult ProcessMaifipParameter(final GrouperParameter grouperparameter) {
+        DRGWSResult result = utility.DRGWSResult();
+        result.setMessage("");
+        result.setResult("");
+        result.setSuccess(false);
+        ProcessGrouperParameter processData = new ProcessGrouperParameter();
+        if (dynamicSchema.isSuccess()) {
+            try {
+                DRGWSResult grouperResult = processData.ProcessGrouperParameter(datasource, dynamicSchema.getResult(), grouperparameter);
+                if (grouperResult.isSuccess()) {
+                    DRGOutput drgout = utility.objectMapper().readValue(grouperResult.getResult(), DRGOutput.class);
+//                    result.setResult(grouperResult.getResult());
+                    result.setResult(drgout.getPrepccl() == null || drgout.getPrepccl().isEmpty() || drgout.getPrepccl().equals("")
+                            ? "0" : drgout.getPrepccl());
+                    result.setSuccess(true);
+                }
+            } catch (IOException ex) {
+                result.setMessage("Something went wrong Grouper Main ProcessGrouperParameter");
+                Logger.getLogger(Grouper.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            result.setMessage("Schema Name not found or invalid");
         }
         return result;
     }
